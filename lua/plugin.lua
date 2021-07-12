@@ -1,6 +1,6 @@
 local make
 
-if vim.api.nvim_command_output('echo has("win32")') then
+if vim.api.nvim_command_output('echo has("win32")') == 0 then
   make = 'bash -c make'
 else
   make = 'make'

@@ -37,21 +37,28 @@ local M = {}
 M.search_dotfiles = function()
   require("telescope.builtin").find_files({
       prompt_title = "< VimRC >",
-      cwd = '~/AppData/Local/nvim/',
+      cwd = vim.api.nvim_eval('$NVIMHOME'),
   })
+end
+
+local trabajos
+if vim.api.nvim_command_output('echo has("win32")') == 0 then
+  trabajos = 'D:/Lucho/'
+else
+  trabajos = vim.api.nvim_eval('$HOME') .. '/Documentos'
 end
 
 M.browse_trabajos = function()
   require("telescope.builtin").file_browser({
       prompt_title = "< Browse Lucho >",
-      cwd = 'D:/Lucho/',
+      cwd = trabajos,
   })
 end
 
 M.search_trabajos = function()
   require("telescope.builtin").find_files({
       prompt_title = "< Find Lucho >",
-      cwd = 'D:/Lucho/',
+      cwd = trabajos,
   })
 end
 
