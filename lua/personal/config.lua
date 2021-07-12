@@ -109,7 +109,7 @@ require'lspconfig'.vimls.setup{
 
 local sumneko_root_path
 local sumneko_binary
-if vim.api.nvim_command_output('echo has("win32")') == 0 then
+if vim.api.nvim_command_output('echo has("win32")') == '1' then
   sumneko_root_path = "C:/Users/pcx/lua-lsp/lua-language-server"
   sumneko_binary = "C:/Users/pcx/lua-lsp/lua-language-server/bin/Windows/lua-language-server"
 else
