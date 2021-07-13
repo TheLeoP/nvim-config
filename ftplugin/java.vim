@@ -12,7 +12,6 @@ nnoremap <silent><buffer> <leader>tr :exe '!start chrome '.getcwd().'\build\repo
 " dispatch
 let b:dispatch = 'gradle compileJava'
 
-lua print('algo')
 lua require('personal.config').jdtls_setup()
 
 nnoremap <silent><buffer> <leader>ca <Cmd>lua require('jdtls').code_action()<CR>

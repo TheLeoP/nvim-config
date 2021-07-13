@@ -51,7 +51,7 @@ let test#java#runner = 'gradletest'
 let test#strategy = "dispatch"
 
 " ultisnips
-let g:UltiSnipsExpandTrigger="<F1>"
+let g:UltiSnipsExpandTrigger="<M-Tab>"
 
 " lua
 let g:vimsyn_embed = 'l'

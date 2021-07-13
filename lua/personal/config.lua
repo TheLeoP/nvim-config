@@ -20,12 +20,12 @@ require'compe'.setup {
     path = true;
     buffer = true;
     calc = true;
-    ultisnips = true;
+    ultisnips = false;
     nvim_lsp = true;
     nvim_lua = true;
     spell = false;
-    tags = true;
-    snippets_nvim = true;
+    tags = false;
+    snippets_nvim = false;
     treesitter = false;
   };
 }
@@ -163,6 +163,13 @@ require'nvim-web-devicons'.setup {
 
 local M = {}
 
+local java_cmd
+if vim.api.nvim_command_output('echo has("win32")') == '1' then
+  java_cmd = "pueba.bat"
+else
+  java_cmd = "prueba.sh"
+end
+
 function M.jdtls_setup()
 
   local root_dir = require('jdtls.setup').find_root({'build.gradle', 'pom.xml'})
@@ -176,7 +183,7 @@ function M.jdtls_setup()
     on_attach = on_attach,
 
     cmd = {
-      'prueba.bat',
+      java_cmd,
     },
     root_dir = root_dir
   }
