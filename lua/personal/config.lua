@@ -165,7 +165,7 @@ local M = {}
 
 local java_cmd
 if vim.api.nvim_command_output('echo has("win32")') == '1' then
-  java_cmd = "pueba.bat"
+  java_cmd = "prueba.bat"
 else
   java_cmd = "prueba.sh"
 end

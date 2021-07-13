@@ -23,3 +23,5 @@ vnoremap <silent><buffer> ev <Esc><Cmd>lua require('jdtls').extract_variable(tru
 nnoremap <silent><buffer> ec <Cmd>lua require('jdtls').extract_constant()<CR>
 vnoremap <silent><buffer> ec <Esc><Cmd>lua require('jdtls').extract_constant(true)<CR>
 vnoremap <silent><buffer> em <Esc><Cmd>lua require('jdtls').extract_method(true)<CR>
+
+setlocal ff=dos
