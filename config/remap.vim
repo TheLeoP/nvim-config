@@ -14,16 +14,16 @@ nnoremap <silent> ]l :cnext<cr>
 nnoremap <silent> [l :cprev<cr>
 
 " LSP
-nnoremap <silent> gd <cmd>lua vim.lsp.buf.definition()<CR>
-nnoremap <silent> gD <cmd>lua vim.lsp.buf.declaration()<CR>
-nnoremap <silent> gr <cmd>lua vim.lsp.buf.references()<CR>
-nnoremap <silent> gi <cmd>lua vim.lsp.buf.implementation()<CR>
-nnoremap <silent> <c-k> <cmd>lua require('lspsaga.hover').render_hover_doc()<CR>
-nnoremap <silent> <leader>rn <cmd>lua require('lspsaga.rename').rename()<CR>
-nnoremap <silent> <leader>ca <cmd>lua require('lspsaga.codeaction').code_action()<CR>
-nnoremap <silent> <leader>k <cmd>lua require('lspsaga.signaturehelp').signature_help()<CR>
-nnoremap <silent> ]e <cmd>lua require'lspsaga.diagnostic'.lsp_jump_diagnostic_next()<CR>
-nnoremap <silent> [e <cmd>lua require'lspsaga.diagnostic'.lsp_jump_diagnostic_prev()<CR>
+nnoremap <silent> gd <cmd>lua vim.lsp.buf.definition()<cr>
+nnoremap <silent> gD <cmd>lua vim.lsp.buf.declaration()<cr>
+nnoremap <silent> gr <cmd>lua vim.lsp.buf.references()<cr>
+nnoremap <silent> gi <cmd>lua vim.lsp.buf.implementation()<cr>
+nnoremap <silent> <c-k> <cmd>lua vim.lsp.buf.signature_help()<cr>
+nnoremap <silent> K <cmd>lua vim.lsp.buf.hover()<cr>
+nnoremap <silent> <leader>rn <cmd>lua vim.lsp.buf.rename()<cr>
+nnoremap <silent> <leader>ca <cmd>lua vim.lsp.buf.code_action()<CR>
+nnoremap <silent> ]e <cmd>lua vim.lsp.diagnostic.goto_next()<cr>
+nnoremap <silent> [e <cmd>lua vim.lsp.diagnostic.goto_prev()<cr>
 
 " formatear
 nnoremap <silent> <leader>fm <cmd>lua vim.lsp.buf.formatting_sync(nil, 1000)<cr>

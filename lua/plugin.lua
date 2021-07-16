@@ -63,7 +63,6 @@ return require('packer').startup(function(use)
   -- lsp
   use 'neovim/nvim-lspconfig'
   use 'hrsh7th/nvim-compe'
-  use 'glepnir/lspsaga.nvim'
   use 'ray-x/lsp_signature.nvim'
   use 'mfussenegger/nvim-jdtls'
 
