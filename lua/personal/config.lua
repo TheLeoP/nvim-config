@@ -51,20 +51,23 @@ local on_attach = function(client, bufnr)
       fix_pos = true,
       hint_enable = false,
       use_lspsaga = false,
+      handler_opts = {
+        border = { '┏', '━', '┓', '┃', '┛', '━', '┗', '┃' },
+      }
     })
 end
 
 vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
   vim.lsp.handlers.signature_help, {
-    border = "double"
+    border = { '┏', '━', '┓', '┃', '┛', '━', '┗', '┃' },
   }
 )
 
-vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
-  vim.lsp.handlers.hover, {
-    border = "double"
-  }
-)
+-- vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
+--   vim.lsp.handlers.hover, {
+--     border = { '┏', '━', '┓', '┃', '┛', '━', '┗', '┃' },
+--   }
+-- )
 
 
 -- configuración LSP
