@@ -27,5 +27,10 @@ luafile $NVIMHOME/lua/personal/treesitter.lua
 
 augroup LuaHighLight
   au!
-  au TextYankPost * silent! lua vim.highlight.on_yank {on_visual=false}
+  au TextYankPost * silent! lua vim.highlight.on_yank {on_visual=true}
+augroup end
+
+augroup LSPJava
+  au!
+  au FileType java lua require('personal.config').jdtls_setup()
 augroup end

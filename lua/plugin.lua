@@ -49,16 +49,10 @@ return require('packer').startup(function(use)
   use 'vim-test/vim-test'
 
   -- motor de snippets
-  use {
-    'SirVer/ultisnips',
-    ft = {'java'}
-  }
+  use 'SirVer/ultisnips'
 
   -- colección de snippets
-  use {
-    'honza/vim-snippets',
-    ft = {'java'}
-  }
+  use 'honza/vim-snippets'
 
   -- lsp
   use 'neovim/nvim-lspconfig'
