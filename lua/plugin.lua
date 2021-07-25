@@ -64,13 +64,20 @@ return require('packer').startup(function(use)
   use 'nvim-lua/popup.nvim'
   use 'nvim-lua/plenary.nvim'
   use 'nvim-telescope/telescope.nvim'
-  use { 'nvim-telescope/telescope-fzf-native.nvim', run = make}
+  use {
+    'nvim-telescope/telescope-fzf-native.nvim',
+    run = make
+  }
 
   -- íconos en nvim
   use 'kyazdani42/nvim-web-devicons'
 
   -- teesitter
-  use {'nvim-treesitter/nvim-treesitter', run = ':TSUpdate'}
+  use {
+    'nvim-treesitter/nvim-treesitter',
+    branch = '0.5-compat',
+    run = ':TSUpdate',
+  }
   use 'nvim-treesitter/nvim-treesitter-textobjects'
 
   -- mejor integración con netrw
