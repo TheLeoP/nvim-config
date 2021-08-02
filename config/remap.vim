@@ -10,8 +10,43 @@ nmap <leader>r <Plug>ReplaceWithRegisterOperator
 nmap <leader>rr <Plug>ReplaceWithRegisterLine
 
 " remap move in quickfix-list
-nnoremap <silent> ]l :cnext<cr>
-nnoremap <silent> [l :cprev<cr>
+nnoremap <silent> ]l :cnext<cr>zzzv
+nnoremap <silent> [l :cprev<cr>zzzv
+
+" Y más intuitiva
+nnoremap Y y$
+
+" mantener centrado al usar n y N
+nnoremap n nzzzv
+nnoremap N Nzzzv
+
+" mantener posición en J y gJ usando el marcador z
+nnoremap J mzJ`z
+nnoremap gJ mzgJ`z
+
+" breakpoints para undo en insert mode
+inoremap , ,<c-g>u
+inoremap . .<c-g>u
+inoremap ! !<c-g>u
+inoremap ? ?<c-g>u
+inoremap ( (<c-g>u
+inoremap ) )<c-g>u
+inoremap & &<c-g>u
+inoremap \| \|<c-g>u
+inoremap : :<c-g>u
+inoremap ; ;<c-g>u
+
+" jumplist para j y k
+nnoremap <expr> k (v:count > 5 ? "m'" . v:count : "") . 'k'
+nnoremap <expr> j (v:count > 5 ? "m'" . v:count : "") . 'j'
+
+" manejo de linas en todos los modos
+vnoremap J :m '>+1<cr>gv=gv
+vnoremap K :m '<-2<cr>gv=gv
+nnoremap <leader>j :m .+1<cr>==
+nnoremap <leader>k :m .-2<cr>==
+inoremap <a-j> <esc>:m .+1<cr>==gi
+inoremap <a-k> <esc>:m .-2<cr>==gi
 
 " LSP
 nnoremap <silent> gd <cmd>lua vim.lsp.buf.definition()<cr>
@@ -42,6 +77,7 @@ nnoremap <leader>fg <cmd>Telescope git_branches<cr>
 nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 nnoremap <leader>fj <cmd>Telescope current_buffer_fuzzy_find<cr>
+nnoremap <leader>fds <cmd>Telescope lsp_document_symbols<cr>
 
 " personalizado
 nnoremap <silent><leader>fi <cmd>lua require("personal.telescope").search_dotfiles()<cr>

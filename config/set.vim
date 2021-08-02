@@ -43,9 +43,6 @@ if has('win32')
 	set undodir=~/undodir    "señala el registro en el cual guardar los archivos de deshacer/rehacer
 endif
 
-" polyglot
-let g:polyglot_disabled = ['java']
-
 " vim-test
 let test#java#runner = 'gradletest'
 let test#strategy = "dispatch"

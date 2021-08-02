@@ -8,6 +8,8 @@ nnoremap <silent><buffer> <leader>ds :lua require('personal.fn_dap').iniciar_deb
 " busca el reporte por defecto de pruebas de gradle y lo abre en chrome
 nnoremap <silent><buffer> <leader>tr :exe '!start chrome '.getcwd().'\build\reports\tests\test\index.html'<cr>
 
+nnoremap <silent><buffer> <F9> v<cmd>terminal gradle run<cr>
+
 " configuración plugins
 " dispatch
 let b:dispatch = 'gradle compileJava'
