@@ -25,7 +25,7 @@ return require('packer').startup(function(use)
   -- colorscheme
   use 'tjdevries/colorbuddy.vim'
   use 'tjdevries/gruvbuddy.nvim'
-  use 'Yagua/nebulous.nvim'
+  use 'Murtaza-Udaipurwala/gruvqueen'
 
   -- linea de estado
   use 'itchyny/lightline.vim'

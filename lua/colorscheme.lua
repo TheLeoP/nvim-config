@@ -1,2 +1,3 @@
 require('colorbuddy').colorscheme('gruvbuddy')
--- require('colorbuddy').colorscheme('nebulous')
+
+-- vim.cmd("colorscheme gruvqueen");

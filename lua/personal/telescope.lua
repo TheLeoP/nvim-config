@@ -65,7 +65,7 @@ end
 M.search_cd_files = function()
   require("telescope.builtin").find_files({
       prompt_title = "< Find cd files >",
-      cwd = (string.gsub(vim.api.nvim_eval("expand('%:p:h')"), "\\", "/")),
+      -- cwd = (string.gsub(vim.api.nvim_eval("expand('%:p:h')"), "\\", "/")),
   })
 end
 

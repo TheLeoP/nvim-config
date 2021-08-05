@@ -37,16 +37,16 @@ inoremap : :<c-g>u
 inoremap ; ;<c-g>u
 
 " jumplist para j y k
-nnoremap <expr> k (v:count > 5 ? "m'" . v:count : "") . 'k'
-nnoremap <expr> j (v:count > 5 ? "m'" . v:count : "") . 'j'
+nnoremap <silent><expr> k (v:count > 5 ? "m'" . v:count : "") . 'k'
+nnoremap <silent><expr> j (v:count > 5 ? "m'" . v:count : "") . 'j'
 
 " manejo de linas en todos los modos
-vnoremap J :m '>+1<cr>gv=gv
-vnoremap K :m '<-2<cr>gv=gv
-nnoremap <leader>j :m .+1<cr>==
-nnoremap <leader>k :m .-2<cr>==
-inoremap <a-j> <esc>:m .+1<cr>==gi
-inoremap <a-k> <esc>:m .-2<cr>==gi
+vnoremap <silent> <a-j> :m '>+1<cr>gv=gv
+vnoremap <silent> <a-k> :m '<-2<cr>gv=gv
+nnoremap <silent> <leader>j :m .+1<cr>==
+nnoremap <silent> <leader>k :m .-2<cr>==
+inoremap <silent> <a-j> <esc>:m .+1<cr>==gi
+inoremap <silent> <a-k> <esc>:m .-2<cr>==gi
 
 " LSP
 nnoremap <silent> gd <cmd>lua vim.lsp.buf.definition()<cr>
