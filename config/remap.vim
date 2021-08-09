@@ -111,48 +111,19 @@ nnoremap <silent> <leader>ts :TestSuite<cr>
 nnoremap <silent> <leader>tl :TestLast<cr>
 nnoremap <silent> <leader>tv :TestVisit<cr>
 
-" vimspector
-" vimspector debug inspect
-nmap <silent> <leader>di <Plug>VimspectorBallonEval
-
-" vimspector debug continue
-nmap <silent> <leader>dc <Plug>VimspectorContinue
-
-" vimspector debug start
-nmap <silent> <leader>ds <Plug>VimspectorContinue
-
-" vimspector debug stop
-nmap <silent> <leader>dx <Plug>VimspectorStop
-
-" vimspector debug restart
-nmap <silent> <leader>dr <Plug>VimspectorRestart
-
-" vimspector debug restart
-nmap <silent> <leader>de :VimspectorReset<cr>
-
-" vimspector debug pause
-nmap <silent> <leader>dp <Plug>VimspectorPause
-
-" vimspector debug toggle breakpoint
-nmap <silent> <leader>db <Plug>VimspectorToggleBreakpoint
-
-" vimspector debug toggle conditional breakpoint
-nmap <silent> <leader>dB <Plug>VimspectorToggleConditionalBreakpoint
-
-" vimspector debug add function breakpoint
-nmap <silent> <leader>dfb <Plug>VimspectorAddFunctionBreakpoint
-
-" vimspector debug step over
-nmap <silent> <leader>dv <Plug>VimspectorStepOver
-
-" vimspector debug step into
-nmap <silent> <leader>dsi <Plug>VimspectorStepInto
-
-" vimspector debug step out
-nmap <silent> <leader>dso <Plug>VimspectorStepOut
-
-" vimspector debug run to cursor
-nmap <silent> <leader>dtc <Plug>VimspectorRunToCursor
+" DAP
+nmap <silent> <leader>dc <cmd>lua require('dap').continue()<cr>
+nmap <silent> <leader>ds <cmd>lua require('dap').continue()<cr>
+nmap <silent> <leader>dr <cmd>lua require('dap').disconnect({restart = true})<cr>
+nmap <silent> <leader>de <cmd>lua require('dap').disconnect()<cr><cmd>lua require('dap').close()<cr><cmd>lua require('dapui').close()<cr>
+nmap <silent> <leader>dp <cmd>lua require('dap').pause()<cr>
+nmap <silent> <leader>db <cmd>lua require('dap').toggle_breakpoint()<cr>
+nmap <silent> <leader>dB <cmd>lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<cr>
+nmap <silent> <leader>dv <cmd>lua require('dap').step_over()<cr>
+nmap <silent> <leader>dsi <cmd>lua require('dap').step_into()<cr>
+nmap <silent> <leader>dso <cmd>lua require('dap').step_out()<cr>
+nmap <silent> <leader>dsb <cmd>lua require('dap').step_back()<cr>
+nmap <silent> <leader>dtc <cmd>lua require('dap').run_to_cursor()<cr>
 
 " vim-fugitive
 nnoremap <silent> <leader>g :G<cr>

@@ -25,6 +25,12 @@ luafile $NVIMHOME/lua/personal/telescope.lua
 " lua/treesitter
 luafile $NVIMHOME/lua/personal/treesitter.lua
 
+" lua dap
+luafile $NVIMHOME/lua/personal/dap.lua
+
+" lua dapui
+luafile $NVIMHOME/lua/personal/dapui.lua
+
 augroup LuaHighLight
   au!
   au TextYankPost * silent! lua vim.highlight.on_yank {on_visual=true}

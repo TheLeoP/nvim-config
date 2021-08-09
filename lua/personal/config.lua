@@ -121,15 +121,22 @@ require'lspconfig'.vimls.setup{
   capabilities = capabilities
 }
 
-local sumneko_root_path
-local sumneko_binary
-if vim.api.nvim_command_output('echo has("win32")') == '1' then
-  sumneko_root_path = "C:/Users/pcx/lua-lsp/lua-language-server"
-  sumneko_binary = "C:/Users/pcx/lua-lsp/lua-language-server/bin/Windows/lua-language-server"
+local home
+local os
+local java_cmd
+
+if vim.fn.has("win32") == 1 then
+  home = "C:/Users/pcx/"
+  os = "Windows"
+  java_cmd = "prueba.bat"
 else
-  sumneko_root_path = "/home/luis/.lua-lsp/lua-language-server"
-  sumneko_binary = "/home/luis/.lua-lsp/lua-language-server/bin/Linux/lua-language-server"
+  home = "/home/luis/"
+  os = "Linux"
+  java_cmd = "prueba.sh"
 end
+
+local sumneko_root_path = home .. ".lua-lsp/lua-language-server"
+local sumneko_binary = home .. ".lua-lsp/lua-language-server/bin/" .. os .. "/lua-language-server"
 
 require'lspconfig'.sumneko_lua.setup {
   on_attach = on_attach,
@@ -177,16 +184,16 @@ require'nvim-web-devicons'.setup {
 
 local M = {}
 
-local java_cmd
-if vim.api.nvim_command_output('echo has("win32")') == '1' then
-  java_cmd = "prueba.bat"
-else
-  java_cmd = "prueba.sh"
-end
-
 function M.jdtls_setup()
 
   local root_dir = require('jdtls.setup').find_root({'build.gradle', 'pom.xml'})
+
+  local antiguo_dir = vim.fn.getcwd();
+  if antiguo_dir ~= root_dir then
+    vim.api.nvim_set_current_dir(root_dir)
+  end
+
+  local eclipse_wd = home .. 'java-workspace/' .. vim.fn.fnamemodify(root_dir, ':h:t') .. '/' .. vim.fn.fnamemodify(root_dir, ':t')
 
   local config = {
     flags = {
@@ -198,18 +205,17 @@ function M.jdtls_setup()
 
     cmd = {
       java_cmd,
+      eclipse_wd
     },
-    root_dir = root_dir
+    root_dir = root_dir,
+    init_options = {
+      bundles = {
+        vim.fn.glob(home .. "dap-gadgets/java-debug-0.32.0/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-0.32.0.jar")
+        -- vim.fn.glob(home .. "dap-gadgets/download/vscode-java-debug/0.26.0/root/extension/server/com.microsoft.java.debug.plugin-0.26.0.jar")
+      }
+    }
   }
 
-  config.on_init = function(client, _)
-    client.notify('workspace/didChangeConfiguration', { settings = config.settings })
-  end
-
-  local antiguo_dir = vim.api.nvim_command('pwd')
-  if antiguo_dir ~= root_dir then
-    vim.api.nvim_set_current_dir(root_dir)
-  end
   require('jdtls.setup').add_commands()
   require('jdtls').start_or_attach(config)
 end

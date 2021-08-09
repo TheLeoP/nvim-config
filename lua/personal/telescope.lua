@@ -42,7 +42,7 @@ M.search_dotfiles = function()
 end
 
 local trabajos
-if vim.api.nvim_command_output('echo has("win32")') == '1' then
+if vim.fn.has("win32") == 1 then
   trabajos = 'D:/Lucho/'
 else
   trabajos = vim.api.nvim_eval('$HOME') .. '/Documentos'

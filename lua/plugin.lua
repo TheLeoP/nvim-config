@@ -1,6 +1,6 @@
 local make
 
-if vim.api.nvim_command_output('echo has("win32")') == 1 then
+if vim.fn.has("win32") == 1 then
   make = 'bash -c make'
 else
   make = 'make'
@@ -44,7 +44,10 @@ return require('packer').startup(function(use)
   use 'kana/vim-textobj-user'
 
   -- debugger para vim
-  use 'puremourning/vimspector'
+  use 'mfussenegger/nvim-dap'
+  use 'rcarriga/nvim-dap-ui'
+  -- lua en neovim debug server
+  use 'jbyuki/one-small-step-for-vimkind'
 
   -- test en vim
   use 'vim-test/vim-test'
