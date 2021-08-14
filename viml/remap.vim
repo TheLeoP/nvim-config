@@ -141,7 +141,7 @@ function! s:executor() abort
     if &filetype == 'lua'
         execute(printf(":lua %s", getline(".")))
     elseif &filetype == 'vim'
-        exe getline(">")
+        exe getline(".")
     endif
 endfunction
 
@@ -158,3 +158,27 @@ function! s:save_and_exec() abort
 endfunction
 
 nnoremap <leader><leader>x :call <SID>save_and_exec()<cr>
+
+function! Tab_complete() abort
+    if pumvisible() == 1
+        return "\<c-n>"
+    else
+        return "\<tab>"
+    endif
+endfunction
+
+function! S_tab_complete() abort
+    if pumvisible() == 1
+        return "\<c-p>"
+    else
+        return "\<s-tab>"
+    endif
+endfunction
+
+inoremap <expr><tab>  Tab_complete()
+inoremap <expr><s-tab>  S_tab_complete()
+
+snoremap <expr><tab>  Tab_complete()
+snoremap <expr><s-tab>  S_tab_complete()
+
+vnoremap <silent> <leader>e <cmd>lua require('personal.fn_sql').visual_ejecutar_en_terminal()<cr>

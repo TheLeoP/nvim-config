@@ -1,36 +1,19 @@
-vim.o.completeopt = "menuone,noselect,noinsert"
-vim.api.nvim_buf_set_option(0, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
--- compee
+local lsp_borders = { '┏', '━', '┓', '┃', '┛', '━', '┗', '┃' }
+local home
+local os
+local java_cmd
+local M = {}
 
-require'compe'.setup {
-  enabled = true;
-  autocomplete = true;
-  debug = false;
-  min_length = 1;
-  preselect = 'enable';
-  throttle_time = 80;
-  source_timeout = 200;
-  incomplete_delay = 400;
-  max_abbr_width = 100;
-  max_kind_width = 100;
-  max_menu_width = 100;
-  documentation = true;
+if vim.fn.has("win32") == 1 then
+  home = "C:/Users/pcx/"
+  os = "Windows"
+  java_cmd = "prueba.bat"
+else
+  home = "/home/luis/"
+  os = "Linux"
+  java_cmd = "prueba.sh"
+end
 
-  source = {
-    path = true;
-    buffer = true;
-    calc = true;
-    ultisnips = false;
-    nvim_lsp = true;
-    nvim_lua = true;
-    spell = false;
-    tags = false;
-    snippets_nvim = false;
-    treesitter = false;
-  };
-}
-
---snippets
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.textDocument.completion.completionItem.snippetSupport = true
 capabilities.textDocument.completion.completionItem.resolveSupport = {
@@ -41,10 +24,9 @@ capabilities.textDocument.completion.completionItem.resolveSupport = {
   }
 }
 
--- on attach
-local on_attach = function(client, bufnr)
-  require'illuminate'.on_attach(client)
-  require'lsp_signature'.on_attach({
+local on_attach_general = function(client, bufnr)
+  require('illuminate').on_attach(client)
+  require('lsp_signature').on_attach({
       bind = true,
       doc_lines = 0,
       floating_windows = true,
@@ -52,26 +34,26 @@ local on_attach = function(client, bufnr)
       hint_enable = false,
       use_lspsaga = false,
       handler_opts = {
-        border = { '┏', '━', '┓', '┃', '┛', '━', '┗', '┃' },
+        border = lsp_borders
       }
     })
 end
 
 vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
   vim.lsp.handlers.signature_help, {
-    border = { '┏', '━', '┓', '┃', '┛', '━', '┗', '┃' },
+    border = lsp_borders
   }
 )
 
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
   vim.lsp.handlers.hover, {
-    border = { '┏', '━', '┓', '┃', '┛', '━', '┗', '┃' },
+    border = lsp_borders
   }
 )
 
+-- configuración LS infividuales
 
--- configuración LSP
-
+-- efm
 require'lspconfig'.efm.setup {
     init_options = {documentFormatting = true, codeAction = false},
     filetypes = {'python'},
@@ -93,53 +75,32 @@ require'lspconfig'.efm.setup {
     }
 }
 
+-- pyright
 require'lspconfig'.pyright.setup{
-  on_attach = on_attach,
+  on_attach = on_attach_general,
   capabilities = capabilities,
   init_options = {documentFormatting = false, codeAction = true},
 }
 
-require'lspconfig'.jsonls.setup {
-  on_attach = on_attach,
-  capabilities = capabilities,
-    commands = {
-      Format = {
-        function()
-          vim.lsp.buf.range_formatting({},{0,0},{vim.fn.line("$"),0})
-        end
-      }
-    }
-}
-
+-- tsserver
 require'lspconfig'.tsserver.setup{
-  on_attach = on_attach,
+  on_attach = on_attach_general,
   capabilities = capabilities
 }
 
+-- viml
 require'lspconfig'.vimls.setup{
   -- on_attach = on_attach,
   capabilities = capabilities
 }
 
-local home
-local os
-local java_cmd
 
-if vim.fn.has("win32") == 1 then
-  home = "C:/Users/pcx/"
-  os = "Windows"
-  java_cmd = "prueba.bat"
-else
-  home = "/home/luis/"
-  os = "Linux"
-  java_cmd = "prueba.sh"
-end
-
+-- lua
 local sumneko_root_path = home .. ".lua-lsp/lua-language-server"
 local sumneko_binary = home .. ".lua-lsp/lua-language-server/bin/" .. os .. "/lua-language-server"
 
 require'lspconfig'.sumneko_lua.setup {
-  on_attach = on_attach,
+  on_attach = on_attach_general,
   capabilities = capabilities,
     cmd = {sumneko_binary, "-E", sumneko_root_path .. "/main.lua"},
     settings = {
@@ -162,27 +123,17 @@ require'lspconfig'.sumneko_lua.setup {
     }
 }
 
+-- clangd (C, C++)
 require'lspconfig'.clangd.setup {
-  on_attach = on_attach,
+  on_attach = on_attach_general,
 }
 
--- devicons
-require'nvim-web-devicons'.setup {
- -- your personnal icons can go here (to override)
- -- DevIcon will be appended to `name`
- override = {
-  zsh = {
-    icon = "",
-    color = "#428850",
-    name = "Zsh"
-  }
- };
- -- globally enable default icons (default to false)
- -- will get overriden by `get_icons` option
- default = true;
-}
-
-local M = {}
+-- java
+local on_attach_java = function(client, bufnr)
+  on_attach_general(client, bufnr)
+  require('jdtls').setup_dap({ hotcodereplace = 'auto' })
+  require('jdtls.dap').setup_dap_main_class_configs()
+end
 
 function M.jdtls_setup()
 
@@ -201,7 +152,7 @@ function M.jdtls_setup()
     };
 
     capabilities = capabilities,
-    on_attach = on_attach,
+    on_attach = on_attach_java,
 
     cmd = {
       java_cmd,
@@ -210,8 +161,8 @@ function M.jdtls_setup()
     root_dir = root_dir,
     init_options = {
       bundles = {
-        vim.fn.glob(home .. "dap-gadgets/java-debug-0.32.0/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-0.32.0.jar")
-        -- vim.fn.glob(home .. "dap-gadgets/download/vscode-java-debug/0.26.0/root/extension/server/com.microsoft.java.debug.plugin-0.26.0.jar")
+        vim.fn.glob(home .. ".dap-gadgets/java-debug-0.32.0/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-0.32.0.jar")
+        -- vim.fn.glob(home .. ".dap-gadgets/vscode-java-debug/0.26.0/root/extension/server/com.microsoft.java.debug.plugin-0.26.0.jar")
       }
     }
   }

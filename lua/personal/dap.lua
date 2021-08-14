@@ -32,32 +32,36 @@ dap.configurations.python = {
   },
 }
 
-local util = require('jdtls.util')
+-- local util = require('jdtls.util')
 
-dap.adapters.java = function(callback)
-  util.execute_command({command = 'vscode.java.startDebugSession'}, function(err0, port)
-    assert(not err0, vim.inspect(err0))
-    print("puerto:", port)
-    callback({
-      type = 'server';
-      host = '127.0.0.1';
-      port = port;
-    })
-  end)
-end
+-- dap.adapters.java = function(callback)
+--   util.execute_command({command = 'vscode.java.startDebugSession'}, function(err0, port)
+--     assert(not err0, vim.inspect(err0))
+--     print("puerto: ", port)
+--     callback({
+--       type = 'server';
+--       host = '127.0.0.1';
+--       port = port;
+--     })
+--   end)
+-- end
 
-dap.configurations.java = {
-  {
-    type = 'java',
-    request = 'attach',
-    name = "Java attach",
-    hostName = "127.0.0.1",
-    port = 5005
-  },
-}
+-- dap.configurations.java = {
+--   {
+--     type = 'java',
+--     request = 'attach',
+--     name = "Java attach",
+--     hostName = "127.0.0.1",
+--     port = 5005
+--   },
+-- }
 
 dap.adapters.nlua = function(callback, config)
-  callback({ type = 'server', host = config.host, port = config.port or 5005 })
+  callback({
+    type = 'server',
+    host = config.host,
+    port = config.port or 5005
+  })
 end
 
 dap.configurations.lua = {
