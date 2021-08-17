@@ -29,8 +29,6 @@ set noshowmode  "no muestra el modo de vim (actualmente tengo un plug-in instala
 set colorcolumn=80  "distancia a la que está la columna gris
 set signcolumn=yes
 
-set shortmess+=c
-
 set updatetime=300
 
 if has('win32')
@@ -79,3 +77,6 @@ let g:lightline = {
 	\   'right': '|'
 	\ }
 	\}
+
+" autocompletion
+set shortmess+=c

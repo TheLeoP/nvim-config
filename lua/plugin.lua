@@ -53,14 +53,31 @@ return require('packer').startup(function(use)
   use 'vim-test/vim-test'
 
   -- motor de snippets
-  use 'SirVer/ultisnips'
+  use {
+    'SirVer/ultisnips',
+    opt = true
+  }
 
   -- colección de snippets
-  use 'honza/vim-snippets'
+  use {
+    'honza/vim-snippets',
+    opt = true
+  }
 
   -- lsp
   use 'neovim/nvim-lspconfig'
-  use 'hrsh7th/nvim-compe'
+  use {
+    'hrsh7th/nvim-compe',
+    opt = true
+  }
+  use {
+    'ms-jpq/coq_nvim',
+    branch = 'coq'
+  }
+  use {
+    'ms-jpq/coq.artifacts',
+    branch = 'artifacts'
+  }
   use 'ray-x/lsp_signature.nvim'
   use 'mfussenegger/nvim-jdtls'
 

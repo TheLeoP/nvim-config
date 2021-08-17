@@ -17,16 +17,31 @@ M.get_last_terminal = function()
 end
 
 M.visual_ejecutar_en_terminal = function()
-  vim.cmd('normal yy')
-  local comando = vim.fn.getreg('"')
+  -- cierro el modo visual para tener guardados correctamente las marcas
+  vim.cmd("normal ")
 
+  -- par {columna, fila} donde columan es base 1 y fila es base 0
+  local inicio = vim.api.nvim_buf_get_mark(0, '<')
+  local fin = vim.api.nvim_buf_get_mark(0, '>')
+
+  -- ya que el rango final no es inclusivo y el índice es base 1, se resta 1 al inicio
+  local lineas = vim.api.nvim_buf_get_lines(0, inicio[1] - 1, fin[1], true)
+
+  local fin_de_linea
   if vim.fn.has('win32') == 1 then
-    comando = comando:gsub("\n", "\r")
+    fin_de_linea = "\r"
+  else
+    fin_de_linea = "\n"
+  end
+
+  local comandos = ""
+  for _, comando in ipairs(lineas) do
+    comandos = comandos .. comando .. fin_de_linea
   end
 
   local term_chan = M.get_last_terminal()
 
-  vim.api.nvim_chan_send(term_chan, comando)
+  vim.api.nvim_chan_send(term_chan, comandos)
 end
 
 return M

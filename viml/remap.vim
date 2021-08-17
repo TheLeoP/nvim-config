@@ -63,12 +63,12 @@ nnoremap <silent> [e <cmd>lua vim.lsp.diagnostic.goto_prev()<cr>
 " formatear
 nnoremap <silent> <leader>fm <cmd>lua vim.lsp.buf.formatting_sync(nil, 1000)<cr>
 
-" teclas
-inoremap <silent><expr> <C-Space> compe#complete()
-inoremap <silent><expr> <CR> compe#confirm('<CR>')
-inoremap <silent><expr> <C-e> compe#close('<C-e>')
-inoremap <silent><expr> <C-f> compe#scroll({ 'delta': +4 })
-inoremap <silent><expr> <C-d> compe#scroll({ 'delta': -4 })
+" " teclas
+" inoremap <silent><expr> <C-Space> compe#complete()
+" inoremap <silent><expr> <CR> compe#confirm('<CR>')
+" inoremap <silent><expr> <C-e> compe#close('<C-e>')
+" inoremap <silent><expr> <C-f> compe#scroll({ 'delta': +4 })
+" inoremap <silent><expr> <C-d> compe#scroll({ 'delta': -4 })
 
 " telescope
 " Find files using Telescope command-line sugar.
@@ -159,26 +159,7 @@ endfunction
 
 nnoremap <leader><leader>x :call <SID>save_and_exec()<cr>
 
-function! Tab_complete() abort
-    if pumvisible() == 1
-        return "\<c-n>"
-    else
-        return "\<tab>"
-    endif
-endfunction
-
-function! S_tab_complete() abort
-    if pumvisible() == 1
-        return "\<c-p>"
-    else
-        return "\<s-tab>"
-    endif
-endfunction
-
-inoremap <expr><tab>  Tab_complete()
-inoremap <expr><s-tab>  S_tab_complete()
-
-snoremap <expr><tab>  Tab_complete()
-snoremap <expr><s-tab>  S_tab_complete()
-
-vnoremap <silent> <leader>e <cmd>lua require('personal.fn_sql').visual_ejecutar_en_terminal()<cr>
+inoremap <silent><expr> <BS>    pumvisible() ? "\<C-e><BS>"  : "\<BS>"
+inoremap <silent><expr> <CR>    pumvisible() ? (complete_info().selected == -1 ? "\<C-e><CR>" : "\<C-y>") : "\<CR>"
+inoremap <silent><expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <silent><expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<BS>"
