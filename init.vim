@@ -13,8 +13,7 @@ source $NVIMHOME/viml/highlight.vim
 " lua/colorscheme
 source $NVIMHOME/lua/colorscheme.lua
 
-" lua/compe
-" luafile $NVIMHOME/lua/personal/compe.lua
+" lua/coq
 luafile $NVIMHOME/lua/personal/coq.lua
 
 " lua/lsp
