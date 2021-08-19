@@ -76,7 +76,8 @@ nnoremap <leader>ff <cmd>lua require("personal.telescope").search_cd_files()<cr>
 nnoremap <leader>fg <cmd>Telescope git_branches<cr>
 nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope help_tags<cr>
-nnoremap <leader>fj <cmd>Telescope current_buffer_fuzzy_find<cr>
+nnoremap <leader>fc <cmd>Telescope current_buffer_fuzzy_find<cr>
+nnoremap <leader>fs <cmd>Telescope live_grep<cr>
 nnoremap <leader>fds <cmd>Telescope lsp_document_symbols<cr>
 
 " personalizado
@@ -163,3 +164,11 @@ inoremap <silent><expr> <BS>    pumvisible() ? "\<C-e><BS>"  : "\<BS>"
 inoremap <silent><expr> <CR>    pumvisible() ? (complete_info().selected == -1 ? "\<C-e><CR>" : "\<C-y>") : "\<CR>"
 inoremap <silent><expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <silent><expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<BS>"
+
+" aumentar capacidad de i_ctrl-a
+nmap <c-a> <Plug>(dial-increment)
+nmap <c-x> <Plug>(dial-decrement)
+vmap <c-a> <Plug>(dial-increment)
+vmap <c-x> <Plug>(dial-decrement)
+vmap g<c-a> <Plug>(dial-increment-additional)
+vmap g<c-x> <Plug>(dial-decrement-additional)

@@ -91,4 +91,7 @@ return require('packer').startup(function(use)
   -- resalta palabra bajo el cursor
   use 'RRethy/vim-illuminate'
 
+  -- extender la capacidad de i_ctrl-a
+  use 'monaqa/dial.nvim'
+
 end)
