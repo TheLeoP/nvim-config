@@ -83,7 +83,10 @@ return require('packer').startup(function(use)
     branch = '0.5-compat',
     run = ':TSUpdate',
   }
-  use 'nvim-treesitter/nvim-treesitter-textobjects'
+  use {
+    'nvim-treesitter/nvim-treesitter-textobjects',
+    branch = '0.5-compat'
+  }
 
   -- mejor integración con netrw
   use 'tpope/vim-vinegar'
