@@ -63,13 +63,6 @@ nnoremap <silent> [e <cmd>lua vim.lsp.diagnostic.goto_prev()<cr>
 " formatear
 nnoremap <silent> <leader>fm <cmd>lua vim.lsp.buf.formatting_sync(nil, 1000)<cr>
 
-" " teclas
-" inoremap <silent><expr> <C-Space> compe#complete()
-" inoremap <silent><expr> <CR> compe#confirm('<CR>')
-" inoremap <silent><expr> <C-e> compe#close('<C-e>')
-" inoremap <silent><expr> <C-f> compe#scroll({ 'delta': +4 })
-" inoremap <silent><expr> <C-d> compe#scroll({ 'delta': -4 })
-
 " telescope
 " Find files using Telescope command-line sugar.
 nnoremap <leader>ff <cmd>lua require("personal.telescope").search_cd_files()<cr>

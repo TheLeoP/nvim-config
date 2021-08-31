@@ -1,5 +1,11 @@
 local dap = require('dap')
 
+-- signs
+
+vim.fn.sign_define('DapBreakpoint', {text='⦿', texthl='LspDiagnosticsSignError', linehl='', numhl=''})
+
+-- configuration and adapters
+
 dap.adapters.python = {
   type = 'executable';
   command = 'python';
@@ -31,30 +37,6 @@ dap.configurations.python = {
     end;
   },
 }
-
--- local util = require('jdtls.util')
-
--- dap.adapters.java = function(callback)
---   util.execute_command({command = 'vscode.java.startDebugSession'}, function(err0, port)
---     assert(not err0, vim.inspect(err0))
---     print("puerto: ", port)
---     callback({
---       type = 'server';
---       host = '127.0.0.1';
---       port = port;
---     })
---   end)
--- end
-
--- dap.configurations.java = {
---   {
---     type = 'java',
---     request = 'attach',
---     name = "Java attach",
---     hostName = "127.0.0.1",
---     port = 5005
---   },
--- }
 
 dap.adapters.nlua = function(callback, config)
   callback({
