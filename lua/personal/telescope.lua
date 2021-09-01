@@ -3,7 +3,6 @@ local personal_actions = require('personal.fn_telescope')
 
 require('telescope').setup {
   defaults = {
-    file_sorter = require('telescope.sorters').get_fzy_sorter ,
     color_devicons = true,
 
     file_previewer = require('telescope.previewers').vim_buffer_cat.new,
@@ -17,7 +16,8 @@ require('telescope').setup {
         ["<C-o>"] = personal_actions.ejecutar,
       },
       n = {
-        ["<C-o>"] = personal_actions.ejecutar,
+        ["o"] = personal_actions.ejecutar,
+        ["q"] = actions.send_to_qflist,
       },
     }
   },
@@ -32,48 +32,3 @@ require('telescope').setup {
 }
 
 require('telescope').load_extension('fzf')
-
-local M = {}
-M.search_dotfiles = function()
-  require("telescope.builtin").find_files({
-      prompt_title = "< VimRC >",
-      cwd = vim.api.nvim_eval('$NVIMHOME'),
-  })
-end
-
-local trabajos
-if vim.fn.has("win32") == 1 then
-  trabajos = 'D:/Lucho/'
-else
-  trabajos = vim.api.nvim_eval('$HOME') .. '/Documentos'
-end
-
-M.browse_trabajos = function()
-  require("telescope.builtin").file_browser({
-      prompt_title = "< Browse Lucho >",
-      cwd = trabajos,
-  })
-end
-
-M.search_trabajos = function()
-  require("telescope.builtin").find_files({
-      prompt_title = "< Find Lucho >",
-      cwd = trabajos,
-  })
-end
-
-M.search_cd_files = function()
-  require("telescope.builtin").find_files({
-      prompt_title = "< Find cd files >",
-      -- cwd = (string.gsub(vim.api.nvim_eval("expand('%:p:h')"), "\\", "/")),
-  })
-end
-
-M.browse_cd_files = function()
-  require("telescope.builtin").file_browser({
-      prompt_title = "< Find cd files >",
-      cwd = (string.gsub(vim.api.nvim_eval("expand('%:p:h')"), "\\", "/")),
-  })
-end
-
-return M

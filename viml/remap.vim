@@ -65,7 +65,7 @@ nnoremap <silent> <leader>fm <cmd>lua vim.lsp.buf.formatting_sync(nil, 1000)<cr>
 
 " telescope
 " Find files using Telescope command-line sugar.
-nnoremap <leader>ff <cmd>lua require("personal.telescope").search_cd_files()<cr>
+nnoremap <leader>ff <cmd>lua require("personal.fn_telescope").search_cd_files()<cr>
 nnoremap <leader>fg <cmd>Telescope git_branches<cr>
 nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope help_tags<cr>
@@ -74,10 +74,10 @@ nnoremap <leader>fs <cmd>Telescope live_grep<cr>
 nnoremap <leader>fds <cmd>Telescope lsp_document_symbols<cr>
 
 " personalizado
-nnoremap <silent><leader>fi <cmd>lua require("personal.telescope").search_dotfiles()<cr>
-nnoremap <silent><leader>fl <cmd>lua require("personal.telescope").search_trabajos()<cr>
-nnoremap <silent><leader>fL <cmd>lua require("personal.telescope").browse_trabajos()<cr>
-nnoremap <leader>fF <cmd>lua require("personal.telescope").browse_cd_files()<cr>
+nnoremap <silent><leader>fi <cmd>lua require("personal.fn_telescope").search_dotfiles()<cr>
+nnoremap <silent><leader>fl <cmd>lua require("personal.fn_telescope").search_trabajos()<cr>
+nnoremap <silent><leader>fL <cmd>lua require("personal.fn_telescope").browse_trabajos()<cr>
+nnoremap <leader>fF <cmd>lua require("personal.fn_telescope").browse_cd_files()<cr>
 
 " permitir salir del modo terminal con <c-[>
 tnoremap <c-[> <c-\><c-n>
