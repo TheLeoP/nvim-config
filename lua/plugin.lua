@@ -88,6 +88,9 @@ return require('packer').startup(function(use)
     branch = '0.5-compat'
   }
 
+  -- gps para statusline usando treesitter
+  use 'SmiteshP/nvim-gps'
+
   -- mejor integración con netrw
   use 'tpope/vim-vinegar'
 

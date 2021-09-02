@@ -34,5 +34,11 @@ luafile $NVIMHOME/lua/personal/dap.lua
 " lua dapui
 luafile $NVIMHOME/lua/personal/dapui.lua
 
+" lua gps
+luafile $NVIMHOME/lua/personal/nvim-gps.lua
+
 " autocmd
 source $NVIMHOME/viml/autocmd.vim
+
+" funciones globales peronales
+luafile $NVIMHOME/lua/personal/config.lua

@@ -45,9 +45,6 @@ endif
 let test#java#runner = 'gradletest'
 let test#strategy = "dispatch"
 
-" ultisnips
-let g:UltiSnipsExpandTrigger="<S-CR>"
-
 " lua
 let g:vimsyn_embed = 'l'
 
@@ -56,10 +53,16 @@ if executable('rg')
 endif
 
 " lightline
+
+function! GpsGetLocation() abort
+	return luaeval("require'nvim-gps'.is_available()") ?
+		\ luaeval("require'nvim-gps'.get_location()") : ''
+endfunction
+
 let g:lightline = {
 	\ 'active': {
 	\   'left': [['mode', 'paste'], ['gitbranch'], ['relativepath', 'modified']],
-	\   'right': [['filetype', 'percent', 'lineinfo']]
+	\   'right': [['filetype', 'percent', 'lineinfo'], ['gps']]
 	\ },
 	\ 'inactive': {
 	\   'left': [['inactive'], ['relativepath']],
@@ -70,12 +73,14 @@ let g:lightline = {
 	\   'inactive': 'inactive'
 	\ },
 	\ 'component_function': {
-	\   'gitbranch': 'fugitive#head'
+	\   'gitbranch': 'fugitive#head',
+	\   'gps': 'GpsGetLocation',
 	\ },
 	\ 'subseparator': {
 	\   'left': '|',
 	\   'right': '|'
-	\ }
+	\ },
+	\ 'colorscheme': 'one',
 	\}
 
 " autocompletion
