@@ -9,7 +9,7 @@ end
 
 local M = {}
 
-M.ejecutar = function(prompt_bufnr)
+function M.ejecutar(prompt_bufnr)
   local entry = action_state.get_selected_entry(prompt_bufnr)
 
   if not entry then
@@ -24,7 +24,7 @@ M.ejecutar = function(prompt_bufnr)
   os.execute('explorer.exe ' .. filename)
 end
 
-M.search_dotfiles = function()
+function M.search_dotfiles()
   require("telescope.builtin").find_files({
       prompt_title = "< VimRC >",
       cwd = vim.api.nvim_eval('$NVIMHOME'),
@@ -32,28 +32,28 @@ M.search_dotfiles = function()
 end
 
 
-M.browse_trabajos = function()
+function M.browse_trabajos()
   require("telescope.builtin").file_browser({
       prompt_title = "< Browse Lucho >",
       cwd = trabajos,
   })
 end
 
-M.search_trabajos = function()
+function M.search_trabajos()
   require("telescope.builtin").find_files({
       prompt_title = "< Find Lucho >",
       cwd = trabajos,
   })
 end
 
-M.search_cd_files = function()
+function M.search_cd_files()
   vim.cmd('cd %:p:h')
   require("telescope.builtin").find_files({
       prompt_title = "< Find cd files >",
   })
 end
 
-M.browse_cd_files = function()
+function M.browse_cd_files()
   vim.cmd('cd %:p:h')
   require("telescope.builtin").file_browser({
       prompt_title = "< Find cd files >",

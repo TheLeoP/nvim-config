@@ -72,6 +72,10 @@ nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 nnoremap <leader>fc <cmd>Telescope current_buffer_fuzzy_find<cr>
 nnoremap <leader>fs <cmd>Telescope live_grep<cr>
 nnoremap <leader>fds <cmd>Telescope lsp_document_symbols<cr>
+nnoremap <leader>fr <cmd>Telescope resume<cr>
+
+" proyectos
+nnoremap <leader>fp <cmd>lua require('telescope').extensions.project.project({})<cr>
 
 " personalizado
 nnoremap <silent><leader>fi <cmd>lua require("personal.fn_telescope").search_dotfiles()<cr>
@@ -123,10 +127,10 @@ nmap <silent> <leader>dtc <cmd>lua require('dap').run_to_cursor()<cr>
 nnoremap <silent> <leader>g :G<cr>
 
 " alt + hjkl para cambiar tamaño de ventanas
-nnoremap <M-j> :resize +2<cr>
-nnoremap <M-k> :resize -2<cr>
-nnoremap <M-h> :vertical resize -2<cr>
-nnoremap <M-l> :vertical resize +2<cr>
+nnoremap <silent> <a-j> :resize +2<cr>
+nnoremap <silent> <a-k> :resize -2<cr>
+nnoremap <silent> <a-h> :vertical resize -2<cr>
+nnoremap <silent> <a-l> :vertical resize +2<cr>
 
 " funciones
 
@@ -165,3 +169,5 @@ vmap <c-a> <Plug>(dial-increment)
 vmap <c-x> <Plug>(dial-decrement)
 vmap g<c-a> <Plug>(dial-increment-additional)
 vmap g<c-x> <Plug>(dial-decrement-additional)
+
+vnoremap <silent> <leader>e <cmd>lua require('personal.fn_sql').visual_ejecutar_en_terminal()<cr>

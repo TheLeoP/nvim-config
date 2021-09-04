@@ -1,6 +1,6 @@
 local M = {}
 
-M.get_last_terminal = function()
+function M.get_last_terminal()
   local terminal_channels = {}
 
   for _, channel in pairs(vim.api.nvim_list_chans()) do
@@ -16,7 +16,7 @@ M.get_last_terminal = function()
   return terminal_channels[1]["id"]
 end
 
-M.visual_ejecutar_en_terminal = function()
+function M.visual_ejecutar_en_terminal()
   -- cierro el modo visual para tener guardados correctamente las marcas
   vim.cmd("normal ")
 

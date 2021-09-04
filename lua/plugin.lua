@@ -74,6 +74,9 @@ return require('packer').startup(function(use)
     run = make
   }
 
+  -- extension para projectos en telescope
+  use 'nvim-telescope/telescope-project.nvim'
+
   -- íconos en nvim
   use 'kyazdani42/nvim-web-devicons'
 

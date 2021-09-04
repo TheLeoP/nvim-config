@@ -54,18 +54,38 @@ endif
 
 " lightline
 
-function! GpsGetLocation() abort
+function! LightlineGPS() abort
 	return luaeval("require'nvim-gps'.is_available()") ?
 		\ luaeval("require'nvim-gps'.get_location()") : ''
 endfunction
 
+function! LightlineFilename() abort
+	let filename = expand('%:t')
+	let extension = expand('%:e')
+	if strlen(filename) > 0 && strlen(extension) > 0
+		let icon = luaeval('require"nvim-web-devicons".get_icon("' . filename . '","' . extension . '")')
+		return icon . " " . filename
+	else
+		return '[Sin nombre]'
+	endif
+endfunction
+
+function! LightLineGitBranch() abort
+	let branch = fugitive#head()
+	if strlen(branch) > 0
+		return ' ' . branch
+	else
+		return branch
+	endif
+endfunction
+
 let g:lightline = {
 	\ 'active': {
-	\   'left': [['mode', 'paste'], ['gitbranch'], ['relativepath', 'modified']],
+	\   'left': [['mode', 'paste'], ['gitbranch'], ['filename', 'modified']],
 	\   'right': [['filetype', 'percent', 'lineinfo'], ['gps']]
 	\ },
 	\ 'inactive': {
-	\   'left': [['inactive'], ['relativepath']],
+	\   'left': [['inactive'], ['filename']],
 	\   'right': [['bufnum']]
 	\ },
 	\ 'component': {
@@ -73,8 +93,13 @@ let g:lightline = {
 	\   'inactive': 'inactive'
 	\ },
 	\ 'component_function': {
-	\   'gitbranch': 'fugitive#head',
-	\   'gps': 'GpsGetLocation',
+	\   'gitbranch': 'LightLineGitBranch',
+	\   'gps': 'LightlineGPS',
+	\   'filename': 'LightlineFilename',
+	\ },
+	\ 'separator': {
+	\   'left': '',
+	\   'right': ''
 	\ },
 	\ 'subseparator': {
 	\   'left': '|',
