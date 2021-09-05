@@ -103,4 +103,7 @@ return require('packer').startup(function(use)
   -- extender la capacidad de i_ctrl-a
   use 'monaqa/dial.nvim'
 
+  -- dashboard
+  use 'glepnir/dashboard-nvim'
+
 end)

@@ -28,5 +28,11 @@ require('personal.dapui')
 -- lua gps
 require('personal.nvim-gps')
 
+-- lua dashboard
+require('personal.dashboard')
+
+-- lua lightline
+require('personal.lightline')
+
 -- funciones globales peronales
 require('personal.config')

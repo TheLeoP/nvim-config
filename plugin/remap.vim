@@ -132,9 +132,7 @@ nnoremap <silent> <a-k> :resize -2<cr>
 nnoremap <silent> <a-h> :vertical resize -2<cr>
 nnoremap <silent> <a-l> :vertical resize +2<cr>
 
-" funciones
-
-" lua
+" ejecutar archivos
 function! s:executor() abort
     if &filetype == 'lua'
         execute(printf(":lua %s", getline(".")))
@@ -142,8 +140,6 @@ function! s:executor() abort
         exe getline(".")
     endif
 endfunction
-
-nnoremap <leader>x :call <SID>executor()<cr>
 
 function! s:save_and_exec() abort
     if &filetype == 'vim'
@@ -155,6 +151,7 @@ function! s:save_and_exec() abort
     endif
 endfunction
 
+nnoremap <leader>x :call <SID>executor()<cr>
 nnoremap <leader><leader>x :call <SID>save_and_exec()<cr>
 
 inoremap <silent><expr> <BS>    pumvisible() ? "\<C-e><BS>"  : "\<BS>"
@@ -170,4 +167,9 @@ vmap <c-x> <Plug>(dial-decrement)
 vmap g<c-a> <Plug>(dial-increment-additional)
 vmap g<c-x> <Plug>(dial-decrement-additional)
 
+" permite ejecutar un comando seleccionado visualmente en la última consola
+" abierta
 vnoremap <silent> <leader>e <cmd>lua require('personal.fn_sql').visual_ejecutar_en_terminal()<cr>
+
+nnoremap <leader>ss <cmd>lua require('personal.fn_dashboard').guardar_sesion()<cr>
+nnoremap <leader>ls <cmd>lua require('personal.fn_dashboard').cargar_sesion()<cr>
