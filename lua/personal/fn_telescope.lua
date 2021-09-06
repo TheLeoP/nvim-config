@@ -1,11 +1,4 @@
 local action_state = require('telescope.actions.state')
-local trabajos
-
-if vim.fn.has("win32") == 1 then
-  trabajos = 'D:/Lucho/'
-else
-  trabajos = vim.api.nvim_eval('$HOME') .. '/Documentos'
-end
 
 local M = {}
 
@@ -35,14 +28,14 @@ end
 function M.browse_trabajos()
   require("telescope.builtin").file_browser({
       prompt_title = "< Browse Lucho >",
-      cwd = trabajos,
+      cwd = vim.g.documentos,
   })
 end
 
 function M.search_trabajos()
   require("telescope.builtin").find_files({
       prompt_title = "< Find Lucho >",
-      cwd = trabajos,
+      cwd = vim.g.documentos,
   })
 end
 

@@ -1,3 +1,19 @@
+vim.g.home_dir = vim.api.nvim_eval('$HOME')
+vim.g.lsp_borders = { '┏', '━', '┓', '┃', '┛', '━', '┗', '┃' }
+
+if vim.fn.has("win32") == 1 then
+  vim.g.documentos = 'D:/Lucho/'
+  vim.g.os = "Windows"
+  vim.g.java_lsp_cmd = "prueba.bat"
+  vim.g.make_cmd = 'bash -c make'
+else
+  vim.g.documentos = vim.g.homne_dir .. '/Documentos'
+  vim.g.os = "Linux"
+  vim.g.java_lsp_cmd = "prueba.sh"
+  vim.g.make_cmd = 'make'
+end
+
+
 function _G.put(...)
   local objects = {}
   for i = 1, select('#', ...) do

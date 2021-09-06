@@ -1,18 +1,4 @@
-local lsp_borders = { '┏', '━', '┓', '┃', '┛', '━', '┗', '┃' }
-local home
-local os
-local java_cmd
 local M = {}
-
-if vim.fn.has("win32") == 1 then
-  home = "C:/Users/pcx/"
-  os = "Windows"
-  java_cmd = "prueba.bat"
-else
-  home = "/home/luis/"
-  os = "Linux"
-  java_cmd = "prueba.sh"
-end
 
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.textDocument.completion.completionItem.snippetSupport = true
@@ -34,20 +20,20 @@ local on_attach_general = function(client, bufnr)
       hint_enable = false,
       use_lspsaga = false,
       handler_opts = {
-        border = lsp_borders
+        border = vim.g.lsp_borders
       }
     })
 end
 
 vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
   vim.lsp.handlers.signature_help, {
-    border = lsp_borders
+    border = vim.g.lsp_borders
   }
 )
 
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
   vim.lsp.handlers.hover, {
-    border = lsp_borders
+    border = vim.g.lsp_borders
   }
 )
 
@@ -96,8 +82,8 @@ require'lspconfig'.vimls.setup{
 
 
 -- lua
-local sumneko_root_path = home .. ".lua-lsp/lua-language-server"
-local sumneko_binary = home .. ".lua-lsp/lua-language-server/bin/" .. os .. "/lua-language-server"
+local sumneko_root_path = vim.g.home_dir .. "/.lua-lsp/lua-language-server"
+local sumneko_binary = vim.g.home_dir .. "/.lua-lsp/lua-language-server/bin/" .. vim.g.os .. "/lua-language-server"
 
 require'lspconfig'.sumneko_lua.setup {
   on_attach = on_attach_general,
@@ -146,7 +132,7 @@ function M.jdtls_setup()
     vim.api.nvim_set_current_dir(root_dir)
   end
 
-  local eclipse_wd = home .. 'java-workspace/' .. vim.fn.fnamemodify(root_dir, ':h:t') .. '/' .. vim.fn.fnamemodify(root_dir, ':t')
+  local eclipse_wd = vim.g.home_dir .. 'java-workspace/' .. vim.fn.fnamemodify(root_dir, ':h:t') .. '/' .. vim.fn.fnamemodify(root_dir, ':t')
 
   local config = {
     flags = {
@@ -160,13 +146,13 @@ function M.jdtls_setup()
         })
     end,
     cmd = {
-      java_cmd,
+      vim.g.java_lsp_cmd,
       eclipse_wd
     },
     root_dir = root_dir,
     init_options = {
       bundles = {
-        vim.fn.glob(home .. ".dap-gadgets/java-debug-0.32.0/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-0.32.0.jar")
+        vim.fn.glob(vim.g.home_dir .. ".dap-gadgets/java-debug-0.32.0/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-0.32.0.jar")
       }
     }
   }

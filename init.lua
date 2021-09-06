@@ -1,3 +1,7 @@
+-- funciones y variable globales peronales
+require('personal.globals')
+
+
 -- plugin
 require('personal.plugin')
 
@@ -33,6 +37,3 @@ require('personal.dashboard')
 
 -- lua lightline
 require('personal.lightline')
-
--- funciones globales peronales
-require('personal.config')

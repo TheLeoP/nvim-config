@@ -1,11 +1,3 @@
-local make
-
-if vim.fn.has("win32") == 1 then
-  make = 'bash -c make'
-else
-  make = 'make'
-end
-
 return require('packer').startup(function(use)
 
   -- Packer
@@ -71,7 +63,7 @@ return require('packer').startup(function(use)
   use 'nvim-telescope/telescope.nvim'
   use {
     'nvim-telescope/telescope-fzf-native.nvim',
-    run = make
+    run = vim.g.make_cmd
   }
 
   -- extension para projectos en telescope
