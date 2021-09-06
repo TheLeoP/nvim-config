@@ -118,7 +118,8 @@ require'lspconfig'.sumneko_lua.setup {
             workspace = {
                 -- Make the server aware of Neovim runtime files
                 library = {[vim.fn.expand('$VIMRUNTIME/lua')] = true, [vim.fn.expand('$VIMRUNTIME/lua/vim/lsp')] = true}
-            }
+            },
+            rootMarkers = {".git/"},
         }
     }
 }
@@ -133,6 +134,7 @@ local on_attach_java = function(client, bufnr)
   on_attach_general(client, bufnr)
   require('jdtls').setup_dap({ hotcodereplace = 'auto' })
   require('jdtls.dap').setup_dap_main_class_configs()
+  require('jdtls.setup').add_commands()
 end
 
 function M.jdtls_setup()
@@ -149,11 +151,14 @@ function M.jdtls_setup()
   local config = {
     flags = {
       allow_incremental_sync = true,
-    };
-
+    },
     capabilities = capabilities,
     on_attach = on_attach_java,
-
+    on_init = function(client, _)
+      client.notify('workspace/didChangeConfiguration', {
+          settings = client.config.settings;
+        })
+    end,
     cmd = {
       java_cmd,
       eclipse_wd
@@ -162,12 +167,10 @@ function M.jdtls_setup()
     init_options = {
       bundles = {
         vim.fn.glob(home .. ".dap-gadgets/java-debug-0.32.0/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-0.32.0.jar")
-        -- vim.fn.glob(home .. ".dap-gadgets/vscode-java-debug/0.26.0/root/extension/server/com.microsoft.java.debug.plugin-0.26.0.jar")
       }
     }
   }
 
-  require('jdtls.setup').add_commands()
   require('jdtls').start_or_attach(config)
 end
 

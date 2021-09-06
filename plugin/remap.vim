@@ -17,8 +17,8 @@ nnoremap <silent> [l :cprev<cr>zzzv
 nnoremap Y y$
 
 " mantener centrado al usar n y N
-nnoremap n nzzzv
-nnoremap N Nzzzv
+" nnoremap n nzzzv
+" nnoremap N Nzzzv
 
 " mantener posición en J y gJ usando el marcador z
 nnoremap J mzJ`z
@@ -172,4 +172,4 @@ vmap g<c-x> <Plug>(dial-decrement-additional)
 vnoremap <silent> <leader>e <cmd>lua require('personal.fn_sql').visual_ejecutar_en_terminal()<cr>
 
 nnoremap <leader>ss <cmd>lua require('personal.fn_dashboard').guardar_sesion()<cr>
-nnoremap <leader>ls <cmd>lua require('personal.fn_dashboard').cargar_sesion()<cr>
+nnoremap <leader>sl <cmd>lua require('personal.fn_dashboard').cargar_sesion()<cr>

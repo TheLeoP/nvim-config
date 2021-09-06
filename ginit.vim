@@ -1,4 +1,4 @@
-" permite el correcto funcionamiento del menú de autocompletado
+" usa el menú de autocompletado y la linea de pestañas de neovim (no UI)
 GuiPopupmenu 0
 GuiTabline 0
 
