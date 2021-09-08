@@ -187,9 +187,3 @@ nmap <leader>S  <Plug>YSurround
 nmap <leader>ss <Plug>Yssurround
 nmap <leader>Ss <Plug>YSsurround
 nmap <leader>SS <Plug>YSsurround
-
-unmap ys
-unmap yS
-unmap yss
-unmap ySs
-unmap ySS
