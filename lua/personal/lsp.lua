@@ -132,7 +132,7 @@ function M.jdtls_setup()
     vim.api.nvim_set_current_dir(root_dir)
   end
 
-  local eclipse_wd = vim.g.home_dir .. 'java-workspace/' .. vim.fn.fnamemodify(root_dir, ':h:t') .. '/' .. vim.fn.fnamemodify(root_dir, ':t')
+  local eclipse_wd = vim.g.home_dir .. '/java-workspace/' .. vim.fn.fnamemodify(root_dir, ':h:t') .. '/' .. vim.fn.fnamemodify(root_dir, ':t')
 
   local config = {
     flags = {
@@ -152,7 +152,7 @@ function M.jdtls_setup()
     root_dir = root_dir,
     init_options = {
       bundles = {
-        vim.fn.glob(vim.g.home_dir .. ".dap-gadgets/java-debug-0.32.0/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-0.32.0.jar")
+        vim.fn.glob(vim.g.home_dir .. "/.dap-gadgets/java-debug-0.32.0/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-0.32.0.jar")
       }
     }
   }

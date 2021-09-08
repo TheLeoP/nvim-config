@@ -13,8 +13,9 @@ nmap <leader>rr <Plug>ReplaceWithRegisterLine
 nnoremap <silent> ]l :cnext<cr>zzzv
 nnoremap <silent> [l :cprev<cr>zzzv
 
-" Y más intuitiva
+" mappings a eliminar cuando suba a Nvim 0.6
 nnoremap Y y$
+nnoremap <c-l> :nohlsearch<cr>:diffupdate<cr>:syntax sync fromstart<cr><c-l>
 
 " mantener centrado al usar n y N
 " nnoremap n nzzzv
