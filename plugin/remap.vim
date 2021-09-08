@@ -83,6 +83,8 @@ nnoremap <silent><leader>fi <cmd>lua require("personal.fn_telescope").search_dot
 nnoremap <silent><leader>fl <cmd>lua require("personal.fn_telescope").search_trabajos()<cr>
 nnoremap <silent><leader>fL <cmd>lua require("personal.fn_telescope").browse_trabajos()<cr>
 nnoremap <leader>fF <cmd>lua require("personal.fn_telescope").browse_cd_files()<cr>
+nnoremap <leader>fa <cmd>lua require("personal.fn_telescope").search_autoregistro_emociones()<cr>
+nnoremap <leader>fA <cmd>lua require("personal.fn_telescope").browse_autoregistro_emociones()<cr>
 
 " permitir salir del modo terminal con <c-[>
 tnoremap <c-[> <c-\><c-n>
@@ -170,7 +172,11 @@ vmap g<c-x> <Plug>(dial-decrement-additional)
 
 " permite ejecutar un comando seleccionado visualmente en la última consola
 " abierta
-vnoremap <silent> <leader>e <cmd>lua require('personal.fn_sql').visual_ejecutar_en_terminal()<cr>
+vnoremap <silent> <leader>e <cmd>lua require('personal.fn_utils').visual_ejecutar_en_terminal()<cr>
 
+" grabar y cargar sesiones con un nombre
 nnoremap <leader>ss <cmd>lua require('personal.fn_dashboard').guardar_sesion()<cr>
 nnoremap <leader>sl <cmd>lua require('personal.fn_dashboard').cargar_sesion()<cr>
+
+" crear un nuevo autoregistro de mis emociones
+nnoremap <leader>a <cmd>lua require('personal.fn_utils').crear_autoregistro_emociones()<cr>()<cr>

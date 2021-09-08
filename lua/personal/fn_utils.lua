@@ -44,4 +44,10 @@ function M.visual_ejecutar_en_terminal()
   vim.api.nvim_chan_send(term_chan, comandos)
 end
 
+function M.crear_autoregistro_emociones()
+  local nombre_archivo = os.date():gsub('[/:]', '-') .. '.md'
+  local path_archivo = vim.g.notas_emociones .. '/' .. nombre_archivo
+  vim.cmd('e ' .. path_archivo)
+end
+
 return M
