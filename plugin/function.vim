@@ -16,11 +16,19 @@ function! LightlineFilename() abort
 	endif
 endfunction
 
-function! LightLineGitBranch() abort
+function! LightlineGitBranch() abort
 	let branch = fugitive#head()
 	if strlen(branch) > 0
 		return ' ' . branch
 	else
 		return branch
 	endif
+endfunction
+
+function! LightlineLspStatus() abort
+	if luaeval('#vim.lsp.buf_get_clients() > 0')
+    return luaeval("require('lsp-status').status()")
+  endif
+
+  return ''
 endfunction

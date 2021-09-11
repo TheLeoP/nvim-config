@@ -12,6 +12,14 @@ vim.g.coq_settings = {
       path_seps = {
         "/"
       }
+    },
+    buffers = {
+      match_syms = true
+    }
+  },
+  display = {
+    ghost_text = {
+      enabled = true
     }
   }
 }

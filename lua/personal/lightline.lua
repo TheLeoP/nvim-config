@@ -1,28 +1,29 @@
 vim.g.lightline = {
 	 active = {
 	   left = {
-			 {'mode'}, {'gitbranch'}, {'filename', 'modified'}
+			 {'mode'}, {'git_branch'}, {'file_name'}
 		 },
 	   right = {
-			 {'filetype', 'percent', 'lineinfo'}, {'gps'}
+			 {'filetype', 'percent', 'lineinfo'}, {'gps', 'lsp_status'}
 		 }
 	 },
 	 inactive = {
 	   left = {
-			 {'inactive'}, {'filename'}
+			 {'inactive'}, {'file_name'}
 		 },
 	   right = {
-		 {'bufnum'}
+		 {'buf_num'}
 	 }
 	 },
 	 component = {
-	   bufnum = '%n',
+	   buf_num = '%n',
 	   inactive = 'inactive'
 	 },
 	 component_function = {
-	   gitbranch = 'LightLineGitBranch',
+	   git_branch = 'LightlineGitBranch',
 	   gps = 'LightlineGPS',
-	   filename = 'LightlineFilename',
+	   file_name = 'LightlineFilename',
+	   lsp_status = 'LightlineLspStatus',
 	 },
 	 separator = {
 	   left = '',

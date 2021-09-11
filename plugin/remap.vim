@@ -172,14 +172,15 @@ vmap g<c-x> <Plug>(dial-decrement-additional)
 
 " permite ejecutar un comando seleccionado visualmente en la última consola
 " abierta
-vnoremap <silent> <leader>e <cmd>lua require('personal.fn_utils').visual_ejecutar_en_terminal()<cr>
+vnoremap <silent> <leader>e <cmd>lua require('personal.fn_util').visual_ejecutar_en_terminal()<cr>
 
 " grabar y cargar sesiones con un nombre
-nnoremap <leader>Ss <cmd>lua require('personal.fn_dashboard').guardar_sesion()<cr>
-nnoremap <leader>Sl <cmd>lua require('personal.fn_dashboard').cargar_sesion()<cr>
+nnoremap <leader><leader>ss <cmd>lua require('personal.fn_dashboard').guardar_sesion()<cr>
+nnoremap <leader><leader>sl <cmd>lua require('personal.fn_dashboard').cargar_sesion()<cr>
 
 " crear un nuevo autoregistro de mis emociones
-nnoremap <leader>a <cmd>lua require('personal.fn_utils').crear_autoregistro_emociones()<cr>()<cr>
+nnoremap <leader>na <cmd>lua require('personal.fn_util').nuevo_autoregistro_emociones()<cr>
+nnoremap <leader>nn <cmd>lua require('personal.fn_util').nueva_nota_U()<cr>
 
 " mapping para cambiar ys por <leader>s
 nmap <leader>s  <Plug>Ysurround

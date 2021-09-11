@@ -98,4 +98,7 @@ return require('packer').startup(function(use)
   -- dashboard
   use 'glepnir/dashboard-nvim'
 
+  -- lsp diagnostics
+  use 'nvim-lua/lsp-status.nvim'
+
 end)

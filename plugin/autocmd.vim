@@ -10,6 +10,5 @@ augroup end
 
 augroup Templates
   au!
-  au BufNewFile {\d,\d\d}-{\d,\d\d}-{\d\d\d\d}\ {\d,\d\d}-{\d,\d\d}-{\d,\d\d}.md 0r $NVIMHOME/templates/template-autoregistro.md
-" 7-9-2021 22-15-30.md
+  au BufNewFile */autoregistro-emociones/*.md 0r $NVIMHOME/templates/template-autoregistro.md
 augroup end

@@ -1,5 +1,6 @@
 vim.g.home_dir = vim.api.nvim_eval('$HOME')
 vim.g.lsp_borders = { '┏', '━', '┓', '┃', '┛', '━', '┗', '┃' }
+vim.g.ciclo_actual = '7mo ciclo'
 
 if vim.fn.has("win32") == 1 then
   vim.g.documentos = 'D:/Lucho'
@@ -14,6 +15,7 @@ else
 end
 
 vim.g.notas_emociones = vim.g.documentos .. '/Personal/psicologa/autoregistro-emociones'
+vim.g.documentos_u = vim.g.documentos .. '/Documentos U/' .. vim.g.ciclo_actual .. '/'
 
 
 function _G.put(...)

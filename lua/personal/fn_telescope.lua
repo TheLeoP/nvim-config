@@ -67,4 +67,21 @@ function M.browse_autoregistro_emociones()
   })
 end
 
+function M.seleccionar_materia(callback)
+  local llamar_callback_y_cerrar = function(prompt_bufnr)
+    local selected_entry = action_state.get_selected_entry()
+    callback(selected_entry, prompt_bufnr)
+  end
+
+  require('telescope.builtin').file_browser({
+      prompt_title = '< Seleccionar materia >',
+      cwd = vim.g.documentos_u,
+      attach_mappings = function(_, map)
+        map('i', '<cr>', llamar_callback_y_cerrar)
+        map('n', '<cr>', llamar_callback_y_cerrar)
+        return true
+      end
+  })
+end
+
 return M

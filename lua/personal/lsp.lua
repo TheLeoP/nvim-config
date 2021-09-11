@@ -1,5 +1,21 @@
 local M = {}
 
+local lspconfig = require('lspconfig')
+local illuminate = require('illuminate')
+local lsp_signature = require('lsp_signature')
+local jdtls = require('jdtls')
+local jdtls_dap = require('jdtls.dap')
+local jdtls_setup = require('jdtls.setup')
+local lsp_status = require('lsp-status')
+
+lsp_status.register_progress()
+lsp_status.config({
+    current_function = false,
+    show_filename = false,
+    indicator_hint = "",
+    indicator_ok = "OK"
+})
+
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.textDocument.completion.completionItem.snippetSupport = true
 capabilities.textDocument.completion.completionItem.resolveSupport = {
@@ -9,10 +25,12 @@ capabilities.textDocument.completion.completionItem.resolveSupport = {
     'additionalTextEdits',
   }
 }
+capabilities = vim.tbl_extend('keep', capabilities, lsp_status.capabilities)
 
-local on_attach_general = function(client, bufnr)
-  require('illuminate').on_attach(client)
-  require('lsp_signature').on_attach({
+local on_attach_general = function(client, _)
+  illuminate.on_attach(client)
+  lsp_status.on_attach(client)
+  lsp_signature.on_attach({
       bind = true,
       doc_lines = 0,
       floating_windows = true,
@@ -40,7 +58,7 @@ vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
 -- configuración LS infividuales
 
 -- efm
-require'lspconfig'.efm.setup {
+lspconfig.efm.setup {
     init_options = {documentFormatting = true, codeAction = false},
     filetypes = {'python'},
     settings = {
@@ -62,20 +80,20 @@ require'lspconfig'.efm.setup {
 }
 
 -- pyright
-require'lspconfig'.pyright.setup{
+lspconfig.pyright.setup{
   on_attach = on_attach_general,
   capabilities = capabilities,
   init_options = {documentFormatting = false, codeAction = true},
 }
 
 -- tsserver
-require'lspconfig'.tsserver.setup{
+lspconfig.tsserver.setup{
   on_attach = on_attach_general,
   capabilities = capabilities
 }
 
 -- viml
-require'lspconfig'.vimls.setup{
+lspconfig.vimls.setup{
   -- on_attach = on_attach,
   capabilities = capabilities
 }
@@ -84,8 +102,7 @@ require'lspconfig'.vimls.setup{
 -- lua
 local sumneko_root_path = vim.g.home_dir .. "/.lua-lsp/lua-language-server"
 local sumneko_binary = vim.g.home_dir .. "/.lua-lsp/lua-language-server/bin/" .. vim.g.os .. "/lua-language-server"
-
-require'lspconfig'.sumneko_lua.setup {
+lspconfig.sumneko_lua.setup {
   on_attach = on_attach_general,
   capabilities = capabilities,
     cmd = {sumneko_binary, "-E", sumneko_root_path .. "/main.lua"},
@@ -111,21 +128,21 @@ require'lspconfig'.sumneko_lua.setup {
 }
 
 -- clangd (C, C++)
-require'lspconfig'.clangd.setup {
+lspconfig.clangd.setup {
   on_attach = on_attach_general,
 }
 
 -- java
 local on_attach_java = function(client, bufnr)
   on_attach_general(client, bufnr)
-  require('jdtls').setup_dap({ hotcodereplace = 'auto' })
-  require('jdtls.dap').setup_dap_main_class_configs()
-  require('jdtls.setup').add_commands()
+  jdtls.setup_dap({ hotcodereplace = 'auto' })
+  jdtls_dap.setup_dap_main_class_configs()
+  jdtls_setup.add_commands()
 end
 
 function M.jdtls_setup()
 
-  local root_dir = require('jdtls.setup').find_root({'build.gradle', 'pom.xml'})
+  local root_dir = jdtls_setup.find_root({'build.gradle', 'pom.xml'})
 
   local antiguo_dir = vim.fn.getcwd();
   if antiguo_dir ~= root_dir then
@@ -140,11 +157,6 @@ function M.jdtls_setup()
     },
     capabilities = capabilities,
     on_attach = on_attach_java,
-    on_init = function(client, _)
-      client.notify('workspace/didChangeConfiguration', {
-          settings = client.config.settings;
-        })
-    end,
     cmd = {
       vim.g.java_lsp_cmd,
       eclipse_wd
@@ -157,7 +169,7 @@ function M.jdtls_setup()
     }
   }
 
-  require('jdtls').start_or_attach(config)
+  jdtls.start_or_attach(config)
 end
 
 return M

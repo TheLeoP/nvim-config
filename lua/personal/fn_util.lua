@@ -44,10 +44,40 @@ function M.visual_ejecutar_en_terminal()
   vim.api.nvim_chan_send(term_chan, comandos)
 end
 
-function M.crear_autoregistro_emociones()
-  local nombre_archivo = os.date():gsub('[/:]', '-') .. '.md'
+function M.get_nombre_time_stamp()
+  local nombre = os.date():gsub('[/:]', '-') .. '.md'
+  return nombre
+end
+
+function M.get_nombre_input_o_timestamp(tipo)
+  local nombre = vim.fn.input(string.format('Ingrese el nombre de %s: ', tipo))
+  if nombre == "" then
+    nombre = M.get_nombre_time_stamp()
+  end
+  return nombre
+end
+
+function M.nuevo_autoregistro_emociones()
+  local nombre_archivo = M.get_nombre_input_o_timestamp('el autoregistro')
   local path_archivo = vim.g.notas_emociones .. '/' .. nombre_archivo
   vim.cmd('e ' .. path_archivo)
+end
+
+function M.nueva_nota_U()
+  local callback = function(entry, prompt_bufnr)
+    require('telescope.actions').close(prompt_bufnr)
+
+    if entry.path then
+      local path = entry.path
+      local nombre = M.get_nombre_input_o_timestamp('la nota')
+      local full_path = path .. 'Apuntes/' .. nombre
+      vim.cmd(string.format("e %s", full_path))
+    else
+      print('La entrada seleccionada no tiene path')
+    end
+  end
+
+  require('personal.fn_telescope').seleccionar_materia(callback)
 end
 
 return M
