@@ -11,8 +11,10 @@ function! LightlineFilename() abort
 	if strlen(filename) > 0 || strlen(extension) > 0
 		let icon = luaeval('require"nvim-web-devicons".get_icon("' . filename . '","' . extension . '")')
 		return icon . " " . filename
-	else
+	elseif filename == ""
 		return '[Sin nombre]'
+	else
+		return filename
 	endif
 endfunction
 

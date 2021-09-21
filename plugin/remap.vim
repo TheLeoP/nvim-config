@@ -18,8 +18,8 @@ nnoremap Y y$
 nnoremap <c-l> :nohlsearch<cr>:diffupdate<cr>:syntax sync fromstart<cr><c-l>
 
 " mantener centrado al usar n y N
-" nnoremap n nzzzv
-" nnoremap N Nzzzv
+nnoremap n nzzzv
+nnoremap N Nzzzv
 
 " mantener posición en J y gJ usando el marcador z
 nnoremap J mzJ`z

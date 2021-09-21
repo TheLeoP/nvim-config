@@ -1,7 +1,9 @@
 " highlight
-hi def link LspReferenceText CursorLine
-hi def link LspReferenceWrite CursorLine
-hi def link LspReferenceRead CursorLine
+highlight def link LspReferenceText CursorLine
+highlight def link LspReferenceWrite CursorLine
+highlight def link LspReferenceRead CursorLine
+
+highlight def link FloatBorder NormalFloat
 
 " highlight ExtraWhitespace ctermbg=red guibg=red
 " match ExtraWhitespace /\s\+$/

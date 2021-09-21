@@ -20,6 +20,13 @@ vim.g.coq_settings = {
   display = {
     ghost_text = {
       enabled = true
+    },
+    preview = {
+      border = vim.g.lsp_borders
     }
   }
 }
+
+-- require('coq_3p')({
+--   {src = "nvimlua", short_name = "nLua", conf_only = false}
+-- })

@@ -1,3 +1,6 @@
+local usar_plugins_oficiales = vim.g.desarrollo_plugins
+local usar_plugins_en_desarrollo = not vim.g.desarrollo_plugins
+
 return require('packer').startup(function(use)
 
   -- Packer
@@ -46,6 +49,10 @@ return require('packer').startup(function(use)
 
   -- lsp
   use 'neovim/nvim-lspconfig'
+  use 'ray-x/lsp_signature.nvim'
+  use 'mfussenegger/nvim-jdtls'
+
+  -- coq
   use {
     'ms-jpq/coq_nvim',
     branch = 'coq'
@@ -54,13 +61,18 @@ return require('packer').startup(function(use)
     'ms-jpq/coq.artifacts',
     branch = 'artifacts'
   }
-  use 'ray-x/lsp_signature.nvim'
-  use 'mfussenegger/nvim-jdtls'
+  use {
+    'ms-jpq/coq.thirdparty',
+    branch = '3p'
+  }
 
   -- telescope
   use 'nvim-lua/popup.nvim'
   use 'nvim-lua/plenary.nvim'
-  use 'nvim-telescope/telescope.nvim'
+  use{
+     'nvim-telescope/telescope.nvim',
+     opt = usar_plugins_oficiales
+  }
   use {
     'nvim-telescope/telescope-fzf-native.nvim',
     run = vim.g.make_cmd
@@ -100,5 +112,11 @@ return require('packer').startup(function(use)
 
   -- lsp diagnostics
   use 'nvim-lua/lsp-status.nvim'
+
+  -- PERSONAL
+  use{
+     'D:/Lucho/Personal/Telescope/telescope.nvim.git/fix_1086',
+     opt = usar_plugins_en_desarrollo
+  }
 
 end)
