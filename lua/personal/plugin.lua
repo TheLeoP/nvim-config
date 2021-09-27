@@ -50,7 +50,9 @@ return require('packer').startup(function(use)
   -- lsp
   use 'neovim/nvim-lspconfig'
   use 'ray-x/lsp_signature.nvim'
-  use 'mfussenegger/nvim-jdtls'
+  use {
+    'mfussenegger/nvim-jdtls',
+  }
 
   -- coq
   use {
@@ -71,7 +73,6 @@ return require('packer').startup(function(use)
   use 'nvim-lua/plenary.nvim'
   use{
      'nvim-telescope/telescope.nvim',
-     opt = usar_plugins_oficiales
   }
   use {
     'nvim-telescope/telescope-fzf-native.nvim',
@@ -114,9 +115,5 @@ return require('packer').startup(function(use)
   use 'nvim-lua/lsp-status.nvim'
 
   -- PERSONAL
-  use{
-     'D:/Lucho/Personal/Telescope/telescope.nvim.git/fix_1086',
-     opt = usar_plugins_en_desarrollo
-  }
 
 end)
