@@ -85,6 +85,8 @@ nnoremap <silent><leader>fL <cmd>lua require("personal.fn_telescope").browse_tra
 nnoremap <leader>fF <cmd>lua require("personal.fn_telescope").browse_cd_files()<cr>
 nnoremap <leader>fa <cmd>lua require("personal.fn_telescope").search_autoregistro_emociones()<cr>
 nnoremap <leader>fA <cmd>lua require("personal.fn_telescope").browse_autoregistro_emociones()<cr>
+nnoremap <leader>fnc <cmd>lua require("personal.fn_telescope").search_nota_ciclo_actual_contenido()<cr>
+nnoremap <leader>fnn <cmd>lua require("personal.fn_telescope").search_nota_ciclo_actual_nombre()<cr>
 
 " permitir salir del modo terminal con <c-[>
 tnoremap <c-[> <c-\><c-n>

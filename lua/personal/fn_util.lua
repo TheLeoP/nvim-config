@@ -64,11 +64,9 @@ function M.nuevo_autoregistro_emociones()
 end
 
 function M.nueva_nota_U()
-  local callback = function(entry, prompt_bufnr)
-    require('telescope.actions').close(prompt_bufnr)
+  local callback = function(path)
 
-    if entry.path then
-      local path = entry.path
+    if path then
       local nombre = M.get_nombre_input_o_timestamp('la nota')
       local full_path = path .. 'Apuntes/' .. nombre
       vim.cmd(string.format("e %s", full_path))

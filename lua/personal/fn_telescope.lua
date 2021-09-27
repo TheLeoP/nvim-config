@@ -1,9 +1,10 @@
-local action_state = require('telescope.actions.state')
+local actions_state = require('telescope.actions.state')
+local actions = require('telescope.actions')
 
 local M = {}
 
 function M.ejecutar(prompt_bufnr)
-  local entry = action_state.get_selected_entry(prompt_bufnr)
+  local entry = actions_state.get_selected_entry(prompt_bufnr)
 
   if not entry then
     print("[telescope] Nothing currently selected")
@@ -34,7 +35,7 @@ end
 
 function M.search_trabajos()
   require("telescope.builtin").find_files({
-      prompt_title = "< Find Lucho >",
+      prompt_title = "< Buscar Lucho >",
       cwd = vim.g.documentos,
   })
 end
@@ -42,14 +43,14 @@ end
 function M.search_cd_files()
   vim.cmd('cd %:p:h')
   require("telescope.builtin").find_files({
-      prompt_title = "< Find cd files >",
+      prompt_title = "< Buscar cd files >",
   })
 end
 
 function M.browse_cd_files()
   vim.cmd('cd %:p:h')
   require("telescope.builtin").file_browser({
-      prompt_title = "< Find cd files >",
+      prompt_title = "< Buscar cd files >",
   })
 end
 
@@ -68,20 +69,56 @@ function M.browse_autoregistro_emociones()
 end
 
 function M.seleccionar_materia(callback)
-  local llamar_callback_y_cerrar = function(prompt_bufnr)
-    local selected_entry = action_state.get_selected_entry()
-    callback(selected_entry, prompt_bufnr)
+  local cerrar_y_llamar_callback = function(prompt_bufnr)
+    local selected_entry = actions_state.get_selected_entry()
+    local path = selected_entry.path
+    actions.close(prompt_bufnr)
+    callback(path)
   end
 
   require('telescope.builtin').file_browser({
       prompt_title = '< Seleccionar materia >',
       cwd = vim.g.documentos_u,
       attach_mappings = function(_, map)
-        map('i', '<cr>', llamar_callback_y_cerrar)
-        map('n', '<cr>', llamar_callback_y_cerrar)
+        map('i', '<cr>', cerrar_y_llamar_callback)
+        map('n', '<cr>', cerrar_y_llamar_callback)
         return true
       end
   })
+end
+
+function M.search_nota_ciclo_actual_contenido()
+  local callback = function(path)
+    if path then
+      local full_path = path .. 'Apuntes/'
+
+      require('telescope.builtin').live_grep({
+          cwd = full_path,
+          prompt_title = 'Buscar nota por contenido'
+      })
+    else
+      print('La entrada seleccionada no tiene path')
+    end
+  end
+
+  require('personal.fn_telescope').seleccionar_materia(callback)
+end
+
+function M.search_nota_ciclo_actual_nombre()
+  local callback = function(path)
+    if path then
+      local full_path = path .. 'Apuntes/'
+
+      require('telescope.builtin').find_files({
+          cwd = full_path,
+          prompt_title = 'Buscar nota por nombre'
+      })
+    else
+      print('La entrada seleccionada no tiene path')
+    end
+  end
+
+  require('personal.fn_telescope').seleccionar_materia(callback)
 end
 
 return M
