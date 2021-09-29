@@ -4,7 +4,7 @@ vim.g.lightline = {
 			 {'mode'}, {'git_branch'}, {'file_name'}
 		 },
 	   right = {
-			 {'filetype', 'percent', 'lineinfo'}, {'gps', 'lsp_status'}
+			 {'filetype'}, {'gps', 'lsp_status'}
 		 }
 	 },
 	 inactive = {

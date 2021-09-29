@@ -24,9 +24,15 @@ vim.g.coq_settings = {
     preview = {
       border = vim.g.lsp_borders
     }
+  },
+  match = {
+    unifying_chars = {
+      '-',
+      '_',
+    }
   }
 }
 
--- require('coq_3p')({
---   {src = "nvimlua", short_name = "nLua", conf_only = false}
--- })
+require('coq_3p')({
+  {src = "dap"}
+})
