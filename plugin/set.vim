@@ -13,7 +13,6 @@ set termguicolors   "creo que permite asignar colores a la terminal (?)
 " silent! set guifont=UbuntuMono\ NF:h15
 
 set conceallevel=0
-set t_Co=256
 
 set nohlsearch  "no resalta todos los resultados de una búsqueda
 set ignorecase  "case insensitive cuando se busca en minúsculas
