@@ -13,3 +13,6 @@ nnoremap <buffer> j gj
 nnoremap <buffer> k gk
 nnoremap <buffer> gj j
 nnoremap <buffer> gk k
+
+vmap <buffer> <leader>b S*gvS*
+vmap <buffer> <leader>i S*
