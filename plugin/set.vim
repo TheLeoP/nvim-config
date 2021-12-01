@@ -1,7 +1,6 @@
 set number  "muestra los números de las lineas en el lado izquierdo
 set relativenumber  "muestra los números relativos a la izquierda
 set nowrap  "las líneas largas se muestran como una sola línea
-set hidden  "permite cerrar/cambiar buffers sin grabar primero
 
 set noswapfile  "configura vim para no crear archivos .swap
 set nobackup    "configura vim para no crear archivos de respaldo
@@ -17,7 +16,7 @@ set conceallevel=0
 set nohlsearch  "no resalta todos los resultados de una búsqueda
 set ignorecase  "case insensitive cuando se busca en minúsculas
 set smartcase   "case sensitive cuando se busca en mayúsculas
-set inccommand=split " mostar cambios que hará el comando a escribir mientras se escribe
+" set inccommand=split " mostar cambios que hará el comando a escribir mientras se escribe
 
 set smarttab
 set expandtab

@@ -13,10 +13,6 @@ nmap <leader>rr <Plug>ReplaceWithRegisterLine
 nnoremap <silent> ]l :cnext<cr>zzzv
 nnoremap <silent> [l :cprev<cr>zzzv
 
-" mappings a eliminar cuando suba a Nvim 0.6
-nnoremap Y y$
-nnoremap <c-l> :nohlsearch<cr>:diffupdate<cr>:syntax sync fromstart<cr><c-l>
-
 " mantener centrado al usar n y N
 nnoremap n nzzzv
 nnoremap N Nzzzv
@@ -90,9 +86,6 @@ nnoremap <leader>fnn <cmd>lua require("personal.fn_telescope").search_nota_ciclo
 
 " permitir salir del modo terminal con <c-[>
 tnoremap <c-[> <c-\><c-n>
-
-" borrar una palabra en modo insert con <c-BS>
-inoremap <c-bs> <c-G>u<c-w>
 
 " compilar/comprobar sintaxis
 nmap <silent> <F7> :w<cr>:Dispatch<cr>
