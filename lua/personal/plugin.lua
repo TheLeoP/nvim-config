@@ -1,5 +1,3 @@
-local usar_plugins_oficiales = vim.g.desarrollo_plugins
-local usar_plugins_en_desarrollo = not vim.g.desarrollo_plugins
 
 return require('packer').startup(function(use)
 
@@ -88,12 +86,10 @@ return require('packer').startup(function(use)
   -- teesitter
   use {
     'nvim-treesitter/nvim-treesitter',
-    branch = '0.5-compat',
     run = ':TSUpdate',
   }
   use {
     'nvim-treesitter/nvim-treesitter-textobjects',
-    branch = '0.5-compat'
   }
 
   -- gps para statusline usando treesitter
