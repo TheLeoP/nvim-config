@@ -2,7 +2,7 @@ vim.o.completeopt = 'menuone,noselect,noinsert'
 vim.o.showmode = false
 
 vim.g.coq_settings = {
-  auto_start = 'shut-up',
+  auto_start = "shut-up",
   keymap = {
     recommended = false,
     jump_to_mark = "<m-,>"
@@ -15,6 +15,9 @@ vim.g.coq_settings = {
     },
     buffers = {
       match_syms = true
+    },
+    third_party = {
+      enabled = false
     }
   },
   display = {
@@ -23,6 +26,9 @@ vim.g.coq_settings = {
     },
     preview = {
       border = vim.g.lsp_borders
+    },
+    pum = {
+      fast_close = false
     }
   },
   match = {
@@ -30,9 +36,13 @@ vim.g.coq_settings = {
       '-',
       '_',
     }
+  },
+  limits = {
+    completion_auto_timeout = 1.0,
+    completion_manual_timeout = 1.0,
   }
 }
 
-require('coq_3p')({
-  {src = "dap"}
-})
+-- require('coq_3p')({
+--   {src = "dap"}
+-- })
