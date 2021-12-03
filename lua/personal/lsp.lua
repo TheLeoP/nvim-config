@@ -49,7 +49,7 @@ vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
   }
 )
 
--- configuración LS infividuales
+-- configuración LS individuales
 
 -- efm
 lspconfig.efm.setup {
