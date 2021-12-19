@@ -10,8 +10,12 @@ nmap <leader>r <Plug>ReplaceWithRegisterOperator
 nmap <leader>rr <Plug>ReplaceWithRegisterLine
 
 " remap move in quickfix-list
-nnoremap <silent> ]l :cnext<cr>zzzv
-nnoremap <silent> [l :cprev<cr>zzzv
+nnoremap <silent> ]c :cnext<cr>zzzv
+nnoremap <silent> [c :cprev<cr>zzzv
+
+" remap move in quickfix-list
+nnoremap <silent> ]l :lnext<cr>zzzv
+nnoremap <silent> [l :lprev<cr>zzzv
 
 " mantener centrado al usar n y N
 nnoremap n nzzzv
