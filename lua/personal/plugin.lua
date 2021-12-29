@@ -69,16 +69,14 @@ return require('packer').startup(function(use)
   -- telescope
   use 'nvim-lua/popup.nvim'
   use 'nvim-lua/plenary.nvim'
-  use{
-     'nvim-telescope/telescope.nvim',
-  }
+  use 'nvim-telescope/telescope.nvim'
   use {
     'nvim-telescope/telescope-fzf-native.nvim',
     run = vim.g.make_cmd
   }
-
-  -- extension para projectos en telescope
+  -- extensiones telescope
   use 'nvim-telescope/telescope-project.nvim'
+  use 'nvim-telescope/telescope-file-browser.nvim'
 
   -- íconos en nvim
   use 'kyazdani42/nvim-web-devicons'

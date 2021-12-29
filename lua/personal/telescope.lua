@@ -27,9 +27,20 @@ require('telescope').setup {
       override_generic_sorter = false,
       override_file_sorter = true,
       case_mode = "smart_case",
+    },
+    file_browser = {
+      mappings = {
+        i = {
+          ["<C-o>"] = personal_actions.ejecutar,
+        },
+        n = {
+          ["o"] = personal_actions.ejecutar,
+        }
+      }
     }
   }
 }
 
 require('telescope').load_extension('fzf')
 require('telescope').load_extension('project')
+require('telescope').load_extension('file_browser')

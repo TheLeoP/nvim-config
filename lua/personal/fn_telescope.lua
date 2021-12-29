@@ -27,7 +27,7 @@ end
 
 
 function M.browse_trabajos()
-  require("telescope.builtin").file_browser({
+  require('telescope').extensions.file_browser.file_browser({
       prompt_title = "< Browse Lucho >",
       cwd = vim.g.documentos,
   })
@@ -49,7 +49,7 @@ end
 
 function M.browse_cd_files()
   vim.cmd('cd %:p:h')
-  require("telescope.builtin").file_browser({
+  require('telescope').extensions.file_browser.file_browser({
       prompt_title = "< Buscar cd files >",
   })
 end
@@ -63,7 +63,7 @@ end
 
 function M.browse_autoregistro_emociones()
   vim.cmd('cd ' .. vim.g.notas_emociones)
-  require("telescope.builtin").file_browser({
+  require('telescope').extensions.file_browser.file_browser({
       prompt_title = "Browse autoregistro emociones",
   })
 end
@@ -76,7 +76,7 @@ function M.seleccionar_materia(callback)
     callback(path)
   end
 
-  require('telescope.builtin').file_browser({
+  require('telescope').extensions.file_browser.file_browser({
       prompt_title = '< Seleccionar materia >',
       cwd = vim.g.documentos_u,
       attach_mappings = function(_, map)

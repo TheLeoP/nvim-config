@@ -2,7 +2,6 @@ local M = {}
 
 local lspconfig = require('lspconfig')
 local illuminate = require('illuminate')
-local lsp_signature = require('lsp_signature')
 local jdtls = require('jdtls')
 local jdtls_dap = require('jdtls.dap')
 local jdtls_setup = require('jdtls.setup')
@@ -30,17 +29,6 @@ capabilities = vim.tbl_extend('keep', capabilities, lsp_status.capabilities)
 local on_attach_general = function(client, _)
   illuminate.on_attach(client)
   lsp_status.on_attach(client)
-  lsp_signature.on_attach({
-      bind = true,
-      doc_lines = 0,
-      floating_windows = true,
-      fix_pos = true,
-      hint_enable = false,
-      use_lspsaga = false,
-      handler_opts = {
-        border = vim.g.lsp_borders
-      }
-    })
 end
 
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(

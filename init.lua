@@ -13,6 +13,7 @@ require('personal.coq')
 
 -- lua/lsp
 require('personal.lsp')
+require('personal.signature')
 
 -- lua/devicons
 require('personal.devicons')
