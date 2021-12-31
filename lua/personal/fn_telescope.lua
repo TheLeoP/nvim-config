@@ -71,7 +71,7 @@ end
 function M.seleccionar_materia(callback)
   local cerrar_y_llamar_callback = function(prompt_bufnr)
     local selected_entry = actions_state.get_selected_entry()
-    local path = selected_entry.path
+    local path = selected_entry.path .. "\\"
     actions.close(prompt_bufnr)
     callback(path)
   end

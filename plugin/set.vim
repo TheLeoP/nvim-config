@@ -31,13 +31,13 @@ set signcolumn=yes
 set updatetime=300
 
 if has('win32')
-	let &shell = 'pwsh'
-	let &shellcmdflag = '-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command [Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;'
-	let &shellredir = '2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode'
-	let &shellpipe = '2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode'
-	set shellquote= shellxquote=
+	" let &shell = 'pwsh'
+	" let &shellcmdflag = '-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command [Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;'
+	" let &shellredir = '2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode'
+	" let &shellpipe = '2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode'
+	" set shellquote= shellxquote=
 
-	set undodir=~/undodir    "señala el registro en el cual guardar los archivos de deshacer/rehacer
+	set undodir=~/undodir    "señala el directorio en el cual guardar los archivos de deshacer/rehacer
 endif
 
 " vim-test
