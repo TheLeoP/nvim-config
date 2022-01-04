@@ -53,3 +53,6 @@ endif
 
 " autocompletion
 set shortmess+=c
+
+" mouse
+set mouse=a
