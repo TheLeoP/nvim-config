@@ -50,7 +50,8 @@ function M.get_nombre_time_stamp()
 end
 
 function M.get_nombre_input_o_timestamp(tipo)
-  local nombre = vim.fn.input(string.format('Ingrese el nombre de %s: ', tipo))
+  local prompt = string.format('Ingrese el nombre de %s: ', tipo)
+  local nombre = vim.fn.input(prompt)
   if nombre == "" then
     nombre = M.get_nombre_time_stamp()
   end

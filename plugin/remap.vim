@@ -73,6 +73,7 @@ nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 nnoremap <leader>fc <cmd>Telescope current_buffer_fuzzy_find<cr>
 nnoremap <leader>fs <cmd>Telescope live_grep<cr>
 nnoremap <leader>fds <cmd>Telescope lsp_document_symbols<cr>
+nnoremap <leader>fws <cmd>Telescope lsp_workspace_symbols<cr>
 nnoremap <leader>fr <cmd>Telescope resume<cr>
 
 " proyectos
@@ -118,7 +119,8 @@ nmap <silent> <leader>dr <cmd>lua require('dap').disconnect({restart = true})<cr
 nmap <silent> <leader>de <cmd>lua require('dap').disconnect()<cr><cmd>lua require('dap').close()<cr><cmd>lua require('dapui').close()<cr>
 nmap <silent> <leader>dp <cmd>lua require('dap').pause()<cr>
 nmap <silent> <leader>db <cmd>lua require('dap').toggle_breakpoint()<cr>
-nmap <silent> <leader>dB <cmd>lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<cr>
+nmap <silent> <leader>dB <cmd>lua require'dap'.set_breakpoint(vim.ui.input('Breakpoint condition: '))<cr>
+nmap <silent> <leader>dB <cmd>lua vim.ui.input({prompt='Breakpoint condition: '}, require'dap'.set_breakpoint())<cr>
 nmap <silent> <leader>dv <cmd>lua require('dap').step_over()<cr>
 nmap <silent> <leader>dsi <cmd>lua require('dap').step_into()<cr>
 nmap <silent> <leader>dso <cmd>lua require('dap').step_out()<cr>

@@ -108,6 +108,12 @@ return require('packer').startup(function(use)
   -- lsp diagnostics
   use 'nvim-lua/lsp-status.nvim'
 
+  -- GUI para vim.ui.input y vim.ui.select
+  use 'stevearc/dressing.nvim'
+
+  -- GUI para vim.notify
+  use 'rcarriga/nvim-notify'
+
   -- PERSONAL
 
 end)

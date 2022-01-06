@@ -1,7 +1,7 @@
 vim.g.lightline = {
 	 active = {
 	   left = {
-			 {'mode'}, {'git_branch'}, {'file_name'}
+			 {'mode'}, {'git_branch'}, {'file_name', 'modified'}
 		 },
 	   right = {
 			 {'filetype'}, {'gps', 'lsp_status'}

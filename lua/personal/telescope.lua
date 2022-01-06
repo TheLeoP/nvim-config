@@ -37,7 +37,7 @@ require('telescope').setup {
           ["o"] = personal_actions.ejecutar,
         }
       }
-    }
+    },
   }
 }
 

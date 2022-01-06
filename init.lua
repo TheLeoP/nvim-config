@@ -38,3 +38,9 @@ require('personal.dashboard')
 
 -- lua lightline
 require('personal.lightline')
+
+-- lua dressing
+require('personal.dressing')
+
+-- lua notify
+require('personal.notify')

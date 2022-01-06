@@ -39,28 +39,6 @@ vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
 
 -- configuración LS individuales
 
--- efm
-lspconfig.efm.setup {
-    init_options = {documentFormatting = true, codeAction = false},
-    filetypes = {'python'},
-    settings = {
-        rootMarkers = {".git/"},
-        languages = {
-            python = {
-              {
-                formatCommand = 'yapf --quiet',
-                formatStdin = true
-              },
-              {
-                lintCommand = 'flake8 --ignore=E501 --stdin-display-name ${INPUT} -',
-                lintStdin = true,
-                lintFormats = {"%f:%l:%c: %m"},
-              }
-            }
-        }
-    }
-}
-
 -- pyright
 lspconfig.pyright.setup{
   on_attach = on_attach_general,
@@ -139,11 +117,22 @@ function M.jdtls_setup()
   local eclipse_wd = vim.g.home_dir .. '/java-workspace/' .. vim.fn.fnamemodify(root_dir, ':h:t') .. '/' .. vim.fn.fnamemodify(root_dir, ':t')
 
   local config = {
+    settings = {
+      java = {
+        signatureHelp = {enabled = true},
+        contentProvider = {preferred = 'fernflower'}
+      }
+    },
     flags = {
       allow_incremental_sync = true,
     },
     capabilities = capabilities,
     on_attach = on_attach_java,
+    on_init = function(client)
+      if client.config.settings then
+        client.notify('workspace/didChangeConfiguration', {settings = client.config.settings})
+      end
+    end,
     cmd = {
       vim.g.java_lsp_cmd,
       eclipse_wd
