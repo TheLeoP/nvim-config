@@ -4,7 +4,7 @@ require('dressing').setup({
     default_prompt = "➤ ",
 
     -- When true, <Esc> will close the modal
-    insert_only = true,
+    insert_only = false,
 
     -- These are passed to nvim_open_win
     anchor = "SW",
@@ -19,7 +19,7 @@ require('dressing').setup({
     min_width = 20,
 
     -- Window transparency (0-100)
-    winblend = 10,
+    winblend = 0,
     -- Change default highlight groups (see :help winhl)
     winhighlight = "",
 
@@ -28,32 +28,12 @@ require('dressing').setup({
   },
   select = {
     -- Priority list of preferred vim.select implementations
-    backend = { "telescope", "fzf", "builtin", "nui" },
+    backend = { "telescope", "builtin"},
 
     -- Options for telescope selector
     telescope = {
       -- can be 'dropdown', 'cursor', or 'ivy'
       theme = "dropdown",
-    },
-
-    -- Options for fzf selector
-    fzf = {
-      window = {
-        width = 0.5,
-        height = 0.4,
-      },
-    },
-
-    -- Options for nui Menu
-    nui = {
-      position = "50%",
-      size = nil,
-      relative = "editor",
-      border = {
-        style = "rounded",
-      },
-      max_width = 80,
-      max_height = 40,
     },
 
     -- Options for built-in selector
