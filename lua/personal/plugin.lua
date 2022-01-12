@@ -1,5 +1,9 @@
+local packer = require('packer')
+local luarocks = require('packer.luarocks')
 
-return require('packer').startup(function(use)
+luarocks.install_commands()
+
+return packer.startup(function(use, use_rocks)
 
   -- Packer
   use 'wbthomason/packer.nvim'
@@ -114,6 +118,11 @@ return require('packer').startup(function(use)
   -- GUI para vim.notify
   use 'rcarriga/nvim-notify'
 
-  -- PERSONAL
+--   use_rocks {
+--     'winapi'
+--   }
+--   use_rocks {
+--     'hererocks'
+--   }
 
 end)

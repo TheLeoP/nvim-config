@@ -62,9 +62,6 @@ lspconfig.vimls.setup{
 -- lua
 local sumneko_root_path = vim.g.home_dir .. "/.lua-lsp/lua-language-server"
 local sumneko_binary = vim.g.home_dir .. "/.lua-lsp/lua-language-server/bin/" .. vim.g.os .. "/lua-language-server"
-local runtimepath = vim.split(package.path, ';')
-table.insert(runtimepath, 'lua/?/.lua')
-table.insert(runtimepath, 'lua/?/init.lua')
 lspconfig.sumneko_lua.setup {
   on_attach = on_attach_general,
   capabilities = capabilities,
@@ -74,8 +71,6 @@ lspconfig.sumneko_lua.setup {
       runtime = {
         -- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
         version = 'LuaJIT',
-        -- Setup your lua path
-        path = runtimepath
       },
       diagnostics = {
         -- Get the language server to recognize the `vim` global
@@ -83,7 +78,10 @@ lspconfig.sumneko_lua.setup {
       },
       workspace = {
         -- Make the server aware of Neovim runtime files
-        library = vim.api.nvim_get_runtime_file('', true)
+        library = {
+          [vim.fn.expand("$VIMRUNTIME/lua")] = true,
+          [vim.fn.stdpath("config") .. "/lua"] = true
+        }
       },
       telemetry = {
         enable = false
