@@ -84,8 +84,8 @@ nnoremap <silent><leader>fi <cmd>lua require("personal.fn_telescope").search_dot
 nnoremap <silent><leader>fl <cmd>lua require("personal.fn_telescope").search_trabajos()<cr>
 nnoremap <silent><leader>fL <cmd>lua require("personal.fn_telescope").browse_trabajos()<cr>
 nnoremap <leader>fF <cmd>lua require("personal.fn_telescope").browse_cd_files()<cr>
-nnoremap <leader>fa <cmd>lua require("personal.fn_telescope").search_autoregistro_emociones()<cr>
-nnoremap <leader>fA <cmd>lua require("personal.fn_telescope").browse_autoregistro_emociones()<cr>
+nnoremap <leader>fa <cmd>lua require("personal.fn_telescope").search_autoregistro()<cr>
+nnoremap <leader>fA <cmd>lua require("personal.fn_telescope").browse_autoregistro()<cr>
 nnoremap <leader>fnc <cmd>lua require("personal.fn_telescope").search_nota_ciclo_actual_contenido()<cr>
 nnoremap <leader>fnn <cmd>lua require("personal.fn_telescope").search_nota_ciclo_actual_nombre()<cr>
 
@@ -179,8 +179,8 @@ vnoremap <silent> <leader>e <cmd>lua require('personal.fn_util').visual_ejecutar
 nnoremap <leader><leader>ss <cmd>lua require('personal.fn_dashboard').guardar_sesion()<cr>
 nnoremap <leader><leader>sl <cmd>lua require('personal.fn_dashboard').cargar_sesion()<cr>
 
-" crear un nuevo autoregistro de mis emociones
-nnoremap <leader>na <cmd>lua require('personal.fn_util').nuevo_autoregistro_emociones()<cr>
+" crear un nuevo autoregistro personal
+nnoremap <leader>na <cmd>lua require('personal.fn_util').nuevo_autoregistro()<cr>
 nnoremap <leader>nn <cmd>lua require('personal.fn_util').nueva_nota_U()<cr>
 
 " mapping para cambiar ys por <leader>s

@@ -54,17 +54,17 @@ function M.browse_cd_files()
   })
 end
 
-function M.search_autoregistro_emociones()
+function M.search_autoregistro()
   require("telescope.builtin").find_files({
-      prompt_title = "Search autoregistro emociones",
-      cwd = vim.g.notas_emociones
+      prompt_title = "Search autoregistro",
+      cwd = vim.g.autoregistro
   })
 end
 
-function M.browse_autoregistro_emociones()
-  vim.cmd('cd ' .. vim.g.notas_emociones)
+function M.browse_autoregistro()
+  vim.cmd('cd ' .. vim.g.autoregistro)
   require('telescope').extensions.file_browser.file_browser({
-      prompt_title = "Browse autoregistro emociones",
+      prompt_title = "Browse autoregistro",
   })
 end
 

@@ -17,7 +17,7 @@ else
   vim.g.desarrollo_plugins = false
 end
 
-vim.g.notas_emociones = vim.g.documentos .. '/Personal/notas/autoregistro-emociones'
+vim.g.autoregistro = vim.g.documentos .. '/Personal/notas/autoregistro'
 vim.g.documentos_u = vim.g.documentos .. '/Documentos U/' .. vim.g.ciclo_actual .. '/'
 
 function _G.expand(...)
