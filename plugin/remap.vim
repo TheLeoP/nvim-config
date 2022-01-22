@@ -119,8 +119,7 @@ nmap <silent> <leader>dr <cmd>lua require('dap').disconnect({restart = true})<cr
 nmap <silent> <leader>de <cmd>lua require('dap').disconnect()<cr><cmd>lua require('dap').close()<cr><cmd>lua require('dapui').close()<cr>
 nmap <silent> <leader>dp <cmd>lua require('dap').pause()<cr>
 nmap <silent> <leader>db <cmd>lua require('dap').toggle_breakpoint()<cr>
-nmap <silent> <leader>dB <cmd>lua require'dap'.set_breakpoint(vim.ui.input('Breakpoint condition: '))<cr>
-nmap <silent> <leader>dB <cmd>lua vim.ui.input({prompt='Breakpoint condition: '}, require'dap'.set_breakpoint())<cr>
+nmap <silent> <leader>dB <cmd>lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<cr>
 nmap <silent> <leader>dv <cmd>lua require('dap').step_over()<cr>
 nmap <silent> <leader>dsi <cmd>lua require('dap').step_into()<cr>
 nmap <silent> <leader>dso <cmd>lua require('dap').step_out()<cr>

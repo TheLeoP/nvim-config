@@ -53,7 +53,7 @@ dap.configurations.lua = {
     name = "nlua attach",
     host = '127.0.0.1',
     port = function()
-      local val = tonumber(vim.ui.input('Port: '))
+      local val = tonumber(vim.fn.input('Port: '))
       return val
     end,
   }
