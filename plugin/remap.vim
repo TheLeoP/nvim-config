@@ -44,8 +44,8 @@ nnoremap <silent><expr> j (v:count > 5 ? "m'" . v:count : "") . 'j'
 " manejo de linas en todos los modos
 vnoremap <silent> <a-j> :m '>+1<cr>gv=gv
 vnoremap <silent> <a-k> :m '<-2<cr>gv=gv
-nnoremap <silent> <leader>j :m .+1<cr>==
-nnoremap <silent> <leader>k :m .-2<cr>==
+nnoremap <silent> <a-j> :m .+1<cr>==
+nnoremap <silent> <a-k> :m .-2<cr>==
 inoremap <silent> <a-j> <esc>:m .+1<cr>==gi
 inoremap <silent> <a-k> <esc>:m .-2<cr>==gi
 
@@ -129,12 +129,6 @@ nmap <silent> <leader>dtc <cmd>lua require('dap').run_to_cursor()<cr>
 
 " vim-fugitive
 nnoremap <silent> <leader>g :G<cr>
-
-" alt + hjkl para cambiar tamaño de ventanas
-nnoremap <silent> <a-j> :resize +2<cr>
-nnoremap <silent> <a-k> :resize -2<cr>
-nnoremap <silent> <a-h> :vertical resize -2<cr>
-nnoremap <silent> <a-l> :vertical resize +2<cr>
 
 " ejecutar archivos
 function! s:executor() abort

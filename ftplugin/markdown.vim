@@ -9,8 +9,8 @@ nmap <buffer> <leader>sug zug
 nmap <buffer> <leader>sw zw
 nmap <buffer> <leader>suw zuw
 
-nnoremap <buffer> j gj
-nnoremap <buffer> k gk
+nnoremap <expr><buffer> j v:count ? 'j' : 'gj'
+nnoremap <expr><buffer> k v:count ? 'k' : 'gk'
 nnoremap <buffer> gj j
 nnoremap <buffer> gk k
 
