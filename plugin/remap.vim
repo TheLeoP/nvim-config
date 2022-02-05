@@ -58,8 +58,9 @@ nnoremap <silent> <c-k> <cmd>lua vim.lsp.buf.signature_help()<cr>
 nnoremap <silent> K <cmd>lua vim.lsp.buf.hover()<cr>
 nnoremap <silent> <leader>rn <cmd>lua vim.lsp.buf.rename()<cr>
 nnoremap <silent> <leader>ca <cmd>lua vim.lsp.buf.code_action()<CR>
-nnoremap <silent> ]e <cmd>lua vim.lsp.diagnostic.goto_next()<cr>
-nnoremap <silent> [e <cmd>lua vim.lsp.diagnostic.goto_prev()<cr>
+nnoremap <silent> ]e <cmd>lua vim.diagnostic.goto_next()<cr>
+nnoremap <silent> [e <cmd>lua vim.diagnostic.goto_prev()<cr>
+nnoremap <silent> <leader>e <cmd>lua vim.diagnostic.open_float()<cr>
 
 " formatear
 nnoremap <silent> <leader>fm <cmd>lua vim.lsp.buf.formatting_sync(nil, 1000)<cr>
@@ -156,7 +157,7 @@ inoremap <silent><expr> <CR>    pumvisible() ? (complete_info().selected == -1 ?
 inoremap <silent><expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <silent><expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<BS>"
 
-" aumentar capacidad de i_ctrl-a
+" aumentar capacidad de ctrl-a
 nmap <c-a> <Plug>(dial-increment)
 nmap <c-x> <Plug>(dial-decrement)
 vmap <c-a> <Plug>(dial-increment)
@@ -166,7 +167,7 @@ vmap g<c-x> <Plug>(dial-decrement-additional)
 
 " permite ejecutar un comando seleccionado visualmente en la última consola
 " abierta
-vnoremap <silent> <leader>e <cmd>lua require('personal.fn_util').visual_ejecutar_en_terminal()<cr>
+vnoremap <silent> <leader>E <cmd>lua require('personal.fn_util').visual_ejecutar_en_terminal()<cr>
 
 " grabar y cargar sesiones con un nombre
 nnoremap <leader><leader>ss <cmd>lua require('personal.fn_dashboard').guardar_sesion()<cr>

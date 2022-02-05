@@ -3,7 +3,7 @@ require('personal.globals')
 
 
 -- plugin
-require('personal.plugin')
+require('personal.packer')
 
 -- lua/colorscheme
 require('personal.colorscheme')

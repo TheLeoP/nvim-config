@@ -118,11 +118,8 @@ return packer.startup(function(use, use_rocks)
   -- GUI para vim.notify
   use 'rcarriga/nvim-notify'
 
---   use_rocks {
---     'winapi'
---   }
---   use_rocks {
---     'hererocks'
---   }
+  -- use_rocks {
+  --   'winapi'
+  -- }
 
 end)
