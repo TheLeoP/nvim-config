@@ -67,7 +67,7 @@ nnoremap <silent> <leader>fm <cmd>lua vim.lsp.buf.formatting_sync(nil, 1000)<cr>
 
 " telescope
 " Find files using Telescope command-line sugar.
-nnoremap <leader>ff <cmd>lua require("personal.fn_telescope").search_cd_files()<cr>
+nnoremap <leader>ff <cmd>Telescope find_files<cr>
 nnoremap <leader>fg <cmd>Telescope git_branches<cr>
 nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope help_tags<cr>
@@ -154,8 +154,8 @@ nnoremap <leader><leader>x :call <SID>save_and_exec()<cr>
 
 inoremap <silent><expr> <BS>    pumvisible() ? "\<C-e><BS>"  : "\<BS>"
 inoremap <silent><expr> <CR>    pumvisible() ? (complete_info().selected == -1 ? "\<C-e><CR>" : "\<C-y>") : "\<CR>"
-inoremap <silent><expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
-inoremap <silent><expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<BS>"
+inoremap <silent><expr> <Tab>   pumvisible() ? "\<down>" : "\<Tab>"
+inoremap <silent><expr> <S-Tab> pumvisible() ? "\<up>" : "\<BS>"
 
 " aumentar capacidad de ctrl-a
 nmap <c-a> <Plug>(dial-increment)

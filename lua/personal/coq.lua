@@ -14,10 +14,10 @@ vim.g.coq_settings = {
       }
     },
     buffers = {
-      match_syms = true
+      match_syms = false
     },
     third_party = {
-      enabled = false
+      enabled = true
     }
   },
   display = {
@@ -43,6 +43,13 @@ vim.g.coq_settings = {
   }
 }
 
--- require('coq_3p')({
---   {src = "dap"}
--- })
+require('coq_3p')({
+  {
+    src = "dap"
+  },
+  {
+    src = "nvimlua",
+    short_name = "nLUA",
+    conf_only = false
+  }
+})
