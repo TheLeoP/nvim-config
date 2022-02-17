@@ -43,6 +43,7 @@ endif
 " vim-test
 let test#java#runner = 'gradletest'
 let test#strategy = "dispatch"
+let g:sql_type_default = 'pgsql'
 
 " lua
 let g:vimsyn_embed = 'l'
