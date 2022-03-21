@@ -9,8 +9,6 @@ require('dressing').setup({
     -- These are passed to nvim_open_win
     anchor = "SW",
     relative = "cursor",
-    row = 0,
-    col = 0,
     border = "rounded",
 
     -- These can be integers or a float between 0 and 1 (e.g. 0.4 for 40%)
@@ -30,19 +28,17 @@ require('dressing').setup({
     -- Priority list of preferred vim.select implementations
     backend = { "telescope", "builtin"},
 
-    -- Options for telescope selector
-    telescope = {
-      -- can be 'dropdown', 'cursor', or 'ivy'
-      theme = "dropdown",
-    },
+    -- -- Options for telescope selector
+    -- telescope = {
+    --   -- can be 'dropdown', 'cursor', or 'ivy'
+    --   theme = "dropdown",
+    -- },
 
     -- Options for built-in selector
     builtin = {
       -- These are passed to nvim_open_win
       anchor = "NW",
       relative = "cursor",
-      row = 0,
-      col = 0,
       border = "rounded",
 
       -- Window transparency (0-100)

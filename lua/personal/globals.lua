@@ -7,7 +7,7 @@ if vim.fn.has("win32") == 1 then
   vim.g.documentos = 'D:/Lucho'
   vim.g.os = "Windows"
   vim.g.java_lsp_cmd = "prueba.bat"
-  vim.g.make_cmd = 'bash -c make'
+  vim.g.make_cmd = 'make'
   vim.g.desarrollo_plugins = true
 else
   vim.g.documentos = vim.g.home_dir .. '/Documentos'

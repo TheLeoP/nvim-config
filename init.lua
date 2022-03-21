@@ -1,3 +1,6 @@
+-- impatient.nvim
+require('impatient')
+
 -- funciones y variable globales peronales
 require('personal.globals')
 

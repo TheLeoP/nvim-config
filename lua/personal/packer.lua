@@ -3,7 +3,7 @@ local luarocks = require('packer.luarocks')
 
 luarocks.install_commands()
 
-return packer.startup(function(use, use_rocks)
+return packer.startup(function(use)
 
   -- Packer
   use 'wbthomason/packer.nvim'
@@ -118,8 +118,8 @@ return packer.startup(function(use, use_rocks)
   -- GUI para vim.notify
   use 'rcarriga/nvim-notify'
 
-  -- use_rocks {
-  --   'winapi'
-  -- }
+  -- mejoran la carga de neovim
+  use 'lewis6991/impatient.nvim'
+  use 'nathom/filetype.nvim'
 
 end)
