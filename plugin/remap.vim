@@ -167,7 +167,7 @@ vmap g<c-x> <Plug>(dial-decrement-additional)
 
 " permite ejecutar un comando seleccionado visualmente en la última consola
 " abierta
-vnoremap <silent> <leader>E <cmd>lua require('personal.fn_util').visual_ejecutar_en_terminal()<cr>
+vnoremap <silent> <leader><leader>e <cmd>lua require('personal.fn_util').visual_ejecutar_en_terminal()<cr>
 
 " grabar y cargar sesiones con un nombre
 nnoremap <leader><leader>ss <cmd>lua require('personal.fn_dashboard').guardar_sesion()<cr>
