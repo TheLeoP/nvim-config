@@ -1,7 +1,7 @@
 vim.g.home_dir = vim.api.nvim_eval('$HOME')
 vim.g.lsp_borders = { '┏', '━', '┓', '┃', '┛', '━', '┗', '┃' }
 
-vim.g.ciclo_actual = '7mo ciclo'
+vim.g.ciclo_actual = '8vo ciclo'
 
 if vim.fn.has("win32") == 1 then
   vim.g.documentos = 'D:/Lucho'

@@ -2,6 +2,7 @@ setlocal spell
 setlocal spelllang=es,en
 setlocal wrap
 setlocal colorcolumn=0
+setlocal conceallevel=3
 
 nmap <buffer> <leader>sc z=
 nmap <buffer> <leader>sg zg

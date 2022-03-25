@@ -127,9 +127,6 @@ nmap <silent> <leader>dso <cmd>lua require('dap').step_out()<cr>
 nmap <silent> <leader>dsb <cmd>lua require('dap').step_back()<cr>
 nmap <silent> <leader>dtc <cmd>lua require('dap').run_to_cursor()<cr>
 
-" vim-fugitive
-nnoremap <silent> <leader>g :G<cr>
-
 " ejecutar archivos
 function! s:executor() abort
     if &filetype == 'lua'
@@ -162,8 +159,8 @@ nmap <c-a> <Plug>(dial-increment)
 nmap <c-x> <Plug>(dial-decrement)
 vmap <c-a> <Plug>(dial-increment)
 vmap <c-x> <Plug>(dial-decrement)
-vmap g<c-a> <Plug>(dial-increment-additional)
-vmap g<c-x> <Plug>(dial-decrement-additional)
+vmap g<c-a> g<Plug>(dial-decrement)
+vmap g<c-x> g<Plug>(dial-decrement)
 
 " permite ejecutar un comando seleccionado visualmente en la última consola
 " abierta
@@ -183,3 +180,6 @@ nmap <leader>S  <Plug>YSurround
 nmap <leader>ss <Plug>Yssurround
 nmap <leader>Ss <Plug>YSsurround
 nmap <leader>SS <Plug>YSsurround
+
+" borar palabra con <c-bs> o <c-h>
+inoremap  

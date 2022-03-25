@@ -45,7 +45,7 @@ function M.visual_ejecutar_en_terminal()
 end
 
 function M.get_nombre_time_stamp()
-  local nombre = os.date():gsub('[/:]', '-') .. '.md'
+  local nombre = os.date('%d-%m-%Y %H-%M-%S') .. '.md'
   return nombre
 end
 
