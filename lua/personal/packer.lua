@@ -134,9 +134,6 @@ return packer.startup(function(use)
   -- mejor soporte para terminal
   use 'norcalli/nvim-terminal.lua'
 
-  -- Neomux (better terminal integration)
-  use 'nikvdp/neomux'
-
   -- lista para mostrar diagnósticos, referencias, etc
   use 'folke/trouble.nvim'
 

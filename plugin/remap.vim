@@ -91,29 +91,26 @@ nnoremap <leader>fnc <cmd>lua require("personal.fn_telescope").search_nota_ciclo
 nnoremap <leader>fnn <cmd>lua require("personal.fn_telescope").search_nota_ciclo_actual_nombre()<cr>
 
 " permitir salir del modo terminal con <c-[>
-tnoremap <c-[> <c-\><c-n>
 tnoremap  <c-\><c-n>
+nnoremap <c-w>t <c-w>v<cmd>term<cr>
 
+" TODO: corregir mappings Dispatch
 " compilar/comprobar sintaxis
-nmap <silent> <F7> :w<cr>:Dispatch<cr>
+" nmap <silent> <F7> :w<cr>:Dispatch<cr>
 
 " correr programa
-nmap <silent> <F8> :w<cr>:Dispatch<cr>;
-
-" quick semi
-nnoremap <leader>; A;<Esc>
+" nmap <silent> <F8> :w<cr>:Dispatch<cr>;
 
 " w and q
 nnoremap <silent> <leader>w :w<cr>
 nnoremap <silent> <leader>q :q<cr>
 
 " vim-test
-" TODO: cambiar mappings para pruebas
-" nnoremap <silent> <leader>tn :TestNearest<cr>
-" nnoremap <silent> <leader>tf :TestFile<cr>
-" nnoremap <silent> <leader>ts :TestSuite<cr>
-" nnoremap <silent> <leader>tl :TestLast<cr>
-" nnoremap <silent> <leader>tv :TestVisit<cr>
+nnoremap <silent> <leader>pn :TestNearest<cr>
+nnoremap <silent> <leader>pf :TestFile<cr>
+nnoremap <silent> <leader>ps :TestSuite<cr>
+nnoremap <silent> <leader>pl :TestLast<cr>
+nnoremap <silent> <leader>pv :TestVisit<cr>
 
 " DAP
 nmap <silent> <leader>dc <cmd>lua require('dap').continue()<cr>
