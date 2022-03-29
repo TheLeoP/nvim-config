@@ -93,6 +93,9 @@ return packer.startup(function(use)
   use {
     'nvim-treesitter/nvim-treesitter-textobjects',
   }
+  use {
+    'RRethy/nvim-treesitter-textsubjects',
+  }
 
   -- gps para statusline usando treesitter
   use 'SmiteshP/nvim-gps'
@@ -121,5 +124,23 @@ return packer.startup(function(use)
   -- mejoran la carga de neovim
   use 'lewis6991/impatient.nvim'
   use 'nathom/filetype.nvim'
+
+  -- diagramas en nvim
+  use 'jbyuki/venn.nvim'
+
+  -- soporte para REST request
+  use 'NTBBloodbath/rest.nvim'
+
+  -- mejor soporte para terminal
+  use 'norcalli/nvim-terminal.lua'
+
+  -- Neomux (better terminal integration)
+  use 'nikvdp/neomux'
+
+  -- lista para mostrar diagnósticos, referencias, etc
+  use 'folke/trouble.nvim'
+
+  -- Mejor soporte para comentarios con TODO
+  use 'folke/todo-comments.nvim'
 
 end)

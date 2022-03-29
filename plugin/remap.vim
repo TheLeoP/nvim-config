@@ -92,6 +92,7 @@ nnoremap <leader>fnn <cmd>lua require("personal.fn_telescope").search_nota_ciclo
 
 " permitir salir del modo terminal con <c-[>
 tnoremap <c-[> <c-\><c-n>
+tnoremap  <c-\><c-n>
 
 " compilar/comprobar sintaxis
 nmap <silent> <F7> :w<cr>:Dispatch<cr>
@@ -107,11 +108,12 @@ nnoremap <silent> <leader>w :w<cr>
 nnoremap <silent> <leader>q :q<cr>
 
 " vim-test
-nnoremap <silent> <leader>tn :TestNearest<cr>
-nnoremap <silent> <leader>tf :TestFile<cr>
-nnoremap <silent> <leader>ts :TestSuite<cr>
-nnoremap <silent> <leader>tl :TestLast<cr>
-nnoremap <silent> <leader>tv :TestVisit<cr>
+" TODO: cambiar mappings para pruebas
+" nnoremap <silent> <leader>tn :TestNearest<cr>
+" nnoremap <silent> <leader>tf :TestFile<cr>
+" nnoremap <silent> <leader>ts :TestSuite<cr>
+" nnoremap <silent> <leader>tl :TestLast<cr>
+" nnoremap <silent> <leader>tv :TestVisit<cr>
 
 " DAP
 nmap <silent> <leader>dc <cmd>lua require('dap').continue()<cr>
@@ -183,3 +185,18 @@ nmap <leader>SS <Plug>YSsurround
 
 " borar palabra con <c-bs> o <c-h>
 inoremap  
+
+" venn
+nnoremap <leader>v <cmd>lua Toggle_venn()<cr>
+
+" Trouble.nvim
+nnoremap <leader>tt <cmd>TroubleToggle<cr>
+nnoremap <leader>tw <cmd>TroubleToggle workspace_diagnostics<cr>
+nnoremap <leader>td <cmd>TroubleToggle document_diagnostics<cr>
+nnoremap <leader>tc <cmd>TroubleToggle quickfix<cr>
+nnoremap <leader>tl <cmd>TroubleToggle loclist<cr>
+nnoremap gR <cmd>TroubleToggle lsp_references<cr>
+nnoremap [t <cmd>lua require'trouble'.previous({skip_groups = true, jump = true})<cr>
+nnoremap ]t <cmd>lua require'trouble'.next({skip_groups = true, jump = true})<cr>
+nnoremap <leader>tT <cmd>TodoTrouble<cr>
+nnoremap <leader>fT <cmd>TodoTelescope<cr>

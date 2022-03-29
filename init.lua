@@ -26,6 +26,7 @@ require('personal.telescope')
 
 -- lua/treesitter
 require('personal.treesitter')
+require('personal.treesitter-textsubjects')
 
 -- lua dap
 require('personal.dap')
@@ -47,3 +48,13 @@ require('personal.dressing')
 
 -- lua notify
 require('personal.notify')
+
+-- lua venn
+require('personal.venn')
+
+-- lua rest support
+require('personal.rest')
+
+-- lua trouble
+require('personal.trouble')
+require('personal.todo-comments')

@@ -17,7 +17,7 @@ function M.cargar_sesion()
     end
   end
 
-  local nombre_sesion = vim.ui.input({prompt='Ingrese el nombre de la sesión: '}, callback)
+  vim.ui.input({prompt='Ingrese el nombre de la sesión: '}, callback)
 end
 
 return M
