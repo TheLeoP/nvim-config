@@ -57,4 +57,3 @@ require('personal.rest')
 
 -- lua trouble
 require('personal.trouble')
-require('personal.todo-comments')

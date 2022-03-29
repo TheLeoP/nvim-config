@@ -7,14 +7,15 @@ endfunction
 
 function! LightlineFilename() abort
 	let filename = expand('%:t')
+	let fullpath = expand('%:p')
 	let extension = expand('%:e')
 	if strlen(filename) > 0 || strlen(extension) > 0
 		let icon = luaeval('require"nvim-web-devicons".get_icon("' . filename . '","' . extension . '")')
-		return icon . " " . filename
+		return icon . " " . fullpath
 	elseif filename == ""
 		return '[Sin nombre]'
 	else
-		return filename
+		return fullpath
 	endif
 endfunction
 

@@ -137,7 +137,4 @@ return packer.startup(function(use)
   -- lista para mostrar diagnósticos, referencias, etc
   use 'folke/trouble.nvim'
 
-  -- Mejor soporte para comentarios con TODO
-  use 'folke/todo-comments.nvim'
-
 end)

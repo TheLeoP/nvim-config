@@ -7,3 +7,5 @@ highlight def link FloatBorder NormalFloat
 
 " highlight ExtraWhitespace ctermbg=red guibg=red
 " match ExtraWhitespace /\s\+$/
+
+highlight WinSeparator guibg=None
