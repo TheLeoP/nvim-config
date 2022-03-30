@@ -19,11 +19,11 @@ function _G.Toggle_venn()
         vim.notify('Venn.nvim activated', vim.log.levels.INFO, notify_options)
     else
         vim.cmd[[setlocal virtualedit=]]
-        vim.api.nvim_buf_set_keymap(0, "n", "J", "<nop>", {noremap = true})
-        vim.api.nvim_buf_set_keymap(0, "n", "K", "<nop>", {noremap = true})
-        vim.api.nvim_buf_set_keymap(0, "n", "L", "<nop>", {noremap = true})
-        vim.api.nvim_buf_set_keymap(0, "n", "H", "<nop>", {noremap = true})
-        vim.api.nvim_buf_set_keymap(0, "v", "f", "<nop>", {noremap = true})
+        vim.api.nvim_buf_del_keymap(0, "n", "J")
+        vim.api.nvim_buf_del_keymap(0, "n", "K")
+        vim.api.nvim_buf_del_keymap(0, "n", "L")
+        vim.api.nvim_buf_del_keymap(0, "n", "H")
+        vim.api.nvim_buf_del_keymap(0, "v", "f")
         vim.b.venn_enabled = nil
         vim.notify('Venn.nvim deactivated', vim.log.levels.INFO, notify_options)
     end

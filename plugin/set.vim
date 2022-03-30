@@ -63,3 +63,5 @@ set splitbelow
 set splitright
 
 set laststatus=3
+
+set cursorline
