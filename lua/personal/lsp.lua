@@ -149,4 +149,17 @@ function M.jdtls_setup()
   jdtls.start_or_attach(config)
 end
 
+-- html
+lspconfig.html.setup({
+  on_attach = on_attach_general,
+  capabilities = capabilities,
+})
+
+-- emmet-ls
+lspconfig.emmet_ls.setup({
+  on_attach = on_attach_general,
+  capabilities = capabilities,
+})
+
+
 return M

@@ -1,6 +1,8 @@
 setlocal spell
 setlocal spelllang=es,en
 setlocal wrap
+setlocal linebreak
+setlocal breakindent
 setlocal colorcolumn=0
 setlocal conceallevel=3
 

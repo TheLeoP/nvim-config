@@ -17,7 +17,7 @@ return packer.startup(function(use)
   use 'radenling/vim-dispatch-neovim'
 
   -- soporte para múltiples lenguajes
-  use 'sheerun/vim-polyglot'
+  use 'nyuszika7h/vim-polyglot'
 
   -- colorscheme
   use 'tjdevries/colorbuddy.vim'
@@ -136,5 +136,9 @@ return packer.startup(function(use)
 
   -- lista para mostrar diagnósticos, referencias, etc
   use 'folke/trouble.nvim'
+
+  -- db
+  use 'tpope/vim-dadbod'
+  use 'kristijanhusak/vim-dadbod-ui'
 
 end)
