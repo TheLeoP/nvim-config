@@ -4,6 +4,9 @@ require('impatient')
 -- funciones y variable globales peronales
 require('personal.globals')
 
+-- vim polyglot
+require('personal.polyglot')
+
 
 -- plugin
 require('personal.packer')

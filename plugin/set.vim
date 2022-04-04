@@ -65,3 +65,6 @@ set splitright
 set laststatus=3
 
 set cursorline
+
+let g:db_ui_force_echo_notifications = 1
+let g:db_ui_show_database_icon = 1
