@@ -49,7 +49,10 @@ lspconfig.pyright.setup{
 -- tsserver
 lspconfig.tsserver.setup{
   on_attach = on_attach_general,
-  capabilities = capabilities
+  capabilities = capabilities,
+  config = {
+    root_dir = jdtls_setup.find_root({'tsconfig.json', 'package.json', 'jsconfig.json', '.git'})
+  }
 }
 
 -- viml
