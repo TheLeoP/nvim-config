@@ -1,7 +1,4 @@
 local packer = require('packer')
-local luarocks = require('packer.luarocks')
-
-luarocks.install_commands()
 
 return packer.startup(function(use)
 

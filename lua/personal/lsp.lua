@@ -155,6 +155,18 @@ lspconfig.html.setup({
   capabilities = capabilities,
 })
 
+-- json
+lspconfig.jsonls.setup({
+  on_attach = on_attach_general,
+  capabilities = capabilities,
+})
+
+-- css
+lspconfig.cssls.setup({
+  on_attach = on_attach_general,
+  capabilities = capabilities,
+})
+
 -- emmet-ls
 lspconfig.emmet_ls.setup({
   on_attach = on_attach_general,
