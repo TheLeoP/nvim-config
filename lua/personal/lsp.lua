@@ -110,6 +110,18 @@ function M.jdtls_setup()
 
   local root_dir = jdtls_setup.find_root({'build.gradle', 'pom.xml'})
 
+  -- si no se encuentra la raíz del proyecto, se finaliza sin inicializar jdt.ls
+  if not root_dir then
+    vim.notify(
+      'No se ha encontrado la raíz del proyecto.\nNo se iniciará jdt.ls',
+      vim.log.levels.WARN,
+      {
+        title = 'jdt.ls status',
+        timeout = 200
+      })
+    return
+  end
+
   local antiguo_dir = vim.fn.getcwd();
   if antiguo_dir ~= root_dir then
     vim.api.nvim_set_current_dir(root_dir)
