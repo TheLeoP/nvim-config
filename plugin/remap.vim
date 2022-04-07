@@ -49,6 +49,9 @@ nnoremap <silent> <a-k> :m .-2<cr>==
 inoremap <silent> <a-j> <esc>:m .+1<cr>==gi
 inoremap <silent> <a-k> <esc>:m .-2<cr>==gi
 
+vnoremap <silent> <a-h> <cmd>noautocmd normal! xhhp`<h<c-v>`>h<cr>
+vnoremap <silent> <a-l> <cmd>noautocmd normal! xp`<l<c-v>`>l<cr>
+
 " LSP
 nnoremap <silent> gd <cmd>lua vim.lsp.buf.definition()<cr>
 nnoremap <silent> gD <cmd>lua vim.lsp.buf.declaration()<cr>
