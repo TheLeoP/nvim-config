@@ -181,6 +181,7 @@ nmap <leader>Ss <Plug>YSsurround
 nmap <leader>SS <Plug>YSsurround
 
 " borar palabra con <c-bs> o <c-h>
+inoremap <C-BS> 
 inoremap  
 
 " venn
