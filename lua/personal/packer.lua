@@ -138,4 +138,7 @@ return packer.startup(function(use)
   use 'tpope/vim-dadbod'
   use 'kristijanhusak/vim-dadbod-ui'
 
+  -- visualizar colores en hex
+  use 'norcalli/nvim-colorizer.lua'
+
 end)

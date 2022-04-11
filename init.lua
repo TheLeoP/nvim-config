@@ -60,3 +60,7 @@ require('personal.rest')
 
 -- lua trouble
 require('personal.trouble')
+
+-- lua colorizer
+require('personal.colorizer')
+
