@@ -2,7 +2,7 @@
 let mapleader = " "
 
 " cambiar current working directory
-nnoremap <leader>cd <cmd>tcd %:p:h<CR><cmd>pwd<CR>
+nnoremap <leader>cd <cmd>tcd %:p:h<CR>
 
 " remap replace with register
 xmap <leader>r <Plug>ReplaceWithRegisterVisual

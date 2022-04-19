@@ -3,3 +3,6 @@
 spell/
 
 plugin/packer_compiled.lua
+
+tags
+tags.log

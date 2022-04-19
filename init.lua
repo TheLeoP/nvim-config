@@ -64,3 +64,9 @@ require('personal.trouble')
 -- lua colorizer
 require('personal.colorizer')
 
+-- lua instant
+require('personal.instant')
+
+-- tags
+require('personal.gutentags')
+

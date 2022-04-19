@@ -7,15 +7,22 @@ endfunction
 
 function! LightlineFilename() abort
 	let filename = expand('%:t')
-	let fullpath = expand('%:p')
+	let fullpath = substitute(expand('%:p'), '/', '\\', 'g')
 	let extension = expand('%:e')
-	if strlen(filename) > 0 || strlen(extension) > 0
+
+	if filename != ""
+		let cwd = substitute(getcwd(), '/', '\\', 'g')
+		let relativePath = split(fullpath, substitute(cwd, '\\', '\\\\', 'g') . '\\')[0]
 		let icon = luaeval('require"nvim-web-devicons".get_icon("' . filename . '","' . extension . '")')
-		return icon . " " . fullpath
-	elseif filename == ""
-		return '[Sin nombre]'
+
+		if match(relativePath, '\\\|\/') > 0
+			let partialFullPath = join(map(split(fnamemodify(relativePath, ':h'), '\\\|\/'), 'v:val[0:1]'), '/')
+			let relativePath = partialFullPath . '/' . filename
+		endif
+
+		return icon . " " . relativePath
 	else
-		return fullpath
+		return '[Sin nombre]'
 	endif
 endfunction
 
@@ -34,4 +41,12 @@ function! LightlineLspStatus() abort
   endif
 
   return ''
+endfunction
+
+function! LighlineCwd() abort
+	let cwd = getcwd()
+	if match(cwd, '\')
+		let cwd = substitute(cwd, '\', '/', 'g')
+	endif
+	return cwd . '/'
 endfunction

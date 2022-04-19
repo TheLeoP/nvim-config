@@ -1,10 +1,10 @@
 vim.g.lightline = {
 	 active = {
 	   left = {
-			 {'mode'}, {'git_branch'}, {'file_name', 'modified'}
+			 {'mode'}, {'git_branch'}, {'cwd', 'file_name', 'modified'}
 		 },
 	   right = {
-			 {'filetype'}, {'gps', 'lsp_status'}
+			 {'filetype'}, {'gps', 'lsp_status'}, {'tags'}
 		 }
 	 },
 	 inactive = {
@@ -24,6 +24,8 @@ vim.g.lightline = {
 	   gps = 'LightlineGPS',
 	   file_name = 'LightlineFilename',
 	   lsp_status = 'LightlineLspStatus',
+	   tags = 'gutentags#statusline',
+		 cwd = 'LighlineCwd'
 	 },
 	 separator = {
 	   left = '',

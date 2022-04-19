@@ -18,6 +18,9 @@ vim.g.coq_settings = {
     },
     third_party = {
       enabled = true
+    },
+    snippets = {
+      warn = {},
     }
   },
   display = {
@@ -44,9 +47,9 @@ vim.g.coq_settings = {
 }
 
 require('coq_3p')({
-  {
-    src = "dap"
-  },
+  -- {
+  --   src = "dap"
+  -- },
   {
     src = "nvimlua",
     short_name = "nLUA",

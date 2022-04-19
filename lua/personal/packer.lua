@@ -14,7 +14,7 @@ return packer.startup(function(use)
   use 'radenling/vim-dispatch-neovim'
 
   -- soporte para múltiples lenguajes
-  use 'nyuszika7h/vim-polyglot'
+  use 'sheerun/vim-polyglot'
 
   -- colorscheme
   use 'tjdevries/colorbuddy.vim'
@@ -140,5 +140,11 @@ return packer.startup(function(use)
 
   -- visualizar colores en hex
   use 'norcalli/nvim-colorizer.lua'
+
+  -- editar colaborativamente en Neovim
+  use 'jbyuki/instant.nvim'
+
+  -- soporte para tags
+  use 'ludovicchabant/vim-gutentags'
 
 end)
