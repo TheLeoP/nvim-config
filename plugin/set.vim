@@ -31,20 +31,8 @@ set signcolumn=yes
 set updatetime=300
 
 if has('win32')
-	" let &shell = 'pwsh'
-	" let &shellcmdflag = '-NoLogo -NoProfile -ExecutionPolicy RemoteSigned -Command [Console]::InputEncoding=[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;'
-	" let &shellredir = '2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode'
-	" let &shellpipe = '2>&1 | Out-File -Encoding UTF8 %s; exit $LastExitCode'
-	" set shellquote=
-	" set shellxquote=
-
 	set undodir=~/undodir    "señala el directorio en el cual guardar los archivos de deshacer/rehacer
 endif
-
-" vim-test
-let test#java#runner = 'gradletest'
-let test#strategy = "dispatch"
-let g:sql_type_default = 'pgsql'
 
 " lua
 let g:vimsyn_embed = 'l'
@@ -66,6 +54,3 @@ set splitright
 set laststatus=3
 
 set cursorline
-
-let g:db_ui_force_echo_notifications = 1
-let g:db_ui_show_database_icon = 1
