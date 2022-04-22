@@ -35,5 +35,5 @@ vim.g.lightline = {
 	   left = '|',
 	   right = '|'
 	 },
-	 colorscheme = 'one',
+	 colorscheme = 'deus',
 }

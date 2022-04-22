@@ -4,19 +4,19 @@ local personal_actions = require('personal.fn_telescope')
 require('telescope').setup {
   defaults = {
     color_devicons = true,
-
-    file_previewer = require('telescope.previewers').vim_buffer_cat.new,
-    grep_previewer = require('telescope.previewers').vim_buffer_vimgrep.new,
-    qflist_previewer = require('telescope.previewers').vim_buffer_qflist.new,
     borderchars = { '━', '┃', '━', '┃', '┏', '┓', '┛', '┗' },
+    file_ignore_patterns = {
+      '^tags$',
+      '%.class$'
+    },
 
     mappings = {
       i = {
         ["<C-f>"] = actions.send_to_qflist,
-        ["<C-o>"] = personal_actions.ejecutar,
+        -- ["<C-o>"] = personal_actions.ejecutar,
       },
       n = {
-        ["o"] = personal_actions.ejecutar,
+        -- ["o"] = personal_actions.ejecutar,
         ["q"] = actions.send_to_qflist,
       },
     }

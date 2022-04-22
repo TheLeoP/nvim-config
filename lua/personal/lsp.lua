@@ -6,6 +6,7 @@ local jdtls = require('jdtls')
 local jdtls_dap = require('jdtls.dap')
 local jdtls_setup = require('jdtls.setup')
 local lsp_status = require('lsp-status')
+local api = vim.api;
 
 lsp_status.register_progress()
 lsp_status.config({
@@ -29,6 +30,12 @@ capabilities = vim.tbl_extend('keep', capabilities, lsp_status.capabilities)
 local on_attach_general = function(client, _)
   illuminate.on_attach(client)
   lsp_status.on_attach(client)
+end
+
+local on_init_general = function(client)
+  if client.config.settings then
+    client.notify('workspace/didChangeConfiguration', { settings = client.config.settings })
+  end
 end
 
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
@@ -100,10 +107,17 @@ lspconfig.clangd.setup {
 
 -- java
 local on_attach_java = function(client, bufnr)
+  local opts = {
+    silent = true
+  }
+
   on_attach_general(client, bufnr)
   jdtls.setup_dap({ hotcodereplace = 'auto' })
   jdtls_dap.setup_dap_main_class_configs()
   jdtls_setup.add_commands()
+  api.nvim_buf_set_keymap(bufnr, "v", "crv", "<Esc><Cmd>lua require('jdtls').extract_variable(true)<CR>", opts)
+  api.nvim_buf_set_keymap(bufnr, "n", "crv", "<Cmd>lua require('jdtls').extract_variable()<CR>", opts)
+  api.nvim_buf_set_keymap(bufnr, "v", "crm", "<Esc><Cmd>lua require('jdtls').extract_method(true)<CR>", opts)
 end
 
 function M.jdtls_setup()
@@ -128,24 +142,33 @@ function M.jdtls_setup()
   end
 
   local eclipse_wd = vim.g.home_dir .. '/java-workspace/' .. vim.fn.fnamemodify(root_dir, ':h:t') .. '/' .. vim.fn.fnamemodify(root_dir, ':t')
+  local extendedClientCapabilities = jdtls.extendedClientCapabilities
+  extendedClientCapabilities.resolveAdditionalTextEditsSupport = true
 
   local config = {
     settings = {
       java = {
         signatureHelp = {enabled = true},
-        contentProvider = {preferred = 'fernflower'}
-      }
+        contentProvider = {preferred = 'fernflower'},
+        sources = {
+          organizeImports = {
+            starThreshold = 9999,
+            staticStarThreshold = 9999,
+          }
+        },
+        codeGeneration = {
+          toString = {
+            template = "${object.className}{${member.name()}=${member.value}, ${otherMembers}}"
+          }
+        }
+      },
     },
     flags = {
       allow_incremental_sync = true,
     },
     capabilities = capabilities,
     on_attach = on_attach_java,
-    on_init = function(client)
-      if client.config.settings then
-        client.notify('workspace/didChangeConfiguration', {settings = client.config.settings})
-      end
-    end,
+    on_init = on_init_general,
     cmd = {
       vim.g.java_lsp_cmd,
       eclipse_wd
@@ -154,7 +177,8 @@ function M.jdtls_setup()
     init_options = {
       bundles = {
         vim.fn.glob(vim.g.home_dir .. "/.dap-gadgets/java-debug-0.32.0/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-0.32.0.jar")
-      }
+      },
+      extendedClientCapabilities = extendedClientCapabilities
     }
   }
 

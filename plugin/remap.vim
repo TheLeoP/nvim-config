@@ -57,8 +57,8 @@ nnoremap <silent> gd <cmd>lua vim.lsp.buf.definition()<cr>
 nnoremap <silent> gD <cmd>lua vim.lsp.buf.declaration()<cr>
 nnoremap <silent> gr <cmd>lua vim.lsp.buf.references()<cr>
 nnoremap <silent> gi <cmd>lua vim.lsp.buf.implementation()<cr>
-nnoremap <silent> K <cmd>lua vim.lsp.buf.signature_help()<cr>
-nnoremap <silent> <c-k> <cmd>lua vim.lsp.buf.hover()<cr>
+nnoremap <silent> <c-k> <cmd>lua vim.lsp.buf.signature_help()<cr>
+nnoremap <silent> K <cmd>lua vim.lsp.buf.hover()<cr>
 nnoremap <silent> <leader>rn <cmd>lua vim.lsp.buf.rename()<cr>
 nnoremap <silent> <leader>ca <cmd>lua vim.lsp.buf.code_action()<CR>
 nnoremap <silent> ]e <cmd>lua vim.diagnostic.goto_next()<cr>

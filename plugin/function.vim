@@ -7,17 +7,27 @@ endfunction
 
 function! LightlineFilename() abort
 	let filename = expand('%:t')
-	let fullpath = substitute(expand('%:p'), '/', '\\', 'g')
 	let extension = expand('%:e')
+	let fullpath = substitute(expand('%:p'), '/', '\\', 'g')
 
-	if filename != ""
+	if fullpath != ""
 		let cwd = substitute(getcwd(), '/', '\\', 'g')
-		let relativePath = split(fullpath, substitute(cwd, '\\', '\\\\', 'g') . '\\')[0]
+		let relativePath = ''
+
+		if fullpath[:-2] != cwd
+			let cwd = substitute(cwd, '\\', '\\\\', 'g')
+			let relativePath = split(fullpath, cwd . '\\')[0]
+		else
+			let relativePath = cwd
+	  	endif
+
 		let icon = luaeval('require"nvim-web-devicons".get_icon("' . filename . '","' . extension . '")')
 
-		if match(relativePath, '\\\|\/') > 0
+		if match(relativePath, '\\\|\/') && relativePath != cwd
 			let partialFullPath = join(map(split(fnamemodify(relativePath, ':h'), '\\\|\/'), 'v:val[0:1]'), '/')
 			let relativePath = partialFullPath . '/' . filename
+		else
+			let relativePath = '.'
 		endif
 
 		return icon . " " . relativePath
@@ -31,7 +41,7 @@ function! LightlineGitBranch() abort
 	if strlen(branch) > 0
 		return ' ' . branch
 	else
-		return branch
+		return ''
 	endif
 endfunction
 
