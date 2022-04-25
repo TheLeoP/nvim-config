@@ -8,6 +8,7 @@ local jdtls_setup = require('jdtls.setup')
 local lsp_status = require('lsp-status')
 local telescope_builtin = require('telescope.builtin')
 local api = vim.api;
+local util = vim.lsp.util
 
 lsp_status.register_progress()
 lsp_status.config({
@@ -42,10 +43,28 @@ local on_attach_general = function(client, bufnr)
   vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
   vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, opts)
   vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, opts)
-  vim.keymap.set('n', '<leader>fm', function() vim.lsp.buf.formatting_sync(nil, 1000) end, opts)
   vim.keymap.set('n', '<leader>fds', telescope_builtin.lsp_document_symbols, opts)
   vim.keymap.set('n', '<leader>fws', telescope_builtin.lsp_workspace_symbols, opts)
   vim.keymap.set('n', 'gR', '<cmd>TroubleToggle lsp_references<cr>', opts)
+end
+
+local map_formatting = function(client, bufnr)
+  local opts = {buffer = bufnr}
+
+  vim.keymap.set('n',
+    '<leader>fm',
+    function()
+      local params = util.make_formatting_params({})
+      client.request('textDocument/formatting', params, nil, bufnr)
+      vim.lsp.buf.formatting_sync(nil, 1000)
+    end,
+    opts
+  )
+end
+
+local on_attach_formatting = function(client, bufnr)
+  on_attach_general(client, bufnr)
+  map_formatting(client, bufnr)
 end
 
 local on_init_general = function(client)
@@ -53,6 +72,8 @@ local on_init_general = function(client)
     client.notify('workspace/didChangeConfiguration', { settings = client.config.settings })
   end
 end
+
+-- sobreescribir handlers
 
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
   vim.lsp.handlers.hover, {
@@ -66,28 +87,40 @@ vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
 lspconfig.pyright.setup{
   on_attach = on_attach_general,
   capabilities = capabilities,
-  init_options = {documentFormatting = false, codeAction = true},
 }
+
+-- emmet-ls
+lspconfig.emmet_ls.setup({
+  on_attach = on_attach_general,
+  capabilities = capabilities,
+})
 
 -- tsserver
 lspconfig.tsserver.setup{
-  on_attach = on_attach_general,
+  on_attach = on_attach_formatting,
   capabilities = capabilities,
   config = {
     root_dir = jdtls_setup.find_root({'tsconfig.json', 'package.json', 'jsconfig.json', '.git'})
   }
 }
 
--- viml
-lspconfig.vimls.setup{
-  on_attach = on_attach_general,
-  capabilities = capabilities
-}
+local servidores_generales = {'vimls', 'clangd', 'html', 'jsonls', 'cssls'}
 
+for _, server in ipairs(servidores_generales) do
+  lspconfig[server].setup(
+    {
+      on_attach = on_attach_formatting,
+      capabilities = capabilities,
+    }
+  )
+end
 
 -- lua
 local sumneko_root_path = vim.g.home_dir .. "/.lua-lsp/lua-language-server"
 local sumneko_binary = vim.g.home_dir .. "/.lua-lsp/lua-language-server/bin/" .. vim.g.os .. "/lua-language-server"
+local sumneko_runtime = vim.split(package.path, ';')
+table.insert(sumneko_runtime, 'lua/?.lua')
+table.insert(sumneko_runtime, 'lua/?/init.lua')
 lspconfig.sumneko_lua.setup {
   on_attach = on_attach_general,
   capabilities = capabilities,
@@ -97,6 +130,7 @@ lspconfig.sumneko_lua.setup {
       runtime = {
         -- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
         version = 'LuaJIT',
+        runtime = sumneko_runtime,
       },
       diagnostics = {
         -- Get the language server to recognize the `vim` global
@@ -104,10 +138,7 @@ lspconfig.sumneko_lua.setup {
       },
       workspace = {
         -- Make the server aware of Neovim runtime files
-        library = {
-          [vim.fn.expand("$VIMRUNTIME/lua")] = true,
-          [vim.fn.stdpath("config") .. "/lua"] = true
-        }
+        library = vim.api.nvim_get_runtime_file('', true),
       },
       telemetry = {
         enable = false
@@ -116,18 +147,13 @@ lspconfig.sumneko_lua.setup {
   }
 }
 
--- clangd (C, C++)
-lspconfig.clangd.setup {
-  on_attach = on_attach_general,
-}
-
 -- java
 local on_attach_java = function(client, bufnr)
   local opts = {
     silent = true
   }
 
-  on_attach_general(client, bufnr)
+  on_attach_formatting(client, bufnr)
   jdtls.setup_dap({ hotcodereplace = 'auto' })
   jdtls_dap.setup_dap_main_class_configs()
   jdtls_setup.add_commands()
@@ -200,30 +226,5 @@ function M.jdtls_setup()
 
   jdtls.start_or_attach(config)
 end
-
--- html
-lspconfig.html.setup({
-  on_attach = on_attach_general,
-  capabilities = capabilities,
-})
-
--- json
-lspconfig.jsonls.setup({
-  on_attach = on_attach_general,
-  capabilities = capabilities,
-})
-
--- css
-lspconfig.cssls.setup({
-  on_attach = on_attach_general,
-  capabilities = capabilities,
-})
-
--- emmet-ls
-lspconfig.emmet_ls.setup({
-  on_attach = on_attach_general,
-  capabilities = capabilities,
-})
-
 
 return M
