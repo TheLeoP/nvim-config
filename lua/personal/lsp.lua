@@ -6,6 +6,7 @@ local jdtls = require('jdtls')
 local jdtls_dap = require('jdtls.dap')
 local jdtls_setup = require('jdtls.setup')
 local lsp_status = require('lsp-status')
+local telescope_builtin = require('telescope.builtin')
 local api = vim.api;
 
 lsp_status.register_progress()
@@ -27,9 +28,24 @@ capabilities.textDocument.completion.completionItem.resolveSupport = {
 }
 capabilities = vim.tbl_extend('keep', capabilities, lsp_status.capabilities)
 
-local on_attach_general = function(client, _)
+local on_attach_general = function(client, bufnr)
   illuminate.on_attach(client)
   lsp_status.on_attach(client)
+
+  local opts = {buffer = bufnr}
+  vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+  vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
+  vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+  vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
+  vim.keymap.set('n', '<c-k>', vim.lsp.buf.signature_help, opts)
+  vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
+  vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
+  vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, opts)
+  vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, opts)
+  vim.keymap.set('n', '<leader>fm', function() vim.lsp.buf.formatting_sync(nil, 1000) end, opts)
+  vim.keymap.set('n', '<leader>fds', telescope_builtin.lsp_document_symbols, opts)
+  vim.keymap.set('n', '<leader>fws', telescope_builtin.lsp_workspace_symbols, opts)
+  vim.keymap.set('n', 'gR', '<cmd>TroubleToggle lsp_references<cr>', opts)
 end
 
 local on_init_general = function(client)
@@ -64,7 +80,7 @@ lspconfig.tsserver.setup{
 
 -- viml
 lspconfig.vimls.setup{
-  -- on_attach = on_attach,
+  on_attach = on_attach_general,
   capabilities = capabilities
 }
 

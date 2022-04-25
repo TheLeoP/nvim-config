@@ -12,12 +12,12 @@ require'nvim-treesitter.configs'.setup {
     }
   },
   incremental_selection = {
-    enable = false,
+    enable = true,
     keymap = {
       init_selection = "gnn",
       node_incremental = "grn",
-      scope_incremental = "grc",
       node_decremental = "grm",
+      scope_incremental = "grc",
     },
   },
   indent = {

@@ -13,6 +13,8 @@ require('telescope').setup {
     mappings = {
       i = {
         ["<C-f>"] = actions.send_to_qflist,
+        ["<C-u>"] = false,
+        ["<C-d>"] = false,
         -- ["<C-o>"] = personal_actions.ejecutar,
       },
       n = {
@@ -31,10 +33,10 @@ require('telescope').setup {
     file_browser = {
       mappings = {
         i = {
-          ["<C-o>"] = personal_actions.ejecutar,
+          -- ["<C-o>"] = personal_actions.ejecutar,
         },
         n = {
-          ["o"] = personal_actions.ejecutar,
+          -- ["o"] = personal_actions.ejecutar,
         }
       }
     },

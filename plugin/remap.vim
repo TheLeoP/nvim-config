@@ -10,8 +10,8 @@ nmap <leader>r <Plug>ReplaceWithRegisterOperator
 nmap <leader>rr <Plug>ReplaceWithRegisterLine
 
 " remap move in quickfix-list
-nnoremap <silent> ]c :cnext<cr>zzzv
-nnoremap <silent> [c :cprev<cr>zzzv
+nnoremap <silent> ]q :cnext<cr>zzzv
+nnoremap <silent> [q :cprev<cr>zzzv
 
 " remap move in quickfix-list
 nnoremap <silent> ]l :lnext<cr>zzzv
@@ -52,21 +52,8 @@ inoremap <silent> <a-k> <esc>:m .-2<cr>==gi
 vnoremap <silent> <a-h> <cmd>noautocmd normal! xhhp`<h<c-v>`>h<cr>
 vnoremap <silent> <a-l> <cmd>noautocmd normal! xp`<l<c-v>`>l<cr>
 
-" LSP
-nnoremap <silent> gd <cmd>lua vim.lsp.buf.definition()<cr>
-nnoremap <silent> gD <cmd>lua vim.lsp.buf.declaration()<cr>
-nnoremap <silent> gr <cmd>lua vim.lsp.buf.references()<cr>
-nnoremap <silent> gi <cmd>lua vim.lsp.buf.implementation()<cr>
-nnoremap <silent> <c-k> <cmd>lua vim.lsp.buf.signature_help()<cr>
-nnoremap <silent> K <cmd>lua vim.lsp.buf.hover()<cr>
-nnoremap <silent> <leader>rn <cmd>lua vim.lsp.buf.rename()<cr>
-nnoremap <silent> <leader>ca <cmd>lua vim.lsp.buf.code_action()<CR>
 nnoremap <silent> ]e <cmd>lua vim.diagnostic.goto_next()<cr>
 nnoremap <silent> [e <cmd>lua vim.diagnostic.goto_prev()<cr>
-nnoremap <silent> <leader>e <cmd>lua vim.diagnostic.open_float()<cr>
-
-" formatear
-nnoremap <silent> <leader>fm <cmd>lua vim.lsp.buf.formatting_sync(nil, 1000)<cr>
 
 " telescope
 " Find files using Telescope command-line sugar.
@@ -76,8 +63,6 @@ nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 nnoremap <leader>fc <cmd>Telescope current_buffer_fuzzy_find<cr>
 nnoremap <leader>fs <cmd>Telescope live_grep<cr>
-nnoremap <leader>fds <cmd>Telescope lsp_document_symbols<cr>
-nnoremap <leader>fws <cmd>Telescope lsp_workspace_symbols<cr>
 nnoremap <leader>fr <cmd>Telescope resume<cr>
 
 " proyectos
@@ -194,9 +179,8 @@ nnoremap <leader>v <cmd>lua Toggle_venn()<cr>
 nnoremap <leader>tt <cmd>TroubleToggle<cr>
 nnoremap <leader>tw <cmd>TroubleToggle workspace_diagnostics<cr>
 nnoremap <leader>td <cmd>TroubleToggle document_diagnostics<cr>
-nnoremap <leader>tc <cmd>TroubleToggle quickfix<cr>
+nnoremap <leader>tq <cmd>TroubleToggle quickfix<cr>
 nnoremap <leader>tl <cmd>TroubleToggle loclist<cr>
-nnoremap gR <cmd>TroubleToggle lsp_references<cr>
 nnoremap [t <cmd>lua require'trouble'.previous({skip_groups = true, jump = true})<cr>
 nnoremap ]t <cmd>lua require'trouble'.next({skip_groups = true, jump = true})<cr>
 
