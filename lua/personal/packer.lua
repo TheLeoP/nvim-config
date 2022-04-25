@@ -1,5 +1,14 @@
 local packer = require('packer')
 
+local packer_augroup = vim.api.nvim_create_augroup('Packer', { clear = true })
+vim.api.nvim_create_autocmd(
+  'BufWritePost',
+    {
+      command = 'source <afile> | PackerCompile',
+      group = packer_augroup,
+      pattern = 'packer.lua'
+    })
+
 return packer.startup(function(use)
 
   -- Packer
@@ -146,5 +155,11 @@ return packer.startup(function(use)
 
   -- soporte para tags
   use 'ludovicchabant/vim-gutentags'
+
+  -- ayuda visual para indentación
+  use 'lukas-reineke/indent-blankline.nvim'
+
+  -- gisigns
+  use 'lewis6991/gitsigns.nvim'
 
 end)

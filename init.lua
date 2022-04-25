@@ -70,3 +70,8 @@ require('personal.instant')
 -- tags
 require('personal.gutentags')
 
+-- ayuda indent
+require('personal.blankline')
+
+-- símbolos en signcolumn para git
+require('personal.gitsigns')
