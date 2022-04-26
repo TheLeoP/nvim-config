@@ -104,7 +104,14 @@ lspconfig.tsserver.setup{
   }
 }
 
-local servidores_generales = {'vimls', 'clangd', 'html', 'jsonls', 'cssls'}
+local servidores_generales = {
+  'vimls',
+  'clangd',
+  'html',
+  'jsonls',
+  'cssls',
+  'lemminx'
+}
 
 for _, server in ipairs(servidores_generales) do
   lspconfig[server].setup(
@@ -117,7 +124,12 @@ end
 
 -- lua
 local sumneko_root_path = vim.g.home_dir .. "/.lua-lsp/lua-language-server"
-local sumneko_binary = vim.g.home_dir .. "/.lua-lsp/lua-language-server/bin/" .. vim.g.os .. "/lua-language-server"
+local sumneko_binary
+if vim.fn.has('win32') then
+  sumneko_binary = vim.g.home_dir .. "/.lua-lsp/lua-language-server/bin/" .. "/lua-language-server"
+else
+  sumneko_binary = vim.g.home_dir .. "/.lua-lsp/lua-language-server/bin/" .. vim.g.os .. "/lua-language-server"
+end
 local sumneko_runtime = vim.split(package.path, ';')
 table.insert(sumneko_runtime, 'lua/?.lua')
 table.insert(sumneko_runtime, 'lua/?/init.lua')
@@ -139,6 +151,7 @@ lspconfig.sumneko_lua.setup {
       workspace = {
         -- Make the server aware of Neovim runtime files
         library = vim.api.nvim_get_runtime_file('', true),
+        checkThirdParty = false,
       },
       telemetry = {
         enable = false
