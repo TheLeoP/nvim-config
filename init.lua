@@ -4,6 +4,8 @@ require('impatient')
 -- funciones y variable globales peronales
 require('personal.globals')
 
+require('personal.install')
+
 -- vim polyglot
 require('personal.polyglot')
 
