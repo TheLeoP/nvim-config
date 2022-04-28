@@ -9,7 +9,7 @@ set undofile    "conigura vim para sí crear archivos de deshacer/rehacer
 set clipboard=unnamedplus   "permite que todo lo copiado vaya también al clipboard del sistema
 
 set termguicolors   "creo que permite asignar colores a la terminal (?)
-" silent! set guifont=UbuntuMono\ NF:h15
+let &guifont = 'UbuntuMono NF:h15'
 
 set conceallevel=0
 

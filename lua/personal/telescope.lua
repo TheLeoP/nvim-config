@@ -20,6 +20,7 @@ require('telescope').setup {
       n = {
         -- ["o"] = personal_actions.ejecutar,
         ["q"] = actions.send_to_qflist,
+        ["<c-{>"] = actions.close,
       },
     }
   },

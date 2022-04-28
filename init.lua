@@ -77,3 +77,6 @@ require('personal.blankline')
 
 -- símbolos en signcolumn para git
 require('personal.gitsigns')
+
+-- neovide config
+require('personal.neovide')
