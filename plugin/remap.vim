@@ -80,6 +80,7 @@ nnoremap <leader>fnn <cmd>lua require("personal.fn_telescope").search_nota_ciclo
 
 " permitir salir del modo terminal con <c-[>
 tnoremap  <c-\><c-n>
+tnoremap <c-{> <c-\><c-n>
 nnoremap <c-w>t <c-w>v<cmd>term<cr>
 
 " TODO: corregir mappings Dispatch
