@@ -119,12 +119,7 @@ end
 
 -- lua
 local sumneko_root_path = vim.g.home_dir .. "/.lua-lsp/lua-language-server"
-local sumneko_binary
-if vim.fn.has('win32') then
-  sumneko_binary = vim.g.home_dir .. "/.lua-lsp/lua-language-server/bin/" .. "/lua-language-server"
-else
-  sumneko_binary = vim.g.home_dir .. "/.lua-lsp/lua-language-server/bin/" .. vim.g.os .. "/lua-language-server"
-end
+local sumneko_binary = vim.g.home_dir .. "/.lua-lsp/lua-language-server/bin/lua-language-server"
 local sumneko_runtime = vim.split(package.path, ';')
 table.insert(sumneko_runtime, 'lua/?.lua')
 table.insert(sumneko_runtime, 'lua/?/init.lua')
