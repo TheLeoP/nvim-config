@@ -89,12 +89,6 @@ lspconfig.pyright.setup{
   capabilities = capabilities,
 }
 
--- emmet-ls
-lspconfig.emmet_ls.setup({
-  on_attach = on_attach_general,
-  capabilities = capabilities,
-})
-
 -- tsserver
 lspconfig.tsserver.setup{
   on_attach = on_attach_formatting,
@@ -110,7 +104,8 @@ local servidores_generales = {
   'html',
   'jsonls',
   'cssls',
-  'lemminx'
+  'lemminx',
+  'intelephense',
 }
 
 for _, server in ipairs(servidores_generales) do

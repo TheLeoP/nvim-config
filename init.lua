@@ -80,3 +80,6 @@ require('personal.gitsigns')
 
 -- neovide config
 require('personal.neovide')
+
+-- emmet
+require('personal.emmet')

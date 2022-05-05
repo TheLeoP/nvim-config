@@ -162,4 +162,7 @@ return packer.startup(function(use)
   -- gisigns
   use 'lewis6991/gitsigns.nvim'
 
+  -- emmet
+  use 'mattn/emmet-vim'
+
 end)
