@@ -188,3 +188,6 @@ nnoremap ]t <cmd>lua require'trouble'.next({skip_groups = true, jump = true})<cr
 " mejores remaps
 nnoremap @ <cmd>execute "noautocmd normal! " . v:count1 . "@" . getcharstr()<cr>
 xnoremap @ :<C-U>execute "noautocmd '<,'>norm! " . v:count1 . "@" . getcharstr()<cr>
+
+" mejor <c-l>
+nnoremap <c-l> <cmd>nohlsearch<bar>diffupdate<bar>lua require('notify').dismiss()<cr><cmd>normal! <c-l><cr>
