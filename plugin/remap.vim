@@ -105,7 +105,7 @@ nnoremap <silent> <leader>pv :TestVisit<cr>
 nmap <silent> <leader>dc <cmd>lua require('dap').continue()<cr>
 nmap <silent> <leader>ds <cmd>lua require('dap').continue()<cr>
 nmap <silent> <leader>dr <cmd>lua require('dap').disconnect({restart = true})<cr>
-nmap <silent> <leader>de <cmd>lua require('dap').disconnect()<cr><cmd>lua require('dap').close()<cr><cmd>lua require('dapui').close()<cr>
+nmap <silent> <leader>de <cmd>lua require('dap').terminate()<cr>
 nmap <silent> <leader>dp <cmd>lua require('dap').pause()<cr>
 nmap <silent> <leader>db <cmd>lua require('dap').toggle_breakpoint()<cr>
 nmap <silent> <leader>dB <cmd>lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<cr>
