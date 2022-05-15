@@ -167,7 +167,7 @@ end
 
 function M.jdtls_setup()
 
-  local root_dir = jdtls_setup.find_root({'build.gradle', 'pom.xml'})
+  local root_dir = jdtls_setup.find_root({'build.gradle', 'pom.xml', 'build.xml'})
 
   -- si no se encuentra la raíz del proyecto, se finaliza sin inicializar jdt.ls
   if not root_dir then
@@ -205,6 +205,11 @@ function M.jdtls_setup()
           toString = {
             template = "${object.className}{${member.name()}=${member.value}, ${otherMembers}}"
           }
+        },
+        project = {
+          referencedLibraries = {
+            "**/lib/*.jar"
+          }
         }
       },
     },
@@ -221,7 +226,7 @@ function M.jdtls_setup()
     root_dir = root_dir,
     init_options = {
       bundles = {
-        vim.fn.glob(vim.g.home_dir .. "/.dap-gadgets/java-debug-0.32.0/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-0.32.0.jar")
+        vim.fn.glob(vim.g.home_dir .. "/.dap-gadgets/java-debug/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-0.36.0.jar")
       },
       extendedClientCapabilities = extendedClientCapabilities
     }

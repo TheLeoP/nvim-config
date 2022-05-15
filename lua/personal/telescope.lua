@@ -7,7 +7,8 @@ require('telescope').setup {
     borderchars = { '━', '┃', '━', '┃', '┏', '┓', '┛', '┗' },
     file_ignore_patterns = {
       '^tags$',
-      '%.class$'
+      '%.class$',
+      '%.jar$',
     },
 
     mappings = {

@@ -37,7 +37,7 @@ function! LightlineFilename() abort
 endfunction
 
 function! LightlineGitBranch() abort
-	let branch = fugitive#head()
+	let branch = FugitiveHead()
 	if strlen(branch) > 0
 		return ' ' . branch
 	else

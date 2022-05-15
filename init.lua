@@ -83,3 +83,6 @@ require('personal.neovide')
 
 -- emmet
 require('personal.emmet')
+
+-- test
+require('personal.vim-test')
