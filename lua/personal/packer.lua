@@ -165,4 +165,7 @@ return packer.startup(function(use)
   -- emmet
   use 'mattn/emmet-vim'
 
+  -- sudo
+  use 'lambdalisue/suda.vim'
+
 end)
