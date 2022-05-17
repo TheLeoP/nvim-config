@@ -183,7 +183,7 @@ function M.jdtls_setup()
 
   local antiguo_dir = vim.fn.getcwd();
   if antiguo_dir ~= root_dir then
-    vim.api.nvim_set_current_dir(root_dir)
+    vim.cmd('tcd ' .. root_dir)
   end
 
   local eclipse_wd = vim.g.home_dir .. '/java-workspace/' .. vim.fn.fnamemodify(root_dir, ':h:t') .. '/' .. vim.fn.fnamemodify(root_dir, ':t')
