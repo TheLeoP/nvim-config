@@ -19,9 +19,6 @@ vim.g.coq_settings = {
     third_party = {
       enabled = true
     },
-    -- snippets = {
-    --   warn = {},
-    -- }
   },
   display = {
     ghost_text = {

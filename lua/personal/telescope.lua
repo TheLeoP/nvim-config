@@ -4,6 +4,12 @@ local personal_actions = require('personal.fn_telescope')
 require('telescope').setup {
   defaults = {
     color_devicons = true,
+    path_display = {
+      shorten = {
+        len = 1,
+        exclude = {1, -1}
+      },
+    },
     borderchars = { '━', '┃', '━', '┃', '┏', '┓', '┛', '┗' },
     file_ignore_patterns = {
       '^tags$',
@@ -16,10 +22,8 @@ require('telescope').setup {
         ["<C-f>"] = actions.send_to_qflist,
         ["<C-u>"] = false,
         ["<C-d>"] = false,
-        -- ["<C-o>"] = personal_actions.ejecutar,
       },
       n = {
-        -- ["o"] = personal_actions.ejecutar,
         ["q"] = actions.send_to_qflist,
         ["<c-{>"] = actions.close,
       },
@@ -35,10 +39,8 @@ require('telescope').setup {
     file_browser = {
       mappings = {
         i = {
-          -- ["<C-o>"] = personal_actions.ejecutar,
         },
         n = {
-          -- ["o"] = personal_actions.ejecutar,
         }
       }
     },
