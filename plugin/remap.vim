@@ -191,3 +191,7 @@ xnoremap @ :<C-U>execute "noautocmd '<,'>norm! " . v:count1 . "@" . getcharstr()
 
 " mejor <c-l>
 nnoremap <c-l> <cmd>nohlsearch<bar>diffupdate<bar>lua require('notify').dismiss()<cr><cmd>normal! <c-l><cr>
+
+" tabs
+nnoremap <a-h> <cmd>tabprevious<cr>
+nnoremap <a-l> <cmd>tabnext<cr>
