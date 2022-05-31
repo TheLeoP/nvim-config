@@ -168,4 +168,6 @@ return packer.startup(function(use)
   -- sudo
   use 'lambdalisue/suda.vim'
 
+  use 'jose-elias-alvarez/null-ls.nvim'
+
 end)

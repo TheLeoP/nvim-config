@@ -56,7 +56,6 @@ local map_formatting = function(client, bufnr)
     function()
       local params = util.make_formatting_params({})
       client.request('textDocument/formatting', params, nil, bufnr)
-      vim.lsp.buf.formatting_sync(nil, 1000)
     end,
     opts
   )
@@ -91,12 +90,19 @@ lspconfig.pyright.setup{
 
 -- tsserver
 lspconfig.tsserver.setup{
-  on_attach = on_attach_formatting,
+  on_attach = on_attach_general,
   capabilities = capabilities,
   config = {
     root_dir = jdtls_setup.find_root({'tsconfig.json', 'package.json', 'jsconfig.json', '.git'})
   }
 }
+
+require('null-ls').setup({
+    sources = {
+      require("null-ls").builtins.formatting.prettier,
+    },
+    on_attach = on_attach_formatting,
+})
 
 local servidores_generales = {
   'vimls',
@@ -111,7 +117,7 @@ local servidores_generales = {
 for _, server in ipairs(servidores_generales) do
   lspconfig[server].setup(
     {
-      on_attach = on_attach_formatting,
+      on_attach = on_attach_general,
       capabilities = capabilities,
     }
   )

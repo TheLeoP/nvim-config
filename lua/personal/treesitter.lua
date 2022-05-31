@@ -8,7 +8,8 @@ require'nvim-treesitter.configs'.setup {
     enable = true,              -- false will disable the whole extension
     disable = {
       'vim',
-      'dashboard'
+      'dashboard',
+      'html'
     }
   },
   incremental_selection = {
