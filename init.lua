@@ -86,3 +86,5 @@ require('personal.emmet')
 
 -- test
 require('personal.vim-test')
+
+require('personal.suda')
