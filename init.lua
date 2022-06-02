@@ -1,10 +1,12 @@
 -- impatient.nvim
-require('impatient')
+local succes, err = pcall(require, 'impatient')
+  if not succes then
+  require('personal.install')
+end
+
 
 -- funciones y variable globales peronales
 require('personal.globals')
-
-require('personal.install')
 
 -- vim polyglot
 require('personal.polyglot')
