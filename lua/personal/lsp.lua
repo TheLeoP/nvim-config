@@ -232,7 +232,7 @@ function M.jdtls_setup()
     root_dir = root_dir,
     init_options = {
       bundles = {
-        vim.fn.glob(vim.g.home_dir .. "/.dap-gadgets/java-debug/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-0.36.0.jar")
+        vim.fn.glob(vim.g.home_dir .. "/.dap-gadgets/java-debug/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-*.jar")
       },
       extendedClientCapabilities = extendedClientCapabilities
     }
