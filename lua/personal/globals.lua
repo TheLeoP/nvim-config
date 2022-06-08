@@ -9,12 +9,14 @@ if vim.fn.has("win32") == 1 then
   vim.g.java_lsp_cmd = "prueba.bat"
   vim.g.make_cmd = 'make'
   vim.g.desarrollo_plugins = true
+  vim.g.tsserver_library_location = 'C:/Users/pcx/AppData/Roaming/npm/node_modules/typescript/lib/tsserverlibrary.js'
 else
   vim.g.documentos = vim.g.home_dir .. '/Documentos'
   vim.g.os = "Linux"
   vim.g.java_lsp_cmd = "prueba.sh"
   vim.g.make_cmd = 'make'
   vim.g.desarrollo_plugins = false
+  vim.g.tsserver_library_location = ''
 end
 
 vim.g.autoregistro = vim.g.documentos .. '/Personal/notas/autoregistro'

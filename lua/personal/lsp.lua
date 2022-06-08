@@ -156,6 +156,13 @@ lspconfig.sumneko_lua.setup {
   }
 }
 
+-- vue
+require'lspconfig'.volar.setup{
+  on_new_config = function(new_config, _)
+    new_config.init_options.typescript.serverPath = vim.g.tsserver_library_location
+  end,
+}
+
 -- java
 local on_attach_java = function(client, bufnr)
   local opts = {
