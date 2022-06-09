@@ -9,7 +9,6 @@ set undofile    "conigura vim para sí crear archivos de deshacer/rehacer
 set clipboard=unnamedplus   "permite que todo lo copiado vaya también al clipboard del sistema
 
 set termguicolors   "creo que permite asignar colores a la terminal (?)
-let &guifont = 'UbuntuMono NF:h15'
 
 set conceallevel=0
 
@@ -32,6 +31,9 @@ set updatetime=300
 
 if has('win32')
 	set undodir=~/undodir    "señala el directorio en el cual guardar los archivos de deshacer/rehacer
+	let &guifont = 'UbuntuMono NF:h15'
+else
+	let &guifont = 'UbuntuMono NF:h10'
 endif
 
 " lua
@@ -54,3 +56,7 @@ set splitright
 set laststatus=3
 
 set cursorline
+
+set timeoutlen=300
+let g:cursorhold_updatetime = 100
+
