@@ -9,7 +9,7 @@ require'nvim-treesitter.configs'.setup {
     disable = {
       'vim',
       'dashboard',
-      'html'
+      -- 'html'
     }
   },
   incremental_selection = {
