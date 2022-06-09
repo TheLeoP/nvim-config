@@ -172,4 +172,6 @@ return packer.startup(function(use)
 
   use 'antoinemadec/FixCursorHold.nvim'
 
+  use 'glacambre/firenvim'
+
 end)

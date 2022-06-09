@@ -16,7 +16,7 @@ else
   vim.g.java_lsp_cmd = "prueba.sh"
   vim.g.make_cmd = 'make'
   vim.g.desarrollo_plugins = false
-  vim.g.tsserver_library_location = ''
+  vim.g.tsserver_library_location = '/usr/local/lib/node_modules/typescript/lib/tsserverlibrary.js'
 end
 
 vim.g.autoregistro = vim.g.documentos .. '/Personal/notas/autoregistro'

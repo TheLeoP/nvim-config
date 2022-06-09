@@ -15,6 +15,7 @@ require('telescope').setup {
       '^tags$',
       '%.class$',
       '%.jar$',
+      'miniconda3/',
     },
 
     mappings = {
