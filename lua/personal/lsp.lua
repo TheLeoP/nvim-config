@@ -89,13 +89,13 @@ lspconfig.pyright.setup{
 }
 
 -- tsserver
-lspconfig.tsserver.setup{
-  on_attach = on_attach_general,
-  capabilities = capabilities,
-  config = {
-    root_dir = jdtls_setup.find_root({'tsconfig.json', 'package.json', 'jsconfig.json', '.git'})
-  }
-}
+-- lspconfig.tsserver.setup{
+--   on_attach = on_attach_general,
+--   capabilities = capabilities,
+--   config = {
+--     root_dir = jdtls_setup.find_root({'tsconfig.json', 'package.json', 'jsconfig.json', '.git'})
+--   }
+-- }
 
 require('null-ls').setup({
     sources = {
@@ -182,9 +182,9 @@ lspconfig_configs.volar_api = {
     cmd = cmd,
     root_dir = volar_root_dir,
     on_new_config = on_new_config,
-    filetypes = { 'vue'},
+    -- filetypes = { 'vue'},
     -- If you want to use Volar's Take Over Mode (if you know, you know)
-    --filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue', 'json' },
+    filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue', 'json' },
     init_options = {
       typescript = {
         serverPath = ''
@@ -219,9 +219,9 @@ lspconfig_configs.volar_doc = {
     root_dir = volar_root_dir,
     on_new_config = on_new_config,
 
-    filetypes = { 'vue'},
+    -- filetypes = { 'vue'},
     -- If you want to use Volar's Take Over Mode (if you know, you know):
-    --filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue', 'json' },
+    filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue', 'json' },
     init_options = {
       typescript = {
         serverPath = ''
@@ -247,9 +247,9 @@ lspconfig_configs.volar_html = {
     root_dir = volar_root_dir,
     on_new_config = on_new_config,
 
-    filetypes = { 'vue'},
+    -- filetypes = { 'vue'},
     -- If you want to use Volar's Take Over Mode (if you know, you know), intentionally no 'json':
-    --filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue' },
+    filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue' },
     init_options = {
       typescript = {
         serverPath = ''
