@@ -116,7 +116,10 @@ return packer.startup(function(use)
   use 'monaqa/dial.nvim'
 
   -- dashboard
-  use 'glepnir/dashboard-nvim'
+  use{
+     'glepnir/dashboard-nvim',
+     commit = 'a36b3232c98616149784f2ca2654e77caea7a522'
+  }
 
   -- lsp diagnostics
   use 'nvim-lua/lsp-status.nvim'
@@ -172,6 +175,9 @@ return packer.startup(function(use)
 
   use 'antoinemadec/FixCursorHold.nvim'
 
-  use 'glacambre/firenvim'
+  use {
+    'glacambre/firenvim',
+    run = function() vim.fn['firenvim#install'](0) end
+  }
 
 end)
