@@ -28,5 +28,9 @@ vim.g.dashboard_custom_section = {
 }
 
 vim.g.dashboard_custom_footer = {
-'A veces un hipócrita no es más que una persona en proceso de cambio. -Dalinar Kholin',
+  '',
+  '',
+  'A veces un hipócrita no es más que una persona en proceso de cambio. -Dalinar Kholin',
+  '',
+  '',
 }

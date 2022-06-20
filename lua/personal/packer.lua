@@ -116,7 +116,10 @@ return packer.startup(function(use)
   use 'monaqa/dial.nvim'
 
   -- dashboard
-  use 'glepnir/dashboard-nvim'
+  use {
+   'glepnir/dashboard-nvim',
+    commit = 'd87007a5ec91f5d6fba1d62b40a767e3cb67878f'
+  }
 
   -- lsp diagnostics
   use 'nvim-lua/lsp-status.nvim'
@@ -135,7 +138,10 @@ return packer.startup(function(use)
   use 'jbyuki/venn.nvim'
 
   -- soporte para REST request
-  use 'NTBBloodbath/rest.nvim'
+  use {
+    'NTBBloodbath/rest.nvim',
+    commit = "e5f68db73276c4d4d255f75a77bbe6eff7a476ef"
+  }
 
   -- mejor soporte para terminal
   use 'norcalli/nvim-terminal.lua'
