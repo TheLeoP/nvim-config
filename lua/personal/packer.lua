@@ -178,6 +178,9 @@ return packer.startup(function(use)
 
   use 'antoinemadec/FixCursorHold.nvim'
 
-  use 'glacambre/firenvim'
+  use {
+    'glacambre/firenvim',
+    run = function() vim.fn['firenvim#install'](0) end
+  }
 
 end)
