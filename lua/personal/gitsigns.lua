@@ -8,7 +8,8 @@ gs.setup {
     topdelete = { text = '‾' },
     changedelete = { text = '~' },
   },
-  numhl = true,
+  signcolumn = false,
+  numhl = false,
   linehl = false,
   on_attach = function(bufnr)
     local opts = {buffer = bufnr, expr = true}
