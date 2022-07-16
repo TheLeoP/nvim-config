@@ -64,6 +64,7 @@ nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 nnoremap <leader>fc <cmd>Telescope current_buffer_fuzzy_find<cr>
 nnoremap <leader>fs <cmd>Telescope live_grep<cr>
 nnoremap <leader>fr <cmd>Telescope resume<cr>
+nnoremap <leader>fw <cmd>Telescope diagnostics<cr>
 
 " proyectos
 nnoremap <leader>fp <cmd>lua require('telescope').extensions.project.project({})<cr>

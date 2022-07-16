@@ -34,10 +34,10 @@ local on_attach_general = function(client, bufnr)
   lsp_status.on_attach(client)
 
   local opts = {buffer = bufnr}
-  vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+  vim.keymap.set('n', 'gd', telescope_builtin.lsp_definitions, opts)
   vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
-  vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
-  vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
+  vim.keymap.set('n', 'gr', telescope_builtin.lsp_references, opts)
+  vim.keymap.set('n', 'gi', telescope_builtin.lsp_implementations, opts)
   vim.keymap.set('n', '<c-k>', vim.lsp.buf.signature_help, opts)
   vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
   vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
@@ -45,7 +45,8 @@ local on_attach_general = function(client, bufnr)
   vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, opts)
   vim.keymap.set('n', '<leader>fds', telescope_builtin.lsp_document_symbols, opts)
   vim.keymap.set('n', '<leader>fws', telescope_builtin.lsp_workspace_symbols, opts)
-  vim.keymap.set('n', 'gR', '<cmd>TroubleToggle lsp_references<cr>', opts)
+  vim.keymap.set('n', '<leader>fic', telescope_builtin.lsp_incoming_calls, opts)
+  vim.keymap.set('n', '<leader>foc', telescope_builtin.lsp_outgoing_calls, opts)
 end
 
 local map_formatting = function(client, bufnr)
