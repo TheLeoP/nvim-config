@@ -57,6 +57,6 @@ set laststatus=3
 
 set cursorline
 
-set timeoutlen=300
+set timeoutlen=500
 let g:cursorhold_updatetime = 100
 
