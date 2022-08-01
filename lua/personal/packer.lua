@@ -31,7 +31,10 @@ return packer.startup(function(use)
   use 'Murtaza-Udaipurwala/gruvqueen'
 
   -- linea de estado
-  use 'itchyny/lightline.vim'
+  use {
+    'itchyny/lightline.vim',
+    config = function() require('personal.lightline') end
+  }
 
   -- surround actions
   use 'tpope/vim-surround'
@@ -47,17 +50,32 @@ return packer.startup(function(use)
   use 'kana/vim-textobj-user'
 
   -- debugger para vim
-  use 'mfussenegger/nvim-dap'
-  use 'rcarriga/nvim-dap-ui'
+  use {
+    'mfussenegger/nvim-dap',
+    config = function() require('personal.dap') end
+  }
+  use {
+    'rcarriga/nvim-dap-ui',
+    config = function() require('personal.dapui') end
+  }
   -- lua en neovim debug server
   use 'jbyuki/one-small-step-for-vimkind'
 
   -- test en vim
-  use 'vim-test/vim-test'
+  use {
+    'vim-test/vim-test',
+    config = function() require('personal.vim-test') end
+  }
 
   -- lsp
-  use 'neovim/nvim-lspconfig'
-  use 'ray-x/lsp_signature.nvim'
+  use {
+    'neovim/nvim-lspconfig',
+    config = function() require('personal.lsp') end
+  }
+  use {
+    'ray-x/lsp_signature.nvim',
+    config = function() require('personal.signature') end
+  }
   use {
     'mfussenegger/nvim-jdtls',
   }
@@ -65,7 +83,8 @@ return packer.startup(function(use)
   -- coq
   use {
     'ms-jpq/coq_nvim',
-    branch = 'coq'
+    branch = 'coq',
+    config = function() require('personal.coq') end
   }
   use {
     'ms-jpq/coq.artifacts',
@@ -79,7 +98,10 @@ return packer.startup(function(use)
   -- telescope
   use 'nvim-lua/popup.nvim'
   use 'nvim-lua/plenary.nvim'
-  use 'nvim-telescope/telescope.nvim'
+  use {
+    'nvim-telescope/telescope.nvim',
+    config = function() require('personal.telescope') end
+  }
   use {
     'nvim-telescope/telescope-fzf-native.nvim',
     run = vim.g.make_cmd
@@ -89,22 +111,30 @@ return packer.startup(function(use)
   use 'nvim-telescope/telescope-file-browser.nvim'
 
   -- íconos en nvim
-  use 'kyazdani42/nvim-web-devicons'
+  use {
+    'kyazdani42/nvim-web-devicons',
+    config = function() require('personal.devicons') end
+  }
 
   -- teesitter
   use {
     'nvim-treesitter/nvim-treesitter',
     run = ':TSUpdate',
+    config = function() require('personal.treesitter') end
   }
   use {
     'nvim-treesitter/nvim-treesitter-textobjects',
   }
   use {
     'RRethy/nvim-treesitter-textsubjects',
+    config = function() require('personal.treesitter-textsubjects') end
   }
 
   -- gps para statusline usando treesitter
-  use 'SmiteshP/nvim-gps'
+  use {
+    'SmiteshP/nvim-gps',
+    config = function() require('personal.nvim-gps') end
+  }
 
   -- mejor integración con netrw
   use 'tpope/vim-vinegar'
@@ -118,61 +148,78 @@ return packer.startup(function(use)
   -- dashboard
   use {
    'glepnir/dashboard-nvim',
-    commit = 'd87007a5ec91f5d6fba1d62b40a767e3cb67878f'
+    commit = 'd87007a5ec91f5d6fba1d62b40a767e3cb67878f',
+    config = function() require('personal.dashboard') end
   }
 
   -- lsp diagnostics
   use 'nvim-lua/lsp-status.nvim'
 
   -- GUI para vim.ui.input y vim.ui.select
-  use 'stevearc/dressing.nvim'
+  use {
+    'stevearc/dressing.nvim',
+    config = function() require('personal.dressing') end
+  }
 
   -- GUI para vim.notify
-  use 'rcarriga/nvim-notify'
+  use {
+    'rcarriga/nvim-notify',
+    config = function() require('personal.notify') end
+  }
 
   -- mejoran la carga de neovim
   use 'lewis6991/impatient.nvim'
   use 'nathom/filetype.nvim'
 
   -- diagramas en nvim
-  use 'jbyuki/venn.nvim'
+  use {
+    'jbyuki/venn.nvim',
+    config = function() require('personal.venn') end
+  }
 
   -- soporte para REST request
   use {
     'NTBBloodbath/rest.nvim',
-    commit = "e5f68db73276c4d4d255f75a77bbe6eff7a476ef"
+    commit = "e5f68db73276c4d4d255f75a77bbe6eff7a476ef",
+    config = function() require('personal.rest') end
   }
 
   -- mejor soporte para terminal
   use 'norcalli/nvim-terminal.lua'
-
-  -- lista para mostrar diagnósticos, referencias, etc
-  use 'folke/trouble.nvim'
 
   -- db
   use 'tpope/vim-dadbod'
   use 'kristijanhusak/vim-dadbod-ui'
 
   -- visualizar colores en hex
-  use 'norcalli/nvim-colorizer.lua'
-
-  -- editar colaborativamente en Neovim
-  use 'jbyuki/instant.nvim'
+  use {
+    'norcalli/nvim-colorizer.lua',
+    config = function() require('personal.colorizer') end
+  }
 
   -- soporte para tags
-  use 'ludovicchabant/vim-gutentags'
+  use {
+    'ludovicchabant/vim-gutentags',
+    config = function() require('personal.gutentags') end
+  }
 
   -- ayuda visual para indentación
-  use 'lukas-reineke/indent-blankline.nvim'
+  use {
+    'lukas-reineke/indent-blankline.nvim',
+    config = function() require('personal.blankline') end
+  }
 
   -- gisigns
-  use 'lewis6991/gitsigns.nvim'
-
-  -- emmet
-  use 'mattn/emmet-vim'
+  use {
+    'lewis6991/gitsigns.nvim',
+    config = function() require('personal.gitsigns') end
+  }
 
   -- sudo
-  use 'lambdalisue/suda.vim'
+  use {
+    'lambdalisue/suda.vim',
+    config = function() require('personal.suda') end
+  }
 
   use 'jose-elias-alvarez/null-ls.nvim'
 

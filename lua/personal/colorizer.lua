@@ -1,7 +1,11 @@
 require('colorizer').setup({
-    'css';
-    'javascript';
-    'html';
-    'dbout';
-    'sql';
+    'css',
+    'javascript',
+    'typescript',
+    'typescriptreact',
+    'javascriptreact',
+    'vue',
+    'html',
+    'dbout',
+    'sql',
 })
