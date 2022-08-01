@@ -1,3 +1,3 @@
-local gps = require('nvim-gps')
+local gps = require("nvim-gps")
 
 gps.setup()

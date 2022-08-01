@@ -1,11 +1,11 @@
-require('colorizer').setup({
-    'css',
-    'javascript',
-    'typescript',
-    'typescriptreact',
-    'javascriptreact',
-    'vue',
-    'html',
-    'dbout',
-    'sql',
+require("colorizer").setup({
+	"css",
+	"javascript",
+	"typescript",
+	"typescriptreact",
+	"javascriptreact",
+	"vue",
+	"html",
+	"dbout",
+	"sql",
 })

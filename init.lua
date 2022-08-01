@@ -1,21 +1,20 @@
 -- impatient.nvim
-local succes, err = pcall(require, 'impatient')
-  if not succes then
-  require('personal.install')
+local succes, err = pcall(require, "impatient")
+if not succes then
+	require("personal.install")
 end
 
-
 -- funciones y variable globales peronales
-require('personal.globals')
+require("personal.globals")
 
 -- vim polyglot
-require('personal.polyglot')
+require("personal.polyglot")
 
 -- plugin
-require('personal.packer')
+require("personal.packer")
 
 -- lua/colorscheme
-require('personal.colorscheme')
+require("personal.colorscheme")
 
 -- neovide config
-require('personal.neovide')
+require("personal.neovide")
