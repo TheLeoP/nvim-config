@@ -1,5 +1,5 @@
 -- impatient.nvim
-local succes, err = pcall(require, "impatient")
+local succes, _ = pcall(require, "impatient")
 if not succes then
 	require("personal.install")
 end

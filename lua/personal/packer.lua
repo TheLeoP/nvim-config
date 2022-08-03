@@ -29,9 +29,9 @@ return packer.startup(function(use)
 
 	-- linea de estado
 	use({
-		"itchyny/lightline.vim",
+		"feline-nvim/feline.nvim",
 		config = function()
-			require("personal.lightline")
+			require("personal.feline")
 		end,
 	})
 
@@ -87,6 +87,21 @@ return packer.startup(function(use)
 	})
 	use({
 		"mfussenegger/nvim-jdtls",
+	})
+	use({
+		"folke/lua-dev.nvim",
+	})
+	use({
+		"williamboman/mason.nvim",
+		config = function()
+			require("personal.mason")
+		end,
+	})
+	use({
+		"williamboman/mason-lspconfig.nvim",
+		config = function()
+			require("personal.mason-lspconfig")
+		end,
 	})
 
 	-- coq
@@ -151,10 +166,10 @@ return packer.startup(function(use)
 
 	-- gps para statusline usando treesitter
 	use({
-		"SmiteshP/nvim-gps",
+		"SmiteshP/nvim-navic",
 		config = function()
-			require("personal.nvim-gps")
-		end,
+			require('personal.nvim-navic')
+		end
 	})
 
 	-- mejor integración con netrw
@@ -174,14 +189,17 @@ return packer.startup(function(use)
 		end,
 	})
 
-	-- lsp diagnostics
-	use("nvim-lua/lsp-status.nvim")
-
 	-- GUI para vim.ui.input y vim.ui.select
 	use({
 		"stevearc/dressing.nvim",
 		config = function()
 			require("personal.dressing")
+		end,
+	})
+	use({
+		"j-hui/fidget.nvim",
+		config = function()
+			require("personal.fidget")
 		end,
 	})
 

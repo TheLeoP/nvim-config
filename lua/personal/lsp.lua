@@ -5,18 +5,11 @@ local illuminate = require("illuminate")
 local jdtls = require("jdtls")
 local jdtls_dap = require("jdtls.dap")
 local jdtls_setup = require("jdtls.setup")
-local lsp_status = require("lsp-status")
 local telescope_builtin = require("telescope.builtin")
+local navic = require("nvim-navic")
+
 local api = vim.api
 local util = vim.lsp.util
-
-lsp_status.register_progress()
-lsp_status.config({
-	current_function = false,
-	show_filename = false,
-	indicator_hint = "",
-	indicator_ok = "OK",
-})
 
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.textDocument.completion.completionItem.snippetSupport = true
@@ -27,11 +20,10 @@ capabilities.textDocument.completion.completionItem.resolveSupport = {
 		"additionalTextEdits",
 	},
 }
-capabilities = vim.tbl_extend("keep", capabilities, lsp_status.capabilities)
 
 local on_attach_general = function(client, bufnr)
 	illuminate.on_attach(client)
-	lsp_status.on_attach(client)
+	navic.attach(client, bufnr)
 
 	local opts = { buffer = bufnr }
 	vim.keymap.set("n", "gd", telescope_builtin.lsp_definitions, opts)
@@ -45,22 +37,17 @@ local on_attach_general = function(client, bufnr)
 	vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, opts)
 	vim.keymap.set("n", "<leader>fds", telescope_builtin.lsp_document_symbols, opts)
 	vim.keymap.set("n", "<leader>fws", telescope_builtin.lsp_workspace_symbols, opts)
-	vim.keymap.set("n", "<leader>fic", telescope_builtin.lsp_incoming_calls, opts)
-	vim.keymap.set("n", "<leader>foc", telescope_builtin.lsp_outgoing_calls, opts)
+	vim.keymap.set("n", "<leader>fki", telescope_builtin.lsp_incoming_calls, opts)
+	vim.keymap.set("n", "<leader>fko", telescope_builtin.lsp_outgoing_calls, opts)
 end
 
-local map_formatting = function(client, bufnr)
+local on_attach_formatting = function(client, bufnr)
 	local opts = { buffer = bufnr }
 
 	vim.keymap.set("n", "<leader>fm", function()
 		local params = util.make_formatting_params({})
 		client.request("textDocument/formatting", params, nil, bufnr)
 	end, opts)
-end
-
-local on_attach_formatting = function(client, bufnr)
-	on_attach_general(client, bufnr)
-	map_formatting(client, bufnr)
 end
 
 local on_init_general = function(client)
@@ -125,43 +112,23 @@ for _, server in ipairs(servidores_generales) do
 end
 
 -- lua
-local sumneko_root_path = vim.g.home_dir .. "/.lua-lsp/lua-language-server"
-local sumneko_binary = vim.g.home_dir .. "/.lua-lsp/lua-language-server/bin/lua-language-server"
-local sumneko_runtime = vim.split(package.path, ";")
-table.insert(sumneko_runtime, "lua/?.lua")
-table.insert(sumneko_runtime, "lua/?/init.lua")
-lspconfig.sumneko_lua.setup({
-	on_attach = on_attach_general,
-	capabilities = capabilities,
-	cmd = { sumneko_binary, "-E", sumneko_root_path .. "/main.lua" },
-	settings = {
-		Lua = {
-			runtime = {
-				-- Tell the language server which version of Lua you're using (most likely LuaJIT in the case of Neovim)
-				version = "LuaJIT",
-				runtime = sumneko_runtime,
-			},
-			diagnostics = {
-				-- Get the language server to recognize the `vim` global
-				globals = { "vim" },
-			},
-			workspace = {
-				-- Make the server aware of Neovim runtime files
-				library = vim.api.nvim_get_runtime_file("", true),
-				checkThirdParty = false,
-			},
-			telemetry = {
-				enable = false,
-			},
-		},
+local luadev = require("lua-dev").setup({
+	library = {
+		plugins = false,
+	},
+	lspconfig = {
+		on_attach = on_attach_general,
+		capabilities = capabilities,
 	},
 })
+
+lspconfig.sumneko_lua.setup(luadev)
 
 -- vue
 
 local lspconfig_configs = require("lspconfig.configs")
 
-local function on_new_config(new_config, new_root_dir)
+local function on_new_config(new_config, _)
 	if
 		new_config.init_options
 		and new_config.init_options.typescript
@@ -171,7 +138,7 @@ local function on_new_config(new_config, new_root_dir)
 	end
 end
 
-local bin_name = "vue-language-server"
+local bin_name = vim.fn.stdpath("data") .. "/mason/bin/vue-language-server.cmd"
 local cmd = { bin_name, "--stdio" }
 if vim.fn.has("win32") == 1 then
 	cmd = { "cmd.exe", "/C", bin_name, "--stdio" }
@@ -271,7 +238,9 @@ lspconfig_configs.volar_html = {
 		},
 	},
 }
-lspconfig.volar_html.setup({})
+lspconfig.volar_html.setup({
+	on_attach = on_attach_general,
+})
 
 -- java
 local on_attach_java = function(client, bufnr)
@@ -279,6 +248,7 @@ local on_attach_java = function(client, bufnr)
 		silent = true,
 	}
 
+	on_attach_general(client, bufnr)
 	on_attach_formatting(client, bufnr)
 	jdtls.setup_dap({ hotcodereplace = "auto" })
 	jdtls_dap.setup_dap_main_class_configs()
@@ -351,7 +321,9 @@ function M.jdtls_setup()
 			bundles = {
 				vim.fn.glob(
 					vim.g.home_dir
-						.. "/.dap-gadgets/java-debug/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-*.jar"
+						.. "/.dap-gadgets/java-debug/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-*.jar",
+					false,
+					false
 				),
 			},
 			extendedClientCapabilities = extendedClientCapabilities,

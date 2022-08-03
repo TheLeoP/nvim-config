@@ -1,5 +1,6 @@
-vim.g.dashboard_default_executive = "telescope"
-vim.g.dashboard_custom_header = {
+local db = require("dashboard")
+
+db.custom_header = {
 	"",
 	"",
 	" ███╗   ██╗ ███████╗ ██████╗  ██╗   ██╗ ██╗ ███╗   ███╗",
@@ -12,25 +13,34 @@ vim.g.dashboard_custom_header = {
 	"",
 }
 
-vim.g.dashboard_custom_section = {
-	proyectos_recientes = {
-		description = { "  Proyectos recientes    " },
-		command = "Telescope project",
+db.custom_center = {
+	{
+		icon = "",
+		desc = "Archivos recientes",
+		action = "Telescope oldfiles",
 	},
-	archivos_recientes = {
-		description = { "  Archivos recientes    " },
-		command = "Telescope oldfiles",
+	{
+		icon = "",
+		desc = "Proyectos recientes",
+		action = "Telescope project",
 	},
-	cargar_sesion = {
-		description = { "  Cargar sesión    " },
-		command = 'lua require("personal.fn_dashboard").cargar_sesion()',
+	{
+		icon = "",
+		desc = "Cargar sesión",
+		action = require("personal.fn_dashboard").cargar_sesion,
 	},
 }
 
-vim.g.dashboard_custom_footer = {
-	"",
-	"",
+db.custom_footer = {
 	"A veces un hipócrita no es más que una persona en proceso de cambio. -Dalinar Kholin",
-	"",
-	"",
 }
+
+db.hide_statusline = false
+db.hide_tabline = false
+
+db.header_pad = 0
+db.center_pad = 5
+db.footer_pad = 10
+
+vim.cmd([[highlight DashboardHeader ctermfg=LightGreen guifg=LightGreen]])
+vim.cmd([[highlight DashboardCenter  ctermfg=LightGreen guifg=LightBlue]])

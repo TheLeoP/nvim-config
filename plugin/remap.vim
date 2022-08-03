@@ -57,7 +57,7 @@ nnoremap <silent> [e <cmd>lua vim.diagnostic.goto_prev()<cr>
 
 " telescope
 " Find files using Telescope command-line sugar.
-nnoremap <leader>ff <cmd>Telescope find_files<cr>
+nnoremap <leader>ff <cmd>Telescope find_files hidden=true<cr>
 nnoremap <leader>fg <cmd>Telescope git_branches<cr>
 nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope help_tags<cr>
@@ -176,15 +176,6 @@ inoremap  
 
 " venn
 nnoremap <leader>v <cmd>lua Toggle_venn()<cr>
-
-" Trouble.nvim
-nnoremap <leader>tt <cmd>TroubleToggle<cr>
-nnoremap <leader>tw <cmd>TroubleToggle workspace_diagnostics<cr>
-nnoremap <leader>td <cmd>TroubleToggle document_diagnostics<cr>
-nnoremap <leader>tq <cmd>TroubleToggle quickfix<cr>
-nnoremap <leader>tl <cmd>TroubleToggle loclist<cr>
-nnoremap [t <cmd>lua require'trouble'.previous({skip_groups = true, jump = true})<cr>
-nnoremap ]t <cmd>lua require'trouble'.next({skip_groups = true, jump = true})<cr>
 
 " mejores remaps
 nnoremap @ <cmd>execute "noautocmd normal! " . v:count1 . "@" . getcharstr()<cr>

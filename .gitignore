@@ -6,3 +6,4 @@ plugin/packer_compiled.lua
 
 tags
 tags.log
+.luarc.json
