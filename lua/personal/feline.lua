@@ -1,10 +1,18 @@
 local devicons = require("nvim-web-devicons")
 local navic = require("nvim-navic")
+local vi_mode = require("feline.providers.vi_mode")
+local Path = require("plenary.path")
 
 local custom_providers = {
-	file = function()
-		local filename = " " .. vim.fn.expand("%:t", false, false)
-		local extension = vim.fn.expand("%:e", false, false)
+	file = function(_, opts)
+		local extension = vim.fn.expand("%:e", false, vim.g.lua_false)
+		local filename = vim.fn.expand("%:t", false, vim.g.lua_false)
+		local full_path = vim.fn.expand("%:p", false, vim.g.lua_false)
+		local p = Path:new(full_path)
+		local relative_p = Path:new(p:make_relative())
+
+		local relative_path = relative_p:shorten(opts.length)
+
 		local iconStr, name = devicons.get_icon(filename, extension)
 		local fg = name and vim.fn.synIDattr(vim.fn.hlID(name), "fg") or "white"
 
@@ -15,10 +23,13 @@ local custom_providers = {
 				bg = "bg",
 			},
 		}
-		return filename, icon
+
+		local status = vim.bo.readonly and "🔒" or vim.bo.modified and "●" or ""
+
+		return " " .. relative_path .. " " .. status, icon
 	end,
 	cwd = function()
-		return vim.fn.getcwd()
+		return vim.loop.cwd()
 	end,
 	tags = function()
 		return vim.fn["gutentags#statusline"]()
@@ -28,28 +39,54 @@ local custom_providers = {
 	end,
 }
 
-local components = {
+local statusline_components = {
 	active = {
 		{
 			{
-				provider = "vi_mode",
+				provider = {
+					name = "vi_mode",
+					opts = {
+						show_mode_name = true,
+					},
+				},
 				hl = function()
 					return {
-						name = require("feline.providers.vi_mode").get_mode_highlight_name(),
-						fg = require("feline.providers.vi_mode").get_mode_color(),
+						name = vi_mode.get_mode_highlight_name(),
+						bg = vi_mode.get_mode_color(),
+						fg = "bg",
 						style = "bold",
 					}
 				end,
-				left_sep = " ",
-				right_sep = " ",
-				icon = "",
+				left_sep = function()
+					return {
+						str = " ",
+						hl = {
+							bg = vi_mode.get_mode_color(),
+						},
+						always_visible = true,
+					}
+				end,
+				right_sep = function()
+					return {
+						str = " ",
+						hl = {
+							bg = vi_mode.get_mode_color(),
+						},
+						always_visible = true,
+					}
+				end,
 			},
 			{
 				provider = "git_branch",
-				right_sep = " ",
+				enabled = vim.b.gitsigns_head,
+				hl = {
+					fg = "lightblue",
+				},
+				left_sep = " ",
 			},
 			{
 				provider = "cwd",
+				left_sep = " ",
 				right_sep = {
 					str = " | ",
 					hl = {
@@ -59,7 +96,12 @@ local components = {
 				},
 			},
 			{
-				provider = "file",
+				provider = {
+					name = "file",
+					opts = {
+						length = 3,
+					},
+				},
 			},
 		},
 		{
@@ -69,21 +111,71 @@ local components = {
 				right_sep = " ",
 			},
 			{
+				provider = "file_type",
+				hl = {
+					fg = "bg",
+					bg = "green",
+				},
+				left_sep = {
+					str = " ",
+					hl = {
+						bg = "green",
+					},
+				},
+				right_sep = {
+					str = " ",
+					hl = {
+						bg = "green",
+					},
+				},
+			},
+		},
+	},
+}
+
+local winbar_components = {
+	active = {
+		{
+			{
+				provider = "file_info",
+				hl = {
+					fg = "skyblue",
+					bg = "NONE",
+					style = "bold",
+				},
+			},
+			{
 				provider = "navic",
 				enabled = navic.is_available,
 				left_sep = " ",
-				right_sep = " ",
+			},
+		},
+	},
+	inactive = {
+		{
+			{
+				provider = "file_info",
+				hl = {
+					fg = "white",
+					bg = "NONE",
+					style = "bold",
+				},
 			},
 			{
-				provider = "file_type",
+				provider = "navic",
+				enabled = navic.is_available,
 				left_sep = " ",
-				right_sep = " ",
 			},
 		},
 	},
 }
 
 require("feline").setup({
-	components = components,
+	components = statusline_components,
+	custom_providers = custom_providers,
+})
+
+require("feline").winbar.setup({
+	components = winbar_components,
 	custom_providers = custom_providers,
 })

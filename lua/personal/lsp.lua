@@ -114,11 +114,18 @@ end
 -- lua
 local luadev = require("lua-dev").setup({
 	library = {
-		plugins = false,
+		plugins = true,
 	},
 	lspconfig = {
 		on_attach = on_attach_general,
 		capabilities = capabilities,
+		settings = {
+			Lua = {
+				workspace = {
+					checkThirdParty = false,
+				},
+			},
+		},
 	},
 })
 
