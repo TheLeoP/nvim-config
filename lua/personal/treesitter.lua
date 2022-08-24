@@ -64,6 +64,9 @@ require("nvim-treesitter.configs").setup({
 			["[]"] = "@class.outer",
 		},
 	},
+	autotag = {
+		enable = true,
+	},
 })
 
 vim.o.foldmethod = "expr"

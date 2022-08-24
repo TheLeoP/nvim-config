@@ -137,9 +137,11 @@ return packer.startup(function(use)
 	-- extensiones telescope
 	use({
 		"nvim-telescope/telescope-file-browser.nvim",
-		config = function() require('personal.project') end
+		config = function()
+			require("personal.project")
+		end,
 	})
-	use('ahmedkhalf/project.nvim')
+	use("ahmedkhalf/project.nvim")
 
 	-- íconos en nvim
 	use({
@@ -171,8 +173,8 @@ return packer.startup(function(use)
 	use({
 		"SmiteshP/nvim-navic",
 		config = function()
-			require('personal.nvim-navic')
-		end
+			require("personal.nvim-navic")
+		end,
 	})
 
 	-- mejor integración con netrw
@@ -292,4 +294,6 @@ return packer.startup(function(use)
 			vim.fn["firenvim#install"](0)
 		end,
 	})
+
+	use("windwp/nvim-ts-autotag")
 end)
