@@ -67,7 +67,7 @@ nnoremap <leader>fr <cmd>Telescope resume<cr>
 nnoremap <leader>fw <cmd>Telescope diagnostics<cr>
 
 " proyectos
-nnoremap <leader>fp <cmd>lua require('telescope').extensions.project.project({})<cr>
+nnoremap <leader>fp <cmd>Telescope projects<cr>
 
 " personalizado
 nnoremap <silent><leader>fi <cmd>lua require("personal.fn_telescope").search_dotfiles()<cr>

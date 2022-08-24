@@ -135,8 +135,11 @@ return packer.startup(function(use)
 		run = vim.g.make_cmd,
 	})
 	-- extensiones telescope
-	use("nvim-telescope/telescope-project.nvim")
-	use("nvim-telescope/telescope-file-browser.nvim")
+	use({
+		"nvim-telescope/telescope-file-browser.nvim",
+		config = function() require('personal.project') end
+	})
+	use('ahmedkhalf/project.nvim')
 
 	-- íconos en nvim
 	use({

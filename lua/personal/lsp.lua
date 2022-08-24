@@ -1,7 +1,6 @@
 local M = {}
 
 local lspconfig = require("lspconfig")
-local illuminate = require("illuminate")
 local jdtls = require("jdtls")
 local jdtls_dap = require("jdtls.dap")
 local jdtls_setup = require("jdtls.setup")
@@ -22,7 +21,6 @@ capabilities.textDocument.completion.completionItem.resolveSupport = {
 }
 
 local on_attach_general = function(client, bufnr)
-	illuminate.on_attach(client)
 	navic.attach(client, bufnr)
 
 	local opts = { buffer = bufnr }
@@ -73,7 +71,7 @@ lspconfig.pyright.setup({
 -- emmet
 lspconfig.emmet_ls.setup({
 	capabilities = capabilities,
-	filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue", "php" },
+	filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue", "php", "html" },
 })
 
 -- tsserver
