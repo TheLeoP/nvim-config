@@ -296,4 +296,6 @@ return packer.startup(function(use)
 	})
 
 	use("windwp/nvim-ts-autotag")
+
+	use("JoosepAlviste/nvim-ts-context-commentstring")
 end)
