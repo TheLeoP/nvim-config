@@ -24,7 +24,7 @@ set scrolloff=8
 set cmdheight=2 "número de líneas para la consola
 
 set noshowmode  "no muestra el modo de vim (actualmente tengo un plug-in instalado que muestra esa y otra información)
-set colorcolumn=80  "distancia a la que está la columna gris
+" set colorcolumn=80  "distancia a la que está la columna gris
 set signcolumn=yes:2
 
 set updatetime=300

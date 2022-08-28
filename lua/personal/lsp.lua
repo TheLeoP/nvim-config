@@ -27,29 +27,49 @@ capabilities.textDocument.foldingRange = {
 local on_attach_general = function(client, bufnr)
   navic.attach(client, bufnr)
 
-  local opts = { buffer = bufnr }
-  vim.keymap.set("n", "gd", telescope_builtin.lsp_definitions, opts)
-  vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
-  vim.keymap.set("n", "gr", telescope_builtin.lsp_references, opts)
-  vim.keymap.set("n", "gi", telescope_builtin.lsp_implementations, opts)
-  vim.keymap.set("n", "<c-k>", vim.lsp.buf.signature_help, opts)
-  vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
-  vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
-  vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
-  vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, opts)
-  vim.keymap.set("n", "<leader>fds", telescope_builtin.lsp_document_symbols, opts)
-  vim.keymap.set("n", "<leader>fws", telescope_builtin.lsp_workspace_symbols, opts)
-  vim.keymap.set("n", "<leader>fki", telescope_builtin.lsp_incoming_calls, opts)
-  vim.keymap.set("n", "<leader>fko", telescope_builtin.lsp_outgoing_calls, opts)
-end
-
-local on_attach_formatting = function(client, bufnr)
-  local opts = { buffer = bufnr }
-
-  vim.keymap.set("n", "<leader>fm", function()
-    local params = util.make_formatting_params {}
-    client.request("textDocument/formatting", params, nil, bufnr)
-  end, opts)
+  vim.keymap.set("n", "gd", telescope_builtin.lsp_definitions, { buffer = bufnr, desc = "Go to definition" })
+  vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { buffer = bufnr, desc = "Go to declaration" })
+  vim.keymap.set("n", "gr", telescope_builtin.lsp_references, { buffer = bufnr, desc = "Go to reference" })
+  vim.keymap.set("n", "gi", telescope_builtin.lsp_implementations, { buffer = bufnr, desc = "Go to implementation" })
+  vim.keymap.set("n", "<c-k>", vim.lsp.buf.signature_help, { buffer = bufnr, desc = "Signature help" })
+  vim.keymap.set("n", "K", vim.lsp.buf.hover, { buffer = bufnr, desc = "Hover" })
+  vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { buffer = bufnr, desc = "Rename" })
+  vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, { buffer = bufnr, desc = "Code actions" })
+  vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { buffer = bufnr, desc = "Show error" })
+  vim.keymap.set(
+    "n",
+    "<leader>fds",
+    telescope_builtin.lsp_document_symbols,
+    { buffer = bufnr, desc = "Find document symbols" }
+  )
+  vim.keymap.set(
+    "n",
+    "<leader>fws",
+    telescope_builtin.lsp_workspace_symbols,
+    { buffer = bufnr, desc = "Find workspace symbols" }
+  )
+  vim.keymap.set(
+    "n",
+    "<leader>fki",
+    telescope_builtin.lsp_incoming_calls,
+    { buffer = bufnr, desc = "Find incoming calls" }
+  )
+  vim.keymap.set(
+    "n",
+    "<leader>fko",
+    telescope_builtin.lsp_outgoing_calls,
+    { buffer = bufnr, desc = "Find outgoing calls" }
+  )
+  if client.supports_method "textDocument/formatting" then
+    vim.keymap.set("n", "<leader>fm", function()
+      vim.lsp.buf.format {
+        filter = function(client)
+          return client.name == "null-ls" or client.name == "jdt.ls"
+        end,
+        bufnr = bufnr,
+      }
+    end, { buffer = bufnr, desc = "" })
+  end
 end
 
 local on_init_general = function(client)
@@ -93,7 +113,6 @@ null_ls.setup {
     null_ls.builtins.formatting.prettier,
     null_ls.builtins.formatting.stylua,
   },
-  on_attach = on_attach_formatting,
 }
 
 local servidores_generales = {
@@ -258,7 +277,6 @@ local on_attach_java = function(client, bufnr)
   }
 
   on_attach_general(client, bufnr)
-  on_attach_formatting(client, bufnr)
   jdtls.setup_dap { hotcodereplace = "auto" }
   jdtls_dap.setup_dap_main_class_configs()
   jdtls_setup.add_commands()
