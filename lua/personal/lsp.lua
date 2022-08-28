@@ -19,6 +19,10 @@ capabilities.textDocument.completion.completionItem.resolveSupport = {
 		"additionalTextEdits",
 	},
 }
+capabilities.textDocument.foldingRange = {
+	dynamicRegistration = false,
+	lineFoldingOnly = true,
+}
 
 local on_attach_general = function(client, bufnr)
 	navic.attach(client, bufnr)

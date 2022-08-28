@@ -298,4 +298,12 @@ return packer.startup(function(use)
 	use("windwp/nvim-ts-autotag")
 
 	use("JoosepAlviste/nvim-ts-context-commentstring")
+
+	use("kevinhwang91/promise-async")
+	use({
+		"kevinhwang91/nvim-ufo",
+		config = function()
+			require("personal.ufo")
+		end,
+	})
 end)
