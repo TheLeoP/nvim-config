@@ -1,1 +1,1 @@
-require('colorbuddy').colorscheme('gruvbuddy')
+require("colorbuddy").colorscheme "gruvbuddy"

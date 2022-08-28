@@ -1,4 +1,4 @@
-require("indent_blankline").setup({
+require("indent_blankline").setup {
 	char_list = { "|", "¦", "┆", "┊" },
 	show_trailing_blankline_indent = false,
 	filetype_exclude = {
@@ -10,6 +10,6 @@ require("indent_blankline").setup({
 		"",
 		"dashboard",
 	},
-})
+}
 
-vim.cmd([[highlight IndentBlanklineChar guifg=#4f4f4f gui=nocombine]])
+vim.cmd [[highlight IndentBlanklineChar guifg=#4f4f4f gui=nocombine]]

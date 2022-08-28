@@ -1,1 +1,1 @@
-require("nvim-navic").setup({})
+require("nvim-navic").setup {}
