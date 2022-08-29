@@ -306,4 +306,11 @@ return packer.startup(function(use)
       require "personal.ufo"
     end,
   }
+
+  use {
+    "ThePrimeagen/refactoring.nvim",
+    config = function()
+      require 'personal.refactoring'
+    end,
+  }
 end)

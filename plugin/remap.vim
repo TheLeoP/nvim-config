@@ -80,16 +80,10 @@ nnoremap <leader>fnc <cmd>lua require("personal.fn_telescope").search_nota_ciclo
 nnoremap <leader>fnn <cmd>lua require("personal.fn_telescope").search_nota_ciclo_actual_nombre()<cr>
 
 " permitir salir del modo terminal con <c-[>
-tnoremap  <c-\><c-n>
-tnoremap <c-{> <c-\><c-n>
-nnoremap <c-w>t <c-w>v<cmd>term<cr>
-
-" TODO: corregir mappings Dispatch
-" compilar/comprobar sintaxis
-" nmap <silent> <F7> :w<cr>:Dispatch<cr>
-
-" correr programa
-" nmap <silent> <F8> :w<cr>:Dispatch<cr>;
+tnoremap  <c-\><c-n>
+tnoremap <c-{><c-{> <c-\><c-n>
+nnoremap <c-w>tj <cmd>belowright split <bar> term<cr>
+nnoremap <c-w>tl <cmd>belowright vsplit <bar> term<cr>
 
 " w and q
 nnoremap <silent> <leader>w :w<cr>
@@ -177,7 +171,7 @@ inoremap  
 " venn
 nnoremap <leader>v <cmd>lua Toggle_venn()<cr>
 
-" mejores remaps
+" mejores macros
 nnoremap @ <cmd>execute "noautocmd normal! " . v:count1 . "@" . getcharstr()<cr>
 xnoremap @ :<C-U>execute "noautocmd '<,'>norm! " . v:count1 . "@" . getcharstr()<cr>
 
@@ -187,3 +181,22 @@ nnoremap <c-l> <cmd>nohlsearch<bar>diffupdate<bar>lua require('notify').dismiss(
 " tabs
 nnoremap <a-h> <cmd>tabprevious<cr>
 nnoremap <a-l> <cmd>tabnext<cr>
+
+" Dispatch
+nnoremap ¿<cr> <cmd>Dispatch<cr>
+nnoremap ¿<space> :Dispatch<space>
+nnoremap ¿! <cmd>Dispatch!
+nnoremap ¿? <cmd>FocusDispatch<cr>
+
+" refactoring
+xnoremap <leader><leader>re <esc><cmd>lua require('refactoring').refactor('Extract Function')<cr>
+xnoremap <leader><leader>rf <esc><cmd>lua require('refactoring').refactor('Extract Function To File')<cr>
+xnoremap <leader><leader>rv <esc><cmd>lua require('refactoring').refactor('Extract Variable')<cr>
+xnoremap <leader><leader>ri <esc><cmd>lua require('refactoring').refactor('Inline Variable')<cr>
+nnoremap <leader><leader>rbb <cmd>lua require('refactoring').refactor('Extract Block')<cr>
+nnoremap <leader><leader>rbf <cmd>lua require('refactoring').refactor('Extract Block To File')<cr>
+nnoremap <leader><leader>ri <esc><cmd>lua require('refactoring').refactor('Inline Variable')<cr>
+
+nnoremap <leader><leader>rp <cmd>lua require('refactoring').debug.printf({below = true, normal = true})<cr>
+xnoremap <leader><leader>rp <cmd>lua require('refactoring').debug.printf({below = true})<cr>
+xnoremap <leader><leader>rc <cmd>lua require('refactoring').debug.cleanup({})<cr>
