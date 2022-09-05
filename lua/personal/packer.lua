@@ -288,13 +288,6 @@ return packer.startup(function(use)
 
   use "antoinemadec/FixCursorHold.nvim"
 
-  use {
-    "glacambre/firenvim",
-    run = function()
-      vim.fn["firenvim#install"](0)
-    end,
-  }
-
   use "windwp/nvim-ts-autotag"
 
   use "JoosepAlviste/nvim-ts-context-commentstring"
