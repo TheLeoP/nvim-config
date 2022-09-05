@@ -197,6 +197,7 @@ nnoremap <leader><leader>rbb <cmd>lua require('refactoring').refactor('Extract B
 nnoremap <leader><leader>rbf <cmd>lua require('refactoring').refactor('Extract Block To File')<cr>
 nnoremap <leader><leader>ri <esc><cmd>lua require('refactoring').refactor('Inline Variable')<cr>
 
-nnoremap <leader><leader>rp <cmd>lua require('refactoring').debug.printf({below = true, normal = true})<cr>
-xnoremap <leader><leader>rp <cmd>lua require('refactoring').debug.printf({below = true})<cr>
-xnoremap <leader><leader>rc <cmd>lua require('refactoring').debug.cleanup({})<cr>
+nnoremap <leader><leader>rp <cmd>lua require('refactoring').debug.printf({below = true})<cr>
+nnoremap <leader><leader>rv <cmd>lua require('refactoring').debug.print_var({below = true, normal = true})<cr>
+xnoremap <leader><leader>rv <cmd>lua require('refactoring').debug.print_var({below = true})<cr>
+nnoremap <leader><leader>rc <cmd>lua require('refactoring').debug.cleanup({})<cr>
