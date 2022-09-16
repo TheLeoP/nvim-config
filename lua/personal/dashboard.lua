@@ -15,17 +15,17 @@ db.custom_header = {
 
 db.custom_center = {
   {
-    icon = "",
+    icon = " ",
     desc = "Archivos recientes",
     action = "Telescope oldfiles",
   },
   {
-    icon = "",
+    icon = " ",
     desc = "Proyectos recientes",
     action = "Telescope project",
   },
   {
-    icon = "",
+    icon = " ",
     desc = "Cargar sesión",
     action = require("personal.fn_dashboard").cargar_sesion,
   },

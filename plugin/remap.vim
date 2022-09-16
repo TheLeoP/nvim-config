@@ -64,7 +64,7 @@ nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 nnoremap <leader>fc <cmd>Telescope current_buffer_fuzzy_find<cr>
 nnoremap <leader>fs <cmd>Telescope live_grep<cr>
 nnoremap <leader>fr <cmd>Telescope resume<cr>
-nnoremap <leader>fw <cmd>Telescope diagnostics<cr>
+nnoremap <leader>fwd <cmd>Telescope diagnostics<cr>
 
 " proyectos
 nnoremap <leader>fp <cmd>Telescope projects<cr>
@@ -197,7 +197,7 @@ nnoremap <leader><leader>rbb <cmd>lua require('refactoring').refactor('Extract B
 nnoremap <leader><leader>rbf <cmd>lua require('refactoring').refactor('Extract Block To File')<cr>
 nnoremap <leader><leader>ri <esc><cmd>lua require('refactoring').refactor('Inline Variable')<cr>
 
-nnoremap <leader><leader>rp <cmd>lua require('refactoring').debug.printf({below = true})<cr>
-nnoremap <leader><leader>rv <cmd>lua require('refactoring').debug.print_var({below = true, normal = true})<cr>
-xnoremap <leader><leader>rv <cmd>lua require('refactoring').debug.print_var({below = true})<cr>
+nnoremap <leader><leader>rpp <cmd>lua require('refactoring').debug.printf({below = true})<cr>
+nnoremap <leader><leader>rpv <cmd>lua require('refactoring').debug.print_var({below = true, normal = true})<cr>
+xnoremap <leader><leader>rpv <cmd>lua require('refactoring').debug.print_var({below = true})<cr>
 nnoremap <leader><leader>rc <cmd>lua require('refactoring').debug.cleanup({})<cr>

@@ -31,9 +31,6 @@ local custom_providers = {
   cwd = function()
     return vim.loop.cwd()
   end,
-  tags = function()
-    return vim.fn["gutentags#statusline"]()
-  end,
   navic = function(_, opts)
     return navic.get_location(opts)
   end,
@@ -105,11 +102,6 @@ local statusline_components = {
       },
     },
     {
-      {
-        provider = "tags",
-        left_sep = " ",
-        right_sep = " ",
-      },
       {
         provider = "file_type",
         hl = {

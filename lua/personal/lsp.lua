@@ -99,12 +99,12 @@ lspconfig.emmet_ls.setup {
 }
 
 -- tsserver
-lspconfig.tsserver.setup{
+lspconfig.tsserver.setup {
   on_attach = on_attach_general,
   capabilities = capabilities,
-  config = {
-    root_dir = jdtls_setup.find_root({'tsconfig.json', 'package.json', 'jsconfig.json', '.git'})
-  }
+  root_dir = function()
+    return jdtls_setup.find_root { ".git"}
+  end,
 }
 
 local null_ls = require "null-ls"
