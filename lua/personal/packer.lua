@@ -103,6 +103,7 @@ return packer.startup(function(use)
       require "personal.mason-lspconfig"
     end,
   }
+  use "jose-elias-alvarez/typescript.nvim"
 
   -- coq
   use {

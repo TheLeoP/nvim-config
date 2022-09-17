@@ -99,12 +99,21 @@ lspconfig.emmet_ls.setup {
 }
 
 -- tsserver
-lspconfig.tsserver.setup {
-  on_attach = on_attach_general,
-  capabilities = capabilities,
-  root_dir = function()
-    return jdtls_setup.find_root { ".git"}
-  end,
+-- lspconfig.tsserver.setup {
+--   on_attach = on_attach_general,
+--   capabilities = capabilities,
+--   root_dir = function()
+--     return jdtls_setup.find_root { ".git"}
+--   end,
+-- }
+require("typescript").setup {
+  server = {
+    on_attach = on_attach_general,
+    capabilities = capabilities,
+    root_dir = function()
+      return jdtls_setup.find_root { ".git" }
+    end,
+  },
 }
 
 local null_ls = require "null-ls"
