@@ -103,6 +103,7 @@ return packer.startup(function(use)
       require "personal.mason-lspconfig"
     end,
   }
+  use "jose-elias-alvarez/typescript.nvim"
 
   -- coq
   use {
@@ -259,6 +260,7 @@ return packer.startup(function(use)
     config = function()
       require "personal.gutentags"
     end,
+    opt = true,
   }
 
   -- ayuda visual para indentación
@@ -304,7 +306,7 @@ return packer.startup(function(use)
   use {
     "ThePrimeagen/refactoring.nvim",
     config = function()
-      require 'personal.refactoring'
+      require "personal.refactoring"
     end,
   }
 end)
