@@ -255,6 +255,7 @@ return packer.startup(function(use)
   -- soporte para tags
   use {
     "ludovicchabant/vim-gutentags",
+    opt = true,
     config = function()
       require "personal.gutentags"
     end,
