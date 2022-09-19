@@ -108,6 +108,7 @@ return packer.startup(function(use)
   -- coq
   use {
     "ms-jpq/coq_nvim",
+    commit = "84ec5faf2aaf49819e626f64dd94f4e71cf575bc",
     branch = "coq",
     config = function()
       require "personal.coq"
