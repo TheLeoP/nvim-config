@@ -64,7 +64,7 @@ local on_attach_general = function(client, bufnr)
     vim.keymap.set("n", "<leader>fm", function()
       vim.lsp.buf.format {
         filter = function(client)
-          return client.name == "null-ls" or client.name == "jdt.ls"
+          return client.name == "null-ls" or client.name == "jdtls"
         end,
         bufnr = bufnr,
       }
@@ -307,11 +307,6 @@ function M.jdtls_setup()
     return
   end
 
-  local antiguo_dir = vim.fn.getcwd()
-  if antiguo_dir ~= root_dir then
-    vim.cmd("tcd " .. root_dir)
-  end
-
   local eclipse_wd = vim.g.home_dir
     .. "/java-workspace/"
     .. vim.fn.fnamemodify(root_dir, ":h:t")
@@ -320,6 +315,10 @@ function M.jdtls_setup()
   local extendedClientCapabilities = jdtls.extendedClientCapabilities
   extendedClientCapabilities.resolveAdditionalTextEditsSupport = true
 
+  local jdtls_root = vim.fn.stdpath "data" .. "\\mason\\packages\\jdtls\\"
+
+  local jar = vim.fn.glob(jdtls_root .. "plugins\\org.eclipse.equinox.launcher_*.jar", false, false)
+  local config_location = jdtls_root .. (vim.fn.has "win32" == 1 and "config_win" or "config_linux")
   local config = {
     settings = {
       java = {
@@ -350,8 +349,19 @@ function M.jdtls_setup()
     on_attach = on_attach_java,
     on_init = on_init_general,
     cmd = {
-      vim.g.java_lsp_cmd,
-      eclipse_wd,
+      "java.exe",
+      "-Declipse.application=org.eclipse.jdt.ls.core.id1",
+      "-Dosgi.bundles.defaultStartLevel=4",
+      "-Declipse.product=org.eclipse.jdt.ls.core.product",
+      "-Dlog.protocol=true",
+      "-Dlog.level=ALL",
+      "-Xms1G",
+      "--add-modules=ALL-SYSTEM",
+      "--add-opens", "java.base/java.util=ALL-UNNAMED",
+      "--add-opens", "java.base/java.lang=ALL-UNNAMED",
+      "-jar", jar,
+      "-configuration", config_location,
+      "-data", eclipse_wd,
     },
     root_dir = root_dir,
     init_options = {
