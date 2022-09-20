@@ -315,9 +315,9 @@ function M.jdtls_setup()
   local extendedClientCapabilities = jdtls.extendedClientCapabilities
   extendedClientCapabilities.resolveAdditionalTextEditsSupport = true
 
-  local jdtls_root = vim.fn.stdpath "data" .. "\\mason\\packages\\jdtls\\"
+  local jdtls_root = vim.fn.stdpath "data" .. "/mason/packages/jdtls/"
 
-  local jar = vim.fn.glob(jdtls_root .. "plugins\\org.eclipse.equinox.launcher_*.jar", false, false)
+  local jar = vim.fn.glob(jdtls_root .. "plugins/org.eclipse.equinox.launcher_*.jar", false, false)
   local config_location = jdtls_root .. (vim.fn.has "win32" == 1 and "config_win" or "config_linux")
   local config = {
     settings = {
@@ -349,7 +349,7 @@ function M.jdtls_setup()
     on_attach = on_attach_java,
     on_init = on_init_general,
     cmd = {
-      "java.exe",
+      "java",
       "-Declipse.application=org.eclipse.jdt.ls.core.id1",
       "-Dosgi.bundles.defaultStartLevel=4",
       "-Declipse.product=org.eclipse.jdt.ls.core.product",
