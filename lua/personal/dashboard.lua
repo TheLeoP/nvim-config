@@ -27,7 +27,7 @@ db.custom_center = {
   {
     icon = " ",
     desc = "Cargar sesión",
-    action = require("personal.fn_dashboard").cargar_sesion,
+    action = 'Telescope possession list',
   },
 }
 

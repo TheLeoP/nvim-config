@@ -151,7 +151,7 @@ vnoremap <silent> <leader><leader>e <cmd>lua require('personal.fn_util').visual_
 
 " grabar y cargar sesiones con un nombre
 nnoremap <leader><leader>ss <cmd>lua require('personal.fn_dashboard').guardar_sesion()<cr>
-nnoremap <leader><leader>sl <cmd>lua require('personal.fn_dashboard').cargar_sesion()<cr>
+nnoremap <leader><leader>sl <cmd>Telescope possession list<cr>
 
 " crear un nuevo autoregistro personal
 nnoremap <leader>na <cmd>lua require('personal.fn_util').nuevo_autoregistro()<cr>

@@ -35,6 +35,7 @@ local on_attach_general = function(client, bufnr)
   vim.keymap.set("n", "K", vim.lsp.buf.hover, { buffer = bufnr, desc = "Hover" })
   vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { buffer = bufnr, desc = "Rename" })
   vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, { buffer = bufnr, desc = "Code actions" })
+  vim.keymap.set("x", "<leader>ca", ":lua vim.lsp.buf.code_action()<cr>", { buffer = bufnr, desc = "Ranged code actions" })
   vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { buffer = bufnr, desc = "Show error" })
   vim.keymap.set(
     "n",
@@ -119,8 +120,10 @@ require("typescript").setup {
 local null_ls = require "null-ls"
 null_ls.setup {
   sources = {
-    null_ls.builtins.formatting.prettierd,
     null_ls.builtins.diagnostics.eslint_d,
+    null_ls.builtins.code_actions.eslint_d,
+    null_ls.builtins.code_actions.refactoring,
+    null_ls.builtins.formatting.prettierd,
     null_ls.builtins.formatting.stylua,
   },
 }

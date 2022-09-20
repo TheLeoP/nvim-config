@@ -310,4 +310,11 @@ return packer.startup(function(use)
       require "personal.refactoring"
     end,
   }
+
+  use {
+    "jedrzejboczar/possession.nvim",
+    config = function()
+      require "personal.possession"
+    end,
+  }
 end)
