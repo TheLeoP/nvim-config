@@ -316,4 +316,11 @@ return packer.startup(function(use)
       require "personal.possession"
     end,
   }
+
+  use {
+    'sindrets/diffview.nvim',
+    config = function()
+      require 'personal.diffview'
+    end
+  }
 end)
