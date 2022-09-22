@@ -17,10 +17,6 @@ nnoremap <silent> [q :cprev<cr>zzzv
 nnoremap <silent> ]l :lnext<cr>zzzv
 nnoremap <silent> [l :lprev<cr>zzzv
 
-" mantener centrado al usar n y N
-nnoremap n nzzzv
-nnoremap N Nzzzv
-
 " mantener posición en J y gJ usando el marcador z
 nnoremap J mzJ`z
 nnoremap gJ mzgJ`z
