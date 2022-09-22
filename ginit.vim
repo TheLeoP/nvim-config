@@ -1,5 +1,4 @@
 " usa el menú de autocompletado y la linea de pestañas de neovim (no UI)
-" algo
 GuiPopupmenu 0
 GuiTabline 0
 

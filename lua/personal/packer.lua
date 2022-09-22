@@ -143,6 +143,7 @@ return packer.startup(function(use)
     end,
   }
   use "ahmedkhalf/project.nvim"
+  use "nvim-telescope/telescope-live-grep-args.nvim"
 
   -- íconos en nvim
   use {
@@ -162,12 +163,6 @@ return packer.startup(function(use)
   }
   use {
     "nvim-treesitter/nvim-treesitter-textobjects",
-  }
-  use {
-    "RRethy/nvim-treesitter-textsubjects",
-    config = function()
-      require "personal.treesitter-textsubjects"
-    end,
   }
 
   -- gps para statusline usando treesitter
@@ -318,9 +313,12 @@ return packer.startup(function(use)
   }
 
   use {
-    'sindrets/diffview.nvim',
+    "sindrets/diffview.nvim",
     config = function()
-      require 'personal.diffview'
-    end
+      require "personal.diffview"
+    end,
   }
+
+  use "ggandor/leap.nvim"
+  use "ggandor/flit.nvim"
 end)

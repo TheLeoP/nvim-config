@@ -4,7 +4,7 @@ if not succes then
   require "personal.install"
 end
 
--- funciones y variable globales peronales
+-- funciones y variable globales personales
 require "personal.globals"
 
 -- vim polyglot
