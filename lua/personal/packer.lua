@@ -319,6 +319,16 @@ return packer.startup(function(use)
     end,
   }
 
-  use "ggandor/leap.nvim"
-  use "ggandor/flit.nvim"
+  use {
+    "ggandor/leap.nvim",
+    config = function()
+      require'personal.leap'
+    end
+  }
+  use {
+    "ggandor/flit.nvim",
+    config = function()
+      require'personal.flit'
+    end
+  }
 end)
