@@ -10,4 +10,4 @@ nnoremap <silent><buffer> <F9> <cmd>wa<cr>s<cmd>terminal gradle run<cr>
 let b:dispatch = 'gradle compileJava'
 compiler gradle
 
-lua require('personal.lsp').jdtls_setup()
+lua require('personal.config.lsp').jdtls_setup()

@@ -30,7 +30,7 @@ return packer.startup(function(use)
   use {
     "feline-nvim/feline.nvim",
     config = function()
-      require "personal.feline"
+      require "personal.config.feline"
     end,
   }
 
@@ -51,13 +51,13 @@ return packer.startup(function(use)
   use {
     "mfussenegger/nvim-dap",
     config = function()
-      require "personal.dap"
+      require "personal.config.dap"
     end,
   }
   use {
     "rcarriga/nvim-dap-ui",
     config = function()
-      require "personal.dapui"
+      require "personal.config.dapui"
     end,
   }
   -- lua en neovim debug server
@@ -67,7 +67,7 @@ return packer.startup(function(use)
   use {
     "vim-test/vim-test",
     config = function()
-      require "personal.vim-test"
+      require "personal.config.vim-test"
     end,
   }
 
@@ -75,13 +75,13 @@ return packer.startup(function(use)
   use {
     "neovim/nvim-lspconfig",
     config = function()
-      require "personal.lsp"
+      require "personal.config.lsp"
     end,
   }
   use {
     "ray-x/lsp_signature.nvim",
     config = function()
-      require "personal.signature"
+      require "personal.config.signature"
     end,
   }
   use {
@@ -93,13 +93,13 @@ return packer.startup(function(use)
   use {
     "williamboman/mason.nvim",
     config = function()
-      require "personal.mason"
+      require "personal.config.mason"
     end,
   }
   use {
     "williamboman/mason-lspconfig.nvim",
     config = function()
-      require "personal.mason-lspconfig"
+      require "personal.config.mason-lspconfig"
     end,
   }
   use "jose-elias-alvarez/typescript.nvim"
@@ -110,7 +110,7 @@ return packer.startup(function(use)
     commit = "84ec5faf2aaf49819e626f64dd94f4e71cf575bc",
     branch = "coq",
     config = function()
-      require "personal.coq"
+      require "personal.config.coq"
     end,
   }
   use {
@@ -128,7 +128,7 @@ return packer.startup(function(use)
   use {
     "nvim-telescope/telescope.nvim",
     config = function()
-      require "personal.telescope"
+      require "personal.config.telescope"
     end,
   }
   use {
@@ -139,7 +139,7 @@ return packer.startup(function(use)
   use {
     "nvim-telescope/telescope-file-browser.nvim",
     config = function()
-      require "personal.project"
+      require "personal.config.project"
     end,
   }
   use "ahmedkhalf/project.nvim"
@@ -149,7 +149,7 @@ return packer.startup(function(use)
   use {
     "kyazdani42/nvim-web-devicons",
     config = function()
-      require "personal.devicons"
+      require "personal.config.devicons"
     end,
   }
 
@@ -158,7 +158,7 @@ return packer.startup(function(use)
     "nvim-treesitter/nvim-treesitter",
     run = ":TSUpdate",
     config = function()
-      require "personal.treesitter"
+      require "personal.config.treesitter"
     end,
   }
   use {
@@ -169,7 +169,7 @@ return packer.startup(function(use)
   use {
     "SmiteshP/nvim-navic",
     config = function()
-      require "personal.nvim-navic"
+      require "personal.config.nvim-navic"
     end,
   }
 
@@ -186,7 +186,7 @@ return packer.startup(function(use)
   use {
     "glepnir/dashboard-nvim",
     config = function()
-      require "personal.dashboard"
+      require "personal.config.dashboard"
     end,
   }
 
@@ -194,13 +194,13 @@ return packer.startup(function(use)
   use {
     "stevearc/dressing.nvim",
     config = function()
-      require "personal.dressing"
+      require "personal.config.dressing"
     end,
   }
   use {
     "j-hui/fidget.nvim",
     config = function()
-      require "personal.fidget"
+      require "personal.config.fidget"
     end,
   }
 
@@ -208,7 +208,7 @@ return packer.startup(function(use)
   use {
     "rcarriga/nvim-notify",
     config = function()
-      require "personal.notify"
+      require "personal.config.notify"
     end,
   }
 
@@ -220,7 +220,7 @@ return packer.startup(function(use)
   use {
     "jbyuki/venn.nvim",
     config = function()
-      require "personal.venn"
+      require "personal.config.venn"
     end,
   }
 
@@ -229,7 +229,7 @@ return packer.startup(function(use)
     "NTBBloodbath/rest.nvim",
     commit = "e5f68db73276c4d4d255f75a77bbe6eff7a476ef",
     config = function()
-      require "personal.rest"
+      require "personal.config.rest"
     end,
   }
 
@@ -244,7 +244,7 @@ return packer.startup(function(use)
   use {
     "norcalli/nvim-colorizer.lua",
     config = function()
-      require "personal.colorizer"
+      require "personal.config.colorizer"
     end,
   }
 
@@ -253,7 +253,7 @@ return packer.startup(function(use)
     "ludovicchabant/vim-gutentags",
     opt = true,
     config = function()
-      require "personal.gutentags"
+      require "personal.config.gutentags"
     end,
     opt = true,
   }
@@ -262,7 +262,7 @@ return packer.startup(function(use)
   use {
     "lukas-reineke/indent-blankline.nvim",
     config = function()
-      require "personal.blankline"
+      require "personal.config.blankline"
     end,
   }
 
@@ -270,7 +270,7 @@ return packer.startup(function(use)
   use {
     "lewis6991/gitsigns.nvim",
     config = function()
-      require "personal.gitsigns"
+      require "personal.config.gitsigns"
     end,
   }
 
@@ -278,7 +278,7 @@ return packer.startup(function(use)
   use {
     "lambdalisue/suda.vim",
     config = function()
-      require "personal.suda"
+      require "personal.config.suda"
     end,
   }
 
@@ -294,41 +294,41 @@ return packer.startup(function(use)
   use {
     "kevinhwang91/nvim-ufo",
     config = function()
-      require "personal.ufo"
+      require "personal.config.ufo"
     end,
   }
 
   use {
     "ThePrimeagen/refactoring.nvim",
     config = function()
-      require "personal.refactoring"
+      require "personal.config.refactoring"
     end,
   }
 
   use {
     "jedrzejboczar/possession.nvim",
     config = function()
-      require "personal.possession"
+      require "personal.config.possession"
     end,
   }
 
   use {
     "sindrets/diffview.nvim",
     config = function()
-      require "personal.diffview"
+      require "personal.config.diffview"
     end,
   }
 
   use {
     "ggandor/leap.nvim",
     config = function()
-      require'personal.leap'
+      require'personal.config.leap'
     end
   }
   use {
     "ggandor/flit.nvim",
     config = function()
-      require'personal.flit'
+      require'personal.config.flit'
     end
   }
 end)

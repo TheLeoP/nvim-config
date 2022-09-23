@@ -1,5 +1,4 @@
 local actions = require "telescope.actions"
-local personal_actions = require "personal.fn_telescope"
 
 require("telescope").setup {
   defaults = {
