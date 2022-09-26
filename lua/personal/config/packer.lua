@@ -17,7 +17,6 @@ return packer.startup(function(use)
 
   -- compilar con errores en quickfix list
   use "tpope/vim-dispatch"
-  use "radenling/vim-dispatch-neovim"
 
   -- soporte para múltiples lenguajes
   use "sheerun/vim-polyglot"
@@ -123,7 +122,6 @@ return packer.startup(function(use)
   }
 
   -- telescope
-  use "nvim-lua/popup.nvim"
   use "nvim-lua/plenary.nvim"
   use {
     "nvim-telescope/telescope.nvim",
@@ -179,7 +177,7 @@ return packer.startup(function(use)
   -- resalta palabra bajo el cursor
   use "RRethy/vim-illuminate"
 
-  -- extender la capacidad de i_ctrl-a
+  -- extender la capacidad de ctrl-a
   use "monaqa/dial.nvim"
 
   -- dashboard
@@ -227,7 +225,6 @@ return packer.startup(function(use)
   -- soporte para REST request
   use {
     "NTBBloodbath/rest.nvim",
-    commit = "e5f68db73276c4d4d255f75a77bbe6eff7a476ef",
     config = function()
       require "personal.config.rest"
     end,
@@ -255,7 +252,6 @@ return packer.startup(function(use)
     config = function()
       require "personal.config.gutentags"
     end,
-    opt = true,
   }
 
   -- ayuda visual para indentación
@@ -322,13 +318,13 @@ return packer.startup(function(use)
   use {
     "ggandor/leap.nvim",
     config = function()
-      require'personal.config.leap'
-    end
+      require "personal.config.leap"
+    end,
   }
   use {
     "ggandor/flit.nvim",
     config = function()
-      require'personal.config.flit'
-    end
+      require "personal.config.flit"
+    end,
   }
 end)

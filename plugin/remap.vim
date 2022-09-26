@@ -38,8 +38,8 @@ nnoremap <silent><expr> k (v:count > 5 ? "m'" . v:count : "") . 'k'
 nnoremap <silent><expr> j (v:count > 5 ? "m'" . v:count : "") . 'j'
 
 " manejo de linas en todos los modos
-vnoremap <silent> <a-j> :m '>+1<cr>gv=gv
-vnoremap <silent> <a-k> :m '<-2<cr>gv=gv
+xnoremap <silent> <a-j> :m '>+1<cr>gv=gv
+xnoremap <silent> <a-k> :m '<-2<cr>gv=gv
 nnoremap <silent> <a-j> :m .+1<cr>==
 nnoremap <silent> <a-k> :m .-2<cr>==
 inoremap <silent> <a-j> <esc>:m .+1<cr>==gi
