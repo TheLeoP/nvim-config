@@ -59,4 +59,3 @@ set cursorline
 
 set timeoutlen=500
 let g:cursorhold_updatetime = 100
-
