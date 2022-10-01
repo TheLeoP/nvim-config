@@ -35,7 +35,12 @@ local on_attach_general = function(client, bufnr)
   vim.keymap.set("n", "K", vim.lsp.buf.hover, { buffer = bufnr, desc = "Hover" })
   vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { buffer = bufnr, desc = "Rename" })
   vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, { buffer = bufnr, desc = "Code actions" })
-  vim.keymap.set("x", "<leader>ca", ":lua vim.lsp.buf.code_action()<cr>", { buffer = bufnr, desc = "Ranged code actions" })
+  vim.keymap.set(
+    "x",
+    "<leader>ca",
+    ":lua vim.lsp.buf.code_action()<cr>",
+    { buffer = bufnr, desc = "Ranged code actions" }
+  )
   vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { buffer = bufnr, desc = "Show error" })
   vim.keymap.set(
     "n",
@@ -318,7 +323,8 @@ function M.jdtls_setup()
   local extendedClientCapabilities = jdtls.extendedClientCapabilities
   extendedClientCapabilities.resolveAdditionalTextEditsSupport = true
 
-  local jdtls_root = vim.fn.stdpath "data" .. "/mason/packages/jdtls/"
+  local mason_root = vim.fn.stdpath "data" .. "/mason/packages/"
+  local jdtls_root = mason_root .. "jdtls/"
 
   local jar = vim.fn.glob(jdtls_root .. "plugins/org.eclipse.equinox.launcher_*.jar", false, false)
   local config_location = jdtls_root .. (vim.fn.has "win32" == 1 and "config_win" or "config_linux")
@@ -360,25 +366,30 @@ function M.jdtls_setup()
       "-Dlog.level=ALL",
       "-Xms1G",
       "--add-modules=ALL-SYSTEM",
-      "--add-opens", "java.base/java.util=ALL-UNNAMED",
-      "--add-opens", "java.base/java.lang=ALL-UNNAMED",
-      "-jar", jar,
-      "-configuration", config_location,
-      "-data", eclipse_wd,
+      "--add-opens",
+      "java.base/java.util=ALL-UNNAMED",
+      "--add-opens",
+      "java.base/java.lang=ALL-UNNAMED",
+      "-jar",
+      jar,
+      "-configuration",
+      config_location,
+      "-data",
+      eclipse_wd,
     },
     root_dir = root_dir,
     init_options = {
       bundles = {
-        vim.fn.glob(
-          vim.g.home_dir
-            .. "/.dap-gadgets/java-debug/com.microsoft.java.debug.plugin/target/com.microsoft.java.debug.plugin-*.jar",
-          false,
-          false
-        ),
+        vim.fn.glob(mason_root .. "java-debug-adapter/extension/server/com.microsoft.java.debug.plugin-*.jar"),
       },
       extendedClientCapabilities = extendedClientCapabilities,
     },
   }
+
+  vim.list_extend(
+    config.init_options.bundles,
+    vim.split(vim.fn.glob(mason_root .. "java-test/extension/server/*.jar"), "\n")
+  )
 
   jdtls.start_or_attach(config)
 end

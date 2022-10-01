@@ -25,14 +25,6 @@ return packer.startup(function(use)
   use "tjdevries/colorbuddy.vim"
   use "tjdevries/gruvbuddy.nvim"
 
-  -- linea de estado
-  use {
-    "feline-nvim/feline.nvim",
-    config = function()
-      require "personal.config.feline"
-    end,
-  }
-
   -- surround actions
   use "tpope/vim-surround"
 
@@ -325,6 +317,14 @@ return packer.startup(function(use)
     "ggandor/flit.nvim",
     config = function()
       require "personal.config.flit"
+    end,
+  }
+
+  -- linea de estado
+  use {
+    "feline-nvim/feline.nvim",
+    config = function()
+      require "personal.config.feline"
     end,
   }
 end)
