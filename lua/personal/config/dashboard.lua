@@ -37,6 +37,7 @@ db.custom_footer = {
 
 db.hide_statusline = false
 db.hide_tabline = false
+db.hide_winbar = false
 
 db.header_pad = 0
 db.center_pad = 5

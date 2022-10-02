@@ -6,7 +6,7 @@ local M = {}
 function M.search_dotfiles()
   require("telescope.builtin").find_files {
     prompt_title = "< VimRC >",
-    cwd = vim.api.nvim_eval "$NVIMHOME",
+    cwd = vim.fn.stdpath "config",
   }
 end
 
@@ -35,20 +35,6 @@ function M.browse_cd_files()
   vim.cmd "cd %:p:h"
   require("telescope").extensions.file_browser.file_browser {
     prompt_title = "< Buscar cd files >",
-  }
-end
-
-function M.search_autoregistro()
-  require("telescope.builtin").find_files {
-    prompt_title = "Search autoregistro",
-    cwd = vim.g.autoregistro,
-  }
-end
-
-function M.browse_autoregistro()
-  vim.cmd("cd " .. vim.g.autoregistro)
-  require("telescope").extensions.file_browser.file_browser {
-    prompt_title = "Browse autoregistro",
   }
 end
 

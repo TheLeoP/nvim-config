@@ -5,17 +5,12 @@ vim.g.ciclo_actual = "9no ciclo"
 
 if vim.fn.has "win32" == 1 then
   vim.g.documentos = "D:/Lucho"
-  vim.g.os = "Windows"
   vim.g.make_cmd = "make"
-  vim.g.tsserver_library_location = "C:/Users/pcx/AppData/Roaming/npm/node_modules/typescript/lib/tsserverlibrary.js"
 else
   vim.g.documentos = vim.g.home_dir .. "/Documentos"
-  vim.g.os = "Linux"
   vim.g.make_cmd = "make"
-  vim.g.tsserver_library_location = "/usr/local/lib/node_modules/typescript/lib/tsserverlibrary.js"
 end
 
-vim.g.autoregistro = vim.g.documentos .. "/Personal/notas/autoregistro"
 vim.g.documentos_u = vim.g.documentos .. "/Documentos U/" .. vim.g.ciclo_actual .. "/"
 
 function _G.expand(...)

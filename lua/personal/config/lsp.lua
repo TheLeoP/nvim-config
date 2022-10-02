@@ -10,6 +10,8 @@ local navic = require "nvim-navic"
 local api = vim.api
 local util = vim.lsp.util
 
+local mason_root = vim.fn.stdpath "data" .. "/mason/packages/"
+
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.textDocument.completion.completionItem.snippetSupport = true
 capabilities.textDocument.completion.completionItem.resolveSupport = {
@@ -170,6 +172,7 @@ local luadev = require("lua-dev").setup {
 
 lspconfig.sumneko_lua.setup(luadev)
 
+
 -- vue
 
 -- local lspconfig_configs = require "lspconfig.configs"
@@ -180,7 +183,7 @@ lspconfig.sumneko_lua.setup(luadev)
 --     and new_config.init_options.typescript
 --     and new_config.init_options.typescript.serverPath == ""
 --   then
---     new_config.init_options.typescript.serverPath = vim.g.tsserver_library_location
+--     new_config.init_options.typescript.serverPath = mason_root .. "typescript-language-server/node_modules/typescript/lib/tsserverlibrary.js"
 --   end
 -- end
 
@@ -323,7 +326,6 @@ function M.jdtls_setup()
   local extendedClientCapabilities = jdtls.extendedClientCapabilities
   extendedClientCapabilities.resolveAdditionalTextEditsSupport = true
 
-  local mason_root = vim.fn.stdpath "data" .. "/mason/packages/"
   local jdtls_root = mason_root .. "jdtls/"
 
   local jar = vim.fn.glob(jdtls_root .. "plugins/org.eclipse.equinox.launcher_*.jar", false, false)

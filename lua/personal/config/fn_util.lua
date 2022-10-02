@@ -58,12 +58,6 @@ function M.get_nombre_input_o_timestamp(tipo)
   return nombre
 end
 
-function M.nuevo_autoregistro_emociones()
-  local nombre_archivo = M.get_nombre_input_o_timestamp "el autoregistro"
-  local path_archivo = vim.g.notas_emociones .. "/" .. nombre_archivo
-  vim.cmd("e " .. path_archivo)
-end
-
 function M.nueva_nota_U()
   local callback = function(path)
     if path then
@@ -75,7 +69,7 @@ function M.nueva_nota_U()
     end
   end
 
-  require("personal.fn_telescope").seleccionar_materia(callback)
+  require("personal.config.fn_telescope").seleccionar_materia(callback)
 end
 
 return M
