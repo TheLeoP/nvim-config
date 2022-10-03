@@ -1,3 +1,4 @@
+;; extends
 (attribute
   (attribute_name) @_attr (#any-of? @_attr
                            "ng-if"
