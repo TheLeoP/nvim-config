@@ -8,4 +8,5 @@ require("colorizer").setup {
   "html",
   "dbout",
   "sql",
+  "lua"
 }

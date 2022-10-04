@@ -27,7 +27,7 @@ db.custom_center = {
   {
     icon = " ",
     desc = "Cargar sesión",
-    action = 'Telescope possession list',
+    action = "Telescope possession list",
   },
 }
 
@@ -43,5 +43,6 @@ db.header_pad = 0
 db.center_pad = 5
 db.footer_pad = 10
 
-vim.cmd [[highlight DashboardHeader ctermfg=LightGreen guifg=LightGreen]]
-vim.cmd [[highlight DashboardCenter  ctermfg=LightGreen guifg=LightBlue]]
+vim.api.nvim_set_hl(0, "DashboardHeader", { fg = "#71A9B4" })
+vim.api.nvim_set_hl(0, "DashboardCenter", { fg = "#7ebe88" })
+vim.api.nvim_set_hl(0, "DashboardFooter", { fg = "#CAB8A3" })
