@@ -2,7 +2,6 @@ require("nvim-treesitter.configs").setup {
   ensure_installed = "all",
   ignore_install = {
     -- 'markdown',
-    "help",
   },
   highlight = {
     enable = true, -- false will disable the whole extension

@@ -204,7 +204,6 @@ return packer.startup(function(use)
 
   -- mejoran la carga de neovim
   use "lewis6991/impatient.nvim"
-  use "nathom/filetype.nvim"
 
   -- diagramas en nvim
   use {
