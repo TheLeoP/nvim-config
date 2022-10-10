@@ -172,124 +172,24 @@ local luadev = require("lua-dev").setup {
 
 lspconfig.sumneko_lua.setup(luadev)
 
-
 -- vue
 
--- local lspconfig_configs = require "lspconfig.configs"
+local function on_new_config(new_config, _)
+  if
+    new_config.init_options
+    and new_config.init_options.typescript
+    and new_config.init_options.typescript.tsdk == ""
+  then
+    new_config.init_options.typescript.tsdk = mason_root .. "typescript-language-server/node_modules/typescript/lib"
+  end
+end
 
--- local function on_new_config(new_config, _)
---   if
---     new_config.init_options
---     and new_config.init_options.typescript
---     and new_config.init_options.typescript.serverPath == ""
---   then
---     new_config.init_options.typescript.serverPath = mason_root .. "typescript-language-server/node_modules/typescript/lib/tsserverlibrary.js"
---   end
--- end
-
--- local bin_name = vim.fn.stdpath "data" .. "/mason/bin/vue-language-server.cmd"
--- local cmd = { bin_name, "--stdio" }
--- if vim.fn.has "win32" == 1 then
---   cmd = { "cmd.exe", "/C", bin_name, "--stdio" }
--- end
--- local volar_root_dir = function()
---   return jdtls_setup.find_root { "package.json" }
--- end
-
--- lspconfig_configs.volar_api = {
---   default_config = {
---     cmd = cmd,
---     root_dir = volar_root_dir,
---     on_new_config = on_new_config,
---     -- filetypes = { 'vue'},
---     -- If you want to use Volar's Take Over Mode (if you know, you know)
---     filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue", "json" },
---     init_options = {
---       typescript = {
---         serverPath = "",
---       },
---       languageFeatures = {
---         implementation = true, -- new in @volar/vue-language-server v0.33
---         references = true,
---         definition = true,
---         typeDefinition = true,
---         callHierarchy = true,
---         hover = true,
---         rename = true,
---         renameFileRefactoring = true,
---         signatureHelp = true,
---         codeAction = true,
---         workspaceSymbol = true,
---         completion = {
---           defaultTagNameCase = "both",
---           defaultAttrNameCase = "kebabCase",
---           getDocumentNameCasesRequest = false,
---           getDocumentSelectionRequest = false,
---         },
---       },
---     },
---   },
--- }
--- lspconfig.volar_api.setup {}
-
--- lspconfig_configs.volar_doc = {
---   default_config = {
---     cmd = cmd,
---     root_dir = volar_root_dir,
---     on_new_config = on_new_config,
-
---     -- filetypes = { 'vue'},
---     -- If you want to use Volar's Take Over Mode (if you know, you know):
---     filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue", "json" },
---     init_options = {
---       typescript = {
---         serverPath = "",
---       },
---       languageFeatures = {
---         implementation = true, -- new in @volar/vue-language-server v0.33
---         documentHighlight = true,
---         documentLink = true,
---         codeLens = { showReferencesNotification = true },
---         -- not supported - https://github.com/neovim/neovim/pull/15723
---         semanticTokens = false,
---         diagnostics = true,
---         schemaRequestService = true,
---       },
---     },
---   },
--- }
--- lspconfig.volar_doc.setup {}
-
--- lspconfig_configs.volar_html = {
---   default_config = {
---     cmd = cmd,
---     root_dir = volar_root_dir,
---     on_new_config = on_new_config,
-
---     -- filetypes = { 'vue'},
---     -- If you want to use Volar's Take Over Mode (if you know, you know), intentionally no 'json':
---     filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue" },
---     init_options = {
---       typescript = {
---         serverPath = "",
---       },
---       documentFeatures = {
---         selectionRange = true,
---         foldingRange = true,
---         linkedEditingRange = true,
---         documentSymbol = true,
---         -- not supported - https://github.com/neovim/neovim/pull/13654
---         documentColor = false,
---         documentFormatting = {
---           defaultPrintWidth = 100,
---         },
---       },
---     },
---   },
--- }
--- lspconfig.volar_html.setup {
---   on_attach = on_attach_general,
--- }
+lspconfig.volar.setup {
+  on_attach = on_attach_general,
+  capabilities = capabilities,
+  on_new_config = on_new_config,
+  filetypes = { "vue" },
+}
 
 -- java
 local on_attach_java = function(client, bufnr)
