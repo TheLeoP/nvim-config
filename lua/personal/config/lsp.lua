@@ -153,24 +153,24 @@ for _, server in ipairs(servidores_generales) do
 end
 
 -- lua
-local luadev = require("lua-dev").setup {
+require("neodev").setup {
   library = {
     plugins = true,
   },
-  lspconfig = {
-    on_attach = on_attach_general,
-    capabilities = capabilities,
-    settings = {
-      Lua = {
-        workspace = {
-          checkThirdParty = false,
-        },
+  lspconfig = {},
+}
+
+lspconfig.sumneko_lua.setup {
+  on_attach = on_attach_general,
+  capabilities = capabilities,
+  settings = {
+    Lua = {
+      workspace = {
+        checkThirdParty = false,
       },
     },
   },
 }
-
-lspconfig.sumneko_lua.setup(luadev)
 
 -- vue
 
