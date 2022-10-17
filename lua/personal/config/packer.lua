@@ -79,7 +79,7 @@ return packer.startup(function(use)
     "mfussenegger/nvim-jdtls",
   }
   use {
-    "folke/lua-dev.nvim",
+    "folke/neodev.nvim",
   }
   use {
     "williamboman/mason.nvim",
