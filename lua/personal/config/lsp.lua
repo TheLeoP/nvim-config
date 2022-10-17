@@ -72,7 +72,7 @@ local on_attach_general = function(client, bufnr)
     vim.keymap.set("n", "<leader>fm", function()
       vim.lsp.buf.format {
         filter = function(client)
-          return client.name == "null-ls" or client.name == "jdtls"
+          return client.name == "null-ls" or client.name == "jdtls" or client.name == "gopls"
         end,
         bufnr = bufnr,
       }
@@ -189,6 +189,17 @@ lspconfig.volar.setup {
   capabilities = capabilities,
   on_new_config = on_new_config,
   filetypes = { "vue" },
+}
+
+-- go
+lspconfig.gopls.setup {
+  on_attach = on_attach_general,
+  capabilities = capabilities,
+  settings = {
+    gopls = {
+      gofumpt = true,
+    },
+  },
 }
 
 -- java

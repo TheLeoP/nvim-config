@@ -99,7 +99,6 @@ return packer.startup(function(use)
   use {
     "ms-jpq/coq_nvim",
     branch = "coq",
-    commit = "84ec5faf2aaf49819e626f64dd94f4e71cf575bc",
     config = function()
       require "personal.config.coq"
     end,
