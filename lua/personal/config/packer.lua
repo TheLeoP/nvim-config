@@ -325,4 +325,6 @@ return packer.startup(function(use)
       require "personal.config.feline"
     end,
   }
+
+  use "nvim-treesitter/playground"
 end)
