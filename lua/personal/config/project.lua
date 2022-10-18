@@ -1,5 +1,5 @@
 require("project_nvim").setup {
-  ignore_lsp = { "null-ls", "emmet_ls", "volar_api", "volar_doc" },
+  ignore_lsp = { "null-ls", "emmet_ls"},
   show_hidden = true,
   patterns = {
     "build.gradle",
@@ -10,5 +10,6 @@ require("project_nvim").setup {
     ".bzr",
     ".svn",
     "Makefile",
+    "go.mod"
   },
 }
