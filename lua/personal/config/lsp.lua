@@ -12,6 +12,12 @@ local util = vim.lsp.util
 
 local mason_root = vim.fn.stdpath "data" .. "/mason/packages/"
 
+require("mason").setup()
+require("mason-lspconfig").setup {
+  ensure_installed = { "tsserver", "volar", "jdtls" },
+  automatic_installation = true,
+}
+
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.textDocument.completion.completionItem.snippetSupport = true
 capabilities.textDocument.completion.completionItem.resolveSupport = {

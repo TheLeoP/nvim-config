@@ -11,6 +11,34 @@ return packer.startup(function(use)
   -- Packer
   use "wbthomason/packer.nvim"
 
+  use "nvim-lua/plenary.nvim"
+  -- lsp
+  use "williamboman/mason.nvim"
+
+  use "williamboman/mason-lspconfig.nvim"
+
+  use "jose-elias-alvarez/null-ls.nvim"
+
+  use {
+    "folke/neodev.nvim",
+  }
+  use {
+    "neovim/nvim-lspconfig",
+    config = function()
+      require "personal.config.lsp"
+    end,
+  }
+  use {
+    "ray-x/lsp_signature.nvim",
+    config = function()
+      require "personal.config.signature"
+    end,
+  }
+  use {
+    "mfussenegger/nvim-jdtls",
+  }
+  use "jose-elias-alvarez/typescript.nvim"
+
   -- git
   use "tpope/vim-fugitive"
   use "tpope/vim-rhubarb"
@@ -62,39 +90,6 @@ return packer.startup(function(use)
     end,
   }
 
-  -- lsp
-  use {
-    "neovim/nvim-lspconfig",
-    config = function()
-      require "personal.config.lsp"
-    end,
-  }
-  use {
-    "ray-x/lsp_signature.nvim",
-    config = function()
-      require "personal.config.signature"
-    end,
-  }
-  use {
-    "mfussenegger/nvim-jdtls",
-  }
-  use {
-    "folke/neodev.nvim",
-  }
-  use {
-    "williamboman/mason.nvim",
-    config = function()
-      require "personal.config.mason"
-    end,
-  }
-  use {
-    "williamboman/mason-lspconfig.nvim",
-    config = function()
-      require "personal.config.mason-lspconfig"
-    end,
-  }
-  use "jose-elias-alvarez/typescript.nvim"
-
   -- coq
   use {
     "ms-jpq/coq_nvim",
@@ -113,7 +108,6 @@ return packer.startup(function(use)
   }
 
   -- telescope
-  use "nvim-lua/plenary.nvim"
   use {
     "nvim-telescope/telescope.nvim",
     config = function()
@@ -268,8 +262,6 @@ return packer.startup(function(use)
       require "personal.config.suda"
     end,
   }
-
-  use "jose-elias-alvarez/null-ls.nvim"
 
   use "windwp/nvim-ts-autotag"
 
