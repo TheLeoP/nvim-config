@@ -191,5 +191,5 @@ nnoremap <leader><leader>ri <esc><cmd>lua require('refactoring').refactor('Inlin
 
 nnoremap <leader><leader>rpp <cmd>lua require('refactoring').debug.printf({below = true})<cr>
 nnoremap <leader><leader>rpv <cmd>lua require('refactoring').debug.print_var({below = true, normal = true})<cr>
-xnoremap <leader><leader>rpv <cmd>lua require('refactoring').debug.print_var({below = true})<cr>
+xnoremap <leader><leader>rpv <esc><cmd>lua require('refactoring').debug.print_var({below = true})<cr>
 nnoremap <leader><leader>rc <cmd>lua require('refactoring').debug.cleanup({})<cr>

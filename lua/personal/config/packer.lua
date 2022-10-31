@@ -302,12 +302,6 @@ return packer.startup(function(use)
       require "personal.config.leap"
     end,
   }
-  use {
-    "ggandor/flit.nvim",
-    config = function()
-      require "personal.config.flit"
-    end,
-  }
 
   -- linea de estado
   use {
