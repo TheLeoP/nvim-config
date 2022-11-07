@@ -73,6 +73,9 @@ nnoremap <leader>fF <cmd>lua require("personal.config.fn_telescope").browse_cd_f
 nnoremap <leader>fnc <cmd>lua require("personal.config.fn_telescope").search_nota_ciclo_actual_contenido()<cr>
 nnoremap <leader>fnn <cmd>lua require("personal.config.fn_telescope").search_nota_ciclo_actual_nombre()<cr>
 
+nnoremap <leader>fan <cmd>lua require("personal.config.fn_telescope").search_autoregistro_nombre()<cr>
+nnoremap <leader>fac <cmd>lua require("personal.config.fn_telescope").search_autoregistro_contenido()<cr>
+
 " permitir salir del modo terminal con <c-[>
 tnoremap  <c-\><c-n>
 tnoremap <c-{><c-{> <c-\><c-n>
@@ -148,6 +151,7 @@ nnoremap <leader><leader>ss <cmd>lua require('personal.config.fn_dashboard').gua
 nnoremap <leader><leader>sl <cmd>Telescope possession list<cr>
 
 nnoremap <leader>nn <cmd>lua require('personal.config.fn_util').nueva_nota_U()<cr>
+nnoremap <leader>na <cmd>lua require('personal.config.fn_util').nuevo_autoregistro()<cr>
 
 " mapping para cambiar ys por <leader>s
 nmap <leader>s  <Plug>Ysurround

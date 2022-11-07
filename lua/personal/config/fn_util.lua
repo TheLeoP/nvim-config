@@ -49,7 +49,7 @@ function M.get_nombre_time_stamp()
   return nombre
 end
 
-function M.get_nombre_input_o_timestamp(tipo)
+local get_nombre_input_o_timestamp = function(tipo)
   local prompt = string.format("Ingrese el nombre de %s: ", tipo)
   local nombre = vim.fn.input(prompt)
   if nombre == "" then
@@ -61,7 +61,7 @@ end
 function M.nueva_nota_U()
   local callback = function(path)
     if path then
-      local nombre = M.get_nombre_input_o_timestamp "la nota"
+      local nombre = get_nombre_input_o_timestamp "la nota"
       local full_path = path .. "Apuntes/" .. nombre
       vim.cmd(string.format("e %s", full_path))
     else
@@ -70,6 +70,12 @@ function M.nueva_nota_U()
   end
 
   require("personal.config.fn_telescope").seleccionar_materia(callback)
+end
+
+function M.nuevo_autoregistro()
+  local nombre = get_nombre_input_o_timestamp "el autoregistro"
+  local full_path = vim.g.documentos .. "/Personal/autoregistro/" .. nombre
+  vim.cmd(string.format("e %s", full_path))
 end
 
 return M

@@ -1,3 +1,4 @@
+-- TODO: mover todo esto a /lua/util/telescope
 local actions_state = require "telescope.actions.state"
 local actions = require "telescope.actions"
 
@@ -89,6 +90,20 @@ function M.search_nota_ciclo_actual_nombre()
   end
 
   require("personal.config.fn_telescope").seleccionar_materia(callback)
+end
+
+function M.search_autoregistro_nombre()
+  require("telescope").extensions.file_browser.file_browser {
+    prompt_title = "< Buscar autoregistro por nombre >",
+    cwd = vim.g.documentos .. "/Personal/autoregistro",
+  }
+end
+
+function M.search_autoregistro_contenido()
+  require("telescope.builtin").live_grep {
+    prompt_title = "< Buscar autoregistro por contenido >",
+    cwd = vim.g.documentos .. "/Personal/autoregistro",
+  }
 end
 
 return M

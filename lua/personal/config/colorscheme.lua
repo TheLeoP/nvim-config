@@ -1,1 +1,2 @@
-require("colorbuddy").colorscheme "gruvbuddy"
+-- require("colorbuddy").colorscheme "gruvbuddy"
+vim.cmd.colorscheme('gruvbox')

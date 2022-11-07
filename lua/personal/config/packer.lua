@@ -312,4 +312,8 @@ return packer.startup(function(use)
   }
 
   use "nvim-treesitter/playground"
+
+  use "lambdalisue/fern.vim"
+
+  use 'ellisonleao/gruvbox.nvim'
 end)
