@@ -197,3 +197,6 @@ nnoremap <leader><leader>rpp <cmd>lua require('refactoring').debug.printf({below
 nnoremap <leader><leader>rpv <cmd>lua require('refactoring').debug.print_var({below = true, normal = true})<cr>
 xnoremap <leader><leader>rpv <esc><cmd>lua require('refactoring').debug.print_var({below = true})<cr>
 nnoremap <leader><leader>rc <cmd>lua require('refactoring').debug.cleanup({})<cr>
+
+" fern
+nnoremap - <cmd>Fern . -reveal=%<cr>

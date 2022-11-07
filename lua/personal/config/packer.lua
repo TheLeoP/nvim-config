@@ -157,9 +157,6 @@ return packer.startup(function(use)
     end,
   }
 
-  -- mejor integración con netrw
-  use "tpope/vim-vinegar"
-
   -- resalta palabra bajo el cursor
   use "RRethy/vim-illuminate"
 
@@ -313,7 +310,15 @@ return packer.startup(function(use)
 
   use "nvim-treesitter/playground"
 
-  use "lambdalisue/fern.vim"
+  use {
+    "lambdalisue/fern.vim",
+    config = function()
+      require "personal.config.fern"
+    end,
+  }
 
-  use 'ellisonleao/gruvbox.nvim'
+  use "ellisonleao/gruvbox.nvim"
+  use "lambdalisue/fern-hijack.vim"
+
+  use "TheLeoP/fern-renderer-web-devicons.nvim"
 end)
