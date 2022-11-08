@@ -52,6 +52,7 @@ return packer.startup(function(use)
   -- colorscheme
   use "tjdevries/colorbuddy.vim"
   use "tjdevries/gruvbuddy.nvim"
+  use "ellisonleao/gruvbox.nvim"
 
   -- surround actions
   use "tpope/vim-surround"
@@ -316,9 +317,7 @@ return packer.startup(function(use)
       require "personal.config.fern"
     end,
   }
-
-  use "ellisonleao/gruvbox.nvim"
   use "lambdalisue/fern-hijack.vim"
-
   use "TheLeoP/fern-renderer-web-devicons.nvim"
+  use "lambdalisue/glyph-palette.vim"
 end)
