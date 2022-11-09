@@ -30,11 +30,21 @@ require("nvim-treesitter.configs").setup {
   textobjects = {
     select = {
       enable = true,
+      lookahead = true,
       keymaps = {
         ["af"] = "@function.outer",
         ["if"] = "@function.inner",
         ["ac"] = "@class.outer",
         ["ic"] = "@class.inner",
+        ["aa"] = "@parameter.outer",
+        ["ia"] = "@parameter.inner",
+        ["ab"] = "@block.outer",
+        ["ib"] = "@block.inner",
+      },
+      selection_modes = {
+        ["@function.outer"] = "V",
+        ["@class.outer"] = "V",
+        ["@block.outer"] = "V",
       },
     },
     swap = {
@@ -74,6 +84,9 @@ require("nvim-treesitter.configs").setup {
     enable = true,
   },
   playground = {
-    enable = true
-  }
+    enable = true,
+  },
+  matchup = {
+    enable = true,
+  },
 }

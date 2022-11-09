@@ -320,4 +320,11 @@ return packer.startup(function(use)
   use "lambdalisue/fern-hijack.vim"
   use "TheLeoP/fern-renderer-web-devicons.nvim"
   use "lambdalisue/glyph-palette.vim"
+
+  use {
+    "andymass/vim-matchup",
+    config = function()
+      require "personal.config.matchup"
+    end,
+  }
 end)
