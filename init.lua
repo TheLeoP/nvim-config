@@ -1,4 +1,4 @@
--- impatient.nviminit
+-- impatient.nvim
 local succes, _ = pcall(require, "impatient")
 if not succes then
   require "personal.config.install"

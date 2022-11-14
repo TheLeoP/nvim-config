@@ -38,92 +38,95 @@ local custom_providers = {
 
 local statusline_components = {
   active = {
-    {
-      {
-        provider = {
-          name = "vi_mode",
-          opts = {
-            show_mode_name = true,
-          },
-        },
-        hl = function()
-          return {
-            name = vi_mode.get_mode_highlight_name(),
-            bg = vi_mode.get_mode_color(),
-            fg = "bg",
-            style = "bold",
-          }
-        end,
-        left_sep = function()
-          return {
-            str = " ",
-            hl = {
-              bg = vi_mode.get_mode_color(),
-            },
-            always_visible = true,
-          }
-        end,
-        right_sep = function()
-          return {
-            str = " ",
-            hl = {
-              bg = vi_mode.get_mode_color(),
-            },
-            always_visible = true,
-          }
-        end,
-      },
-      {
-        provider = "git_branch",
-        enabled = vim.b.gitsigns_head,
-        hl = {
-          fg = "lightblue",
-        },
-        left_sep = " ",
-      },
-      {
-        provider = "cwd",
-        left_sep = " ",
-        right_sep = {
-          str = " | ",
-          hl = {
-            fg = "white",
-            bg = "bg",
-          },
-        },
-      },
-      {
-        provider = {
-          name = "file",
-          opts = {
-            length = 3,
-          },
-        },
-      },
-    },
-    {
-      {
-        provider = "file_type",
-        hl = {
-          fg = "bg",
-          bg = "green",
-        },
-        left_sep = {
-          str = " ",
-          hl = {
-            bg = "green",
-          },
-        },
-        right_sep = {
-          str = " ",
-          hl = {
-            bg = "green",
-          },
-        },
-      },
-    },
+    {}, -- left
+    {}, -- right
   },
 }
+
+table.insert(statusline_components.active[1], {
+  provider = {
+    name = "vi_mode",
+    opts = {
+      show_mode_name = true,
+    },
+  },
+  hl = function()
+    return {
+      name = vi_mode.get_mode_highlight_name(),
+      bg = vi_mode.get_mode_color(),
+      fg = "bg",
+      style = "bold",
+    }
+  end,
+  left_sep = function()
+    return {
+      str = " ",
+      hl = {
+        bg = vi_mode.get_mode_color(),
+      },
+      always_visible = true,
+    }
+  end,
+  right_sep = function()
+    return {
+      str = " ",
+      hl = {
+        bg = vi_mode.get_mode_color(),
+      },
+      always_visible = true,
+    }
+  end,
+})
+
+table.insert(statusline_components.active[1], {
+  provider = "git_branch",
+  enabled = vim.b.gitsigns_head,
+  hl = {
+    fg = "lightblue",
+  },
+  left_sep = " ",
+})
+
+table.insert(statusline_components.active[1], {
+  provider = "cwd",
+  left_sep = " ",
+  right_sep = {
+    str = " | ",
+    hl = {
+      fg = "white",
+      bg = "bg",
+    },
+  },
+})
+
+table.insert(statusline_components.active[1], {
+  provider = {
+    name = "file",
+    opts = {
+      length = 3,
+    },
+  },
+})
+
+table.insert(statusline_components.active[2], {
+  provider = "file_type",
+  hl = {
+    fg = "bg",
+    bg = "green",
+  },
+  left_sep = {
+    str = " ",
+    hl = {
+      bg = "green",
+    },
+  },
+  right_sep = {
+    str = " ",
+    hl = {
+      bg = "green",
+    },
+  },
+})
 
 local winbar_components = {
   active = {
@@ -162,26 +165,26 @@ local winbar_components = {
   },
 }
 
-local gruvbox = {
-    fg = '#fbf1c7',
-    bg = '#32302f',
-    black ='#1B1B1B',
-    skyblue = '#83a598',
-    cyan = '#83a597',
-    green = '#98971a',
-    oceanblue = '#458588',
-    magenta = '#fb4934',
-    orange = '#d65d0e',
-    red = '#cc241d',
-    violet = '#b16287',
-    white = '#f9f5d7',
-    yellow = '#d79921',
-}
+-- local gruvbox = {
+--     fg = '#fbf1c7',
+--     bg = '#32302f',
+--     black ='#1B1B1B',
+--     skyblue = '#83a598',
+--     cyan = '#83a597',
+--     green = '#98971a',
+--     oceanblue = '#458588',
+--     magenta = '#fb4934',
+--     orange = '#d65d0e',
+--     red = '#cc241d',
+--     violet = '#b16287',
+--     white = '#f9f5d7',
+--     yellow = '#d79921',
+-- }
 
 require("feline").setup {
   components = statusline_components,
   custom_providers = custom_providers,
-  theme = gruvbox
+  -- theme = gruvbox
 }
 
 require("feline").winbar.setup {
