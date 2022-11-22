@@ -327,4 +327,11 @@ return packer.startup(function(use)
       require "personal.config.matchup"
     end,
   }
+
+  use {
+    "folke/twilight.nvim",
+    config = function()
+      require'personal.config.twilight'
+    end
+  }
 end)
