@@ -1,1 +1,1 @@
-require'leap'.set_default_keymaps(true)
+require("leap").add_default_mappings()
