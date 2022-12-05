@@ -331,7 +331,7 @@ return packer.startup(function(use)
   use {
     "folke/twilight.nvim",
     config = function()
-      require'personal.config.twilight'
-    end
+      require "personal.config.twilight"
+    end,
   }
 end)

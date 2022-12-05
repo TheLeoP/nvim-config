@@ -8,7 +8,6 @@ local telescope_builtin = require "telescope.builtin"
 local navic = require "nvim-navic"
 
 local api = vim.api
-local util = vim.lsp.util
 
 local mason_root = vim.fn.stdpath "data" .. "/mason/packages/"
 
@@ -158,13 +157,8 @@ for _, server in ipairs(servidores_generales) do
 end
 
 -- lua
-require("neodev").setup {
-  library = {
-    plugins = true,
-  },
-  lspconfig = {},
-}
 
+require("neodev").setup {}
 lspconfig.sumneko_lua.setup {
   on_attach = on_attach_general,
   capabilities = capabilities,
@@ -180,10 +174,9 @@ lspconfig.sumneko_lua.setup {
 -- vue
 
 local function on_new_config(new_config, _)
-  if
-    new_config.init_options
-    and new_config.init_options.typescript
-    and new_config.init_options.typescript.tsdk == ""
+  if new_config.init_options
+      and new_config.init_options.typescript
+      and new_config.init_options.typescript.tsdk == ""
   then
     new_config.init_options.typescript.tsdk = mason_root .. "typescript-language-server/node_modules/typescript/lib"
   end
@@ -235,10 +228,10 @@ function M.jdtls_setup()
   end
 
   local eclipse_wd = vim.g.home_dir
-    .. "/java-workspace/"
-    .. vim.fn.fnamemodify(root_dir, ":h:t")
-    .. "/"
-    .. vim.fn.fnamemodify(root_dir, ":t")
+      .. "/java-workspace/"
+      .. vim.fn.fnamemodify(root_dir, ":h:t")
+      .. "/"
+      .. vim.fn.fnamemodify(root_dir, ":t")
   local extendedClientCapabilities = jdtls.extendedClientCapabilities
   extendedClientCapabilities.resolveAdditionalTextEditsSupport = true
 
