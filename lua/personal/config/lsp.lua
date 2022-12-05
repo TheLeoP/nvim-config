@@ -74,16 +74,14 @@ local on_attach_general = function(client, bufnr)
     telescope_builtin.lsp_outgoing_calls,
     { buffer = bufnr, desc = "Find outgoing calls" }
   )
-  if client.supports_method "textDocument/formatting" then
-    vim.keymap.set("n", "<leader>fm", function()
-      vim.lsp.buf.format {
-        filter = function(client)
-          return client.name == "null-ls" or client.name == "jdtls" or client.name == "gopls"
-        end,
-        bufnr = bufnr,
-      }
-    end, { buffer = bufnr, desc = "" })
-  end
+  vim.keymap.set("n", "<leader>fm", function()
+    vim.lsp.buf.format {
+      filter = function(client)
+        return client.name == "null-ls" or client.name == "jdtls" or client.name == "gopls"
+      end,
+      bufnr = bufnr,
+    }
+  end, { buffer = bufnr, desc = "" })
 end
 
 local on_init_general = function(client)
@@ -138,6 +136,7 @@ null_ls.setup {
     null_ls.builtins.code_actions.refactoring,
     null_ls.builtins.formatting.prettierd,
     null_ls.builtins.formatting.stylua,
+    null_ls.builtins.formatting.black,
   },
 }
 
