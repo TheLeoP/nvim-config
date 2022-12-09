@@ -38,8 +38,8 @@ require("nvim-treesitter.configs").setup {
         ["ic"] = "@class.inner",
         ["aa"] = "@parameter.outer",
         ["ia"] = "@parameter.inner",
-        ["ab"] = "@block.outer",
-        ["ib"] = "@block.inner",
+        -- ["ab"] = "@block.outer",
+        -- ["ib"] = "@block.inner",
       },
       selection_modes = {
         ["@function.outer"] = "V",

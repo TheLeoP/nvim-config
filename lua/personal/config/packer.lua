@@ -274,7 +274,7 @@ return packer.startup(function(use)
   }
 
   use {
-    "ThePrimeagen/refactoring.nvim",
+    "TheLeoP/refactoring.nvim",
     config = function()
       require "personal.config.refactoring"
     end,
