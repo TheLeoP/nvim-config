@@ -15,6 +15,7 @@ require("telescope").setup {
       "%.class$",
       "%.jar$",
       "miniconda3/",
+      ".git/"
     },
 
     mappings = {
