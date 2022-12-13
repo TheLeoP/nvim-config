@@ -3,6 +3,8 @@ setlocal spelllang=es,en
 setlocal wrap
 setlocal colorcolumn=0
 
+let b:undo_ftplugin = "setlocal nospell nowrap"
+
 nmap <buffer> <leader>sc z=
 nmap <buffer> <leader>sg zg
 nmap <buffer> <leader>sug zug
