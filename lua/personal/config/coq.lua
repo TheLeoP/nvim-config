@@ -19,6 +19,9 @@ vim.g.coq_settings = {
     third_party = {
       enabled = true,
     },
+    lsp = {
+      weight_adjust = 1,
+    },
   },
   display = {
     ghost_text = {
