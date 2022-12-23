@@ -334,4 +334,6 @@ return packer.startup(function(use)
       require "personal.config.twilight"
     end,
   }
+
+  use "mbbill/undotree"
 end)
