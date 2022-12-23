@@ -5,9 +5,14 @@ local Path = require "plenary.path"
 
 local custom_providers = {
   file = function(_, opts)
-    local extension = vim.fn.expand("%:e", false, vim.g.lua_false)
-    local filename = vim.fn.expand("%:t", false, vim.g.lua_false)
-    local full_path = vim.fn.expand("%:p", false, vim.g.lua_false)
+    local full_path = vim.fn.expand("%:p", false)
+
+    if full_path:match "fern://" ~= nil then
+      return " fern"
+    end
+
+    local filename = vim.fn.expand("%:t", false)
+    local extension = vim.fn.expand("%:e", false)
     local p = Path:new(full_path)
     local relative_p = Path:new(p:make_relative())
 
@@ -166,25 +171,25 @@ local winbar_components = {
 }
 
 local gruvbox = {
-    fg = '#fbf1c7',
-    bg = '#32302f',
-    black ='#1B1B1B',
-    skyblue = '#83a598',
-    cyan = '#83a597',
-    green = '#98971a',
-    oceanblue = '#458588',
-    magenta = '#fb4934',
-    orange = '#d65d0e',
-    red = '#cc241d',
-    violet = '#b16287',
-    white = '#f9f5d7',
-    yellow = '#d79921',
+  fg = "#fbf1c7",
+  bg = "#32302f",
+  black = "#1B1B1B",
+  skyblue = "#83a598",
+  cyan = "#83a597",
+  green = "#98971a",
+  oceanblue = "#458588",
+  magenta = "#fb4934",
+  orange = "#d65d0e",
+  red = "#cc241d",
+  violet = "#b16287",
+  white = "#f9f5d7",
+  yellow = "#d79921",
 }
 
 require("feline").setup {
   components = statusline_components,
   custom_providers = custom_providers,
-  theme = gruvbox
+  theme = gruvbox,
 }
 
 require("feline").winbar.setup {
