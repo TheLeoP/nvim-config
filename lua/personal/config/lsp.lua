@@ -32,7 +32,9 @@ capabilities.textDocument.foldingRange = {
 }
 
 local on_attach_general = function(client, bufnr)
-  navic.attach(client, bufnr)
+  if client.server_capabilities.documentSymbolProvider then
+    navic.attach(client, bufnr)
+  end
 
   vim.keymap.set("n", "gd", telescope_builtin.lsp_definitions, { buffer = bufnr, desc = "Go to definition" })
   vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { buffer = bufnr, desc = "Go to declaration" })
@@ -129,6 +131,7 @@ require("typescript").setup {
 
 local null_ls = require "null-ls"
 null_ls.setup {
+  on_attach = on_attach_general,
   sources = {
     -- null_ls.builtins.diagnostics.eslint_d,
     -- null_ls.builtins.code_actions.eslint_d,
@@ -174,9 +177,10 @@ lspconfig.sumneko_lua.setup {
 -- vue
 
 local function on_new_config(new_config, _)
-  if new_config.init_options
-      and new_config.init_options.typescript
-      and new_config.init_options.typescript.tsdk == ""
+  if
+    new_config.init_options
+    and new_config.init_options.typescript
+    and new_config.init_options.typescript.tsdk == ""
   then
     new_config.init_options.typescript.tsdk = mason_root .. "typescript-language-server/node_modules/typescript/lib"
   end
@@ -228,10 +232,10 @@ function M.jdtls_setup()
   end
 
   local eclipse_wd = vim.g.home_dir
-      .. "/java-workspace/"
-      .. vim.fn.fnamemodify(root_dir, ":h:t")
-      .. "/"
-      .. vim.fn.fnamemodify(root_dir, ":t")
+    .. "/java-workspace/"
+    .. vim.fn.fnamemodify(root_dir, ":h:t")
+    .. "/"
+    .. vim.fn.fnamemodify(root_dir, ":t")
   local extendedClientCapabilities = jdtls.extendedClientCapabilities
   extendedClientCapabilities.resolveAdditionalTextEditsSupport = true
 
