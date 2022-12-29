@@ -24,7 +24,6 @@ require("lazy").setup {
   -- dashboard
   {
     "glepnir/dashboard-nvim",
-    lazy = false,
     config = function()
       require "personal.config.dashboard"
     end,
@@ -32,7 +31,6 @@ require("lazy").setup {
   -- GUI para vim.ui.input y vim.ui.select
   {
     "stevearc/dressing.nvim",
-    lazy = false,
     config = function()
       require "personal.config.dressing"
     end,
@@ -196,7 +194,6 @@ require("lazy").setup {
   -- GUI para vim.notify
   {
     "rcarriga/nvim-notify",
-    lazy = false,
     config = function()
       require "personal.config.notify"
     end,
