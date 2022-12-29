@@ -156,7 +156,7 @@ require("lazy").setup {
       "nvim-lua/plenary.nvim",
       {
         "nvim-telescope/telescope-fzf-native.nvim",
-        run = vim.g.make_cmd,
+        build = vim.g.make_cmd,
       },
       "nvim-telescope/telescope-file-browser.nvim",
       {
@@ -176,7 +176,7 @@ require("lazy").setup {
   -- teesitter
   {
     "nvim-treesitter/nvim-treesitter",
-    run = ":TSUpdate",
+    build = ":TSUpdate",
     config = function()
       require "personal.config.treesitter"
     end,
