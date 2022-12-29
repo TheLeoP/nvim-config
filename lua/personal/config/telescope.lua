@@ -14,9 +14,9 @@ require("telescope").setup {
       "^tags$",
       "%.class$",
       "%.jar$",
-      "miniconda3/",
-      ".git/",
-      ".*lock.*",
+      "^miniconda3/",
+      "^.git/",
+      "lazy%-lock%.json",
     },
 
     mappings = {
