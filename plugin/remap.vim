@@ -164,9 +164,6 @@ nmap <leader>SS <Plug>YSsurround
 inoremap <C-BS> 
 inoremap  
 
-" venn
-nnoremap <leader>v <cmd>lua Toggle_venn()<cr>
-
 " mejores macros
 nnoremap @ <cmd>execute "noautocmd normal! " . v:count1 . "@" . getcharstr()<cr>
 xnoremap @ :<C-U>execute "noautocmd '<,'>norm! " . v:count1 . "@" . getcharstr()<cr>

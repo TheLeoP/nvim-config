@@ -111,14 +111,6 @@ lspconfig.emmet_ls.setup {
   filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue", "php", "html" },
 }
 
--- tsserver
--- lspconfig.tsserver.setup {
---   on_attach = on_attach_general,
---   capabilities = capabilities,
---   root_dir = function()
---     return jdtls_setup.find_root { ".git"}
---   end,
--- }
 require("typescript").setup {
   server = {
     on_attach = on_attach_general,

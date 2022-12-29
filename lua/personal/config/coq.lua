@@ -2,7 +2,6 @@ vim.o.completeopt = "menuone,noselect,noinsert"
 vim.o.showmode = false
 
 vim.g.coq_settings = {
-  auto_start = "shut-up",
   keymap = {
     recommended = false,
     jump_to_mark = "<m-,>",
@@ -27,9 +26,9 @@ vim.g.coq_settings = {
     ghost_text = {
       enabled = true,
     },
-    preview = {
-      border = vim.g.lsp_borders,
-    },
+    -- preview = {
+    --   border = vim.g.lsp_borders,
+    -- },
     pum = {
       fast_close = false,
     },
@@ -45,6 +44,8 @@ vim.g.coq_settings = {
     completion_manual_timeout = 1.0,
   },
 }
+
+vim.cmd.COQnow('--shut-up')
 
 require "coq_3p" {
   -- {
