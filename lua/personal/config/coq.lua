@@ -2,6 +2,7 @@ vim.o.completeopt = "menuone,noselect,noinsert"
 vim.o.showmode = false
 
 vim.g.coq_settings = {
+  auto_start = "shut-up",
   keymap = {
     recommended = false,
     jump_to_mark = "<m-,>",
@@ -16,7 +17,7 @@ vim.g.coq_settings = {
       match_syms = false,
     },
     third_party = {
-      enabled = true,
+      enabled = false,
     },
     lsp = {
       weight_adjust = 1,
@@ -45,15 +46,13 @@ vim.g.coq_settings = {
   },
 }
 
-vim.cmd.COQnow('--shut-up')
-
-require "coq_3p" {
-  -- {
-  --   src = "dap"
-  -- },
-  {
-    src = "nvimlua",
-    short_name = "nLUA",
-    conf_only = false,
-  },
-}
+-- require "coq_3p" {
+--   -- {
+--   --   src = "dap"
+--   -- },
+--   {
+--     src = "nvimlua",
+--     short_name = "nLUA",
+--     conf_only = false,
+--   },
+-- }
