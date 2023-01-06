@@ -133,12 +133,6 @@ require("lazy").setup {
     config = function()
       require "personal.config.coq"
     end,
-    dependencies = {
-      {
-        "ms-jpq/coq.thirdparty",
-        branch = "3p",
-      },
-    },
   },
   {
     "ms-jpq/coq.artifacts",
@@ -217,7 +211,7 @@ require("lazy").setup {
   },
   -- visualizar colores en hex
   {
-    "norcalli/nvim-colorizer.lua",
+    "NvChad/nvim-colorizer.lua",
     config = function()
       require "personal.config.colorizer"
     end,
