@@ -4,7 +4,7 @@ local actions = require "telescope.actions"
 
 local M = {}
 
-function M.search_dotfiles()
+function M.search_nvim_config()
   require("telescope.builtin").find_files {
     prompt_title = "< VimRC >",
     cwd = vim.fn.stdpath "config",
@@ -22,20 +22,6 @@ function M.search_trabajos()
   require("telescope.builtin").find_files {
     prompt_title = "< Buscar Lucho >",
     cwd = vim.g.documentos,
-  }
-end
-
-function M.search_cd_files()
-  vim.cmd "cd %:p:h"
-  require("telescope.builtin").find_files {
-    prompt_title = "< Buscar cd files >",
-  }
-end
-
-function M.browse_cd_files()
-  vim.cmd "cd %:p:h"
-  require("telescope").extensions.file_browser.file_browser {
-    prompt_title = "< Buscar cd files >",
   }
 end
 

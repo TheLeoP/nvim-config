@@ -66,10 +66,10 @@ nnoremap <leader>fwd <cmd>Telescope diagnostics<cr>
 nnoremap <leader>fp <cmd>Telescope projects<cr>
 
 " personalizado
-nnoremap <silent><leader>fi <cmd>lua require("personal.util.telescope").search_dotfiles()<cr>
-nnoremap <silent><leader>fl <cmd>lua require("personal.util.telescope").search_trabajos()<cr>
-nnoremap <silent><leader>fL <cmd>lua require("personal.util.telescope").browse_trabajos()<cr>
-nnoremap <leader>fF <cmd>lua require("personal.util.telescope").browse_cd_files()<cr>
+nnoremap <leader>fi <cmd>lua require("personal.util.telescope").search_search_nvim_configotfiles()<cr>
+nnoremap <leader>fl <cmd>lua require("personal.util.telescope").search_trabajos()<cr>
+nnoremap <leader>fL <cmd>lua require("personal.util.telescope").browse_trabajos()<cr>
+nnoremap <leader>fF <cmd>Telescope file_browser<cr>
 nnoremap <leader>fnc <cmd>lua require("personal.util.telescope").search_nota_ciclo_actual_contenido()<cr>
 nnoremap <leader>fnn <cmd>lua require("personal.util.telescope").search_nota_ciclo_actual_nombre()<cr>
 
