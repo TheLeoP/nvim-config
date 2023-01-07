@@ -66,15 +66,15 @@ nnoremap <leader>fwd <cmd>Telescope diagnostics<cr>
 nnoremap <leader>fp <cmd>Telescope projects<cr>
 
 " personalizado
-nnoremap <silent><leader>fi <cmd>lua require("personal.config.fn_telescope").search_dotfiles()<cr>
-nnoremap <silent><leader>fl <cmd>lua require("personal.config.fn_telescope").search_trabajos()<cr>
-nnoremap <silent><leader>fL <cmd>lua require("personal.config.fn_telescope").browse_trabajos()<cr>
-nnoremap <leader>fF <cmd>lua require("personal.config.fn_telescope").browse_cd_files()<cr>
-nnoremap <leader>fnc <cmd>lua require("personal.config.fn_telescope").search_nota_ciclo_actual_contenido()<cr>
-nnoremap <leader>fnn <cmd>lua require("personal.config.fn_telescope").search_nota_ciclo_actual_nombre()<cr>
+nnoremap <silent><leader>fi <cmd>lua require("personal.util.telescope").search_dotfiles()<cr>
+nnoremap <silent><leader>fl <cmd>lua require("personal.util.telescope").search_trabajos()<cr>
+nnoremap <silent><leader>fL <cmd>lua require("personal.util.telescope").browse_trabajos()<cr>
+nnoremap <leader>fF <cmd>lua require("personal.util.telescope").browse_cd_files()<cr>
+nnoremap <leader>fnc <cmd>lua require("personal.util.telescope").search_nota_ciclo_actual_contenido()<cr>
+nnoremap <leader>fnn <cmd>lua require("personal.util.telescope").search_nota_ciclo_actual_nombre()<cr>
 
-nnoremap <leader>fan <cmd>lua require("personal.config.fn_telescope").search_autoregistro_nombre()<cr>
-nnoremap <leader>fac <cmd>lua require("personal.config.fn_telescope").search_autoregistro_contenido()<cr>
+nnoremap <leader>fan <cmd>lua require("personal.util.telescope").search_autoregistro_nombre()<cr>
+nnoremap <leader>fac <cmd>lua require("personal.util.telescope").search_autoregistro_contenido()<cr>
 
 " permitir salir del modo terminal con <c-[>
 tnoremap  <c-\><c-n>
@@ -144,14 +144,14 @@ vmap g<c-x> g<Plug>(dial-decrement)
 
 " permite ejecutar un comando seleccionado visualmente en la última consola
 " abierta
-vnoremap <silent> <leader><leader>e <cmd>lua require('personal.config.fn_util').visual_ejecutar_en_terminal()<cr>
+vnoremap <silent> <leader><leader>e <cmd>lua require('personal.util.util').visual_ejecutar_en_terminal()<cr>
 
 " grabar y cargar sesiones con un nombre
-nnoremap <leader><leader>ss <cmd>lua require('personal.config.fn_dashboard').guardar_sesion()<cr>
+nnoremap <leader><leader>ss <cmd>lua require('personal.util.dashboard').guardar_sesion()<cr>
 nnoremap <leader><leader>sl <cmd>Telescope possession list<cr>
 
-nnoremap <leader>nn <cmd>lua require('personal.config.fn_util').nueva_nota_U()<cr>
-nnoremap <leader>na <cmd>lua require('personal.config.fn_util').nuevo_autoregistro()<cr>
+nnoremap <leader>nn <cmd>lua require('personal.util.util').nueva_nota_U()<cr>
+nnoremap <leader>na <cmd>lua require('personal.util.util').nuevo_autoregistro()<cr>
 
 " mapping para cambiar ys por <leader>s
 nmap <leader>s  <Plug>Ysurround

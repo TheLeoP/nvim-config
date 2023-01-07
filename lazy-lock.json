@@ -1,7 +1,6 @@
 {
   "ReplaceWithRegister": { "branch": "master", "commit": "832efc23111d19591d495dc72286de2fb0b09345" },
   "coq.artifacts": { "branch": "artifacts", "commit": "9d90bbff10171fcd9c6c4598e2cc7de1e6101463" },
-  "coq.thirdparty": { "branch": "3p", "commit": "48c0b049999549c18365fc4d7bb23ecbae58b47d" },
   "coq_nvim": { "branch": "coq", "commit": "6ca864153bab793b5d75c8af1b8e2195145dba80" },
   "dashboard-nvim": { "branch": "master", "commit": "e517188dab55493fb9034b4d4f1a508ccacfcd45" },
   "diffview.nvim": { "branch": "main", "commit": "e3e15d8f1d727056185fc1696be1554837dec897" },
@@ -42,7 +41,7 @@
   "project.nvim": { "branch": "main", "commit": "685bc8e3890d2feb07ccf919522c97f7d33b94e4" },
   "promise-async": { "branch": "main", "commit": "842dca33e6b1af7bedcefc72cffbc807d54dbfca" },
   "refactoring.nvim": { "branch": "master", "commit": "2d5c7a646e9d0a0f8843a76bae70307eafd3c794" },
-  "rest.nvim": { "branch": "main", "commit": "090e253c114b6d5448bac5869a28a6623c195e3a" },
+  "rest.nvim": { "branch": "main", "commit": "e1482ea4333a019ec8ef6cf43f406d52e9782800" },
   "suda.vim": { "branch": "master", "commit": "2fc45dc4bcafb245b613ebd6847a244924735cc6" },
   "telescope-file-browser.nvim": { "branch": "master", "commit": "304508fb7bea78e3c0eeddd88c4837501e403ae8" },
   "telescope-fzf-native.nvim": { "branch": "main", "commit": "fab3e2212e206f4f8b3bbaa656e129443c9b802e" },

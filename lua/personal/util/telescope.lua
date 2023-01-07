@@ -72,7 +72,7 @@ function M.search_nota_ciclo_actual_contenido()
     end
   end
 
-  require("personal.config.fn_telescope").seleccionar_materia(callback)
+  M.seleccionar_materia(callback)
 end
 
 function M.search_nota_ciclo_actual_nombre()
@@ -89,7 +89,7 @@ function M.search_nota_ciclo_actual_nombre()
     end
   end
 
-  require("personal.config.fn_telescope").seleccionar_materia(callback)
+  M.seleccionar_materia(callback)
 end
 
 function M.search_autoregistro_nombre()

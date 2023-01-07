@@ -69,7 +69,7 @@ function M.nueva_nota_U()
     end
   end
 
-  require("personal.config.fn_telescope").seleccionar_materia(callback)
+  require("personal.util.telescope").seleccionar_materia(callback)
 end
 
 function M.nuevo_autoregistro()

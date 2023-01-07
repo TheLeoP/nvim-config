@@ -18,6 +18,7 @@ set smartcase   "case sensitive cuando se busca en mayúsculas
 
 set smarttab
 set expandtab
+set shiftwidth=4
 
 set scrolloff=8
 set cmdheight=2 "número de líneas para la consola
