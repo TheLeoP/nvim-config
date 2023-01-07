@@ -144,14 +144,14 @@ vmap g<c-x> g<Plug>(dial-decrement)
 
 " permite ejecutar un comando seleccionado visualmente en la última consola
 " abierta
-vnoremap <silent> <leader><leader>e <cmd>lua require('personal.util.util').visual_ejecutar_en_terminal()<cr>
+vnoremap <silent> <leader><leader>e <cmd>lua require('personal.util.general').visual_ejecutar_en_terminal()<cr>
 
 " grabar y cargar sesiones con un nombre
 nnoremap <leader><leader>ss <cmd>lua require('personal.util.dashboard').guardar_sesion()<cr>
 nnoremap <leader><leader>sl <cmd>Telescope possession list<cr>
 
-nnoremap <leader>nn <cmd>lua require('personal.util.util').nueva_nota_U()<cr>
-nnoremap <leader>na <cmd>lua require('personal.util.util').nuevo_autoregistro()<cr>
+nnoremap <leader>nn <cmd>lua require('personal.util.general').nueva_nota_U()<cr>
+nnoremap <leader>na <cmd>lua require('personal.util.general').nuevo_autoregistro()<cr>
 
 " mapping para cambiar ys por <leader>s
 nmap <leader>s  <Plug>Ysurround
