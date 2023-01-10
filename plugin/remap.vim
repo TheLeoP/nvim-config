@@ -66,7 +66,7 @@ nnoremap <leader>fwd <cmd>Telescope diagnostics<cr>
 nnoremap <leader>fp <cmd>Telescope projects<cr>
 
 " personalizado
-nnoremap <leader>fi <cmd>lua require("personal.util.telescope").search_search_nvim_configotfiles()<cr>
+nnoremap <leader>fi <cmd>lua require("personal.util.telescope").search_nvim_config()<cr>
 nnoremap <leader>fl <cmd>lua require("personal.util.telescope").search_trabajos()<cr>
 nnoremap <leader>fL <cmd>lua require("personal.util.telescope").browse_trabajos()<cr>
 nnoremap <leader>fF <cmd>Telescope file_browser<cr>
