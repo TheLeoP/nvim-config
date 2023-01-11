@@ -320,4 +320,45 @@ require("lazy").setup {
     },
   },
   "mbbill/undotree",
+  {
+    "glacambre/firenvim",
+    lazy = false,
+    config = function()
+      vim.g.firenvim_config = {
+        globalSettings = {
+          alt = "all",
+          ["<C-w>"] = "noop",
+          ["<C-n>"] = "default",
+          ["<C-t>"] = "default",
+          takeover = "never",
+        },
+        localSettings = {
+          ["https?://[^/]+google.com"] = {
+            takeover = "never",
+            priority = 999,
+          },
+        },
+      }
+
+      local group = vim.api.nvim_create_augroup("firenvim", { clear = true })
+      vim.api.nvim_create_autocmd("UIEnter", {
+        group = group,
+        pattern = "*",
+        callback = function()
+          local event = vim.api.nvim_get_chan_info(vim.v.event.chan)
+          if event == nil or event.client == nil then
+            return
+          end
+          local name = event.client.name
+          if name == "Firenvim" then
+            vim.o.laststatus = 0
+            vim.o.winbar = nil
+          end
+        end,
+      })
+    end,
+    build = function()
+      vim.fn["firenvim#install"](0)
+    end,
+  },
 }
