@@ -333,7 +333,7 @@ require("lazy").setup {
           takeover = "never",
         },
         localSettings = {
-          ["https?://[^/]+google.com"] = {
+          [".*"] = {
             takeover = "never",
             priority = 999,
           },
