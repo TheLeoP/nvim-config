@@ -75,14 +75,29 @@ local on_attach_general = function(client, bufnr)
     telescope_builtin.lsp_outgoing_calls,
     { buffer = bufnr, desc = "Find outgoing calls" }
   )
-  vim.keymap.set("n", "<leader>fm", function()
+
+  local format = function()
+    local ft = vim.bo[bufnr].filetype
+    local have_null_ls = #require("null-ls.sources").get_available(ft, "NULL_LS_FORMATTING") > 0
     vim.lsp.buf.format {
       filter = function(client)
-        return client.name == "null-ls" or client.name == "jdtls" or client.name == "gopls"
+        if have_null_ls then
+          return client.name == "null-ls"
+        else
+          return client.name ~= "null-ls"
+        end
       end,
       bufnr = bufnr,
     }
-  end, { buffer = bufnr, desc = "" })
+  end
+  if client.supports_method "textDocument/formatting" then
+    vim.api.nvim_create_autocmd("BufWritePre", {
+      group = vim.api.nvim_create_augroup("LspFormat." .. bufnr, {}),
+      buffer = bufnr,
+      callback = format,
+    })
+    vim.keymap.set("n", "<leader>fm", format, { buffer = bufnr, desc = "" })
+  end
 end
 
 local on_init_general = function(client)
@@ -96,6 +111,13 @@ end
 vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
   border = vim.g.lsp_borders,
 })
+
+vim.lsp.handlers["workspace/diagnostic/refresh"] = function(_, _, ctx)
+  local ns = vim.lsp.diagnostic.get_namespace(ctx.client_id)
+  local bufnr = vim.api.nvim_get_current_buf()
+  vim.diagnostic.reset(ns, bufnr)
+  return true
+end
 
 -- configuración LS individuales
 
