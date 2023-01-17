@@ -1,3 +1,7 @@
+local a = require "plenary.async"
+
+local p_telescope = require "personal.util.telescope"
+
 local M = {}
 
 function M.get_last_terminal()
@@ -59,7 +63,8 @@ local get_nombre_input_o_timestamp = function(tipo)
 end
 
 function M.nueva_nota_U()
-  local callback = function(path)
+  a.void(function()
+    local path = p_telescope.seleccionar_materia()
     if path then
       local nombre = get_nombre_input_o_timestamp "la nota"
       local full_path = path .. "Apuntes/" .. nombre
@@ -67,9 +72,7 @@ function M.nueva_nota_U()
     else
       print "La entrada seleccionada no tiene path"
     end
-  end
-
-  require("personal.util.telescope").seleccionar_materia(callback)
+  end)()
 end
 
 function M.nuevo_autoregistro()

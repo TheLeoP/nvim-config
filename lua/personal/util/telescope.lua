@@ -1,4 +1,5 @@
--- TODO: mover todo esto a /lua/util/telescope
+local a = require "plenary.async"
+
 local actions_state = require "telescope.actions.state"
 local actions = require "telescope.actions"
 
@@ -25,7 +26,7 @@ function M.search_trabajos()
   }
 end
 
-function M.seleccionar_materia(callback)
+local function seleccionar_materia(callback)
   local cerrar_y_llamar_callback = function(prompt_bufnr)
     local selected_entry = actions_state.get_selected_entry()
     local path = selected_entry.path .. "/"
@@ -44,8 +45,11 @@ function M.seleccionar_materia(callback)
   }
 end
 
+M.seleccionar_materia = a.wrap(seleccionar_materia, 1)
+
 function M.search_nota_ciclo_actual_contenido()
-  local callback = function(path)
+  a.void(function()
+    local path = M.seleccionar_materia()
     if path then
       local full_path = path .. "Apuntes/"
 
@@ -56,13 +60,12 @@ function M.search_nota_ciclo_actual_contenido()
     else
       print "La entrada seleccionada no tiene path"
     end
-  end
-
-  M.seleccionar_materia(callback)
+  end)
 end
 
 function M.search_nota_ciclo_actual_nombre()
-  local callback = function(path)
+  a.void(function()
+    local path = M.seleccionar_materia()
     if path then
       local full_path = path .. "Apuntes/"
 
@@ -73,9 +76,7 @@ function M.search_nota_ciclo_actual_nombre()
     else
       print "La entrada seleccionada no tiene path"
     end
-  end
-
-  M.seleccionar_materia(callback)
+  end)()
 end
 
 function M.search_autoregistro_nombre()
