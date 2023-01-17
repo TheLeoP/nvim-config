@@ -68,7 +68,7 @@ function M.nueva_nota_U()
     if path then
       local nombre = get_nombre_input_o_timestamp "la nota"
       local full_path = path .. "Apuntes/" .. nombre
-      vim.cmd(string.format("e %s", full_path))
+      vim.cmd.edit(full_path)
     else
       print "La entrada seleccionada no tiene path"
     end
@@ -78,7 +78,7 @@ end
 function M.nuevo_autoregistro()
   local nombre = get_nombre_input_o_timestamp "el autoregistro"
   local full_path = vim.g.documentos .. "/Personal/autoregistro/" .. nombre
-  vim.cmd(string.format("e %s", full_path))
+  vim.cmd.edit(full_path)
 end
 
 return M

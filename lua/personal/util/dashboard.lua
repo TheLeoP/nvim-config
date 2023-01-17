@@ -7,7 +7,7 @@ function M.guardar_sesion()
   a.void(function()
     local session = input { prompt = "Ingrese el nombre de la sesión: " }
     if session then
-      vim.cmd("PossessionSave " .. session)
+      vim.cmd.PossessionSave(session)
     end
   end)()
 end
