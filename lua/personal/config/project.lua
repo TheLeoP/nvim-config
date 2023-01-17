@@ -1,8 +1,11 @@
 require("project_nvim").setup {
-  ignore_lsp = { "null-ls", "emmet_ls"},
+  detection_methods = { "pattern", "lsp" },
+  ignore_lsp = { "null-ls", "emmet_ls" },
   show_hidden = true,
-  scope_chdir = 'tab',
+  scope_chdir = "tab",
   patterns = {
+    "!>Documentos",
+    "!>Lucho",
     "build.gradle",
     "package.json",
     ".git",
@@ -11,6 +14,6 @@ require("project_nvim").setup {
     ".bzr",
     ".svn",
     "Makefile",
-    "go.mod"
+    "go.mod",
   },
 }
