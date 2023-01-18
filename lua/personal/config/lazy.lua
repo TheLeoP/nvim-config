@@ -152,7 +152,7 @@ require("lazy").setup {
       },
       "nvim-telescope/telescope-file-browser.nvim",
       {
-        "ahmedkhalf/project.nvim",
+        "TheLeoP/project.nvim",
         config = function()
           require "personal.config.project"
         end,
