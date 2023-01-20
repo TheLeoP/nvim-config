@@ -218,6 +218,13 @@ lspconfig.gopls.setup {
   },
 }
 
+-- powershell
+lspconfig.powershell_es.setup {
+  on_attach = on_attach_general,
+  capabilities = capabilities,
+  bundle_path = mason_root .. "powershell-editor-services",
+}
+
 -- java
 local on_attach_java = function(client, bufnr)
   local opts = {
