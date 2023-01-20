@@ -11,7 +11,7 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.runtimepath:prepend(lazypath)
 
-require("lazy").setup {
+require("lazy").setup({
   -- colorscheme
   {
     "ellisonleao/gruvbox.nvim",
@@ -153,6 +153,7 @@ require("lazy").setup {
       "nvim-telescope/telescope-file-browser.nvim",
       {
         "TheLeoP/project.nvim",
+        dev = vim.fn.has "win32" == 0,
         config = function()
           require "personal.config.project"
         end,
@@ -219,6 +220,7 @@ require("lazy").setup {
   -- ayuda visual para indentación
   {
     "lukas-reineke/indent-blankline.nvim",
+    enabled = false,
     config = function()
       require "personal.config.blankline"
     end,
@@ -361,4 +363,8 @@ require("lazy").setup {
       vim.fn["firenvim#install"](0)
     end,
   },
-}
+}, {
+  dev = {
+    path = vim.g.documentos .. "/Personal",
+  },
+})

@@ -1,5 +1,6 @@
 require("project_nvim").setup {
   detection_methods = { "pattern", "lsp" },
+  -- detection_methods = { "lsp" },
   ignore_lsp = { "null-ls", "emmet_ls" },
   show_hidden = true,
   scope_chdir = "tab",
