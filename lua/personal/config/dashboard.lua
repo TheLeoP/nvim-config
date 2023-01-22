@@ -22,12 +22,12 @@ db.custom_center = {
   {
     icon = " ",
     desc = "Proyectos recientes",
-    action = "Telescope project",
+    action = "Telescope projects",
   },
   {
     icon = " ",
     desc = "Cargar sesión",
-    action = "Telescope possession list",
+    action = "SessionManager load_session",
   },
 }
 

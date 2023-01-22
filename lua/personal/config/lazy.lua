@@ -163,7 +163,6 @@ require("lazy").setup({
       "neovim/nvim-lspconfig",
       "kyazdani42/nvim-web-devicons",
       "rcarriga/nvim-notify",
-      "jedrzejboczar/possession.nvim",
     },
   },
   -- teesitter
@@ -252,9 +251,9 @@ require("lazy").setup({
     },
   },
   {
-    "jedrzejboczar/possession.nvim",
+    "Shatur/neovim-session-manager",
     config = function()
-      require "personal.config.possession"
+      require "personal.config.session_manager"
     end,
     dependencies = {
       "nvim-lua/plenary.nvim",
