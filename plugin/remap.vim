@@ -9,12 +9,7 @@ xmap <leader>r <Plug>ReplaceWithRegisterVisual
 nmap <leader>r <Plug>ReplaceWithRegisterOperator
 nmap <leader>rr <Plug>ReplaceWithRegisterLine
 
-nmap <nowait> { [
-nmap <nowait> } ]
-omap <nowait> { [
-omap <nowait> } ]
-xmap <nowait> { [
-xmap <nowait> } ]
+set langmap={[,}],[{,]}
 
 " remap move in quickfix-list
 nnoremap <silent> ]q :cnext<cr>zzzv
