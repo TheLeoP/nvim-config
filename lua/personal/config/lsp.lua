@@ -90,14 +90,12 @@ local on_attach_general = function(client, bufnr)
       bufnr = bufnr,
     }
   end
-  if client.supports_method "textDocument/formatting" then
-    vim.api.nvim_create_autocmd("BufWritePre", {
-      group = vim.api.nvim_create_augroup("LspFormat." .. bufnr, {}),
-      buffer = bufnr,
-      callback = format,
-    })
-    vim.keymap.set("n", "<leader>fm", format, { buffer = bufnr, desc = "" })
-  end
+  vim.api.nvim_create_autocmd("BufWritePre", {
+    group = vim.api.nvim_create_augroup("LspFormat." .. bufnr, {}),
+    buffer = bufnr,
+    callback = format,
+  })
+  vim.keymap.set("n", "<leader>fm", format, { buffer = bufnr, desc = "" })
 end
 
 local on_init_general = function(client)
