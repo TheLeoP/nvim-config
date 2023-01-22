@@ -76,9 +76,10 @@ local on_attach_general = function(client, bufnr)
     { buffer = bufnr, desc = "Find outgoing calls" }
   )
 
+  local ft = vim.bo[bufnr].filetype
+  local have_null_ls = #require("null-ls.sources").get_available(ft, "NULL_LS_FORMATTING") > 0
+
   local format = function()
-    local ft = vim.bo[bufnr].filetype
-    local have_null_ls = #require("null-ls.sources").get_available(ft, "NULL_LS_FORMATTING") > 0
     vim.lsp.buf.format {
       filter = function(client)
         if have_null_ls then
@@ -90,12 +91,14 @@ local on_attach_general = function(client, bufnr)
       bufnr = bufnr,
     }
   end
-  vim.api.nvim_create_autocmd("BufWritePre", {
-    group = vim.api.nvim_create_augroup("LspFormat." .. bufnr, {}),
-    buffer = bufnr,
-    callback = format,
-  })
-  vim.keymap.set("n", "<leader>fm", format, { buffer = bufnr, desc = "" })
+  if client.supports_method "textDocument/formatting" or have_null_ls then
+    vim.api.nvim_create_autocmd("BufWritePre", {
+      group = vim.api.nvim_create_augroup("LspFormat." .. bufnr, {}),
+      buffer = bufnr,
+      callback = format,
+    })
+    vim.keymap.set("n", "<leader>fm", format, { buffer = bufnr, desc = "" })
+  end
 end
 
 local on_init_general = function(client)
