@@ -43,6 +43,9 @@
 =======
   "possession.nvim": { "branch": "master", "commit": "10237c05d0997338cf5d9dfde8bc37a7b0dfa59d" },
   "project.nvim": { "branch": "main", "commit": "cb5641f2869664e41837c8bd31e56beb88ebdbc9" },
+<<<<<<< HEAD
+>>>>>>> e866c0033a5d7c9b69b5b6fd1190a5d97cfe95a7
+=======
 >>>>>>> e866c0033a5d7c9b69b5b6fd1190a5d97cfe95a7
   "promise-async": { "branch": "main", "commit": "842dca33e6b1af7bedcefc72cffbc807d54dbfca" },
   "refactoring.nvim": { "branch": "master", "commit": "ee63338cfb9151018afb243f5af5262c1686b280" },
