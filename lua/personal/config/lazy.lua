@@ -1,3 +1,5 @@
+vim.g.mapleader = " "
+
 local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system {
@@ -39,6 +41,7 @@ require("lazy").setup({
   {
     "neovim/nvim-lspconfig",
     dependencies = {
+      "b0o/schemastore.nvim",
       "williamboman/mason.nvim",
       "williamboman/mason-lspconfig.nvim",
       "jose-elias-alvarez/null-ls.nvim",
@@ -271,6 +274,24 @@ require("lazy").setup({
     },
   },
   {
+    "ggandor/flit.nvim",
+    config = function()
+      require "personal.config.flit"
+    end,
+    dependencies = {
+      "ggandor/leap.nvim",
+    },
+  },
+  {
+    "ggandor/leap-spooky.nvim",
+    config = function()
+      require "personal.config.leap-spooky"
+    end,
+    dependencies = {
+      "ggandor/leap.nvim",
+    },
+  },
+  {
     "ggandor/leap.nvim",
     config = function()
       require "personal.config.leap"
@@ -369,6 +390,15 @@ require("lazy").setup({
     config = function()
       require "personal.config.term-edit"
     end,
+  },
+  {
+    "danymat/neogen",
+    config = function()
+      require "personal.config.neogen"
+    end,
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter",
+    },
   },
 }, {
   dev = {

@@ -161,7 +161,6 @@ local servidores_generales = {
   "vimls",
   "clangd",
   "html",
-  "jsonls",
   "cssls",
   "lemminx",
   "intelephense",
@@ -224,6 +223,20 @@ lspconfig.powershell_es.setup {
   on_attach = on_attach_general,
   capabilities = capabilities,
   bundle_path = mason_root .. "powershell-editor-services",
+}
+
+-- json
+lspconfig.jsonls.setup {
+  on_attach = on_attach_general,
+  capabilities = capabilities,
+  settings = {
+    json = {
+      schemas = require("schemastore").json.schemas(),
+      validate = {
+        enable = true,
+      },
+    },
+  },
 }
 
 -- java
