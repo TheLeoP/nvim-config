@@ -363,6 +363,13 @@ require("lazy").setup({
       vim.fn["firenvim#install"](0)
     end,
   },
+  {
+    "chomosuke/term-edit.nvim",
+    lazy = false,
+    config = function()
+      require "personal.config.term-edit"
+    end,
+  },
 }, {
   dev = {
     path = vim.g.documentos .. "/Personal",

@@ -9,7 +9,10 @@ xmap <leader>r <Plug>ReplaceWithRegisterVisual
 nmap <leader>r <Plug>ReplaceWithRegisterOperator
 nmap <leader>rr <Plug>ReplaceWithRegisterLine
 
-set langmap={[,}],[{,]}
+nmap <nowait> { [
+nmap <nowait> } ]
+xmap <nowait> { [
+xmap <nowait> } ]
 
 " remap move in quickfix-list
 nnoremap <silent> ]q :cnext<cr>zzzv
@@ -79,7 +82,7 @@ nnoremap <leader>fan <cmd>lua require("personal.util.telescope").search_autoregi
 nnoremap <leader>fac <cmd>lua require("personal.util.telescope").search_autoregistro_contenido()<cr>
 
 " permitir salir del modo terminal con <c-[>
-tnoremap  <c-\><c-n>
+tnoremap  <c-\><c-n>
 tnoremap <c-{><c-{> <c-\><c-n>
 nnoremap <c-w>tj <cmd>belowright split <bar> term<cr>
 nnoremap <c-w>tl <cmd>belowright vsplit <bar> term<cr>
