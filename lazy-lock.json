@@ -1,5 +1,6 @@
 {
   "ReplaceWithRegister": { "branch": "master", "commit": "832efc23111d19591d495dc72286de2fb0b09345" },
+  "codeium.vim": { "branch": "main", "commit": "fe0349a7f01d373d3811bd820588f3883a7ca03a" },
   "coq.artifacts": { "branch": "artifacts", "commit": "e8fedcb9fbedc60c8d0f30accdd72b53e998d8af" },
   "coq_nvim": { "branch": "coq", "commit": "929adacab097dd2c36c797c8f9323886b4439a9c" },
   "dashboard-nvim": { "branch": "master", "commit": "f7d623457d6621b25a1292b24e366fae40cb79ab" },
