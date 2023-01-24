@@ -199,3 +199,6 @@ nnoremap <leader><leader>rc <cmd>lua require('refactoring').debug.cleanup({})<cr
 
 " fern
 nnoremap - <cmd>Fern . -reveal=%<cr>
+
+" fold
+nnoremap <nowait> <leader>d z
