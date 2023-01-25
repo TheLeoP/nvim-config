@@ -8,6 +8,6 @@ nnoremap <silent><buffer> <F9> <cmd>wa<cr>s<cmd>terminal gradle run<cr>
 " configuración plugins
 " dispatch
 let b:dispatch = 'gradle compileJava'
-compiler gradle
+" compiler gradle
 
 lua require('personal.config.lsp').jdtls_setup()

@@ -192,6 +192,7 @@ nnoremap <leader><leader>rbb <cmd>lua require('refactoring').refactor('Extract B
 nnoremap <leader><leader>rbf <cmd>lua require('refactoring').refactor('Extract Block To File')<cr>
 nnoremap <leader><leader>ri <esc><cmd>lua require('refactoring').refactor('Inline Variable')<cr>
 
+nnoremap <leader><leader>rpP <cmd>lua require('refactoring').debug.printf({below = false})<cr>
 nnoremap <leader><leader>rpp <cmd>lua require('refactoring').debug.printf({below = true})<cr>
 nnoremap <leader><leader>rpv <cmd>lua require('refactoring').debug.print_var({below = true, normal = true})<cr>
 xnoremap <leader><leader>rpv <esc><cmd>lua require('refactoring').debug.print_var({below = true})<cr>
@@ -199,6 +200,3 @@ nnoremap <leader><leader>rc <cmd>lua require('refactoring').debug.cleanup({})<cr
 
 " fern
 nnoremap - <cmd>Fern . -reveal=%<cr>
-
-" fold
-nnoremap <nowait> <leader>d z

@@ -1,5 +1,5 @@
-vim.keymap.set({ "n", "x", "o" }, "z", "<Plug>(leap-forward-to)", {})
-vim.keymap.set({ "n", "x", "o" }, "Z", "<Plug>(leap-backward-to)", {})
+vim.keymap.set({ "n", "x", "o" }, "gl", "<Plug>(leap-forward-to)", {})
+vim.keymap.set({ "n", "x", "o" }, "gh", "<Plug>(leap-backward-to)", {})
 vim.keymap.set({ "x", "o" }, "x", "<Plug>(leap-forward-till)", {})
 vim.keymap.set({ "x", "o" }, "X", "<Plug>(leap-backward-till)", {})
 vim.keymap.set({ "n", "x", "o" }, "gz", "<Plug>(leap-cross-window)", {})
