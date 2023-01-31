@@ -148,8 +148,8 @@ local null_ls = require "null-ls"
 null_ls.setup {
   on_attach = on_attach_general,
   sources = {
-    null_ls.builtins.diagnostics.eslint_d,
-    null_ls.builtins.code_actions.eslint_d,
+    -- null_ls.builtins.diagnostics.eslint_d,
+    -- null_ls.builtins.code_actions.eslint_d,
     null_ls.builtins.code_actions.refactoring,
     null_ls.builtins.formatting.prettierd,
     null_ls.builtins.formatting.stylua,
@@ -239,11 +239,28 @@ lspconfig.jsonls.setup {
   },
 }
 
--- angular
-lspconfig.angularls.setup {
-  on_attach = on_attach_general,
-  capabilities = capabilities,
-}
+-- -- angular
+-- local cwd = vim.loop.cwd()
+-- local angular_cmd = function(project_path)
+--   local library_path = project_path .. "/node_modules"
+--   local aux = {
+--     "ngserver",
+--     "--stdio",
+--     "--tsProbeLocations",
+--     library_path,
+--     "--ngProbeLocations",
+--     library_path,
+--   }
+--   return aux
+-- end
+-- lspconfig.angularls.setup {
+--   cmd = angular_cmd(cwd),
+--   on_new_config = function(new_config, new_root_dir)
+--     new_config.cmd = angular_cmd(new_root_dir)
+--   end,
+--   on_attach = on_attach_general,
+--   capabilities = capabilities,
+-- }
 
 -- java
 local on_attach_java = function(client, bufnr)
@@ -348,6 +365,23 @@ function M.jdtls_setup()
   )
 
   jdtls.start_or_attach(config)
+end
+
+local function lsp_highlight_document(client, bufnr)
+  if client.supports_method "textDocument/formatting" then
+    local group = vim.api.nvim_create_augroup("lsp_document_highlight", { clear = true })
+
+    vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+      group = group,
+      buffer = bufnr,
+      callback = vim.lsp.buf.document_highlight,
+    })
+    vim.api.nvim_create_autocmd("CursorMoved", {
+      group = group,
+      buffer = bufnr,
+      callback = vim.lsp.buf.clear_references,
+    })
+  end
 end
 
 return M
