@@ -246,7 +246,7 @@ require("lazy").setup({
   },
   {
     "theprimeagen/refactoring.nvim",
-    dev = true,
+    dev = vim.fn.has "win32" == 0,
     config = function()
       require "personal.config.refactoring"
     end,
