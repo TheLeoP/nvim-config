@@ -1,3 +1,3 @@
 require("term-edit").setup {
-  prompt_end = { "> ", "%$" },
+  prompt_end = { "> ", "%$", "%(.*.*%) ", "➜ %S+ " },
 }
