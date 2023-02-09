@@ -7,6 +7,9 @@ vim.g.coq_settings = {
     jump_to_mark = "<m-,>",
   },
   clients = {
+    snippets = {
+      warn = {},
+    },
     paths = {
       path_seps = {
         "/",

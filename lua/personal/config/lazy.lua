@@ -138,10 +138,6 @@ require("lazy").setup({
       require "personal.config.coq"
     end,
   },
-  {
-    "ms-jpq/coq.artifacts",
-    branch = "artifacts",
-  },
   -- telescope
   {
     "nvim-telescope/telescope.nvim",

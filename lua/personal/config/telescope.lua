@@ -17,6 +17,7 @@ require("telescope").setup {
       "^miniconda3/",
       "^.git/",
       "lazy%-lock%.json",
+      "node_modules",
     },
 
     mappings = {
