@@ -81,8 +81,6 @@ nnoremap <leader>fac <cmd>lua require("personal.util.telescope").search_autoregi
 " permitir salir del modo terminal con <c-[>
 tnoremap  <c-\><c-n>
 tnoremap <c-{><c-{> <c-\><c-n>
-nnoremap <c-w>tj <cmd>belowright split <bar> term<cr>
-nnoremap <c-w>tl <cmd>belowright vsplit <bar> term<cr>
 
 " w and q
 nnoremap <silent> <leader>w :w<cr>
