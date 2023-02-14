@@ -7,3 +7,6 @@ vim.api.nvim_set_hl(0, "DiagnosticVirtualTextHint", { link = "GruvboxFg2" })
 local highlight = vim.api.nvim_get_hl_by_name("Operator", true)
 highlight.italic = false
 vim.api.nvim_set_hl(0, "Operator", highlight)
+
+
+vim.api.nvim_set_hl(0, "@written", { italic = true })
