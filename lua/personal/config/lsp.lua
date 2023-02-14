@@ -176,7 +176,7 @@ end
 -- lua
 
 require("neodev").setup {}
-lspconfig.sumneko_lua.setup {
+lspconfig.lua_ls.setup {
   on_attach = on_attach_general,
   capabilities = capabilities,
   settings = {
