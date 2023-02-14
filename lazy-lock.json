@@ -1,6 +1,5 @@
 {
   "ReplaceWithRegister": { "branch": "master", "commit": "832efc23111d19591d495dc72286de2fb0b09345" },
-  "coq.artifacts": { "branch": "artifacts", "commit": "e100e8e640bc14296199f94da965c575b41d5e24" },
   "coq_nvim": { "branch": "coq", "commit": "1efb66d5e73cf984aeacc6792143712452a7925f" },
   "dashboard-nvim": { "branch": "master", "commit": "4c85aa16ae3a85100f82bb03351f1423c9648e3e" },
   "diffview.nvim": { "branch": "main", "commit": "11827d46e939b4748dbdb7e0df4982a63bd59d26" },
@@ -42,9 +41,7 @@
   "one-small-step-for-vimkind": { "branch": "main", "commit": "aef1bdbb8347e6daaf33d5109002f3df243ebfe9" },
   "playground": { "branch": "master", "commit": "c481c660fa903a0e295902b1765ecfbd6e76a556" },
   "plenary.nvim": { "branch": "master", "commit": "9a0d3bf7b832818c042aaf30f692b081ddd58bd9" },
-  "project.nvim": { "branch": "main", "commit": "1b2d79eaec6c35a8a6832cb74cba4bd018f151fc" },
   "promise-async": { "branch": "main", "commit": "7fa127fa80e7d4d447e0e2c78e99af4355f4247b" },
-  "refactoring.nvim": { "branch": "master", "commit": "57c32c6b7a211e5a3a5e4ddc4ad2033daff5cf9a" },
   "rest.nvim": { "branch": "main", "commit": "0fdb69f328529b34a2279c14be63b3325dc52740" },
   "schemastore.nvim": { "branch": "main", "commit": "fd5ddd82b13b52b72f887e2c0f2784d82381951d" },
   "suda.vim": { "branch": "master", "commit": "08abd39dfe1cee681b8ce3e7321da5fa03e045c1" },
