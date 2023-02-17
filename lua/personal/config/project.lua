@@ -23,6 +23,9 @@ require("project_nvim").setup {
   scope_chdir = "tab",
   patterns = {
     "!>Documentos",
+    "!>packages",
+    "!>apps",
+    "!>k6",
     "!>Lucho",
     "build.gradle",
     "package.json",
