@@ -97,7 +97,7 @@ local on_attach_general = function(client, bufnr)
       buffer = bufnr,
       callback = format,
     })
-    vim.keymap.set("n", "<leader>fm", format, { buffer = bufnr, desc = "" })
+    vim.keymap.set("n", "<leader>fm", format, { buffer = bufnr, desc = "formatting" })
   end
 end
 
@@ -164,6 +164,7 @@ local servidores_generales = {
   "cssls",
   "lemminx",
   "intelephense",
+  "prismals",
 }
 
 for _, server in ipairs(servidores_generales) do
@@ -239,29 +240,6 @@ lspconfig.jsonls.setup {
   },
 }
 
--- -- angular
--- local cwd = vim.loop.cwd()
--- local angular_cmd = function(project_path)
---   local library_path = project_path .. "/node_modules"
---   local aux = {
---     "ngserver",
---     "--stdio",
---     "--tsProbeLocations",
---     library_path,
---     "--ngProbeLocations",
---     library_path,
---   }
---   return aux
--- end
--- lspconfig.angularls.setup {
---   cmd = angular_cmd(cwd),
---   on_new_config = function(new_config, new_root_dir)
---     new_config.cmd = angular_cmd(new_root_dir)
---   end,
---   on_attach = on_attach_general,
---   capabilities = capabilities,
--- }
-
 -- java
 local on_attach_java = function(client, bufnr)
   local opts = {
@@ -272,9 +250,6 @@ local on_attach_java = function(client, bufnr)
   jdtls.setup_dap { hotcodereplace = "auto" }
   jdtls_dap.setup_dap_main_class_configs()
   jdtls_setup.add_commands()
-  api.nvim_buf_set_keymap(bufnr, "v", "crv", "<Esc><Cmd>lua require('jdtls').extract_variable(true)<CR>", opts)
-  api.nvim_buf_set_keymap(bufnr, "n", "crv", "<Cmd>lua require('jdtls').extract_variable()<CR>", opts)
-  api.nvim_buf_set_keymap(bufnr, "v", "crm", "<Esc><Cmd>lua require('jdtls').extract_method(true)<CR>", opts)
 end
 
 function M.jdtls_setup()

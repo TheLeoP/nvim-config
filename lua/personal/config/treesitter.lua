@@ -6,13 +6,12 @@ require("nvim-treesitter.configs").setup {
   ensure_installed = "all",
   ignore_install = {
     "thrift",
+    "comment",
   },
   highlight = {
     enable = true, -- false will disable the whole extension
     disable = {
-      -- 'vim',
       "dashboard",
-      -- 'html'
     },
   },
   incremental_selection = {
