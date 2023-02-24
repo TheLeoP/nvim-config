@@ -138,6 +138,21 @@ require("lazy").setup({
       require "personal.config.coq"
     end,
   },
+  {
+    "ms-jpq/coq.thirdparty",
+    dependencies = {
+      "github/copilot.vim",
+    },
+    config = function()
+      require "personal.config.coq_3p"
+    end,
+  },
+  {
+    "github/copilot.vim",
+    config = function()
+      require "personal.config.copilot"
+    end,
+  },
   -- telescope
   {
     "nvim-telescope/telescope.nvim",
