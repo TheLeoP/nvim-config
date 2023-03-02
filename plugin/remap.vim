@@ -11,6 +11,12 @@ nmap <nowait> } ]
 xmap <nowait> { [
 xmap <nowait> } ]
 
+nnoremap <nowait> [ {
+nnoremap <nowait> ] }
+xnoremap <nowait> [ {
+xnoremap <nowait> ] }
+
+
 " remap move in quickfix-list
 nnoremap <silent> ]q :cnext<cr>zzzv
 nnoremap <silent> [q :cprev<cr>zzzv
