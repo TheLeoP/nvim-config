@@ -19,7 +19,7 @@ vim.g.coq_settings = {
       match_syms = false,
     },
     third_party = {
-      enabled = false,
+      enabled = true,
     },
     lsp = {
       weight_adjust = 1,

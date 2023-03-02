@@ -392,6 +392,7 @@ require("lazy").setup({
           config = {
             workspaces = {
               notes = "~/notes",
+              work = "~/work",
             },
           },
         },
