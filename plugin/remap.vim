@@ -140,14 +140,6 @@ inoremap <silent><expr> <CR>    pumvisible() ? (complete_info().selected == -1 ?
 inoremap <silent><expr> <Tab>   pumvisible() ? "\<down>" : "\<Tab>"
 inoremap <silent><expr> <S-Tab> pumvisible() ? "\<up>" : "\<BS>"
 
-" aumentar capacidad de ctrl-a
-nmap <c-a> <Plug>(dial-increment)
-nmap <c-x> <Plug>(dial-decrement)
-vmap <c-a> <Plug>(dial-increment)
-vmap <c-x> <Plug>(dial-decrement)
-vmap g<c-a> g<Plug>(dial-increment)
-vmap g<c-x> g<Plug>(dial-decrement)
-
 " permite ejecutar un comando seleccionado visualmente en la última consola
 " abierta
 vnoremap <silent> <leader><leader>e <cmd>lua require('personal.util.general').visual_ejecutar_en_terminal()<cr>
