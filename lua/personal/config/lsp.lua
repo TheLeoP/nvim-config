@@ -82,6 +82,7 @@ local on_attach_general = function(client, bufnr)
   local format = function()
     vim.lsp.buf.format {
       filter = function(client)
+        local have_null_ls = #require("null-ls.sources").get_available(ft, "NULL_LS_FORMATTING") > 0
         if have_null_ls then
           return client.name == "null-ls"
         else
