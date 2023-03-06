@@ -321,6 +321,7 @@ require("lazy").setup({
     },
   },
   {
+    lazy = false,
     "lambdalisue/fern.vim",
   },
   {
