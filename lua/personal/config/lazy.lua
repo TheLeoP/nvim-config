@@ -99,8 +99,15 @@ require("lazy").setup({
   "tpope/vim-dispatch",
   -- configurar indent automáticamente
   "tpope/vim-sleuth",
-  -- surround actions
-  "tpope/vim-surround",
+  {
+    "tpope/vim-surround",
+    init = function()
+      vim.g.surround_no_mappings = 1
+    end,
+    config = function()
+      require "personal.config.surround"
+    end,
+  },
   -- acciones adicionales
   "tpope/vim-commentary",
   "tpope/vim-repeat",

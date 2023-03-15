@@ -1,0 +1,11 @@
+vim.keymap.set("n", "<leader>s", "<Plug>Ysurround", { noremap = false })
+vim.keymap.set("n", "<leader>S", "<Plug>YSurround", { noremap = false })
+vim.keymap.set("n", "<leader>ss", "<Plug>Yssurround", { noremap = false })
+vim.keymap.set("n", "<leader>Ss", "<Plug>YSsurround", { noremap = false })
+vim.keymap.set("n", "<leader>SS", "<Plug>YSsurround", { noremap = false })
+
+vim.keymap.set("n", "<leader>sd", "<Plug>Dsurround", { noremap = false })
+vim.keymap.set("n", "<leader>sc", "<Plug>Csurround", { noremap = false })
+vim.keymap.set("n", "<leader>sC", "<Plug>CSurround", { noremap = false })
+vim.keymap.set("n", "<leader>s", "<Plug>VSurround", { noremap = false })
+vim.keymap.set("n", "<leader>S", "<Plug>VgSurround", { noremap = false })

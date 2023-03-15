@@ -135,11 +135,6 @@ endfunction
 nnoremap <leader>x :call <SID>executor()<cr>
 nnoremap <leader><leader>x :call <SID>save_and_exec()<cr>
 
-inoremap <silent><expr> <BS>    pumvisible() ? "\<C-e><BS>"  : "\<BS>"
-inoremap <silent><expr> <CR>    pumvisible() ? (complete_info().selected == -1 ? "\<C-e><CR>" : "\<C-y>") : "\<CR>"
-inoremap <silent><expr> <Tab>   pumvisible() ? "\<down>" : "\<Tab>"
-inoremap <silent><expr> <S-Tab> pumvisible() ? "\<up>" : "\<BS>"
-
 " permite ejecutar un comando seleccionado visualmente en la última consola
 " abierta
 vnoremap <silent> <leader><leader>e <cmd>lua require('personal.util.general').visual_ejecutar_en_terminal()<cr>
@@ -150,13 +145,6 @@ nnoremap <leader><leader>sl <cmd>Telescope possession list<cr>
 
 nnoremap <leader>nn <cmd>lua require('personal.util.general').nueva_nota_U()<cr>
 nnoremap <leader>na <cmd>lua require('personal.util.general').nuevo_autoregistro()<cr>
-
-" mapping para cambiar ys por <leader>s
-nmap <leader>s  <Plug>Ysurround
-nmap <leader>S  <Plug>YSurround
-nmap <leader>ss <Plug>Yssurround
-nmap <leader>Ss <Plug>YSsurround
-nmap <leader>SS <Plug>YSsurround
 
 " borar palabra con <c-bs> o <c-h>
 inoremap <C-BS> 
