@@ -410,4 +410,23 @@ require("lazy").setup({
   dev = {
     path = vim.g.documentos .. "/Personal",
   },
+  install = {
+    colorscheme = { "gruvbox" },
+  },
+  ui = {
+    icons = {
+      cmd = "⌘",
+      config = "🛠",
+      event = "📅",
+      ft = "📂",
+      init = "⚙",
+      keys = "🗝",
+      plugin = "🔌",
+      runtime = "💻",
+      source = "📄",
+      start = "🚀",
+      task = "📌",
+      lazy = "💤 ",
+    },
+  },
 })

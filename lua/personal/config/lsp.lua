@@ -149,9 +149,6 @@ local null_ls = require "null-ls"
 null_ls.setup {
   on_attach = on_attach_general,
   sources = {
-    -- null_ls.builtins.diagnostics.eslint_d,
-    -- null_ls.builtins.code_actions.eslint_d,
-    null_ls.builtins.code_actions.refactoring,
     null_ls.builtins.formatting.prettierd,
     null_ls.builtins.formatting.stylua,
     null_ls.builtins.formatting.black,
@@ -341,23 +338,6 @@ function M.jdtls_setup()
   )
 
   jdtls.start_or_attach(config)
-end
-
-local function lsp_highlight_document(client, bufnr)
-  if client.supports_method "textDocument/formatting" then
-    local group = vim.api.nvim_create_augroup("lsp_document_highlight", { clear = true })
-
-    vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
-      group = group,
-      buffer = bufnr,
-      callback = vim.lsp.buf.document_highlight,
-    })
-    vim.api.nvim_create_autocmd("CursorMoved", {
-      group = group,
-      buffer = bufnr,
-      callback = vim.lsp.buf.clear_references,
-    })
-  end
 end
 
 return M
