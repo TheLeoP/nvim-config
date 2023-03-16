@@ -1,19 +1,3 @@
-vim.g.firenvim_config = {
-  globalSettings = {
-    alt = "all",
-    ["<C-w>"] = "noop",
-    ["<C-n>"] = "default",
-    ["<C-t>"] = "default",
-    takeover = "never",
-  },
-  localSettings = {
-    [".*"] = {
-      takeover = "never",
-      priority = 999,
-    },
-  },
-}
-
 local group = vim.api.nvim_create_augroup("firenvim", { clear = true })
 vim.api.nvim_create_autocmd("UIEnter", {
   group = group,

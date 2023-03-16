@@ -134,29 +134,76 @@ require("lazy").setup({
   -- test en vim
   {
     "vim-test/vim-test",
-    config = function()
-      require "personal.config.vim-test"
+    init = function()
+      vim.g["test#java#runner"] = "gradletest"
+      vim.g["test#strategy"] = "dispatch"
     end,
   },
   -- coq
   {
     "ms-jpq/coq_nvim",
     branch = "coq",
+    init = function()
+      vim.o.completeopt = "menuone,noselect,noinsert"
+      vim.o.showmode = false
+
+      vim.g.coq_settings = {
+        auto_start = "shut-up",
+        keymap = {
+          recommended = false,
+          jump_to_mark = "<m-,>",
+        },
+        clients = {
+          snippets = {
+            warn = {},
+          },
+          paths = {
+            path_seps = {
+              "/",
+            },
+          },
+          buffers = {
+            match_syms = false,
+          },
+          third_party = {
+            enabled = false,
+          },
+          lsp = {
+            weight_adjust = 1,
+          },
+        },
+        display = {
+          ghost_text = {
+            enabled = true,
+          },
+          -- preview = {
+          --   border = vim.g.lsp_borders,
+          -- },
+          pum = {
+            fast_close = false,
+          },
+        },
+        match = {
+          unifying_chars = {
+            "-",
+            "_",
+          },
+        },
+        limits = {
+          completion_auto_timeout = 1.0,
+          completion_manual_timeout = 1.0,
+        },
+      }
+    end,
     config = function()
       require "personal.config.coq"
     end,
   },
   {
-    "ms-jpq/coq.thirdparty",
-    dependencies = {
-      "github/copilot.vim",
-    },
-    config = function()
-      require "personal.config.coq_3p"
-    end,
-  },
-  {
     "github/copilot.vim",
+    init = function()
+      vim.g.copilot_no_tab_map = vim.v["true"]
+    end,
     config = function()
       require "personal.config.copilot"
     end,
@@ -228,6 +275,10 @@ require("lazy").setup({
   -- db
   {
     "kristijanhusak/vim-dadbod-ui",
+    init = function()
+      vim.g.db_ui_force_echo_notifications = 1
+      vim.g.db_ui_show_database_icon = 1
+    end,
     dependencies = {
       "tpope/vim-dadbod",
     },
@@ -239,23 +290,25 @@ require("lazy").setup({
       require "personal.config.colorizer"
     end,
   },
-  -- ayuda visual para indentación
-  {
-    "lukas-reineke/indent-blankline.nvim",
-    enabled = false,
-    config = function()
-      require "personal.config.blankline"
-    end,
-  },
   -- sudo
   {
     "lambdalisue/suda.vim",
-    config = function()
-      require "personal.config.suda"
+    init = function()
+      vim.g["suda#prompt"] = "Contraseña: "
+
+      if vim.fn.has "win32" ~= 1 then
+        vim.g.suda_smart_edit = 1
+      end
     end,
   },
   {
     "kevinhwang91/nvim-ufo",
+    init = function()
+      -- vim.o.foldcolumn = "1"
+      vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
+      vim.o.foldlevelstart = 99
+      vim.o.foldenable = true
+    end,
     config = function()
       require "personal.config.ufo"
     end,
@@ -330,6 +383,10 @@ require("lazy").setup({
   {
     lazy = false,
     "lambdalisue/fern.vim",
+    init = function()
+      vim.g["fern#renderer"] = "nvim-web-devicons"
+      vim.g["glyph_palette#palette"] = require("fr-web-icons").palette()
+    end,
   },
   {
     "kyazdani42/nvim-web-devicons",
@@ -339,9 +396,6 @@ require("lazy").setup({
   },
   {
     "TheLeoP/fern-renderer-web-devicons.nvim",
-    config = function()
-      require "personal.config.fern"
-    end,
     dependencies = {
       "lambdalisue/fern.vim",
       "kyazdani42/nvim-web-devicons",
@@ -356,8 +410,11 @@ require("lazy").setup({
   },
   {
     "andymass/vim-matchup",
-    config = function()
-      require "personal.config.matchup"
+    init = function()
+      vim.g.loaded_matchit = 1
+      vim.g.matchup_matchparen_offscreen = {
+        method = "popup",
+      }
     end,
     dependencies = {
       "nvim-treesitter/nvim-treesitter",
@@ -367,6 +424,23 @@ require("lazy").setup({
   {
     "glacambre/firenvim",
     lazy = false,
+    init = function()
+      vim.g.firenvim_config = {
+        globalSettings = {
+          alt = "all",
+          ["<C-w>"] = "noop",
+          ["<C-n>"] = "default",
+          ["<C-t>"] = "default",
+          takeover = "never",
+        },
+        localSettings = {
+          [".*"] = {
+            takeover = "never",
+            priority = 999,
+          },
+        },
+      }
+    end,
     config = function()
       require "personal.config.firenvim"
     end,

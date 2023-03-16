@@ -1,9 +1,8 @@
-local actions = require "telescope.actions"
 local state = require "telescope.actions.state"
 local utils = require "session_manager.utils"
 
 require("project_nvim").setup {
-  on_project_selection = function(prompt_bufnr)
+  on_project_selection = function()
     local entry = state.get_selected_entry()
 
     vim.cmd.tcd(entry.value)
