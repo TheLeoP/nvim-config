@@ -1,11 +1,6 @@
 " cambiar current working directory
 nnoremap <leader>cd <cmd>tcd %:p:h<CR>
 
-" remap replace with register
-xmap <leader>r <Plug>ReplaceWithRegisterVisual
-nmap <leader>r <Plug>ReplaceWithRegisterOperator
-nmap <leader>rr <Plug>ReplaceWithRegisterLine
-
 nmap <nowait> { [
 nmap <nowait> } ]
 xmap <nowait> { [
@@ -59,31 +54,6 @@ vnoremap <silent> <a-l> <cmd>noautocmd normal! xp`<l<c-v>`>l<cr>
 nnoremap <silent> ]e <cmd>lua vim.diagnostic.goto_next()<cr>
 nnoremap <silent> [e <cmd>lua vim.diagnostic.goto_prev()<cr>
 
-" telescope
-" Find files using Telescope command-line sugar.
-nnoremap <leader>ff <cmd>Telescope find_files hidden=true<cr>
-nnoremap <leader>fg <cmd>Telescope git_branches<cr>
-nnoremap <leader>fb <cmd>Telescope buffers<cr>
-nnoremap <leader>fh <cmd>Telescope help_tags<cr>
-nnoremap <leader>fc <cmd>Telescope current_buffer_fuzzy_find<cr>
-nnoremap <leader>fs <cmd>Telescope live_grep_args<cr>
-nnoremap <leader>fr <cmd>Telescope resume<cr>
-nnoremap <leader>fwd <cmd>Telescope diagnostics<cr>
-
-" proyectos
-nnoremap <leader>fp <cmd>Telescope projects<cr>
-
-" personalizado
-nnoremap <leader>fi <cmd>lua require("personal.util.telescope").search_nvim_config()<cr>
-nnoremap <leader>fl <cmd>lua require("personal.util.telescope").search_trabajos()<cr>
-nnoremap <leader>fL <cmd>lua require("personal.util.telescope").browse_trabajos()<cr>
-nnoremap <leader>fF <cmd>Telescope file_browser<cr>
-nnoremap <leader>fnc <cmd>lua require("personal.util.telescope").search_nota_ciclo_actual_contenido()<cr>
-nnoremap <leader>fnn <cmd>lua require("personal.util.telescope").search_nota_ciclo_actual_nombre()<cr>
-
-nnoremap <leader>fan <cmd>lua require("personal.util.telescope").search_autoregistro_nombre()<cr>
-nnoremap <leader>fac <cmd>lua require("personal.util.telescope").search_autoregistro_contenido()<cr>
-
 " permitir salir del modo terminal con <c-[>
 tnoremap  <c-\><c-n>
 tnoremap <c-{><c-{> <c-\><c-n>
@@ -91,27 +61,6 @@ tnoremap <c-{><c-{> <c-\><c-n>
 " w and q
 nnoremap <silent> <leader>w :w<cr>
 nnoremap <silent> <leader>q :q<cr>
-
-" vim-test
-nnoremap <silent> <leader>pn :TestNearest<cr>
-nnoremap <silent> <leader>pf :TestFile<cr>
-nnoremap <silent> <leader>ps :TestSuite<cr>
-nnoremap <silent> <leader>pl :TestLast<cr>
-nnoremap <silent> <leader>pv :TestVisit<cr>
-
-" DAP
-nmap <silent> <leader>dc <cmd>lua require('dap').continue()<cr>
-nmap <silent> <leader>ds <cmd>lua require('dap').continue()<cr>
-nmap <silent> <leader>dr <cmd>lua require('dap').disconnect({restart = true})<cr>
-nmap <silent> <leader>de <cmd>lua require('dap').terminate()<cr>
-nmap <silent> <leader>dp <cmd>lua require('dap').pause()<cr>
-nmap <silent> <leader>db <cmd>lua require('dap').toggle_breakpoint()<cr>
-nmap <silent> <leader>dB <cmd>lua require'dap'.set_breakpoint(vim.fn.input('Breakpoint condition: '))<cr>
-nmap <silent> <leader>dv <cmd>lua require('dap').step_over()<cr>
-nmap <silent> <leader>dsi <cmd>lua require('dap').step_into()<cr>
-nmap <silent> <leader>dso <cmd>lua require('dap').step_out()<cr>
-nmap <silent> <leader>dsb <cmd>lua require('dap').step_back()<cr>
-nmap <silent> <leader>dtc <cmd>lua require('dap').run_to_cursor()<cr>
 
 " ejecutar archivos
 function! s:executor() abort

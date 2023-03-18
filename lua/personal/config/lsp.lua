@@ -1,45 +1,35 @@
 local M = {}
 
-local lspconfig = require "lspconfig"
 local jdtls = require "jdtls"
 local jdtls_dap = require "jdtls.dap"
 local jdtls_setup = require "jdtls.setup"
-local telescope_builtin = require "telescope.builtin"
 local navic = require "nvim-navic"
 
-local api = vim.api
+M.mason_root = vim.fn.stdpath "data" .. "/mason/packages/"
 
-local mason_root = vim.fn.stdpath "data" .. "/mason/packages/"
-
-require("mason").setup()
-require("mason-lspconfig").setup {
-  ensure_installed = { "tsserver", "volar", "jdtls" },
-  automatic_installation = true,
-}
-
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities.textDocument.completion.completionItem.snippetSupport = true
-capabilities.textDocument.completion.completionItem.resolveSupport = {
+M.capabilities = vim.lsp.protocol.make_client_capabilities()
+M.capabilities.textDocument.completion.completionItem.snippetSupport = true
+M.capabilities.textDocument.completion.completionItem.resolveSupport = {
   properties = {
     "documentation",
     "detail",
     "additionalTextEdits",
   },
 }
-capabilities.textDocument.foldingRange = {
+M.capabilities.textDocument.foldingRange = {
   dynamicRegistration = false,
   lineFoldingOnly = true,
 }
 
-local on_attach_general = function(client, bufnr)
+M.on_attach_general = function(client, bufnr)
   if client.server_capabilities.documentSymbolProvider then
     navic.attach(client, bufnr)
   end
 
-  vim.keymap.set("n", "gd", telescope_builtin.lsp_definitions, { buffer = bufnr, desc = "Go to definition" })
+  vim.keymap.set("n", "gd", "<cmd>Telescope lsp_definitions<cr>", { buffer = bufnr, desc = "Go to definition" })
   vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { buffer = bufnr, desc = "Go to declaration" })
-  vim.keymap.set("n", "gr", telescope_builtin.lsp_references, { buffer = bufnr, desc = "Go to reference" })
-  vim.keymap.set("n", "gi", telescope_builtin.lsp_implementations, { buffer = bufnr, desc = "Go to implementation" })
+  vim.keymap.set("n", "gr", "<cmd>Telescope lsp_references", { buffer = bufnr, desc = "Go to reference" })
+  vim.keymap.set("n", "gi", "<cmd>Telescope lsp_implementations", { buffer = bufnr, desc = "Go to implementation" })
   vim.keymap.set("n", "<c-k>", vim.lsp.buf.signature_help, { buffer = bufnr, desc = "Signature help" })
   vim.keymap.set("n", "K", vim.lsp.buf.hover, { buffer = bufnr, desc = "Hover" })
   vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { buffer = bufnr, desc = "Rename" })
@@ -54,25 +44,25 @@ local on_attach_general = function(client, bufnr)
   vim.keymap.set(
     "n",
     "<leader>fds",
-    telescope_builtin.lsp_document_symbols,
+    "<cmd>Telescope lsp_document_symbols",
     { buffer = bufnr, desc = "Find document symbols" }
   )
   vim.keymap.set(
     "n",
     "<leader>fws",
-    telescope_builtin.lsp_workspace_symbols,
+    "<cmd>Telescope lsp_workspace_symbols",
     { buffer = bufnr, desc = "Find workspace symbols" }
   )
   vim.keymap.set(
     "n",
     "<leader>fki",
-    telescope_builtin.lsp_incoming_calls,
+    "<cmd>Telescope lsp_incoming_calls",
     { buffer = bufnr, desc = "Find incoming calls" }
   )
   vim.keymap.set(
     "n",
     "<leader>fko",
-    telescope_builtin.lsp_outgoing_calls,
+    "<cmd>Telescope lsp_outgoing_calls",
     { buffer = bufnr, desc = "Find outgoing calls" }
   )
 
@@ -102,152 +92,18 @@ local on_attach_general = function(client, bufnr)
   end
 end
 
-local on_init_general = function(client)
-  if client.config.settings then
-    client.notify("workspace/didChangeConfiguration", { settings = client.config.settings })
-  end
-end
-
--- sobreescribir handlers
-
-vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
-  border = vim.g.lsp_borders,
-})
-
-vim.lsp.handlers["workspace/diagnostic/refresh"] = function(_, _, ctx)
-  local ns = vim.lsp.diagnostic.get_namespace(ctx.client_id)
-  local bufnr = vim.api.nvim_get_current_buf()
-  vim.diagnostic.reset(ns, bufnr)
-  return true
-end
-
--- configuración LS individuales
-
--- pyright
-lspconfig.pyright.setup {
-  on_attach = on_attach_general,
-  capabilities = capabilities,
-}
-
--- emmet
-lspconfig.emmet_ls.setup {
-  capabilities = capabilities,
-  filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue", "php", "html" },
-}
-
-require("typescript").setup {
-  server = {
-    on_attach = on_attach_general,
-    capabilities = capabilities,
-    root_dir = function()
-      return jdtls_setup.find_root { ".git" }
-    end,
-  },
-}
-
-local null_ls = require "null-ls"
-null_ls.setup {
-  on_attach = on_attach_general,
-  sources = {
-    null_ls.builtins.formatting.prettierd,
-    null_ls.builtins.formatting.stylua,
-    null_ls.builtins.formatting.black,
-  },
-}
-
-local servidores_generales = {
-  "vimls",
-  "clangd",
-  "html",
-  "cssls",
-  "lemminx",
-  "intelephense",
-  "prismals",
-}
-
-for _, server in ipairs(servidores_generales) do
-  lspconfig[server].setup {
-    on_attach = on_attach_general,
-    capabilities = capabilities,
-  }
-end
-
--- lua
-
-require("neodev").setup {}
-lspconfig.lua_ls.setup {
-  on_attach = on_attach_general,
-  capabilities = capabilities,
-  settings = {
-    Lua = {
-      workspace = {
-        checkThirdParty = false,
-      },
-    },
-  },
-}
-
--- vue
-
-local function on_new_config(new_config, _)
-  if
-    new_config.init_options
-    and new_config.init_options.typescript
-    and new_config.init_options.typescript.tsdk == ""
-  then
-    new_config.init_options.typescript.tsdk = mason_root .. "typescript-language-server/node_modules/typescript/lib"
-  end
-end
-
-lspconfig.volar.setup {
-  on_attach = on_attach_general,
-  capabilities = capabilities,
-  on_new_config = on_new_config,
-  filetypes = { "vue" },
-}
-
--- go
-lspconfig.gopls.setup {
-  on_attach = on_attach_general,
-  capabilities = capabilities,
-  settings = {
-    gopls = {
-      gofumpt = true,
-    },
-  },
-}
-
--- powershell
-lspconfig.powershell_es.setup {
-  on_attach = on_attach_general,
-  capabilities = capabilities,
-  bundle_path = mason_root .. "powershell-editor-services",
-}
-
--- json
-lspconfig.jsonls.setup {
-  on_attach = on_attach_general,
-  capabilities = capabilities,
-  settings = {
-    json = {
-      schemas = require("schemastore").json.schemas(),
-      validate = {
-        enable = true,
-      },
-    },
-  },
-}
-
 -- java
 local on_attach_java = function(client, bufnr)
-  local opts = {
-    silent = true,
-  }
-
-  on_attach_general(client, bufnr)
+  M.on_attach_general(client, bufnr)
   jdtls.setup_dap { hotcodereplace = "auto" }
   jdtls_dap.setup_dap_main_class_configs()
   jdtls_setup.add_commands()
+end
+
+local on_init = function(client)
+  if client.config.settings then
+    client.notify("workspace/didChangeConfiguration", { settings = client.config.settings })
+  end
 end
 
 function M.jdtls_setup()
@@ -270,7 +126,7 @@ function M.jdtls_setup()
   local extendedClientCapabilities = jdtls.extendedClientCapabilities
   extendedClientCapabilities.resolveAdditionalTextEditsSupport = true
 
-  local jdtls_root = mason_root .. "jdtls/"
+  local jdtls_root = M.mason_root .. "jdtls/"
 
   local jar = vim.fn.glob(jdtls_root .. "plugins/org.eclipse.equinox.launcher_*.jar", false, false)
   local config_location = jdtls_root .. (vim.fn.has "win32" == 1 and "config_win" or "config_linux")
@@ -300,9 +156,9 @@ function M.jdtls_setup()
     flags = {
       allow_incremental_sync = true,
     },
-    capabilities = capabilities,
+    capabilities = M.capabilities,
     on_attach = on_attach_java,
-    on_init = on_init_general,
+    on_init = on_init,
     cmd = {
       "java",
       "-Declipse.application=org.eclipse.jdt.ls.core.id1",
@@ -326,7 +182,7 @@ function M.jdtls_setup()
     root_dir = root_dir,
     init_options = {
       bundles = {
-        vim.fn.glob(mason_root .. "java-debug-adapter/extension/server/com.microsoft.java.debug.plugin-*.jar"),
+        vim.fn.glob(M.mason_root .. "java-debug-adapter/extension/server/com.microsoft.java.debug.plugin-*.jar"),
       },
       extendedClientCapabilities = extendedClientCapabilities,
     },
@@ -334,7 +190,7 @@ function M.jdtls_setup()
 
   vim.list_extend(
     config.init_options.bundles,
-    vim.split(vim.fn.glob(mason_root .. "java-test/extension/server/*.jar"), "\n")
+    vim.split(vim.fn.glob(M.mason_root .. "java-test/extension/server/*.jar"), "\n")
   )
 
   jdtls.start_or_attach(config)

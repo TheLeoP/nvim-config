@@ -13,7 +13,7 @@ end
 
 vim.g.documentos_u = vim.g.documentos .. "/Documentos U/" .. vim.g.ciclo_actual .. "/"
 
-function _G.expand(...)
+local function expand(...)
   local expanded_value = {}
 
   for i = 1, select("#", ...) do
