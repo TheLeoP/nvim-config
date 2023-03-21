@@ -87,6 +87,7 @@ return {
   {
     "rcarriga/nvim-notify",
     init = function()
+      vim.o.termguicolors = true
       vim.notify = require "notify"
     end,
     config = function()

@@ -8,8 +8,6 @@ set nowritebackup
 set undofile    "configura vim para sí crear archivos de deshacer/rehacer
 set clipboard=unnamedplus   "permite que todo lo copiado vaya también al clipboard del sistema
 
-set termguicolors   "creo que permite asignar colores a la terminal (?)
-
 set conceallevel=0
 
 set nohlsearch  "no resalta todos los resultados de una búsqueda
