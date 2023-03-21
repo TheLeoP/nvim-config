@@ -9,7 +9,7 @@ return {
   },
   {
     "glepnir/dashboard-nvim",
-    event = "VimEnter",
+    lazy = false,
     opts = {
       theme = "doom",
       config = {
