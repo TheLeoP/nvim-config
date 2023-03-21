@@ -4,6 +4,11 @@ return {
     lazy = false,
     priority = 1000,
     config = function()
+      require("gruvbox").setup {
+        italic = {
+          operators = false,
+        },
+      }
       vim.cmd.colorscheme "gruvbox"
     end,
   },
