@@ -148,6 +148,7 @@ return {
           nls.builtins.formatting.prettierd,
           nls.builtins.formatting.stylua,
           nls.builtins.formatting.black,
+          nls.builtins.diagnostics.eslint_d,
         },
       }
     end,
