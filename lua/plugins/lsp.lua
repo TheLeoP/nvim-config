@@ -4,7 +4,10 @@ return {
     "neovim/nvim-lspconfig",
     dependencies = {
       "b0o/schemastore.nvim",
-      "williamboman/mason.nvim",
+      {
+        "williamboman/mason.nvim",
+        build = ":MasonUpdate",
+      },
       "williamboman/mason-lspconfig.nvim",
       "folke/neodev.nvim",
       "mfussenegger/nvim-jdtls",
