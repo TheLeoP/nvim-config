@@ -170,7 +170,7 @@ return {
         show_hidden = true,
         scope_chdir = "tab",
         patterns = {
-          "!>Documentos",
+          "!>Documentos U",
           "!>packages",
           "!>apps",
           "!>k6",
