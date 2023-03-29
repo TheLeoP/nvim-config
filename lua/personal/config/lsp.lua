@@ -130,6 +130,7 @@ function M.jdtls_setup()
 
   local jar = vim.fn.glob(jdtls_root .. "plugins/org.eclipse.equinox.launcher_*.jar", false, false)
   local config_location = jdtls_root .. (vim.fn.has "win32" == 1 and "config_win" or "config_linux")
+  local lombok = M.mason_root .. "jdtls/lombok.jar"
   local config = {
     settings = {
       java = {
@@ -159,8 +160,11 @@ function M.jdtls_setup()
     capabilities = M.capabilities,
     on_attach = on_attach_java,
     on_init = on_init,
+    -- stylua: ignore
     cmd = {
       "java",
+      "-javaagent:" .. lombok,
+      "-Xbootclasspath/a:" .. lombok,
       "-Declipse.application=org.eclipse.jdt.ls.core.id1",
       "-Dosgi.bundles.defaultStartLevel=4",
       "-Declipse.product=org.eclipse.jdt.ls.core.product",
@@ -168,16 +172,11 @@ function M.jdtls_setup()
       "-Dlog.level=ALL",
       "-Xms1G",
       "--add-modules=ALL-SYSTEM",
-      "--add-opens",
-      "java.base/java.util=ALL-UNNAMED",
-      "--add-opens",
-      "java.base/java.lang=ALL-UNNAMED",
-      "-jar",
-      jar,
-      "-configuration",
-      config_location,
-      "-data",
-      eclipse_wd,
+      "--add-opens", "java.base/java.util=ALL-UNNAMED",
+      "--add-opens", "java.base/java.lang=ALL-UNNAMED",
+      "-jar", jar,
+      "-configuration", config_location,
+      "-data", eclipse_wd,
     },
     root_dir = root_dir,
     init_options = {
