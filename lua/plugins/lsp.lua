@@ -35,12 +35,6 @@ return {
         return true
       end
 
-      -- pyright
-      lspconfig.pyright.setup {
-        on_attach = config.on_attach_general,
-        capabilities = config.capabilities,
-      }
-
       -- emmet
       lspconfig.emmet_ls.setup {
         capabilities = config.capabilities,
@@ -65,6 +59,8 @@ return {
         "lemminx",
         "intelephense",
         "prismals",
+        "pyright",
+        "eslint",
       }
 
       for _, server in ipairs(servidores_generales) do
@@ -151,7 +147,6 @@ return {
           nls.builtins.formatting.prettierd,
           nls.builtins.formatting.stylua,
           nls.builtins.formatting.black,
-          nls.builtins.diagnostics.eslint_d,
         },
       }
     end,
