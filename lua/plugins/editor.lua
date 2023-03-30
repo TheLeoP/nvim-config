@@ -175,6 +175,7 @@ return {
           "!>apps",
           "!>k6",
           "!>Lucho",
+          "index.norg",
           "build.gradle",
           "package.json",
           ".git",
