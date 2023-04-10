@@ -151,12 +151,12 @@ return {
       require("project_nvim").setup {
         on_project_selection = function()
           local state = require "telescope.actions.state"
-          local utils = require "session_manager.utils"
+          local config = require "session_manager.config"
           local entry = state.get_selected_entry()
 
           vim.cmd.tcd(entry.value)
 
-          local session_name = utils.dir_to_session_filename { filename = vim.loop.cwd() }
+          local session_name = config.dir_to_session_filename { filename = vim.loop.cwd() }
           if not session_name:exists() then
             return true
           end
