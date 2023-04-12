@@ -15,7 +15,6 @@ return {
   {
     "glepnir/dashboard-nvim",
     lazy = false,
-    enabled = false,
     opts = {
       theme = "doom",
       config = {
