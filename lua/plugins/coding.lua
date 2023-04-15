@@ -133,7 +133,7 @@ return {
       vim.g.copilot_no_tab_map = vim.v["true"]
     end,
     config = function()
-      vim.keymap.set("i", "<c-f>", "copilot#Accept()", { silent = true, expr = true })
+      vim.api.nvim_set_keymap("i", "<c-f>", "copilot#Accept()", { silent = true, expr = true })
       vim.keymap.set("i", "<M-{>", vim.fn["copilot#Next"])
       vim.keymap.set("i", "<M-}>", vim.fn["copilot#Previous"])
       vim.keymap.set("i", "<M-'>", vim.fn["copilot#Suggest"])
