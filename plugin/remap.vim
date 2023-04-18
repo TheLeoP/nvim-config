@@ -6,10 +6,10 @@ nmap <nowait> } ]
 xmap <nowait> { [
 xmap <nowait> } ]
 
-nnoremap <nowait> [ {
-nnoremap <nowait> ] }
-xnoremap <nowait> [ {
-xnoremap <nowait> ] }
+nnoremap <M-{> {
+nnoremap <M-}> }
+xnoremap <M-{> {
+xnoremap <M-}> }
 
 
 " remap move in quickfix-list

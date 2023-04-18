@@ -20,8 +20,10 @@ local links = {
   ["@lsp.type.macro"] = "@macro",
   ["@lsp.type.decorator"] = "@function",
   ["@lsp.mod.defaultLibrary"] = "@function.builtin",
+  ["@lsp.mod.readonly"] = "@constant",
   ["@lsp.typemod.function.defaultLibrary"] = "@function.builtin",
   ["@lsp.typemod.variable.defaultLibrary"] = "@variable.builtin",
+  ["@lsp.typemod.variable.readonly"] = "@constant",
 }
 for newgroup, oldgroup in pairs(links) do
   vim.api.nvim_set_hl(0, newgroup, { link = oldgroup, default = true })
