@@ -81,8 +81,8 @@ function! s:save_and_exec() abort
     endif
 endfunction
 
-nnoremap <leader>x :call <SID>executor()<cr>
-nnoremap <leader><leader>x :call <SID>save_and_exec()<cr>
+nnoremap <silent><leader>x :call <SID>executor()<cr>
+nnoremap <silent><leader><leader>x :call <SID>save_and_exec()<cr>
 
 " permite ejecutar un comando seleccionado visualmente en la última consola
 " abierta

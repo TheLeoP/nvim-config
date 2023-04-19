@@ -105,7 +105,7 @@ return {
           vim.cmd.nohlsearch()
           vim.cmd.diffupdate()
           require("notify").dismiss { silent = true }
-          vim.cmd.normal { "<c-l>", bang = true }
+          vim.cmd.normal { "", bang = true }
         end,
       },
     },

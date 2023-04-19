@@ -3,7 +3,7 @@ local ctrlL = function()
   vim.fn["fern#action#call"] "redraw"
   vim.cmd.nohlsearch()
   vim.cmd.diffupdate()
-  vim.cmd.normal { "<c-l>", bang = true }
+  vim.cmd.normal { "", bang = true }
 end
 vim.keymap.set("n", "<c-space>", "<Plug>(fern-action-mark)", { buffer = true })
 vim.keymap.set("n", "-", "<Plug>(fern-action-leave)", { buffer = true })
