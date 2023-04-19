@@ -72,13 +72,14 @@ return {
         winbar = false,
       },
     },
-    config = function()
+    config = function(_, opts)
       vim.api.nvim_set_hl(0, "DashboardHeader", { fg = "#71A9B4" })
       vim.api.nvim_set_hl(0, "DashboardDesc", { fg = "#7ebe88" })
       vim.api.nvim_set_hl(0, "DashboardKey", { fg = "#7ebe88" })
       vim.api.nvim_set_hl(0, "DashboardIcon", { fg = "#7ebe88" })
       vim.api.nvim_set_hl(0, "DashboardShortCut", { fg = "#7ebe88" })
       vim.api.nvim_set_hl(0, "DashboardFooter", { fg = "#CAB8A3" })
+      require("dashboard").setup(opts)
     end,
   },
   {
