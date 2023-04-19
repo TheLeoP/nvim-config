@@ -97,6 +97,18 @@ return {
   },
   {
     "rcarriga/nvim-notify",
+    keys = {
+      {
+        mode = "n",
+        "<c-l>",
+        function()
+          vim.cmd.nohlsearch()
+          vim.cmd.diffupdate()
+          require("notify").dismiss { silent = true }
+          vim.cmd.normal { "<c-l>", bang = true }
+        end,
+      },
+    },
     init = function()
       vim.o.termguicolors = true
       vim.notify = require "notify"

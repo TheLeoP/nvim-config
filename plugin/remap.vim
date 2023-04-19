@@ -37,8 +37,8 @@ inoremap : :<c-g>u
 inoremap ; ;<c-g>u
 
 " jumplist para j y k
-nnoremap <silent><expr> k (v:count > 5 ? "m'" . v:count : "") . 'k'
-nnoremap <silent><expr> j (v:count > 5 ? "m'" . v:count : "") . 'j'
+nnoremap <silent><expr> k (v:count > 0 ? "m'" . v:count : "") . 'k'
+nnoremap <silent><expr> j (v:count > 0 ? "m'" . v:count : "") . 'j'
 
 " manejo de linas en todos los modos
 xnoremap <silent> <a-j> :m '>+1<cr>gv=gv
@@ -88,10 +88,6 @@ nnoremap <leader><leader>x :call <SID>save_and_exec()<cr>
 " abierta
 vnoremap <silent> <leader><leader>e <cmd>lua require('personal.util.general').visual_ejecutar_en_terminal()<cr>
 
-" grabar y cargar sesiones con un nombre
-nnoremap <leader><leader>ss <cmd>lua require('personal.util.dashboard').guardar_sesion()<cr>
-nnoremap <leader><leader>sl <cmd>Telescope possession list<cr>
-
 nnoremap <leader>nn <cmd>lua require('personal.util.general').nueva_nota_U()<cr>
 nnoremap <leader>na <cmd>lua require('personal.util.general').nuevo_autoregistro()<cr>
 
@@ -103,33 +99,6 @@ inoremap  
 nnoremap @ <cmd>execute "noautocmd normal! " . v:count1 . "@" . getcharstr()<cr>
 xnoremap @ :<C-U>execute "noautocmd '<,'>norm! " . v:count1 . "@" . getcharstr()<cr>
 
-" mejor <c-l>
-nnoremap <c-l> <cmd>nohlsearch<bar>diffupdate<bar>lua require('notify').dismiss()<cr><cmd>normal! <c-l><cr>
-
 " tabs
 nnoremap <a-h> <cmd>tabprevious<cr>
 nnoremap <a-l> <cmd>tabnext<cr>
-
-" Dispatch
-nnoremap ¿<cr> <cmd>Dispatch<cr>
-nnoremap ¿<space> :Dispatch<space>
-nnoremap ¿! <cmd>Dispatch!
-nnoremap ¿? <cmd>FocusDispatch<cr>
-
-" refactoring
-xnoremap <leader><leader>re <esc><cmd>lua require('refactoring').refactor('Extract Function')<cr>
-xnoremap <leader><leader>rf <esc><cmd>lua require('refactoring').refactor('Extract Function To File')<cr>
-xnoremap <leader><leader>rv <esc><cmd>lua require('refactoring').refactor('Extract Variable')<cr>
-xnoremap <leader><leader>ri <esc><cmd>lua require('refactoring').refactor('Inline Variable')<cr>
-nnoremap <leader><leader>rbb <cmd>lua require('refactoring').refactor('Extract Block')<cr>
-nnoremap <leader><leader>rbf <cmd>lua require('refactoring').refactor('Extract Block To File')<cr>
-nnoremap <leader><leader>ri <esc><cmd>lua require('refactoring').refactor('Inline Variable')<cr>
-
-nnoremap <leader><leader>rpP <cmd>lua require('refactoring').debug.printf({below = false})<cr>
-nnoremap <leader><leader>rpp <cmd>lua require('refactoring').debug.printf({below = true})<cr>
-nnoremap <leader><leader>rpv <cmd>lua require('refactoring').debug.print_var({below = true, normal = true})<cr>
-xnoremap <leader><leader>rpv <esc><cmd>lua require('refactoring').debug.print_var({below = true})<cr>
-nnoremap <leader><leader>rc <cmd>lua require('refactoring').debug.cleanup({})<cr>
-
-" fern
-nnoremap - <cmd>Fern . -reveal=%<cr>

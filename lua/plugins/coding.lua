@@ -1,6 +1,15 @@
 return {
   "tpope/vim-sleuth",
-  "tpope/vim-dispatch",
+  {
+    "tpope/vim-dispatch",
+    lazy = false,
+    keys = {
+      { "¿<cr>", "<cmd>Dispatch<cr>", mode = "n" },
+      { "¿<space>", ":Dispatch<space>", mode = "n" },
+      { "¿!", "<cmd>Dispatch!", mode = "n" },
+      { "¿?", "<cmd>FocusDispatch<cr>", mode = "n" },
+    },
+  },
   "tpope/vim-commentary",
   {
     "vim-scripts/ReplaceWithRegister",
@@ -155,6 +164,98 @@ return {
   {
     "theprimeagen/refactoring.nvim",
     dev = vim.fn.has "win32" == 0,
+    keys = {
+      {
+        "<leader>ae",
+        function()
+          vim.cmd "normal "
+          require("refactoring").refactor "Extract Function"
+        end,
+        mode = "x",
+      },
+      {
+        "<leader>af",
+        function()
+          vim.cmd "normal "
+          require("refactoring").refactor "Extract Function To File"
+        end,
+        mode = "x",
+      },
+      {
+        "<leader>av",
+        function()
+          vim.cmd "normal "
+          require("refactoring").refactor "Extract Variable"
+        end,
+        mode = "x",
+      },
+      {
+        "<leader>ai",
+        function()
+          vim.cmd "normal "
+          require("refactoring").refactor "Inline Variable"
+        end,
+        mode = "x",
+      },
+      {
+        "<leader>abb",
+        function()
+          require("refactoring").refactor "Extract Block"
+        end,
+        mode = "n",
+      },
+      {
+        "<leader>abf",
+        function()
+          require("refactoring").refactor "Extract Block To File"
+        end,
+        mode = "n",
+      },
+      {
+        "<leader>ai",
+        function()
+          vim.cmd "normal "
+          require("refactoring").refactor "Inline Variable"
+        end,
+        mode = "n",
+      },
+      {
+        "<leader>apP",
+        function()
+          require("refactoring").debug.printf { below = false }
+        end,
+        mode = "n",
+      },
+      {
+        "<leader>app",
+        function()
+          require("refactoring").debug.printf { below = true }
+        end,
+        mode = "n",
+      },
+      {
+        "<leader>apv",
+        function()
+          require("refactoring").debug.print_var { below = true, normal = true }
+        end,
+        mode = "n",
+      },
+      {
+        "<leader>apv",
+        function()
+          vim.cmd "normal "
+          require("refactoring").debug.print_var { below = true }
+        end,
+        mode = "x",
+      },
+      {
+        "<leader>ac",
+        function()
+          require("refactoring").debug.cleanup {}
+        end,
+        mode = "n",
+      },
+    },
     config = true,
   },
   {

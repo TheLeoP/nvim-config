@@ -192,6 +192,19 @@ return {
   },
   {
     "Shatur/neovim-session-manager",
+    lazy = false,
+    keys = {
+      {
+        "<leader><leader>ss",
+        "<cmd>SessionManager save_current_session<cr>",
+        mode = "n",
+      },
+      {
+        "<leader><leader>sl",
+        "<cmd>SessionManager load_session<cr>",
+        mode = "n",
+      },
+    },
     config = function()
       local Path = require "plenary.path"
       require("session_manager").setup {
@@ -445,6 +458,9 @@ return {
   {
     lazy = false,
     "lambdalisue/fern.vim",
+    keys = {
+      { "-", "<cmd>Fern . -reveal=%<cr>", mode = "n" },
+    },
     init = function()
       vim.g["fern#renderer"] = "nvim-web-devicons"
       vim.g["glyph_palette#palette"] = require("fr-web-icons").palette()
