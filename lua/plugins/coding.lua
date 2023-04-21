@@ -163,7 +163,6 @@ return {
   },
   {
     "theprimeagen/refactoring.nvim",
-    dev = vim.fn.has "win32" == 0,
     keys = {
       {
         "<leader>ae",

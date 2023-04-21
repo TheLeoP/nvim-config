@@ -137,7 +137,6 @@ return {
   {
     "TheLeoP/project.nvim",
     lazy = false,
-    dev = vim.fn.has "win32" == 0,
     keys = {
       {
         "<leader>fp",
