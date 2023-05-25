@@ -44,25 +44,25 @@ M.on_attach_general = function(client, bufnr)
   vim.keymap.set(
     "n",
     "<leader>fds",
-    "<cmd>Telescope lsp_document_symbols",
+    "<cmd>Telescope lsp_document_symbols<cr>",
     { buffer = bufnr, desc = "Find document symbols" }
   )
   vim.keymap.set(
     "n",
     "<leader>fws",
-    "<cmd>Telescope lsp_workspace_symbols",
+    "<cmd>Telescope lsp_workspace_symbols<cr>",
     { buffer = bufnr, desc = "Find workspace symbols" }
   )
   vim.keymap.set(
     "n",
     "<leader>fki",
-    "<cmd>Telescope lsp_incoming_calls",
+    "<cmd>Telescope lsp_incoming_calls<cr>",
     { buffer = bufnr, desc = "Find incoming calls" }
   )
   vim.keymap.set(
     "n",
     "<leader>fko",
-    "<cmd>Telescope lsp_outgoing_calls",
+    "<cmd>Telescope lsp_outgoing_calls<cr>",
     { buffer = bufnr, desc = "Find outgoing calls" }
   )
 
@@ -150,6 +150,18 @@ function M.jdtls_setup()
         project = {
           referencedLibraries = {
             "**/lib/*.jar",
+          },
+        },
+        configuration = {
+          runtimes = {
+            {
+              name = "JavaSE-1.8",
+              path = "/usr/lib/jvm/java-8-openjdk-amd64/",
+            },
+            {
+              name = "JavaSE-17",
+              path = "/usr/lib/jvm/java-17-openjdk-amd64/",
+            },
           },
         },
       },

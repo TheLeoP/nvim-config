@@ -6,7 +6,7 @@ return {
     keys = {
       { "¿<cr>", "<cmd>Dispatch<cr>", mode = "n" },
       { "¿<space>", ":Dispatch<space>", mode = "n" },
-      { "¿!", "<cmd>Dispatch!", mode = "n" },
+      { "¿!", "<cmd>Dispatch!<cr>", mode = "n" },
       { "¿?", "<cmd>FocusDispatch<cr>", mode = "n" },
     },
   },
@@ -163,6 +163,7 @@ return {
   },
   {
     "theprimeagen/refactoring.nvim",
+    dev = vim.fn.has "win32" == 0,
     keys = {
       {
         "<leader>ae",

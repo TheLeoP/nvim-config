@@ -228,13 +228,6 @@ return {
     config = true,
   },
   {
-    "ggandor/flit.nvim",
-    config = true,
-    dependencies = {
-      "ggandor/leap.nvim",
-    },
-  },
-  {
     "ggandor/leap-spooky.nvim",
     config = true,
     dependencies = {
@@ -289,7 +282,16 @@ return {
           return vim.loop.cwd()
         end,
         navic = function(_, opts)
-          return navic.get_location(opts)
+          local win_size = vim.api.nvim_win_get_width(0)
+          local location = navic.get_location(opts)
+          local location_size = vim.api.nvim_strwidth(location)
+          local extra = #vim.fn.expand("%:t", false) + 4 -- 4 because ???
+          if win_size < location_size + extra then
+            local start = location_size + extra - win_size + 4 -- 4 because of "... "
+            return "... " .. require("personal.util.general").str_multibyte_sub(location, start)
+          else
+            return location
+          end
         end,
       }
 
@@ -391,7 +393,7 @@ return {
             {
               provider = "file_info",
               hl = {
-                fg = "skyblue",
+                fg = "orange",
                 bg = "NONE",
                 style = "bold",
               },
