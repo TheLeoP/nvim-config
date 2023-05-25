@@ -175,8 +175,8 @@ function M.jdtls_setup()
     -- stylua: ignore
     cmd = {
       "java",
-      "-javaagent:" .. lombok,
-      "-Xbootclasspath/a:" .. lombok,
+      -- "-javaagent:" .. lombok,
+      -- "-Xbootclasspath/a:" .. lombok,
       "-Declipse.application=org.eclipse.jdt.ls.core.id1",
       "-Dosgi.bundles.defaultStartLevel=4",
       "-Declipse.product=org.eclipse.jdt.ls.core.product",
