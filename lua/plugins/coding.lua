@@ -6,7 +6,7 @@ return {
     keys = {
       { "¿<cr>", "<cmd>Dispatch<cr>", mode = "n" },
       { "¿<space>", ":Dispatch<space>", mode = "n" },
-      { "¿!", ":Dispatch!", mode = "n" },
+      { "¿!", ":Dispatch!<space>", mode = "n" },
       { "¿?", "<cmd>FocusDispatch<cr>", mode = "n" },
     },
   },
