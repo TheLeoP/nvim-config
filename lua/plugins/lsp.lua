@@ -53,7 +53,7 @@ return {
 
       local servidores_generales = {
         "vimls",
-        "clangd",
+        -- "clangd",
         "html",
         "cssls",
         "lemminx",
