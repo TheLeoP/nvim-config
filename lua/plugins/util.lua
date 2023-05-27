@@ -8,7 +8,6 @@ return {
         pattern = "*_spec.lua",
         callback = function(opts)
           local bufnr = opts.buf
-          vim.print(opts)
           vim.keymap.set("n", "t", "<Plug>PlenaryTestFile", { buffer = bufnr })
         end,
       })
