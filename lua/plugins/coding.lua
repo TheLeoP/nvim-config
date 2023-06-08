@@ -140,6 +140,7 @@ return {
     "github/copilot.vim",
     init = function()
       vim.g.copilot_no_tab_map = vim.v["true"]
+      vim.g.copilot_filetypes = { ["dap-repl"] = vim.v["false"] }
     end,
     config = function()
       vim.api.nvim_set_keymap("i", "<c-f>", "copilot#Accept()", { silent = true, expr = true })
@@ -163,6 +164,7 @@ return {
   },
   {
     "theprimeagen/refactoring.nvim",
+    lazy = false,
     dev = vim.fn.has "win32" == 0,
     keys = {
       {
@@ -259,10 +261,6 @@ return {
     config = true,
   },
   {
-    "jbyuki/one-small-step-for-vimkind",
-    lazy = true,
-  },
-  {
     "mfussenegger/nvim-dap-python",
     lazy = true,
     config = function()
@@ -272,8 +270,25 @@ return {
     end,
   },
   {
-    "rcarriga/nvim-dap-ui",
-    lazy = false,
+    "mxsdev/nvim-dap-vscode-js",
+    lazy = true,
+    dependencies = {
+      {
+        "microsoft/vscode-js-debug",
+        version = "1.x",
+        build = "npm i && npm run compile vsDebugServerBundle && mv dist out",
+      },
+    },
+    config = function()
+      require("dap-vscode-js").setup {
+        debugger_path = vim.fn.stdpath "data" .. "/lazy/vscode-js-debug",
+        adapters = { "pwa-node", "pwa-chrome", "pwa-msedge", "node-terminal", "pwa-extensionHost" },
+      }
+    end,
+  },
+  {
+    "mfussenegger/nvim-dap",
+    lazy = true,
     keys = {
       {
         "<leader>dc",
@@ -374,32 +389,14 @@ return {
       },
     },
     config = function()
-      local dap = require "dap"
-      local dapui = require "dapui"
-      dapui.setup()
-
-      dap.listeners.after.event_initialized["dapui_config"] = function()
-        dapui.open()
-      end
-      -- dap.listeners.before.event_terminated["dapui_config"] = function()
-      --     dapui.close()
-      -- end
-      -- dap.listeners.before.event_exited["dapui_config"] = function()
-      --     dapui.close()
-      -- end
-    end,
-  },
-  {
-    "mfussenegger/nvim-dap",
-    lazy = false,
-    config = function()
       vim.fn.sign_define("DapBreakpoint", { text = "⦿", texthl = "Error", linehl = "", numhl = "" })
       local dap = require "dap"
+      local dapui = require "dapui"
       dap.adapters.nlua = function(callback, config)
         callback {
           type = "server",
-          host = config.host,
-          port = config.port or 5005,
+          host = config.host or "127.0.0.1",
+          port = config.port or 8086,
         }
       end
 
@@ -407,18 +404,56 @@ return {
         {
           type = "nlua",
           request = "attach",
-          name = "nlua attach",
-          host = "127.0.0.1",
-          port = function()
-            local val = tonumber(vim.fn.input { prompt = "Port: " })
-            return val
-          end,
+          name = "Attach to running Neovim instance",
         },
       }
+
+      for _, language in ipairs { "typescript", "javascript", "svelte", "vue", "typescriptreact", "javascriptreact" } do
+        dap.configurations[language] = {}
+        if language == "javascript" then
+          table.insert(dap.configurations[language], {
+            type = "pwa-node",
+            request = "launch",
+            name = "Launch current file in new node process",
+            program = "${file}",
+            cwd = "${workspaceFolder}",
+          })
+        end
+
+        table.insert(dap.configurations[language], {
+          type = "pwa-node",
+          request = "attach",
+          processId = require("dap.utils").pick_process,
+          name = "Attach debugger to existing `node --inspect` process",
+          sourceMaps = true,
+          resolveSourceMapsLoations = { "${workspaceFolder}/**", "!**/node_modules/**" },
+          cwd = "${workspaceFolder}/src",
+          skipFiles = { "${workspaceFolder}/node_modules/**/*.js" },
+        })
+        table.insert(dap.configurations[language], {
+          type = "pwa-chrome",
+          request = "launch",
+          name = "Launch Chrome to debug client side code",
+          url = "http://localhost:3000",
+          sourceMaps = true,
+          webRoot = "${workspaceFolder}/src",
+          protocol = "inspector",
+          port = 9222,
+          skipFiles = { "${workspaceFolder}/node_modules/**/*.js", "**/@vite/*", "**/src/client/*", "**/src/*" },
+        })
+      end
+
+      dapui.setup()
+
+      dap.listeners.after.event_initialized["dapui_config"] = function()
+        dapui.open()
+      end
     end,
     dependencies = {
       "jbyuki/one-small-step-for-vimkind",
       "mfussenegger/nvim-dap-python",
+      "rcarriga/nvim-dap-ui",
+      "mxsdev/nvim-dap-vscode-js",
     },
   },
   {

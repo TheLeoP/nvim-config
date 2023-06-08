@@ -119,10 +119,10 @@ function M.jdtls_setup()
   end
 
   local eclipse_wd = vim.g.home_dir
-    .. "/java-workspace/"
-    .. vim.fn.fnamemodify(root_dir, ":h:t")
-    .. "/"
-    .. vim.fn.fnamemodify(root_dir, ":t")
+      .. "/java-workspace/"
+      .. vim.fn.fnamemodify(root_dir, ":h:t")
+      .. "/"
+      .. vim.fn.fnamemodify(root_dir, ":t")
   local extendedClientCapabilities = jdtls.extendedClientCapabilities
   extendedClientCapabilities.resolveAdditionalTextEditsSupport = true
 
