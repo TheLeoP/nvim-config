@@ -28,9 +28,9 @@ set updatetime=300
 
 if has('win32')
 	set undodir=~/undodir    "señala el directorio en el cual guardar los archivos de deshacer/rehacer
-	let &guifont = 'UbuntuMono NF:h15'
+	let &guifont = 'UbuntuMono Nerd Font Mono:h15'
 else
-	let &guifont = 'UbuntuMono NF:h10'
+	let &guifont = 'UbuntuMono Nerd Font Mono:h15'
 endif
 
 " lua
