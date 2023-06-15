@@ -89,12 +89,12 @@ return {
 
       local function on_new_config(new_config, _)
         if
-            new_config.init_options
-            and new_config.init_options.typescript
-            and new_config.init_options.typescript.tsdk == ""
+          new_config.init_options
+          and new_config.init_options.typescript
+          and new_config.init_options.typescript.tsdk == ""
         then
           new_config.init_options.typescript.tsdk = config.mason_root
-              .. "typescript-language-server/node_modules/typescript/lib"
+            .. "typescript-language-server/node_modules/typescript/lib"
         end
       end
 
@@ -153,12 +153,13 @@ return {
   },
   {
     "j-hui/fidget.nvim",
+    tag = "legacy",
     opts = {
       sources = {
         ["null-ls"] = {
           ignore = true,
         },
-      }
+      },
     },
   },
   {
@@ -170,6 +171,7 @@ return {
   },
   {
     "RRethy/vim-illuminate",
+    enabled = true,
     dependencies = {
       "neovim/nvim-lspconfig",
     },

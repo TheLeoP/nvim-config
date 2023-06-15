@@ -1,7 +1,9 @@
+local treesitter_dev = false
+
 return {
   {
     "nvim-treesitter/nvim-treesitter",
-    dev = false,
+    dev = treesitter_dev,
     build = ":TSUpdate",
     opts = {
       ensure_installed = "all",
@@ -94,18 +96,37 @@ return {
       if vim.fn.has "win32" == 1 then
         require("nvim-treesitter.install").compilers = { "clang" }
       end
-      require("nvim-treesitter.configs").setup(opts)
+      if treesitter_dev then
+        require("nvim-treesitter").setup(opts)
+      else
+        require("nvim-treesitter.configs").setup(opts)
+      end
     end,
     dependencies = {
       {
         "folke/twilight.nvim",
         config = true,
       },
-      "nvim-treesitter/nvim-treesitter-textobjects",
-      "nvim-treesitter/playground",
-      "windwp/nvim-ts-autotag",
-      "JoosepAlviste/nvim-ts-context-commentstring",
-      "andymass/vim-matchup",
+      {
+        "nvim-treesitter/nvim-treesitter-textobjects",
+        enabled = not treesitter_dev,
+      },
+      {
+        "nvim-treesitter/playground",
+        enabled = not treesitter_dev,
+      },
+      {
+        "windwp/nvim-ts-autotag",
+        enabled = not treesitter_dev,
+      },
+      {
+        "JoosepAlviste/nvim-ts-context-commentstring",
+        enabled = not treesitter_dev,
+      },
+      {
+        "andymass/vim-matchup",
+        enabled = not treesitter_dev,
+      },
     },
   },
 }

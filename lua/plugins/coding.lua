@@ -30,9 +30,6 @@ return {
     keys = {
       { "<leader>s", "<Plug>Ysurround", noremap = false, mode = "n" },
       { "<leader>S", "<Plug>YSurround", noremap = false, mode = "n" },
-      { "<leader>ss", "<Plug>Yssurround", noremap = false, mode = "n" },
-      { "<leader>Ss", "<Plug>YSsurround", noremap = false, mode = "n" },
-      { "<leader>SS", "<Plug>YSsurround", noremap = false, mode = "n" },
       { "<leader>sd", "<Plug>Dsurround", noremap = false, mode = "n" },
       { "<leader>sc", "<Plug>Csurround", noremap = false, mode = "n" },
       { "<leader>sC", "<Plug>CSurround", noremap = false, mode = "n" },
@@ -140,7 +137,14 @@ return {
     "github/copilot.vim",
     init = function()
       vim.g.copilot_no_tab_map = vim.v["true"]
-      vim.g.copilot_filetypes = { ["dap-repl"] = vim.v["false"] }
+      vim.g.copilot_filetypes = {
+        ["dap-repl"] = vim.v["false"],
+        ["dapui-scopes"] = vim.v["false"],
+        ["dapui-breakpoints"] = vim.v["false"],
+        ["dapui-stacks"] = vim.v["false"],
+        ["dapui-watches"] = vim.v["false"],
+        ["dapui-console"] = vim.v["false"],
+      }
     end,
     config = function()
       vim.api.nvim_set_keymap("i", "<c-f>", "copilot#Accept()", { silent = true, expr = true })
@@ -165,6 +169,7 @@ return {
   {
     "theprimeagen/refactoring.nvim",
     lazy = false,
+    enabled = true,
     dev = vim.fn.has "win32" == 0,
     keys = {
       {

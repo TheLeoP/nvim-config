@@ -3,7 +3,7 @@ vim.bo.spelllang = "es,en"
 vim.wo.wrap = true
 vim.wo.linebreak = true
 vim.wo.breakindent = true
-vim.wo.colorcolumn = 0
+vim.wo.colorcolumn = "0"
 vim.wo.conceallevel = 3
 
 vim.b[0].undo_ftplugin = "setlocal nospell nowrap nolinebreak nobreakindent conceallevel=0"
