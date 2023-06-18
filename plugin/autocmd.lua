@@ -1,6 +1,5 @@
-local group = vim.api.nvim_create_augroup("HighlightOnYank", {})
 vim.api.nvim_create_autocmd("TextYankPost", {
-  group = group,
+  group = vim.api.nvim_create_augroup("HighlightOnYank", {}),
   desc = "highlights yanked warea",
   callback = function()
     vim.highlight.on_yank()
