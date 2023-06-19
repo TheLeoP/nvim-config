@@ -164,7 +164,7 @@ return {
   },
   {
     "SmiteshP/nvim-navic",
-    config = true,
+    config = {},
     dependencies = {
       "neovim/nvim-lspconfig",
     },

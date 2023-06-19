@@ -1,10 +1,6 @@
-local a = require "plenary.async"
-
-local p_telescope = require "personal.util.telescope"
-
 local M = {}
 
-function M.get_last_terminal()
+local function get_last_terminal()
   local terminal_channels = {}
 
   for _, channel in pairs(vim.api.nvim_list_chans()) do
@@ -43,42 +39,9 @@ function M.visual_ejecutar_en_terminal()
     comandos = comandos .. comando .. fin_de_linea
   end
 
-  local term_chan = M.get_last_terminal()
+  local term_chan = get_last_terminal()
 
   vim.api.nvim_chan_send(term_chan, comandos)
-end
-
-function M.get_nombre_time_stamp()
-  local nombre = os.date "%Y-%m-%d %H-%M-%S" .. ".md"
-  return nombre
-end
-
-local get_nombre_input_o_timestamp = function(tipo)
-  local prompt = string.format("Ingrese el nombre de %s: ", tipo)
-  local nombre = vim.fn.input(prompt)
-  if nombre == "" then
-    nombre = M.get_nombre_time_stamp()
-  end
-  return nombre
-end
-
-function M.nueva_nota_U()
-  a.void(function()
-    local path = p_telescope.seleccionar_materia()
-    if path then
-      local nombre = get_nombre_input_o_timestamp "la nota"
-      local full_path = path .. "Apuntes/" .. nombre
-      vim.cmd.edit(full_path)
-    else
-      print "La entrada seleccionada no tiene path"
-    end
-  end)()
-end
-
-function M.nuevo_autoregistro()
-  local nombre = get_nombre_input_o_timestamp "el autoregistro"
-  local full_path = vim.g.documentos .. "/Personal/autoregistro/" .. nombre
-  vim.cmd.edit(full_path)
 end
 
 ---@param str string

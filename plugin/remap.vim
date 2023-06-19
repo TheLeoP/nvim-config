@@ -40,17 +40,6 @@ inoremap ; ;<c-g>u
 nnoremap <silent><expr> k (v:count > 0 ? "m'" . v:count : "") . 'k'
 nnoremap <silent><expr> j (v:count > 0 ? "m'" . v:count : "") . 'j'
 
-" manejo de linas en todos los modos
-xnoremap <silent> <a-j> :m '>+1<cr>gv=gv
-xnoremap <silent> <a-k> :m '<-2<cr>gv=gv
-nnoremap <silent> <a-j> :m .+1<cr>==
-nnoremap <silent> <a-k> :m .-2<cr>==
-inoremap <silent> <a-j> <esc>:m .+1<cr>==gi
-inoremap <silent> <a-k> <esc>:m .-2<cr>==gi
-
-vnoremap <silent> <a-h> <cmd>noautocmd normal! xhhp`<h<c-v>`>h<cr>
-vnoremap <silent> <a-l> <cmd>noautocmd normal! xp`<l<c-v>`>l<cr>
-
 nnoremap <silent> ]e <cmd>lua vim.diagnostic.goto_next()<cr>
 nnoremap <silent> [e <cmd>lua vim.diagnostic.goto_prev()<cr>
 
@@ -88,12 +77,8 @@ nnoremap <silent><leader><leader>x :call <SID>save_and_exec()<cr>
 " abierta
 vnoremap <silent> <leader><leader>e <cmd>lua require('personal.util.general').visual_ejecutar_en_terminal()<cr>
 
-nnoremap <leader>nn <cmd>lua require('personal.util.general').nueva_nota_U()<cr>
-nnoremap <leader>na <cmd>lua require('personal.util.general').nuevo_autoregistro()<cr>
-
-" borar palabra con <c-bs> o <c-h>
+" borrar palabra con <c-bs>
 inoremap <C-BS> 
-inoremap  
 
 " mejores macros
 nnoremap @ <cmd>execute "noautocmd normal! " . v:count1 . "@" . getcharstr()<cr>

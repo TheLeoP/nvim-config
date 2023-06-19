@@ -17,47 +17,8 @@ return {
           "dashboard",
         },
       },
-      incremental_selection = {
-        enable = true,
-        keymap = {
-          init_selection = "gnn",
-          node_incremental = "grn",
-          node_decremental = "grm",
-          scope_incremental = "grc",
-        },
-      },
       indent = {
         enable = false,
-      },
-      textobjects = {
-        select = {
-          enable = true,
-          lookahead = true,
-          keymaps = {
-            ["af"] = "@function.outer",
-            ["if"] = "@function.inner",
-            ["ac"] = "@class.outer",
-            ["ic"] = "@class.inner",
-            ["aa"] = "@parameter.outer",
-            ["ia"] = "@parameter.inner",
-            ["ao"] = "@block.outer",
-            ["io"] = "@block.inner",
-          },
-          selection_modes = {
-            ["@function.outer"] = "v",
-            ["@class.outer"] = "V",
-            ["@block.outer"] = "V",
-          },
-        },
-        swap = {
-          enable = true,
-          swap_next = {
-            ["<leader><leader>k"] = "@parameter.inner",
-          },
-          swap_previous = {
-            ["<leader><leader>j"] = "@parameter.inner",
-          },
-        },
       },
       move = {
         enable = true,
@@ -79,9 +40,6 @@ return {
           ["[]"] = "@class.outer",
         },
       },
-      autotag = {
-        enable = true,
-      },
       context_commentstring = {
         enable = true,
       },
@@ -90,6 +48,32 @@ return {
       },
       matchup = {
         enable = true,
+      },
+      textobjects = {
+        enable = true,
+        move = {
+          enable = true,
+          set_jumps = true,
+          goto_next_start = {
+            ["]m"] = "@function.outer",
+            ["]]"] = { query = "@class.outer", desc = "Next class start" },
+            -- You can pass a query group to use query from `queries/<lang>/<query_group>.scm file in your runtime path.
+            -- Below example nvim-treesitter's `locals.scm` and `folds.scm`. They also provide highlights.scm and indent.scm.
+            ["]z"] = { query = "@fold", query_group = "folds", desc = "Next fold" },
+          },
+          goto_next_end = {
+            ["]M"] = "@function.outer",
+            ["]["] = "@class.outer",
+          },
+          goto_previous_start = {
+            ["[m"] = "@function.outer",
+            ["[["] = "@class.outer",
+          },
+          goto_previous_end = {
+            ["[M"] = "@function.outer",
+            ["[]"] = "@class.outer",
+          },
+        },
       },
     },
     config = function(_, opts)
@@ -105,7 +89,7 @@ return {
     dependencies = {
       {
         "folke/twilight.nvim",
-        config = true,
+        config = {},
       },
       {
         "nvim-treesitter/nvim-treesitter-textobjects",
@@ -116,16 +100,15 @@ return {
         enabled = not treesitter_dev,
       },
       {
-        "windwp/nvim-ts-autotag",
-        enabled = not treesitter_dev,
-      },
-      {
         "JoosepAlviste/nvim-ts-context-commentstring",
         enabled = not treesitter_dev,
       },
       {
         "andymass/vim-matchup",
         enabled = not treesitter_dev,
+      },
+      {
+        "nvim-treesitter/nvim-treesitter-textobjects",
       },
     },
   },
