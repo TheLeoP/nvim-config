@@ -1,3 +1,58 @@
+local function debug_menu()
+  local widgets = require "dap.ui.widgets"
+
+  local component = {
+    ["sessions"] = widgets.sessions,
+    ["scopes"] = widgets.scopes,
+    ["frames"] = widgets.frames,
+    ["expression"] = widgets.expression,
+    ["threads"] = widgets.threads,
+  }
+
+  local location = {
+    ["h"] = function(widget)
+      return widgets.sidebar(widget, nil, "topleft 30 vsplit")
+    end,
+    ["k"] = function(widget)
+      return widgets.sidebar(widget, nil, "topleft 7 split")
+    end,
+    ["j"] = function(widget)
+      return widgets.sidebar(widget, nil, "7 split")
+    end,
+    ["l"] = widgets.sidebar,
+    ["c"] = widgets.centered_float,
+  }
+
+  vim.ui.select(vim.tbl_keys(component), { prompt = "Select debug widget:" }, function(choice)
+    local separator = { " | ", "WarningMsg" }
+
+    vim.cmd [[echo '' | redraw]]
+            --stylua: ignore
+            vim.api.nvim_echo({
+              {"h", "Question"}, {": left"},
+              separator,
+              {"l", "Question"}, {": right"},
+              separator,
+              {"k", "Question"}, {": up"},
+              separator,
+              {"j", "Question"}, {": down"}
+            }, false, {})
+
+    local ok, char = pcall(vim.fn.getcharstr)
+    vim.cmd [[echo '' | redraw]]
+
+    if not ok or char == "\27" then
+      return
+    end
+
+    if char == "c" then
+      location[char](component[choice])
+    else
+      location[char](component[choice]).toggle()
+    end
+  end)
+end
+
 return {
   "tpope/vim-sleuth",
   {
@@ -139,11 +194,6 @@ return {
       vim.g.copilot_no_tab_map = vim.v["true"]
       vim.g.copilot_filetypes = {
         ["dap-repl"] = vim.v["false"],
-        ["dapui-scopes"] = vim.v["false"],
-        ["dapui-breakpoints"] = vim.v["false"],
-        ["dapui-stacks"] = vim.v["false"],
-        ["dapui-watches"] = vim.v["false"],
-        ["dapui-console"] = vim.v["false"],
       }
     end,
     config = function()
@@ -296,45 +346,44 @@ return {
     lazy = true,
     keys = {
       {
+        "<leader>dm",
+        debug_menu,
+        mode = "n",
+      },
+      {
+        "<leader>dp",
+        function()
+          require("dap.ui.widgets").preview()
+        end,
+        mode = "n",
+      },
+      {
+        "<leader>dh",
+        function()
+          require("dap.ui.widgets").hover()
+        end,
+        mode = "n",
+      },
+      {
         "<leader>dc",
         function()
           require("dap").continue()
         end,
         mode = "n",
-        silent = true,
-      },
-      {
-        "<leader>ds",
-        function()
-          require("dap").continue()
-        end,
-        mode = "n",
-        silent = true,
       },
       {
         "<leader>dr",
         function()
-          require("dap").disconnect { restart = true }
+          require("dap").repl.toggle()
         end,
         mode = "n",
-        silent = true,
       },
       {
         "<leader>de",
         function()
           require("dap").terminate()
-          require("dapui").close()
         end,
         mode = "n",
-        silent = true,
-      },
-      {
-        "<leader>dp",
-        function()
-          require("dap").pause()
-        end,
-        mode = "n",
-        silent = true,
       },
       {
         "<leader>db",
@@ -342,7 +391,6 @@ return {
           require("dap").toggle_breakpoint()
         end,
         mode = "n",
-        silent = true,
       },
       {
         "<leader>dB",
@@ -350,7 +398,6 @@ return {
           require("dap").set_breakpoint(vim.fn.input "Breakpoint condition: ")
         end,
         mode = "n",
-        silent = true,
       },
       {
         "<leader>dv",
@@ -358,7 +405,6 @@ return {
           require("dap").step_over()
         end,
         mode = "n",
-        silent = true,
       },
       {
         "<leader>dsi",
@@ -366,7 +412,6 @@ return {
           require("dap").step_into()
         end,
         mode = "n",
-        silent = true,
       },
       {
         "<leader>dso",
@@ -374,7 +419,6 @@ return {
           require("dap").step_out()
         end,
         mode = "n",
-        silent = true,
       },
       {
         "<leader>dsb",
@@ -382,7 +426,6 @@ return {
           require("dap").step_back()
         end,
         mode = "n",
-        silent = true,
       },
       {
         "<leader>dtc",
@@ -390,13 +433,11 @@ return {
           require("dap").run_to_cursor()
         end,
         mode = "n",
-        silent = true,
       },
     },
     config = function()
       vim.fn.sign_define("DapBreakpoint", { text = "⦿", texthl = "Error", linehl = "", numhl = "" })
       local dap = require "dap"
-      local dapui = require "dapui"
       dap.adapters.nlua = function(callback, config)
         callback {
           type = "server",
@@ -447,17 +488,10 @@ return {
           skipFiles = { "${workspaceFolder}/node_modules/**/*.js", "**/@vite/*", "**/src/client/*", "**/src/*" },
         })
       end
-
-      dapui.setup()
-
-      dap.listeners.after.event_initialized["dapui_config"] = function()
-        dapui.open()
-      end
     end,
     dependencies = {
       "jbyuki/one-small-step-for-vimkind",
       "mfussenegger/nvim-dap-python",
-      "rcarriga/nvim-dap-ui",
       "mxsdev/nvim-dap-vscode-js",
     },
   },
