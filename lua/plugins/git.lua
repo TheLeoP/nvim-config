@@ -61,7 +61,7 @@ return {
   },
   {
     "sindrets/diffview.nvim",
-    config = {},
+    opts = {},
     dependencies = {
       "kyazdani42/nvim-web-devicons",
     },

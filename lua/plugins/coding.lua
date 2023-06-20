@@ -263,7 +263,7 @@ return {
         mode = "n",
       },
     },
-    config = {},
+    opts = {},
   },
   {
     "mfussenegger/nvim-dap-python",
@@ -472,7 +472,7 @@ return {
   },
   {
     "danymat/neogen",
-    config = {},
+    opts = {},
     keys = {
       { "<leader>gf", "<cmd>Neogen func<cr>", mode = "n" },
       { "<leader>gF", "<cmd>Neogen file<cr>", mode = "n" },

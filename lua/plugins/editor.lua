@@ -225,11 +225,11 @@ return {
   },
   {
     "NTBBloodbath/rest.nvim",
-    config = {},
+    opts = {},
   },
   {
     "ggandor/leap-spooky.nvim",
-    config = {},
+    opts = {},
     dependencies = {
       "ggandor/leap.nvim",
     },

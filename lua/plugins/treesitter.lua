@@ -89,7 +89,7 @@ return {
     dependencies = {
       {
         "folke/twilight.nvim",
-        config = {},
+        opts = {},
       },
       {
         "nvim-treesitter/nvim-treesitter-textobjects",
