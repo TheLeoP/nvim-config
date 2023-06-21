@@ -321,7 +321,8 @@ return {
     config = function()
       local mason_root = vim.fn.stdpath "data" .. "/mason/packages/"
 
-      require("dap-python").setup(mason_root .. "debugpy/venv/Scripts/pyton.exe")
+      local tail = vim.fn.has "win32" == 0 and "debugpy/venv/bin/python" or "debugpy/venv/Scripts/python.exe"
+      require("dap-python").setup(mason_root .. tail)
     end,
   },
   {
