@@ -89,6 +89,7 @@ return {
     dependencies = {
       {
         "folke/twilight.nvim",
+        enabled = not treesitter_dev,
         opts = {},
       },
       {
@@ -106,9 +107,9 @@ return {
       {
         "andymass/vim-matchup",
         enabled = not treesitter_dev,
-      },
-      {
-        "nvim-treesitter/nvim-treesitter-textobjects",
+        init = function()
+          vim.g.matchup_matchparen_deferred = 1
+        end,
       },
     },
   },

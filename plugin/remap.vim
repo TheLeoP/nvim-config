@@ -79,6 +79,7 @@ vnoremap <silent> <leader><leader>e <cmd>lua require('personal.util.general').vi
 
 " borrar palabra con <c-bs>
 inoremap <C-BS> 
+inoremap  
 
 " mejores macros
 nnoremap @ <cmd>execute "noautocmd normal! " . v:count1 . "@" . getcharstr()<cr>

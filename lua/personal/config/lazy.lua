@@ -37,9 +37,4 @@ require("lazy").setup("plugins", {
       lazy = "💤 ",
     },
   },
-  performance = {
-    rtp = {
-      reset = false,
-    },
-  },
 })
