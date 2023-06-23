@@ -1,47 +1,33 @@
+local api = vim.api
+
 local M = {}
 
 local function get_last_terminal()
   local terminal_channels = {}
 
-  for _, channel in pairs(vim.api.nvim_list_chans()) do
+  for _, channel in pairs(api.nvim_list_chans()) do
     if channel["mode"] == "terminal" and channel["pty"] ~= "" then
       table.insert(terminal_channels, channel)
     end
   end
 
   table.sort(terminal_channels, function(left, right)
-    return left["buffer"] < right["buffer"]
+    return left["buffer"] > right["buffer"]
   end)
 
   return terminal_channels[1]["id"]
 end
 
+local line_end = vim.fn.has "win32" == 1 and "\r\n" or "\n"
+
 function M.visual_ejecutar_en_terminal()
-  -- cierro el modo visual para tener guardados correctamente las marcas
-  vim.cmd "normal "
+  local start_col, _start_row = unpack(api.nvim_buf_get_mark(0, "<"))
+  local end_col, _end_row = unpack(api.nvim_buf_get_mark(0, ">"))
 
-  -- par {columna, fila} donde columan es base 1 y fila es base 0
-  local inicio = vim.api.nvim_buf_get_mark(0, "<")
-  local fin = vim.api.nvim_buf_get_mark(0, ">")
+  local lines = api.nvim_buf_get_lines(0, start_col - 1, end_col, true)
 
-  -- ya que el rango final no es inclusivo y el índice es base 1, se resta 1 al inicio
-  local lineas = vim.api.nvim_buf_get_lines(0, inicio[1] - 1, fin[1], true)
-
-  local fin_de_linea
-  if vim.fn.has "win32" == 1 then
-    fin_de_linea = "\r"
-  else
-    fin_de_linea = "\n"
-  end
-
-  local comandos = ""
-  for _, comando in ipairs(lineas) do
-    comandos = comandos .. comando .. fin_de_linea
-  end
-
-  local term_chan = get_last_terminal()
-
-  vim.api.nvim_chan_send(term_chan, comandos)
+  local commands = table.concat(lines, line_end)
+  api.nvim_chan_send(get_last_terminal(), commands)
 end
 
 ---@param str string

@@ -33,20 +33,6 @@ return {
         mode = "n",
       },
       {
-        "<leader>fnc",
-        function()
-          require("personal.util.telescope").search_nota_ciclo_actual_contenido()
-        end,
-        mode = "n",
-      },
-      {
-        "<leader>fnn",
-        function()
-          require("personal.util.telescope").search_nota_ciclo_actual_nombre()
-        end,
-        mode = "n",
-      },
-      {
         "<leader>fan",
         function()
           require("personal.util.telescope").search_autoregistro_nombre()
@@ -108,7 +94,7 @@ return {
   },
   {
     "nvim-telescope/telescope-fzf-native.nvim",
-    build = vim.g.make_cmd,
+    build = "make",
   },
   {
     "nvim-telescope/telescope-file-browser.nvim",

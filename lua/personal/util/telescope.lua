@@ -47,38 +47,6 @@ end
 
 M.seleccionar_materia = a.wrap(seleccionar_materia, 1)
 
-function M.search_nota_ciclo_actual_contenido()
-  a.void(function()
-    local path = M.seleccionar_materia()
-    if path then
-      local full_path = path .. "Apuntes/"
-
-      require("telescope.builtin").live_grep {
-        cwd = full_path,
-        prompt_title = "Buscar nota por contenido",
-      }
-    else
-      print "La entrada seleccionada no tiene path"
-    end
-  end)
-end
-
-function M.search_nota_ciclo_actual_nombre()
-  a.void(function()
-    local path = M.seleccionar_materia()
-    if path then
-      local full_path = path .. "Apuntes/"
-
-      require("telescope.builtin").find_files {
-        cwd = full_path,
-        prompt_title = "Buscar nota por nombre",
-      }
-    else
-      print "La entrada seleccionada no tiene path"
-    end
-  end)()
-end
-
 function M.search_autoregistro_nombre()
   require("telescope").extensions.file_browser.file_browser {
     prompt_title = "< Buscar autoregistro por nombre >",

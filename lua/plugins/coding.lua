@@ -99,6 +99,8 @@ return {
     "ms-jpq/coq_nvim",
     branch = "coq",
     init = function()
+      vim.opt.shortmess:append "c"
+
       vim.o.completeopt = "menuone,noselect,noinsert"
       vim.o.showmode = false
 
@@ -500,6 +502,7 @@ return {
     "andymass/vim-matchup",
     init = function()
       vim.g.loaded_matchit = 1
+      vim.g.matchup_matchparen_deferred = 1
       vim.g.matchup_matchparen_offscreen = {
         method = "popup",
       }
@@ -514,42 +517,42 @@ return {
       { "<leader>gc", "<cmd>Neogen class<cr>", mode = "n" },
       { "<leader>gt", "<cmd>Neogen type<cr>", mode = "n" },
     },
-    {
-      "echasnovski/mini.nvim",
-      lazy = false,
-      version = false,
-      dependencies = { "nvim-treesitter-textobjects" },
-      config = function()
-        local ai = require "mini.ai"
+  },
+  {
+    "echasnovski/mini.nvim",
+    lazy = false,
+    version = false,
+    dependencies = { "nvim-treesitter-textobjects" },
+    config = function()
+      local ai = require "mini.ai"
 
-        require("mini.ai").setup {
-          n_lines = 500,
-          custom_textobjects = {
-            o = ai.gen_spec.treesitter({
-              a = { "@block.outer", "@conditional.outer", "@loop.outer" },
-              i = { "@block.inner", "@conditional.inner", "@loop.inner" },
-            }, {}),
-            f = ai.gen_spec.treesitter({ a = "@function.outer", i = "@function.inner" }, {}),
-            c = ai.gen_spec.treesitter({ a = "@class.outer", i = "@class.inner" }, {}),
-            F = ai.gen_spec.function_call(),
-          },
-          mappings = {
-            around_last = "",
-            inside_last = "",
+      require("mini.ai").setup {
+        n_lines = 500,
+        custom_textobjects = {
+          o = ai.gen_spec.treesitter({
+            a = { "@block.outer", "@conditional.outer", "@loop.outer" },
+            i = { "@block.inner", "@conditional.inner", "@loop.inner" },
+          }, {}),
+          f = ai.gen_spec.treesitter({ a = "@function.outer", i = "@function.inner" }, {}),
+          c = ai.gen_spec.treesitter({ a = "@class.outer", i = "@class.inner" }, {}),
+          F = ai.gen_spec.function_call(),
+        },
+        mappings = {
+          around_last = "",
+          inside_last = "",
 
-            goto_left = "g{",
-            goto_right = "g}",
-          },
-        }
+          goto_left = "g{",
+          goto_right = "g}",
+        },
+      }
 
-        require("mini.align").setup()
-        require("mini.move").setup {
-          mappings = {
-            line_right = "",
-            line_left = "",
-          },
-        }
-      end,
-    },
+      require("mini.align").setup()
+      require("mini.move").setup {
+        mappings = {
+          line_right = "",
+          line_left = "",
+        },
+      }
+    end,
   },
 }

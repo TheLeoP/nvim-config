@@ -118,7 +118,7 @@ function M.jdtls_setup()
     return
   end
 
-  local eclipse_wd = vim.g.home_dir
+  local eclipse_wd = vim.api.nvim_eval "$HOME"
     .. "/java-workspace/"
     .. vim.fn.fnamemodify(root_dir, ":h:t")
     .. "/"

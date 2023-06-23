@@ -107,9 +107,6 @@ return {
       {
         "andymass/vim-matchup",
         enabled = not treesitter_dev,
-        init = function()
-          vim.g.matchup_matchparen_deferred = 1
-        end,
       },
     },
   },

@@ -33,15 +33,9 @@ else
 	let &guifont = 'UbuntuMono Nerd Font Mono:h15'
 endif
 
-" lua
-let g:vimsyn_embed = 'l'
-
 if executable('rg')
 	set grepprg=rg\ --vimgrep\ --hidden
 endif
-
-" autocompletion
-set shortmess+=c
 
 " mouse
 set mouse=a
@@ -53,6 +47,3 @@ set splitright
 set laststatus=3
 
 set cursorline
-
-set timeoutlen=500
-let g:cursorhold_updatetime = 100

@@ -51,31 +51,9 @@ tnoremap <c-{><c-{> <c-\><c-n>
 nnoremap <silent> <leader>w :w<cr>
 nnoremap <silent> <leader>q :q<cr>
 
-" ejecutar archivos
-function! s:executor() abort
-    if &filetype == 'lua'
-        execute(printf(":lua %s", getline(".")))
-    elseif &filetype == 'vim'
-        exe getline(".")
-    endif
-endfunction
-
-function! s:save_and_exec() abort
-    if &filetype == 'vim'
-        :silent! write
-        :source %
-    elseif &filetype == 'lua'
-        :silent! write
-        :luafile %
-    endif
-endfunction
-
-nnoremap <silent><leader>x :call <SID>executor()<cr>
-nnoremap <silent><leader><leader>x :call <SID>save_and_exec()<cr>
-
 " permite ejecutar un comando seleccionado visualmente en la última consola
 " abierta
-vnoremap <silent> <leader><leader>e <cmd>lua require('personal.util.general').visual_ejecutar_en_terminal()<cr>
+xnoremap <silent> <leader><leader>e :lua require('personal.util.general').visual_ejecutar_en_terminal()<cr>
 
 " borrar palabra con <c-bs>
 inoremap <C-BS> 
