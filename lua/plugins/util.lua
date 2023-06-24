@@ -7,6 +7,7 @@ return {
         group = vim.api.nvim_create_augroup("Plenary test", { clear = true }),
         pattern = "*_spec.lua",
         callback = function(opts)
+          ---@type integer
           local bufnr = opts.buf
           vim.keymap.set("n", "t", "<Plug>PlenaryTestFile", { buffer = bufnr })
         end,

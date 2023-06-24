@@ -78,6 +78,17 @@ return {
         capabilities = config.capabilities,
         settings = {
           Lua = {
+            diagnostics = {
+              groupFileStatus = {
+                strict = "Opened",
+                strong = "Opened",
+              },
+              groupSeverity = {
+                strict = "Warning",
+                strong = "Warning",
+              },
+              unusedLocalExclude = { "_*" },
+            },
             workspace = {
               checkThirdParty = false,
             },
@@ -93,6 +104,7 @@ return {
           and new_config.init_options.typescript
           and new_config.init_options.typescript.tsdk == ""
         then
+          ---@type string
           new_config.init_options.typescript.tsdk = config.mason_root
             .. "typescript-language-server/node_modules/typescript/lib"
         end
@@ -120,6 +132,7 @@ return {
       lspconfig.powershell_es.setup {
         on_attach = config.on_attach_general,
         capabilities = config.capabilities,
+        ---@type string
         bundle_path = config.mason_root .. "powershell-editor-services",
       }
 

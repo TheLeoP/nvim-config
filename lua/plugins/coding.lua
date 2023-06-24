@@ -191,22 +191,21 @@ return {
     end,
   },
   {
-    "github/copilot.vim",
-    init = function()
-      vim.g.copilot_no_tab_map = vim.v["true"]
-      vim.g.copilot_filetypes = {
-        ["dap-repl"] = vim.v["false"],
-      }
-    end,
-    config = function()
-      vim.api.nvim_set_keymap("i", "<c-f>", "copilot#Accept()", { silent = true, expr = true })
-      vim.keymap.set("i", "<M-{>", vim.fn["copilot#Next"])
-      vim.keymap.set("i", "<M-}>", vim.fn["copilot#Previous"])
-      vim.keymap.set("i", "<M-'>", vim.fn["copilot#Suggest"])
-
-      vim.keymap.set("i", "<c-]>", vim.fn["copilot#Dismiss"])
-      vim.keymap.set("i", "", vim.fn["copilot#Dismiss"])
-    end,
+    "zbirenbaum/copilot.lua",
+    opts = {
+      suggestion = {
+        auto_trigger = true,
+        keymap = {
+          accept = "<c-f>",
+          next = "<M-}>",
+          prev = "<M-{>",
+        },
+      },
+      filetypes = {
+        ["dap-repl"] = false,
+        telescopeprompt = false,
+      },
+    },
   },
   {
     "kristijanhusak/vim-dadbod-ui",
@@ -321,6 +320,7 @@ return {
     "mfussenegger/nvim-dap-python",
     lazy = true,
     config = function()
+      ---@type string
       local mason_root = vim.fn.stdpath "data" .. "/mason/packages/"
 
       local tail = vim.fn.has "win32" == 0 and "debugpy/venv/bin/python" or "debugpy/venv/Scripts/python.exe"

@@ -18,10 +18,12 @@ local function get_last_terminal()
   return terminal_channels[1]["id"]
 end
 
-local line_end = vim.fn.has "win32" == 1 and "\r\n" or "\n"
+local line_end = vim.fn.has "win32" == 1 and "\r\n" or "\r\n"
 
 function M.visual_ejecutar_en_terminal()
+  --- @type integer, integer
   local start_col, _start_row = unpack(api.nvim_buf_get_mark(0, "<"))
+  --- @type integer, integer
   local end_col, _end_row = unpack(api.nvim_buf_get_mark(0, ">"))
 
   local lines = api.nvim_buf_get_lines(0, start_col - 1, end_col, true)
@@ -35,11 +37,13 @@ end
 ---@param j integer|nil end of the substring exclusive (base 1)
 ---@return string the substring
 function M.str_multibyte_sub(str, i, j)
-  local length = vim.str_utfindex(str)
+  local length = vim.str_utfindex(str) --[[@as integer]]
   if i < 0 then
+    --- @type integer
     i = i + length + 1
   end
   if j and j < 0 then
+    --- @type integer
     j = j + length + 1
   end
   local u = (i > 0) and i or 1

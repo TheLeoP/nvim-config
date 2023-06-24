@@ -137,10 +137,12 @@ return {
         on_project_selection = function()
           local state = require "telescope.actions.state"
           local config = require "session_manager.config"
+          --- @type {value: string}
           local entry = state.get_selected_entry()
 
           vim.cmd.tcd(entry.value)
 
+          --- @type {exists: fun():boolean}
           local session_name = config.dir_to_session_filename { filename = vim.loop.cwd() }
           if not session_name:exists() then
             return true
@@ -247,8 +249,10 @@ return {
           local p = Path:new(full_path)
           local relative_p = Path:new(p:make_relative())
 
+          ---@type string
           local relative_path = relative_p:shorten(opts.length)
 
+          ---@type string ,string
           local iconStr, name = devicons.get_icon(filename, extension)
           local fg = name and vim.fn.synIDattr(vim.fn.hlID(name), "fg") or "white"
 
@@ -297,7 +301,9 @@ return {
         },
         hl = function()
           return {
+            --- @type string
             name = vi_mode.get_mode_highlight_name(),
+            --- @type string
             bg = vi_mode.get_mode_color(),
             fg = "bg",
             style = "bold",
@@ -307,6 +313,7 @@ return {
           return {
             str = " ",
             hl = {
+              --- @type string
               bg = vi_mode.get_mode_color(),
             },
             always_visible = true,
@@ -316,6 +323,7 @@ return {
           return {
             str = " ",
             hl = {
+              --- @type string
               bg = vi_mode.get_mode_color(),
             },
             always_visible = true,
@@ -325,6 +333,7 @@ return {
 
       table.insert(statusline_components.active[1], {
         provider = "git_branch",
+        --- @type string
         enabled = vim.b.gitsigns_head,
         hl = {
           fg = "lightblue",
@@ -498,6 +507,7 @@ return {
           if event == nil or event.client == nil then
             return
           end
+          --- @type string
           local name = event.client.name
           if name == "Firenvim" then
             vim.o.laststatus = 0

@@ -5,7 +5,7 @@ local jdtls_dap = require "jdtls.dap"
 local jdtls_setup = require "jdtls.setup"
 local navic = require "nvim-navic"
 
-M.mason_root = vim.fn.stdpath "data" .. "/mason/packages/"
+M.mason_root = vim.fn.stdpath "data" .. "/mason/packages/" --[[@as string]]
 
 M.capabilities = vim.lsp.protocol.make_client_capabilities()
 M.capabilities.textDocument.completion.completionItem.snippetSupport = true

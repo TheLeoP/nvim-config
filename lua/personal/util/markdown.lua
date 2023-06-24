@@ -55,7 +55,9 @@ end
 
 ---@param surrounding string
 local toggle_surround = function(surrounding)
+  ---@type integer, integer
   local left_row, left_col = unpack(vim.api.nvim_buf_get_mark(0, "["))
+  ---@type integer, integer
   local right_row, right_col = unpack(vim.api.nvim_buf_get_mark(0, "]"))
 
   local line = vim.api.nvim_buf_get_lines(0, left_row - 1, left_row, true)[1]

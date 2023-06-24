@@ -2,6 +2,7 @@ return {
   {
     "udayvir-singh/tangerine.nvim",
     opts = {
+      ---@type string
       target = vim.fn.stdpath [[data]] .. "/tangerine",
       rtpdirs = {
         "plugin",

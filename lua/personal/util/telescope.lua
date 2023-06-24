@@ -28,7 +28,9 @@ end
 
 local function seleccionar_materia(callback)
   local cerrar_y_llamar_callback = function(prompt_bufnr)
+    ---@type {path: string}
     local selected_entry = actions_state.get_selected_entry()
+    --- @type string
     local path = selected_entry.path .. "/"
     actions.close(prompt_bufnr)
     callback(path)
