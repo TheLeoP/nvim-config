@@ -108,6 +108,14 @@ return {
         "andymass/vim-matchup",
         enabled = not treesitter_dev,
       },
+      {
+        "LiadOZ/nvim-dap-repl-highlights",
+        opts = {},
+      },
+      {
+        "nvim-treesitter/nvim-treesitter-context",
+        opts = {},
+      },
     },
   },
 }
