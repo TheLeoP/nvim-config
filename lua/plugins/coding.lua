@@ -11,7 +11,7 @@ local function debug_menu()
 
   local location = {
     ["h"] = function(widget)
-      return widgets.sidebar(widget, nil, "topleft 30 vsplit")
+      return widgets.sidebar(widget, nil, "topleft 50 vsplit")
     end,
     ["k"] = function(widget)
       return widgets.sidebar(widget, nil, "topleft 7 split")
@@ -19,7 +19,9 @@ local function debug_menu()
     ["j"] = function(widget)
       return widgets.sidebar(widget, nil, "7 split")
     end,
-    ["l"] = widgets.sidebar,
+    ["l"] = function(widget)
+      return widgets.sidebar(widget, nil, "50 vsplit")
+    end,
     ["c"] = widgets.centered_float,
   }
 
@@ -250,10 +252,9 @@ return {
       {
         "<leader>ai",
         function()
-          vim.cmd "normal "
           require("refactoring").refactor "Inline Variable"
         end,
-        mode = "x",
+        mode = { "n", "x" },
       },
       {
         "<leader>abb",
@@ -266,14 +267,6 @@ return {
         "<leader>abf",
         function()
           require("refactoring").refactor "Extract Block To File"
-        end,
-        mode = "n",
-      },
-      {
-        "<leader>ai",
-        function()
-          vim.cmd "normal "
-          require("refactoring").refactor "Inline Variable"
         end,
         mode = "n",
       },
@@ -310,6 +303,13 @@ return {
         "<leader>ac",
         function()
           require("refactoring").debug.cleanup {}
+        end,
+        mode = "n",
+      },
+      {
+        "<leader>aq",
+        function()
+          require("refactoring").refactor(178)
         end,
         mode = "n",
       },
