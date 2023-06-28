@@ -73,7 +73,6 @@ return {
     keys = {
       { "<leader>r", "<Plug>ReplaceWithRegisterVisual", mode = "x" },
       { "<leader>r", "<Plug>ReplaceWithRegisterOperator", mode = "n" },
-      { "<leader>rr", "<Plug>ReplaceWithRegisterLine", mode = "n" },
     },
   },
   {
