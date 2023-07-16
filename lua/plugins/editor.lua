@@ -223,7 +223,6 @@ return {
         "s",
         mode = { "n", "x", "o" },
         function()
-          -- default options: exact mode, multi window, all directions, with a backdrop
           require("flash").jump()
         end,
         desc = "Flash",
@@ -232,7 +231,6 @@ return {
         "S",
         mode = { "n", "o", "x" },
         function()
-          -- show labeled treesitter nodes around the cursor
           require("flash").treesitter()
         end,
         desc = "Flash Treesitter",
@@ -241,19 +239,25 @@ return {
         "r",
         mode = "o",
         function()
-          -- jump to a remote location to execute the operator
           require("flash").remote()
         end,
         desc = "Remote Flash",
       },
       {
         "R",
-        mode = { "n", "o", "x" },
+        mode = { "o", "x" },
         function()
-          -- show labeled treesitter nodes around the search matches
           require("flash").treesitter_search()
         end,
-        desc = "Treesitter Search",
+        desc = "Flash Treesitter Search",
+      },
+      {
+        "<c-s>",
+        mode = { "c" },
+        function()
+          require("flash").toggle()
+        end,
+        desc = "Toggle Flash Search",
       },
     },
   },

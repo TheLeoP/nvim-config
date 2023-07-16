@@ -60,6 +60,7 @@ return {
         "intelephense",
         "prismals",
         "pyright",
+        "solargraph",
         "eslint",
       }
 
@@ -72,7 +73,7 @@ return {
 
       -- lua
 
-      require("neodev").setup {}
+      require("neodev").setup()
       lspconfig.lua_ls.setup {
         on_attach = config.on_attach_general,
         capabilities = config.capabilities,

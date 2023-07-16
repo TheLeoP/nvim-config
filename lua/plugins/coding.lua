@@ -227,7 +227,6 @@ return {
       {
         "<leader>ae",
         function()
-          vim.cmd "normal "
           require("refactoring").refactor "Extract Function"
         end,
         mode = "x",
@@ -235,7 +234,6 @@ return {
       {
         "<leader>af",
         function()
-          vim.cmd "normal "
           require("refactoring").refactor "Extract Function To File"
         end,
         mode = "x",
@@ -243,7 +241,6 @@ return {
       {
         "<leader>av",
         function()
-          vim.cmd "normal "
           require("refactoring").refactor "Extract Variable"
         end,
         mode = "x",
@@ -286,14 +283,13 @@ return {
       {
         "<leader>apv",
         function()
-          require("refactoring").debug.print_var { below = true, normal = true }
+          require("refactoring").debug.print_var { below = true }
         end,
-        mode = "n",
+        mode = { "x", "n" },
       },
       {
         "<leader>apv",
         function()
-          vim.cmd "normal "
           require("refactoring").debug.print_var { below = true }
         end,
         mode = "x",

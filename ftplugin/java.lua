@@ -1,2 +1,2 @@
 vim.b.dispatch = "gradle compileJava"
-require("personal.config.lsp").jdtls_setup()
+pcall(require("personal.config.lsp").jdtls_setup)

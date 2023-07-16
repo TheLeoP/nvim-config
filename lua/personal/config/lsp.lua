@@ -70,6 +70,7 @@ M.on_attach_general = function(client, bufnr)
   local have_null_ls = #require("null-ls.sources").get_available(ft, "NULL_LS_FORMATTING") > 0
 
   local format = function()
+    local cursor = vim.api.nvim_win_get_cursor(0)
     vim.lsp.buf.format {
       filter = function(client)
         local have_null_ls = #require("null-ls.sources").get_available(ft, "NULL_LS_FORMATTING") > 0
@@ -81,6 +82,7 @@ M.on_attach_general = function(client, bufnr)
       end,
       bufnr = bufnr,
     }
+    vim.api.nvim_win_set_cursor(0, cursor)
   end
   if client.supports_method "textDocument/formatting" or have_null_ls then
     vim.api.nvim_create_autocmd("BufWritePre", {
