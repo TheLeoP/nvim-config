@@ -8,6 +8,7 @@ return {
         italic = {
           operators = false,
         },
+        inverse = false,
       }
       vim.cmd.colorscheme "gruvbox"
     end,
