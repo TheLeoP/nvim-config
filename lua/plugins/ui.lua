@@ -8,7 +8,7 @@ return {
         italic = {
           operators = false,
         },
-        inverse = false,
+        inverse = true,
       }
       vim.cmd.colorscheme "gruvbox"
     end,
@@ -44,7 +44,7 @@ return {
             action = "Telescope oldfiles",
           },
           {
-            icon = " ",
+            icon = " ",
             desc = "Proyectos recientes",
             action = "Telescope projects",
           },

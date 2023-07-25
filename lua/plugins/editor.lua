@@ -162,6 +162,7 @@ return {
           "!>apps",
           "!>k6",
           "!>Lucho",
+          "tryton.cfg",
           "index.norg",
           "build.gradle",
           "package.json",
@@ -217,7 +218,13 @@ return {
   },
   {
     "folke/flash.nvim",
-    opts = {},
+    opts = {
+      modes = {
+        search = {
+          enabled = false,
+        },
+      },
+    },
     keys = {
       {
         "s",

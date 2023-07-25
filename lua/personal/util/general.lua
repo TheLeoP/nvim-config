@@ -18,7 +18,7 @@ local function get_last_terminal()
   return terminal_channels[1]["id"]
 end
 
-local line_end = vim.fn.has "win32" == 1 and "\r\n" or "\r\n"
+local line_end = vim.fn.has "win32" == 1 and "\r\n" or "\n"
 
 function M.visual_ejecutar_en_terminal()
   --- @type integer, integer
