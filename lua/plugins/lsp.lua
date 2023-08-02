@@ -79,6 +79,9 @@ return {
         capabilities = config.capabilities,
         settings = {
           Lua = {
+            completion = {
+              showWord = "Disable",
+            },
             diagnostics = {
               groupFileStatus = {
                 strict = "Opened",
@@ -160,7 +163,7 @@ return {
         sources = {
           nls.builtins.formatting.prettierd,
           nls.builtins.formatting.stylua,
-          nls.builtins.formatting.black,
+          nls.builtins.formatting.black.with { extra_args = { "--line-length=80" } },
         },
       }
     end,
