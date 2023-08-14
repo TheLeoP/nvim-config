@@ -152,8 +152,8 @@ return {
           return false
         end,
         find_files = "on_project_selection",
-        detection_methods = { "pattern", "lsp" },
-        ignore_lsp = { "null-ls", "emmet_ls" },
+        detection_methods = { "lsp", "pattern" },
+        ignore_lsp = { "null-ls", "emmet_ls", "lemminx" },
         show_hidden = true,
         scope_chdir = "tab",
         patterns = {
@@ -162,7 +162,6 @@ return {
           "!>apps",
           "!>k6",
           "!>Lucho",
-          "tryton.cfg",
           "index.norg",
           "build.gradle",
           "package.json",
@@ -221,6 +220,9 @@ return {
     opts = {
       modes = {
         search = {
+          enabled = false,
+        },
+        char = {
           enabled = false,
         },
       },
@@ -519,7 +521,7 @@ return {
   "mbbill/undotree",
   {
     "glacambre/firenvim",
-    lazy = false,
+    lazy = not vim.g.started_by_firenvim,
     init = function()
       vim.g.firenvim_config = {
         globalSettings = {

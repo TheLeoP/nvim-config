@@ -50,10 +50,35 @@ return {
           end,
         },
       }
+      lspconfig.pyright.setup {
+        on_attach = config.on_attach_general,
+        capabilities = config.capabilities,
+        settings = {
+          python = {
+            analysis = {
+              autoSearchPaths = true,
+              diagnosticMode = "workspace",
+              useLibraryCodeForTypes = true,
+              diagnosticSeverityOverrides = {
+                reportGeneralTypeIssues = "warning",
+              },
+            },
+          },
+        },
+        root_dir = function()
+          return jdtls_setup.find_root {
+            "setup.cfg",
+            "pyproject.toml",
+            "setup.cfg",
+            "requirements.txt",
+            "Pipfile",
+            "pyrightconfig.json",
+          }
+        end,
+      }
 
       local servidores_generales = {
         "vimls",
-        "pyright",
         -- "clangd",
         "html",
         "cssls",
