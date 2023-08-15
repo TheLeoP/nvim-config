@@ -26,9 +26,6 @@ return {
       playground = {
         enable = true,
       },
-      matchup = {
-        enable = true,
-      },
       textobjects = {
         enable = true,
         move = {
@@ -82,10 +79,6 @@ return {
       },
       {
         "JoosepAlviste/nvim-ts-context-commentstring",
-        enabled = not treesitter_dev,
-      },
-      {
-        "andymass/vim-matchup",
         enabled = not treesitter_dev,
       },
       {

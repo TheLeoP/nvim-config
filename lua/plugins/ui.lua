@@ -6,7 +6,10 @@ return {
     config = function()
       require("gruvbox").setup {
         italic = {
+          strings = false,
+          comments = false,
           operators = false,
+          folds = false,
         },
         inverse = true,
       }

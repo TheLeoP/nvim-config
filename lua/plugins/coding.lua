@@ -69,13 +69,6 @@ return {
   },
   "tpope/vim-commentary",
   {
-    "vim-scripts/ReplaceWithRegister",
-    keys = {
-      { "<leader>r", "<Plug>ReplaceWithRegisterVisual", mode = "x" },
-      { "<leader>r", "<Plug>ReplaceWithRegisterOperator", mode = "n" },
-    },
-  },
-  {
     "kana/vim-textobj-line",
     dependencies = {
       "kana/vim-textobj-user",
@@ -494,16 +487,6 @@ return {
     },
   },
   {
-    "andymass/vim-matchup",
-    init = function()
-      vim.g.loaded_matchit = 1
-      vim.g.matchup_matchparen_deferred = 1
-      vim.g.matchup_matchparen_offscreen = {
-        method = "popup",
-      }
-    end,
-  },
-  {
     "danymat/neogen",
     opts = {},
     keys = {
@@ -546,6 +529,11 @@ return {
         mappings = {
           line_right = "",
           line_left = "",
+        },
+      }
+      require("mini.operators").setup {
+        replace = {
+          prefix = "<leader>r",
         },
       }
     end,

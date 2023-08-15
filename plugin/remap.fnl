@@ -13,3 +13,5 @@
                                      (vim.cmd.FnlBuffer)
                                      nil))
       "Execute current buffer (vim, lua or fennel)")
+
+(map! [n] :<leader><leader>t "<cmd>tab split<cr>")
