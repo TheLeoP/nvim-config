@@ -16,6 +16,15 @@ end
 vim.opt.runtimepath:prepend(lazypath)
 
 require("lazy").setup("plugins", {
+  performance = {
+    cache = {
+      enabled = false,
+    },
+    reset_packpath = false,
+    rtp = {
+      reset = false,
+    },
+  },
   dev = {
     path = vim.g.documentos .. "/Personal",
   },

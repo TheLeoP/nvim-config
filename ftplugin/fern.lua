@@ -7,6 +7,7 @@ local ctrlL = function()
 end
 vim.keymap.set("n", "<c-space>", "<Plug>(fern-action-mark)", { buffer = true })
 vim.keymap.set("n", "-", "<Plug>(fern-action-leave)", { buffer = true })
-vim.keymap.set("n", "<c-l>", ctrlL, { buffer = true, remap = true })
+vim.keymap.set("n", "<c-l>", ctrlL, { buffer = true })
+vim.keymap.set("n", "g?", "<Plug>(fern-action-help)", { buffer = true, remap = true })
 
 vim.fn["glyph_palette#apply"]()

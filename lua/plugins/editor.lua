@@ -10,7 +10,13 @@ return {
       { "<leader>fc", "<cmd>Telescope current_buffer_fuzzy_find<cr>", mode = "n" },
       { "<leader>fr", "<cmd>Telescope resume<cr>", mode = "n" },
       { "<leader>fwd", "<cmd>Telescope diagnostics<cr>", mode = "n" },
-
+      {
+        "<leader>fI",
+        function()
+          require("personal.util.telescope").browse_nvim_config()
+        end,
+        mode = "n",
+      },
       {
         "<leader>fi",
         function()
@@ -29,20 +35,6 @@ return {
         "<leader>fL",
         function()
           require("personal.util.telescope").browse_trabajos()
-        end,
-        mode = "n",
-      },
-      {
-        "<leader>fan",
-        function()
-          require("personal.util.telescope").search_autoregistro_nombre()
-        end,
-        mode = "n",
-      },
-      {
-        "<leader>fac",
-        function()
-          require("personal.util.telescope").search_autoregistro_contenido()
         end,
         mode = "n",
       },
@@ -65,13 +57,18 @@ return {
           "^.git/",
           "lazy%-lock%.json",
           "node_modules",
+          "%.rst$",
         },
-
         mappings = {
-          n = {
-            ["q"] = function(...)
-              require("telescope.actions").send_to_qflist(...)
+          i = {
+            ["<c-n>"] = function(...)
+              require("telescope.actions").cycle_history_next(...)
             end,
+            ["<c-p>"] = function(...)
+              require("telescope.actions").cycle_history_prev(...)
+            end,
+          },
+          n = {
             ["<c-{>"] = function(...)
               require("telescope.actions").close(...)
             end,
@@ -85,11 +82,48 @@ return {
           override_file_sorter = true,
           case_mode = "smart_case",
         },
+        live_grep_args = {
+          mappings = {
+            i = {
+              ["<c-k>"] = function(prompt_bufnr)
+                local action_state = require "telescope.actions.state"
+                local helpers = require "telescope-live-grep-args.helpers"
+                local picker = action_state.get_current_picker(prompt_bufnr)
+                local prompt = picker:_get_prompt()
+                prompt = vim.trim(prompt)
+                prompt = helpers.quote(prompt, { quote_char = '"' }) .. " "
+                picker:set_prompt(prompt)
+              end,
+              ["<c-i>"] = function(prompt_bufnr)
+                local action_state = require "telescope.actions.state"
+                local helpers = require "telescope-live-grep-args.helpers"
+                local picker = action_state.get_current_picker(prompt_bufnr)
+                local prompt = picker:_get_prompt()
+                prompt = vim.trim(prompt)
+                prompt = helpers.quote(prompt, { quote_char = '"' }) .. " --iglob "
+                picker:set_prompt(prompt)
+              end,
+              ["<c-f>"] = function(prompt_bufnr)
+                local action_state = require "telescope.actions.state"
+                local helpers = require "telescope-live-grep-args.helpers"
+                local picker = action_state.get_current_picker(prompt_bufnr)
+                local prompt = picker:_get_prompt()
+                prompt = vim.trim(prompt)
+                prompt = helpers.quote(prompt, { quote_char = '"' }) .. " --type "
+                picker:set_prompt(prompt)
+              end,
+            },
+          },
+        },
       },
+    },
+    dependencies = {
+      "nvim-telescope/telescope-live-grep-args.nvim",
     },
     config = function(_, opts)
       require("telescope").setup(opts)
       require("telescope").load_extension "fzf"
+      require("telescope").load_extension "live_grep_args"
     end,
   },
   {

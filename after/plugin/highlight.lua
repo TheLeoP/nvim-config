@@ -1,11 +1,3 @@
-vim.api.nvim_set_hl(0, "DiagnosticHint", { link = "GruvboxFg2" })
-vim.api.nvim_set_hl(0, "DiagnosticSignHint", { link = "GruvboxFg2" })
-vim.api.nvim_set_hl(0, "DiagnosticFloatingHint", { link = "GruvboxFg2" })
-vim.api.nvim_set_hl(0, "DiagnosticUnderlineHint", { undercurl = true, sp = "#d5c4a1" })
-vim.api.nvim_set_hl(0, "DiagnosticVirtualTextHint", { link = "GruvboxFg2" })
-
-vim.api.nvim_set_hl(0, "FloatBorder", { link = "NormalFloat" })
-
 vim.api.nvim_set_hl(0, "@none", { bg = "NONE", fg = "NONE" })
 vim.api.nvim_set_hl(0, "@text.strong", { bold = true })
 vim.api.nvim_set_hl(0, "@text.emphasis", { italic = true })

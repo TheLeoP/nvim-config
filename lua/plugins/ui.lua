@@ -5,6 +5,19 @@ return {
     priority = 1000,
     config = function()
       require("gruvbox").setup {
+        overrides = {
+          DiagnosticHint = { link = "GruvboxFg2" },
+          DiagnosticSignHint = { link = "GruvboxFg2" },
+          DiagnosticFloatingHint = { link = "GruvboxFg2" },
+          DiagnosticUnderlineHint = { undercurl = true, sp = "#d5c4a1" },
+          DiagnosticVirtualTextHint = { link = "GruvboxFg2" },
+
+          LspReferenceText = { underline = true, sp = "#d5c4a1" },
+          LspReferenceRead = { underline = true, sp = "#d5c4a1" },
+          LspReferenceWrite = { underline = true, sp = "#fe8019" },
+
+          FloatBorder = { link = "NormalFloat" },
+        },
         italic = {
           strings = false,
           comments = false,
@@ -17,7 +30,7 @@ return {
     end,
   },
   {
-    "glepnir/dashboard-nvim",
+    "nvimdev/dashboard-nvim",
     lazy = false,
     opts = {
       theme = "doom",

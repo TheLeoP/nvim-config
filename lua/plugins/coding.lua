@@ -504,7 +504,7 @@ return {
     config = function()
       local ai = require "mini.ai"
 
-      require("mini.ai").setup {
+      ai.setup {
         n_lines = 500,
         custom_textobjects = {
           o = ai.gen_spec.treesitter({
@@ -514,6 +514,7 @@ return {
           f = ai.gen_spec.treesitter({ a = "@function.outer", i = "@function.inner" }, {}),
           c = ai.gen_spec.treesitter({ a = "@class.outer", i = "@class.inner" }, {}),
           F = ai.gen_spec.function_call(),
+          t = false,
         },
         mappings = {
           around_last = "",
@@ -536,6 +537,14 @@ return {
           prefix = "<leader>r",
         },
       }
+    end,
+  },
+  {
+    "andymass/vim-matchup",
+    init = function()
+      vim.g.matchup_delim_noskips = 2 -- don't recognize anything in comments
+      vim.g.matchup_matchparen_offscreen = {} -- disable feature
+      vim.g.matchup_matchparen_deferred = 1
     end,
   },
 }
