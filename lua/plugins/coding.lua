@@ -536,6 +536,9 @@ return {
         replace = {
           prefix = "<leader>r",
         },
+        exchange = {
+          prefix = "cx",
+        },
       }
     end,
   },

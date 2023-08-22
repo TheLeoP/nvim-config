@@ -10,34 +10,6 @@ return {
       { "<leader>fc", "<cmd>Telescope current_buffer_fuzzy_find<cr>", mode = "n" },
       { "<leader>fr", "<cmd>Telescope resume<cr>", mode = "n" },
       { "<leader>fwd", "<cmd>Telescope diagnostics<cr>", mode = "n" },
-      {
-        "<leader>fI",
-        function()
-          require("personal.util.telescope").browse_nvim_config()
-        end,
-        mode = "n",
-      },
-      {
-        "<leader>fi",
-        function()
-          require("personal.util.telescope").search_nvim_config()
-        end,
-        mode = "n",
-      },
-      {
-        "<leader>fl",
-        function()
-          require("personal.util.telescope").search_trabajos()
-        end,
-        mode = "n",
-      },
-      {
-        "<leader>fL",
-        function()
-          require("personal.util.telescope").browse_trabajos()
-        end,
-        mode = "n",
-      },
     },
     opts = {
       defaults = {
@@ -117,30 +89,16 @@ return {
         },
       },
     },
-    dependencies = {
-      "nvim-telescope/telescope-live-grep-args.nvim",
-    },
     config = function(_, opts)
       require("telescope").setup(opts)
       require("telescope").load_extension "fzf"
       require("telescope").load_extension "live_grep_args"
+      require "personal.util.telescope"
     end,
   },
   {
     "nvim-telescope/telescope-fzf-native.nvim",
     build = "make",
-  },
-  {
-    "nvim-telescope/telescope-file-browser.nvim",
-    keys = {
-      {
-        "<leader>fF",
-        function()
-          require("telescope").extensions.file_browser.file_browser()
-        end,
-        mode = "n",
-      },
-    },
   },
   {
     "nvim-telescope/telescope-live-grep-args.nvim",

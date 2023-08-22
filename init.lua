@@ -23,8 +23,6 @@ end
 bootstrap "https://github.com/udayvir-singh/tangerine.nvim"
 
 require("tangerine").setup {
-  target = vim.fn.stdpath [[data]] .. "/tangerine",
-
   rtpdirs = {
     "plugin",
   },
