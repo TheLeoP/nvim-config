@@ -1,2 +1,5 @@
 vim.b.dispatch = "gradle compileJava"
--- pcall(require("personal.config.lsp").jdtls_setup)
+local ok, lsp = pcall(require, "personal.config.lsp")
+if ok then
+  lsp.jdtls_setup()
+end

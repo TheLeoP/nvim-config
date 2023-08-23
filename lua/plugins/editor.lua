@@ -39,6 +39,12 @@ return {
             ["<c-p>"] = function(...)
               require("telescope.actions").cycle_history_prev(...)
             end,
+            ["<c-space>"] = function(prompt_bufnr)
+              local action_state = require "telescope.actions.state"
+              local picker = action_state.get_current_picker(prompt_bufnr)
+              local prompt = picker:_get_prompt()
+              picker:set_prompt(prompt .. "\r")
+            end,
           },
           n = {
             ["<c-{>"] = function(...)
@@ -87,6 +93,13 @@ return {
             },
           },
         },
+        ast_grep = {
+          mappings = {
+            i = {
+              ["<C-v>"] = false,
+            },
+          },
+        },
       },
     },
     config = function(_, opts)
@@ -107,6 +120,28 @@ return {
         "<leader>fs",
         function()
           require("telescope").extensions.live_grep_args.live_grep_args()
+        end,
+        mode = "n",
+      },
+    },
+  },
+  {
+    "Marskey/telescope-sg",
+    keys = {
+      {
+        "<leader>fS",
+        function()
+          vim.ui.input({
+            prompt = "lang:",
+            default = vim.treesitter.language.get_lang(vim.bo[0].filetype),
+          }, function(lang)
+            if not lang then
+              return
+            end
+            require("telescope").extensions.ast_grep.ast_grep {
+              lang = lang,
+            }
+          end)
         end,
         mode = "n",
       },
