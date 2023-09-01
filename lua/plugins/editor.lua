@@ -179,7 +179,7 @@ return {
           return false
         end,
         find_files = "on_project_selection",
-        detection_methods = { "lsp", "pattern" },
+        detection_methods = { "pattern", "lsp" },
         ignore_lsp = { "null-ls", "emmet_ls", "lemminx" },
         show_hidden = true,
         scope_chdir = "tab",

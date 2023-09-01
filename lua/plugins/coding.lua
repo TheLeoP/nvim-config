@@ -295,9 +295,9 @@ return {
         mode = "n",
       },
       {
-        "<leader>aq",
+        "<leader>aI",
         function()
-          require("refactoring").refactor(178)
+          require("refactoring").refactor(115)
         end,
         mode = "n",
       },
@@ -537,7 +537,7 @@ return {
           prefix = "<leader>r",
         },
         exchange = {
-          prefix = "cx",
+          prefix = "<leader>ox",
         },
       }
     end,

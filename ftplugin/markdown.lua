@@ -1,10 +1,9 @@
-vim.wo.spell = true
-vim.bo.spelllang = "es,en"
-vim.wo.wrap = true
-vim.wo.linebreak = true
-vim.wo.breakindent = true
-vim.wo.colorcolumn = "0"
-vim.wo.conceallevel = 3
+vim.opt_local.spell = true
+vim.opt_local.wrap = true
+vim.opt_local.linebreak = true
+vim.opt_local.breakindent = true
+vim.opt_local.colorcolumn = "0"
+vim.opt_local.conceallevel = 3
 
 vim.b[0].undo_ftplugin = "setlocal nospell nowrap nolinebreak nobreakindent conceallevel=0"
 

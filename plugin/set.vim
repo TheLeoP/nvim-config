@@ -2,6 +2,8 @@ set number  "muestra los números de las lineas en el lado izquierdo
 set relativenumber  "muestra los números relativos a la izquierda
 set nowrap  "las líneas largas se muestran como una sola línea
 
+set spelllang=es,en
+
 set noswapfile  "configura vim para no crear archivos .swap
 set nobackup    "configura vim para no crear archivos de respaldo
 set nowritebackup

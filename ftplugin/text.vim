@@ -1,5 +1,4 @@
 setlocal spell
-setlocal spelllang=es,en
 setlocal wrap
 setlocal colorcolumn=0
 
