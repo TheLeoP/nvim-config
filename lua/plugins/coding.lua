@@ -1,44 +1,67 @@
-local function debug_menu()
+---@type table<string, table>|nil
+local components
+local init_components_if_required = function()
   local widgets = require "dap.ui.widgets"
+  if not components then
+    components = {
+      ["sessions"] = widgets.sessions,
+      ["scopes"] = widgets.scopes,
+      ["frames"] = widgets.frames,
+      ["expression"] = widgets.expression,
+      ["threads"] = widgets.threads,
+    }
+  end
+end
 
-  local component = {
-    ["sessions"] = widgets.sessions,
-    ["scopes"] = widgets.scopes,
-    ["frames"] = widgets.frames,
-    ["expression"] = widgets.expression,
-    ["threads"] = widgets.threads,
-  }
+---@type table<string, fun(widget:any, winopts:any):table>|nil
+local location
+local init_location_if_required = function()
+  local widgets = require "dap.ui.widgets"
+  if not location then
+    location = {
+      ["h"] = function(widget)
+        return widgets.sidebar(widget, nil, "topleft 50 vsplit")
+      end,
+      ["k"] = function(widget)
+        return widgets.sidebar(widget, nil, "topleft 7 split")
+      end,
+      ["j"] = function(widget)
+        return widgets.sidebar(widget, nil, "7 split")
+      end,
+      ["l"] = function(widget)
+        return widgets.sidebar(widget, nil, "50 vsplit")
+      end,
+      ["c"] = widgets.centered_float,
+    }
+  end
+end
 
-  local location = {
-    ["h"] = function(widget)
-      return widgets.sidebar(widget, nil, "topleft 50 vsplit")
-    end,
-    ["k"] = function(widget)
-      return widgets.sidebar(widget, nil, "topleft 7 split")
-    end,
-    ["j"] = function(widget)
-      return widgets.sidebar(widget, nil, "7 split")
-    end,
-    ["l"] = function(widget)
-      return widgets.sidebar(widget, nil, "50 vsplit")
-    end,
-    ["c"] = widgets.centered_float,
-  }
+---@type table<string, table<string, table>>
+local cache = {
+  ["h"] = {},
+  ["k"] = {},
+  ["j"] = {},
+  ["l"] = {},
+  ["c"] = {},
+}
 
-  vim.ui.select(vim.tbl_keys(component), { prompt = "Select debug widget:" }, function(choice)
+local function debug_menu()
+  init_components_if_required() ---@cast components -nil
+  vim.ui.select(vim.tbl_keys(components), { prompt = "Select debug widget:" }, function(choice)
     local separator = { " | ", "WarningMsg" }
 
     vim.cmd [[echo '' | redraw]]
-            --stylua: ignore
-            vim.api.nvim_echo({
-              {"h", "Question"}, {": left"},
-              separator,
-              {"l", "Question"}, {": right"},
-              separator,
-              {"k", "Question"}, {": up"},
-              separator,
-              {"j", "Question"}, {": down"}
-            }, false, {})
+
+    --stylua: ignore
+    vim.api.nvim_echo({
+      {"h", "Question"}, {": left"},
+      separator,
+      {"l", "Question"}, {": right"},
+      separator,
+      {"k", "Question"}, {": up"},
+      separator,
+      {"j", "Question"}, {": down"}
+    }, false, {})
 
     local ok, char = pcall(vim.fn.getcharstr)
     vim.cmd [[echo '' | redraw]]
@@ -47,10 +70,16 @@ local function debug_menu()
       return
     end
 
+    init_location_if_required() ---@cast location -nil
     if char == "c" then
-      location[char](component[choice])
+      location[char](components[choice])
     else
-      location[char](component[choice]).toggle()
+      local widget = cache[char][choice]
+      if not widget then
+        widget = location[char](components[choice])
+        cache[char][choice] = widget
+      end
+      widget.toggle()
     end
   end)
 end
