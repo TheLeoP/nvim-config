@@ -66,3 +66,7 @@ xnoremap @ :<C-U>execute "noautocmd '<,'>norm! " . v:count1 . "@" . getcharstr()
 " tabs
 nnoremap <a-h> <cmd>tabprevious<cr>
 nnoremap <a-l> <cmd>tabnext<cr>
+
+" añadir palabra bajo el última búsqueda sin cambiar la posición del cursor
+" útil para <leader>* seguido de <leader>rgn o cgn.
+nnoremap <leader>* *``

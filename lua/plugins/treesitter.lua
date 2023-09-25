@@ -87,7 +87,10 @@ return {
       },
       {
         "nvim-treesitter/nvim-treesitter-context",
-        opts = {},
+        opts = {
+          max_lines = 4,
+          multiline_threshold = 2,
+        },
       },
     },
   },

@@ -219,7 +219,7 @@ return {
       suggestion = {
         auto_trigger = true,
         keymap = {
-          accept = "<c-f>",
+          accept = "<M-f>",
           next = "<M-}>",
           prev = "<M-{>",
         },
@@ -308,13 +308,6 @@ return {
           require("refactoring").debug.print_var { below = true }
         end,
         mode = { "x", "n" },
-      },
-      {
-        "<leader>apv",
-        function()
-          require("refactoring").debug.print_var { below = true }
-        end,
-        mode = "x",
       },
       {
         "<leader>ac",
