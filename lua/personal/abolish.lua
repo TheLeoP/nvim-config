@@ -438,7 +438,11 @@ M.subvert_dispatcher = function(opts)
     args = (opts.bang and "!" or "") .. args
   end
 
-  local separator = [[\v((\\)@<!(\\\\)*\\)@<!]] .. args:sub(1, 1)
+  local first_char = args:sub(1, 1)
+  if first_char == "?" then
+    first_char = [[\]] .. first_char
+  end
+  local separator = [[\v((\\)@<!(\\\\)*\\)@<!]] .. first_char
   local split = vim.fn.split(args, separator, true)
   split = vim.list_slice(split, 2)
 
