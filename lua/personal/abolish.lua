@@ -213,11 +213,17 @@ local function sort(a, b)
   local a_lower = vim.fn.tolower(a)
   local b_lower = vim.fn.tolower(b)
   if a_lower == b_lower then
-    return a == b and 0 or a > b and 1 or -1
+    if a == b then
+      return true
+    elseif a > b then
+      return false
+    else
+      return true
+    end
   elseif #a == #b then
-    return a_lower > b_lower and 1 or -1
+    return a_lower < b_lower
   else
-    return #a < #b and 1 or -1
+    return #a > #b
   end
 end
 
