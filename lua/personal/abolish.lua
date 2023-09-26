@@ -356,7 +356,8 @@ local function substitute_command(count, line1, line2, bad, good, flags, preview
       lines_before = offset
     end
 
-    for i = 1, max_lines + 1 do
+    -- Future me: do not change `max_lines` to `max_lines + 1`. Lua loops work like this, it is not needed.
+    for i = 1, max_lines do
       local row = line1 + i - 1
       if row > visible_line_range[2] then
         break
