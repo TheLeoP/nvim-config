@@ -454,19 +454,8 @@ M.subvert_dispatcher = function(opts)
   end
 end
 
---- @type integer
-local sid
-
 local DO_NOT_PREVIEW = 0
 local PREVIEW_IN_CURRENT_BUFFER = 1
-
-for _, v in pairs(vim.fn.getscriptinfo()) do
-  if v.name:find [[vim%-abolish/plugin/abolish%.vim]] then
-    sid = v.sid --[[@as integer]]
-  end
-end
-
-local prefix = ("<SNR>%s_"):format(tostring(sid))
 
 ---@type table<abolish.highlight.kind, string>
 local hl_groups = {
@@ -478,23 +467,52 @@ local hl_groups = {
 --- @alias abolish.highlight.kind "insertion" | "deletion" | "change"
 --- @alias abolish.highlight { kind : abolish.highlight.kind, line: integer, column: integer, length: integer}
 
----@param arg_lead string
----@param cmd_line string
----@param cursor_pos integer
 ---@return string[]
--- TODO: do this in lua
-M.complete = function(arg_lead, cmd_line, cursor_pos)
-  local vim_completion = vim.fn[prefix .. "SubComplete"](arg_lead, cmd_line, cursor_pos) --[[@as string|0]]
-  if vim_completion == 0 then
+local function get_words()
+  --- @type string[]
+  local words = {}
+  local lnum = vim.fn.line "w0"
+  while lnum <= vim.fn.line "w$" do
+    local line = vim.fn.getline(lnum)
+    local col = 0
+    while vim.fn.match(line, [[\<\k\k\+\>]], col) ~= -1 do
+      table.insert(words, vim.fn.matchstr(line, [[\<\k\k\+\>]], col))
+      col = vim.fn.matchend(line, [[\<\k\k\+\>]], col)
+    end
+    lnum = lnum + 1
+  end
+  return words
+end
+
+---@param arg_lead string
+---@param _cmd_line string
+---@param _cursor_pos integer
+---@return string[]
+M.complete = function(arg_lead, _cmd_line, _cursor_pos)
+  local start_with_search = vim.regex [=[^[/?]\k\+$]=] --[[@as vim.regex]]
+  local does_not_start_with_search = vim.regex [=[^\k\+$]=] --[[@as vim.regex]]
+  --- @type string[]
+  local all_words
+  if start_with_search:match_str(arg_lead) then
+    local char = arg_lead:sub(1, 1)
+    all_words = get_words()
+    all_words = vim.tbl_map(
+      ---@param word string
+      function(word)
+        return char .. word
+      end,
+      all_words
+    )
+  elseif does_not_start_with_search:match_str(arg_lead) then
+    all_words = get_words()
+  else
     return {}
   end
-  ---@cast vim_completion string
-  local all_words = vim.split(vim_completion, "\n", { trimempty = true })
 
   ---@type table<string, boolean>
   local already_seen = {}
 
-  return vim.tbl_filter(
+  local filtered_words = vim.tbl_filter(
     ---@param word string
     function(word)
       if already_seen[word] then
@@ -505,6 +523,7 @@ M.complete = function(arg_lead, cmd_line, cursor_pos)
     end,
     all_words
   )
+  return filtered_words
 end
 
 --- @param opts abolish.command_opts
