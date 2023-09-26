@@ -634,7 +634,4 @@ return {
       "kevinhwang91/promise-async",
     },
   },
-  {
-    "tpope/vim-abolish",
-  },
 }
