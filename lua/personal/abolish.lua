@@ -117,7 +117,7 @@ local function expand_braces(dict)
       end
 
       for i = 1, #targets do
-        new_dict[kbefore .. targets[i] .. kafter] = vbefore .. replacements[i % #replacements] .. vafter
+        new_dict[kbefore .. targets[i] .. kafter] = vbefore .. replacements[((i - 1) % #replacements + 1)] .. vafter
       end
     else
       new_dict[key] = val
