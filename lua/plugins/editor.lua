@@ -295,7 +295,19 @@ return {
         "S",
         mode = { "n", "o", "x" },
         function()
-          require("flash").treesitter()
+          local filetype = vim.bo[0].filetype
+          local lang = vim.treesitter.language.get_lang(filetype)
+          local ok, _parser = pcall(vim.treesitter.get_parser, 0, lang)
+          if ok then
+            require("flash").treesitter()
+          else
+            vim.notify(
+              string.format(
+                "There is no treesitter parser for filetype `%s`. Flash treesitter is deactivated",
+                filetype
+              )
+            )
+          end
         end,
         desc = "Flash Treesitter",
       },
