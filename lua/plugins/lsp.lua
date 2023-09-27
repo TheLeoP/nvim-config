@@ -188,7 +188,7 @@ return {
         sources = {
           nls.builtins.formatting.prettierd,
           nls.builtins.formatting.stylua,
-          nls.builtins.formatting.black.with { extra_args = { "--line-length=80" } },
+          nls.builtins.formatting.black.with { extra_args = { "--line-length=80", "--skip-string-normalization" } },
         },
       }
     end,
