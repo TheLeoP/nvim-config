@@ -19,5 +19,11 @@ vim.api.nvim_create_user_command("Subvert", require("personal.abolish").subvert_
 })
 
 vim.keymap.set("n", "cr", function()
-  return require("personal.abolish").opertator_func() .. "iw"
+  local aux = require("personal.abolish").opertator_func()
+  if not aux then
+    return
+  end
+  return aux .. "iw"
 end, { expr = true })
+
+vim.keymap.set({ "v", "n" }, "<leader>cr", require("personal.abolish").opertator_func, { expr = true })

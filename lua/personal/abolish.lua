@@ -17,40 +17,57 @@ end
 
 ---@param type "line"|"char"|"block"
 function M.coerce(type)
-  local selection, clipboard = vim.o.selection, vim.o.clipboard
-  vim.o.selection = "inclusive"
-  vim.opt.clipboard:remove "unnamedplus"
-  vim.opt.clipboard:remove "unnamed"
-
-  local regbody = vim.fn.getreg '"'
-  local regtype = vim.fn.getregtype '"'
-  ---@type integer
+  local cursor_location = vim.api.nvim_win_get_cursor(0)
   local c = vim.v.count1
-  local begin = vim.fn.getcurpos()
-  ---@type string
-  local move
   while c > 0 do
     c = c - 1
+
+    ---@type integer, integer
+    local start_row, start_col = unpack(vim.api.nvim_buf_get_mark(0, "["))
+    ---@type integer, integer
+    local end_row, end_col = unpack(vim.api.nvim_buf_get_mark(0, "]"))
+
     if type == "line" then
-      move = "'[V']"
+      local lines = vim.api.nvim_buf_get_lines(0, start_row - 1, end_row, true)
+      for i, line in ipairs(lines) do
+        local coerced_line = M.coercions[M.char](line)
+        if line ~= coerced_line then
+          vim.api.nvim_buf_set_lines(0, start_row - 1 + i - 1, start_row - 1 + i, true, { coerced_line })
+        end
+      end
     elseif type == "block" then
-      move = [=[`[\<C-V>`]]=]
+      local lines = vim.api.nvim_buf_get_lines(0, start_row - 1, end_row, true)
+      for i, line in ipairs(lines) do
+        local text = line:sub(start_col + 1, end_col + 1)
+        local coerced_text = M.coercions[M.char](text)
+        if text ~= coerced_text then
+          vim.api.nvim_buf_set_text(
+            0,
+            start_row - 1 + i - 1,
+            start_col,
+            start_row - 1 + i - 1,
+            end_col + 1,
+            { coerced_text }
+          )
+        end
+      end
     else
-      move = "`[v`]"
-    end
-    vim.cmd('noautocmd silent execute "normal! ' .. move .. 'y"')
-    local word = vim.fn.getreg '"'
-    vim.fn.setreg('"', M.coercions[M.char](word))
-    if word ~= vim.fn.getreg '"' then
-      vim.cmd('noautocmd execute "normal! ' .. move .. 'p"')
+      local lines = vim.api.nvim_buf_get_text(0, start_row - 1, start_col, end_row - 1, end_col + 1, {})
+      local text = table.concat(lines, "\n")
+      local coerced_text = M.coercions[M.char](text)
+      if text ~= coerced_text then
+        vim.api.nvim_buf_set_text(
+          0,
+          start_row - 1,
+          start_col,
+          end_row - 1,
+          end_col + 1,
+          vim.split(coerced_text, "\n", { trimempty = true })
+        )
+      end
     end
   end
-  ---@diagnostic disable-next-line: param-type-mismatch
-  vim.fn.setreg('"', regbody, regtype)
-  vim.fn.setpos("'[", begin)
-  vim.fn.setpos(".", begin)
-
-  vim.o.selection, vim.o.clipboard = selection, clipboard
+  vim.api.nvim_win_set_cursor(0, cursor_location)
 end
 
 --- @type table<string, string>
