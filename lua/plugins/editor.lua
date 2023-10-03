@@ -564,7 +564,20 @@ return {
     lazy = false,
     "lambdalisue/fern.vim",
     keys = {
-      { "-", "<cmd>Fern . -reveal=%<cr>", mode = "n" },
+      {
+        "-",
+        function()
+          local cwd = vim.loop.cwd()
+          if cwd then
+            if vim.startswith(vim.fn.expand "%:p:h", cwd) then
+              vim.cmd.Fern { args = { ".", "-reveal=%" } }
+            else
+              vim.cmd.Fern { args = { "%:h", "-reveal=%:p" } }
+            end
+          end
+        end,
+        mode = "n",
+      },
     },
     init = function()
       vim.g["fern#renderer"] = "nvim-web-devicons"
