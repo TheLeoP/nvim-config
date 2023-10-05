@@ -37,4 +37,7 @@ return {
       },
     },
   },
+  {
+    "romainl/vim-cool",
+  },
 }

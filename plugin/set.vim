@@ -12,7 +12,7 @@ set clipboard=unnamedplus   "permite que todo lo copiado vaya también al clipbo
 
 set conceallevel=0
 
-set nohlsearch  "no resalta todos los resultados de una búsqueda
+set hlsearch
 set ignorecase  "case insensitive cuando se busca en minúsculas
 set smartcase   "case sensitive cuando se busca en mayúsculas
 

@@ -20,9 +20,10 @@ return {
         },
         italic = {
           strings = false,
-          comments = false,
+          comments = true,
           operators = false,
           folds = false,
+          emphasis = false,
         },
         inverse = true,
       }
