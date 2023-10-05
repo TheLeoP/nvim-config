@@ -226,7 +226,10 @@ return {
       },
       filetypes = {
         ["dap-repl"] = false,
+        c = false,
+        cpp = false,
         telescopeprompt = false,
+        xml = false,
       },
     },
   },
@@ -328,7 +331,7 @@ return {
   },
   {
     "mfussenegger/nvim-dap-python",
-    lazy = true,
+    lazy = false,
     config = function()
       ---@type string
       local mason_root = vim.fn.stdpath "data" .. "/mason/packages/"
@@ -356,7 +359,7 @@ return {
   },
   {
     "mfussenegger/nvim-dap",
-    lazy = true,
+    lazy = false,
     keys = {
       {
         "<leader>dm",
@@ -408,7 +411,23 @@ return {
       {
         "<leader>dB",
         function()
-          require("dap").set_breakpoint(vim.fn.input "Breakpoint condition: ")
+          vim.ui.input(
+            { prompt = "Breakpoint condition: " },
+            ---@param input string|nil
+            function(input)
+              if input then
+                require("dap").set_breakpoint(input)
+              end
+            end
+          )
+        end,
+        mode = "n",
+      },
+      {
+        "<leader>dl",
+        function()
+          local open_qflist = true
+          require("dap").list_breakpoints(open_qflist)
         end,
         mode = "n",
       },
@@ -451,6 +470,9 @@ return {
     config = function()
       vim.fn.sign_define("DapBreakpoint", { text = "⦿", texthl = "Error", linehl = "", numhl = "" })
       local dap = require "dap"
+
+      dap.defaults.fallback.external_terminal = { command = "gnome-terminal", args = { "--" } }
+
       dap.adapters.nlua = function(callback, config)
         callback {
           type = "server",
@@ -465,6 +487,92 @@ return {
           request = "attach",
           name = "Attach to running Neovim instance",
         },
+      }
+
+      dap.adapters.cppdbg = {
+        id = "cppdbg",
+        type = "executable",
+        command = require("personal.config.lsp").mason_root .. "cpptools/extension/debugAdapters/bin/OpenDebugAD7",
+      }
+
+      dap.configurations.c = {
+        setmetatable({
+          name = "Neovim",
+          type = "cppdbg",
+          request = "launch",
+          cwd = "${workspaceFolder}",
+          program = function()
+            return vim.fn.input {
+              prompt = "Path to executable: ",
+              default = vim.loop.cwd() .. "/build/bin/nvim",
+              completion = "file",
+            }
+          end,
+          args = function()
+            local args = vim.fn.input {
+              prompt = "Args: ",
+              default = "--clean -u ~/minimal.lua",
+              completion = "file",
+            }
+            return vim.split(args, " ", { trimempty = true })
+          end,
+
+          externalConsole = true,
+        }, {
+          __call = function(config)
+            vim.fn.system "CMAKE_BUILD_TYPE=RelWithDebInfo make"
+
+            local key = "the-leo-p"
+
+            -- ⬇️ `dap.listeners.<before | after>.<event_or_command>.<plugin_key>`
+            -- We listen to the `initialize` response. It indicates a new session got initialized
+            dap.listeners.after.initialize[key] = function(session)
+              -- ⬇️ immediately clear the listener, we don't want to run this logic for additional sessions
+              dap.listeners.after.initialize[key] = nil
+
+              -- The first argument to a event or response is always the session
+              -- A session contains a `on_close` table that allows us to register functions
+              -- that get called when the session closes.
+              -- We use this to ensure the listeners get cleaned up
+              session.on_close[key] = function()
+                for _, handler in pairs(dap.listeners.after) do
+                  handler[key] = nil
+                end
+              end
+            end
+
+            -- We listen to `event_process` to get the pid:
+            dap.listeners.after.event_process[key] = function(_, body)
+              -- ⬇️ immediately clear the listener, we don't want to run this logic for additional sessions
+              dap.listeners.after.event_process[key] = nil
+
+              local ppid = body.systemProcessId --[[@as string]]
+              -- The pid is the parent pid, we need to attach to the child. This uses the `ps` tool to get it
+              -- It takes a bit for the child to arrive. This uses the `vim.wait` function to wait up to a second
+              -- to get the child pid.
+              vim.wait(1000, function()
+                return tonumber(vim.fn.system("ps -o pid= --ppid " .. tostring(ppid))) ~= nil
+              end)
+              local pid = tonumber(vim.fn.system("ps -o pid= --ppid " .. tostring(ppid)))
+
+              -- If we found it, spawn another debug session that attaches to the pid.
+              if pid then
+                dap.run {
+                  name = "Neovim embedded",
+                  type = "cppdbg",
+                  request = "attach",
+                  processId = pid,
+                  -- ⬇️ Change paths as needed
+                  program = os.getenv "HOME" .. "/neovim/build/bin/nvim",
+                  cwd = os.getenv "HOME" .. "/neovim/",
+                  externalConsole = false,
+                }
+              end
+            end
+
+            return config
+          end,
+        }),
       }
 
       for _, language in ipairs { "typescript", "javascript", "svelte", "vue", "typescriptreact", "javascriptreact" } do
@@ -506,7 +614,12 @@ return {
       "jbyuki/one-small-step-for-vimkind",
       "mfussenegger/nvim-dap-python",
       "mxsdev/nvim-dap-vscode-js",
+      "theHamsta/nvim-dap-virtual-text",
     },
+  },
+  {
+    "theHamsta/nvim-dap-virtual-text",
+    opts = { virt_text_pos = "eol" },
   },
   {
     "danymat/neogen",

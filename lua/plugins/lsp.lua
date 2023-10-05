@@ -38,7 +38,7 @@ return {
       -- emmet
       lspconfig.emmet_ls.setup {
         capabilities = config.capabilities,
-        filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue", "php", "html", "xml" },
+        filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue", "php", "html" },
       }
 
       require("typescript").setup {
@@ -79,7 +79,7 @@ return {
 
       local servidores_generales = {
         "vimls",
-        -- "clangd",
+        "clangd",
         "html",
         "cssls",
         "lemminx",
