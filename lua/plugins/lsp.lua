@@ -85,7 +85,6 @@ return {
         "lemminx",
         "intelephense",
         "prismals",
-        "solargraph",
         "eslint",
       }
 

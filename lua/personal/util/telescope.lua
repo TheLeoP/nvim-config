@@ -1,4 +1,4 @@
--- :fennel:1692395989
+-- :fennel:1696720141
 local function search_nvim_config()
   local builtin = require("telescope.builtin")
   return builtin.find_files({prompt_title = "< Nvim config >", cwd = vim.fn.stdpath("config")})

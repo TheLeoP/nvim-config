@@ -21,6 +21,7 @@ local function bootstrap(url, ref)
 end
 
 bootstrap "https://github.com/udayvir-singh/tangerine.nvim"
+bootstrap "https://github.com/udayvir-singh/hibiscus.nvim"
 
 require("tangerine").setup {
   rtpdirs = {
