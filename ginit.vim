@@ -3,7 +3,7 @@ GuiPopupmenu 0
 GuiTabline 0
 
 " setea la fuente al usar vim fuera de una terminal
-GuiFont! UbuntuMono\ NF:h15
+GuiFont! CaskaydiaCove\ Nerd\ Font\ Mono:h14
 GuiLinespace 0
 
 call GuiWindowMaximized(1)
