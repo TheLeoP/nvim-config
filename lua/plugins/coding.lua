@@ -347,7 +347,10 @@ return {
       {
         "microsoft/vscode-js-debug",
         version = "1.x",
-        build = "npm i && npm run compile vsDebugServerBundle && rm -rf out && mv dist out",
+        build = "npm i && npm run compile vsDebugServerBundle &&"
+          .. (vim.fn.has "win32" and "(if exist out\\ rd /s /q out)" or "rm -rf out")
+          .. "&&"
+          .. (vim.fn.has "win32" and "move dist out" or "mv dist out"),
       },
     },
     config = function()
