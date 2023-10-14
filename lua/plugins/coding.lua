@@ -358,6 +358,10 @@ return {
     end,
   },
   {
+    "/leoluz/nvim-dap-go",
+    opts = {},
+  },
+  {
     "mfussenegger/nvim-dap",
     lazy = false,
     keys = {

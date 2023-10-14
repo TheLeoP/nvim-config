@@ -17,6 +17,8 @@ return {
           LspReferenceWrite = { underline = true, sp = "#fe8019" },
 
           FloatBorder = { link = "NormalFloat" },
+
+          debugPC = { bg = "#1d2021" },
         },
         italic = {
           strings = false,

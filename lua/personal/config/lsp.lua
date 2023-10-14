@@ -4,7 +4,6 @@ local jdtls = require "jdtls"
 local jdtls_dap = require "jdtls.dap"
 local jdtls_setup = require "jdtls.setup"
 
-
 M.mason_root = vim.fn.stdpath "data" .. "/mason/packages/" --[[@as string]]
 
 M.capabilities = vim.lsp.protocol.make_client_capabilities()
@@ -23,7 +22,7 @@ M.capabilities.textDocument.foldingRange = {
 
 M.on_attach_general = function(client, bufnr)
   if client.server_capabilities.documentSymbolProvider then
-    require "nvim-navic".attach(client, bufnr)
+    require("nvim-navic").attach(client, bufnr)
   end
 
   vim.keymap.set("n", "gd", "<cmd>Telescope lsp_definitions<cr>", { buffer = bufnr, desc = "Go to definition" })
@@ -76,16 +75,13 @@ M.on_attach_general = function(client, bufnr)
         if have_null_ls then
           return client.name == "null-ls"
         else
-          return client.name ~= "null-ls" and client.name ~= "lemminx" and client.name ~= "clangd"
+          return client.name ~= "null-ls" and client.name ~= "lemminx"
         end
       end,
       bufnr = bufnr,
     }
   end
-  if
-    (client.supports_method "textDocument/formatting" and client.name ~= "lemminx" and client.name ~= "clangd")
-    or have_null_ls
-  then
+  if (client.supports_method "textDocument/formatting" and client.name ~= "lemminx") or have_null_ls then
     vim.api.nvim_create_autocmd("BufWritePre", {
       group = vim.api.nvim_create_augroup("LspFormat." .. bufnr, {}),
       buffer = bufnr,
