@@ -1,2 +1,2 @@
--- :fennel:1696720039
+-- :fennel:1696724530
 return {"udayvir-singh/tangerine.nvim", "udayvir-singh/hibiscus.nvim"}
