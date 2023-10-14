@@ -20,9 +20,6 @@ return {
       indent = {
         enable = false,
       },
-      context_commentstring = {
-        enable = true,
-      },
       playground = {
         enable = true,
       },
@@ -75,10 +72,6 @@ return {
       },
       {
         "nvim-treesitter/playground",
-        enabled = not treesitter_dev,
-      },
-      {
-        "JoosepAlviste/nvim-ts-context-commentstring",
         enabled = not treesitter_dev,
       },
       {

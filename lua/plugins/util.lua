@@ -1,5 +1,4 @@
 return {
-  "tpope/vim-repeat",
   {
     "nvim-lua/plenary.nvim",
     config = function()

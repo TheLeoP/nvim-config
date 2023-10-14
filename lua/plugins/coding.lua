@@ -96,28 +96,6 @@ return {
       { "¿?", "<cmd>FocusDispatch<cr>", mode = "n" },
     },
   },
-  "tpope/vim-commentary",
-  {
-    "kana/vim-textobj-line",
-    dependencies = {
-      "kana/vim-textobj-user",
-    },
-  },
-  {
-    "tpope/vim-surround",
-    keys = {
-      { "<leader>s", "<Plug>Ysurround", noremap = false, mode = "n" },
-      { "<leader>S", "<Plug>YSurround", noremap = false, mode = "n" },
-      { "<leader>sd", "<Plug>Dsurround", noremap = false, mode = "n" },
-      { "<leader>sc", "<Plug>Csurround", noremap = false, mode = "n" },
-      { "<leader>sC", "<Plug>CSurround", noremap = false, mode = "n" },
-      { "<leader>s", "<Plug>VSurround", noremap = false, mode = "x" },
-      { "<leader>S", "<Plug>VgSurround", noremap = false, mode = "x" },
-    },
-    init = function()
-      vim.g.surround_no_mappings = 1
-    end,
-  },
   {
     "ms-jpq/coq_nvim",
     branch = "coq",
@@ -656,7 +634,9 @@ return {
           f = ai.gen_spec.treesitter({ a = "@function.outer", i = "@function.inner" }, {}),
           c = ai.gen_spec.treesitter({ a = "@class.outer", i = "@class.inner" }, {}),
           F = ai.gen_spec.function_call(),
-          t = false,
+          t = { "<([%p%w]-)%f[^<%w][^<>]->.-</%1>", "^<.->().*()</[^/]->$" },
+
+          l = { "^()%s*().*()()\n$" },
         },
         mappings = {
           around_last = "",
@@ -682,6 +662,24 @@ return {
           prefix = "<leader>ox",
         },
       }
+      require("mini.misc").setup()
+      require("mini.surround").setup {
+        mappings = {
+          add = "<leader>s",
+          delete = "<leader>sd",
+          find = "<leader>sf",
+          find_left = "<leader>sF",
+          highlight = "<leader>sh",
+          replace = "<leader>sc",
+          update_n_lines = "<leader>sn",
+        },
+
+        n_lines = 20,
+      }
+
+      vim.keymap.set("x", "<leader>s", [[:<C-u>lua MiniSurround.add('visual')<CR>]], { silent = true })
+
+      require("mini.comment").setup {}
     end,
   },
   {
