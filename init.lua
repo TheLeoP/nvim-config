@@ -1,6 +1,5 @@
 --- @param url string
 --- @param ref string|nil
-
 local function bootstrap(url, ref)
   local name = url:gsub(".*/", "")
   local path
