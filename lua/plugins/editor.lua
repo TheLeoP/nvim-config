@@ -173,7 +173,7 @@ return {
     },
     config = function()
       require("project_nvim").setup {
-        on_project_selection = function()
+        find_files = function()
           local state = require "telescope.actions.state"
           local config = require "session_manager.config"
           --- @type {value: string}
@@ -182,13 +182,12 @@ return {
           vim.cmd.tcd(entry.value)
 
           --- @type {exists: fun():boolean}
-          local session_name = config.dir_to_session_filename { filename = vim.loop.cwd() }
+          local session_name = config.dir_to_session_filename(vim.loop.cwd())
           if not session_name:exists() then return true end
 
           require("session_manager").load_current_dir_session(true)
           return false
         end,
-        find_files = "on_project_selection",
         detection_methods = { "lsp", "pattern" },
         ignore_lsp = { "null-ls", "emmet_ls", "lemminx", "lua-ls" },
         show_hidden = true,
