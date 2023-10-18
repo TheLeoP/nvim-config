@@ -21,9 +21,7 @@ end
 ---@param row integer
 ---@param col integer
 ---@param text string[] The text to be added.
-local insert_text = function(row, col, text)
-  set_text(row, col, col, text)
-end
+local insert_text = function(row, col, text) set_text(row, col, col, text) end
 
 ---@param start_row integer
 ---@param start_col integer
@@ -84,12 +82,8 @@ local toggle_surround = function(surrounding)
   end
 end
 
-M.bold = function()
-  toggle_surround "**"
-end
+M.bold = function() toggle_surround "**" end
 
-M.italic = function()
-  toggle_surround "*"
-end
+M.italic = function() toggle_surround "*" end
 
 return M

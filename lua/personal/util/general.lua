@@ -6,14 +6,10 @@ local function get_last_terminal()
   local terminal_channels = {}
 
   for _, channel in pairs(api.nvim_list_chans()) do
-    if channel["mode"] == "terminal" and channel["pty"] ~= "" then
-      table.insert(terminal_channels, channel)
-    end
+    if channel["mode"] == "terminal" and channel["pty"] ~= "" then table.insert(terminal_channels, channel) end
   end
 
-  table.sort(terminal_channels, function(left, right)
-    return left["buffer"] > right["buffer"]
-  end)
+  table.sort(terminal_channels, function(left, right) return left["buffer"] > right["buffer"] end)
 
   return terminal_channels[1]["id"]
 end
@@ -48,9 +44,7 @@ function M.str_multibyte_sub(str, i, j)
   end
   local u = (i > 0) and i or 1
   local v = (j and j <= length) and j or length
-  if u > v then
-    return ""
-  end
+  if u > v then return "" end
   local s = vim.str_byteindex(str, u - 1)
   local e = vim.str_byteindex(str, v)
   local aux = str:sub(s + 1, e)

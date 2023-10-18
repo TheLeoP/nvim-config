@@ -6,9 +6,7 @@ function M.opertator_func()
   local ok, char = pcall(vim.fn.getcharstr)
   vim.cmd [[echo '' | redraw]]
 
-  if not ok or char == "\27" then
-    return
-  end
+  if not ok or char == "\27" then return end
   M.char = char
 
   vim.o.operatorfunc = "v:lua.require'personal.abolish'.coerce"
@@ -129,9 +127,7 @@ local function expand_braces(dict)
       local targets = vim.fn.split(kmiddle, ",", 1)
       local replacements = vim.fn.split(vmiddle, ",", 1)
 
-      if #replacements == 1 and replacements[1] == "" then
-        replacements = targets
-      end
+      if #replacements == 1 and replacements[1] == "" then replacements = targets end
 
       for i = 1, #targets do
         new_dict[kbefore .. targets[i] .. kafter] = vbefore .. replacements[((i - 1) % #replacements + 1)] .. vafter
@@ -166,9 +162,7 @@ function M.camelcase(word)
 end
 
 ---@param word string
-function M.mixedcase(word)
-  return vim.fn.substitute(M.camelcase(word), "^.", [[\u&]], "")
-end
+function M.mixedcase(word) return vim.fn.substitute(M.camelcase(word), "^.", [[\u&]], "") end
 
 ---@param word string
 function M.snakecase(word)
@@ -181,24 +175,16 @@ function M.snakecase(word)
 end
 
 ---@param word string
-function M.uppercase(word)
-  return vim.fn.toupper(M.snakecase(word))
-end
+function M.uppercase(word) return vim.fn.toupper(M.snakecase(word)) end
 
 ---@param word string
-function M.dashcase(word)
-  return vim.fn.substitute(M.snakecase(word), "_", "-", "g")
-end
+function M.dashcase(word) return vim.fn.substitute(M.snakecase(word), "_", "-", "g") end
 
 ---@param word string
-function M.spacecase(word)
-  return vim.fn.substitute(M.snakecase(word), "_", " ", "g")
-end
+function M.spacecase(word) return vim.fn.substitute(M.snakecase(word), "_", " ", "g") end
 
 ---@param word string
-function M.dotcase(word)
-  return vim.fn.substitute(M.snakecase(word), "_", ".", "g")
-end
+function M.dotcase(word) return vim.fn.substitute(M.snakecase(word), "_", ".", "g") end
 
 ---@param lhs string
 ---@param rhs string
@@ -209,9 +195,7 @@ local function create_dictionary(lhs, rhs, opts)
   local expanded = expand_braces { [lhs] = rhs }
 
   local case = true
-  if opts.case ~= nil then
-    case = opts.case
-  end
+  if opts.case ~= nil then case = opts.case end
   for lhs, rhs in pairs(expanded) do
     if case then
       dict[M.mixedcase(lhs)] = M.mixedcase(rhs)
@@ -246,9 +230,7 @@ end
 
 ---@param pattern string
 ---@return string
-local function subesc(pattern)
-  return vim.fn.substitute(pattern, [=[[][\\/.*+?~%()&]]=], [[\\&]], "g")
-end
+local function subesc(pattern) return vim.fn.substitute(pattern, [=[[][\\/.*+?~%()&]]=], [[\\&]], "g") end
 
 ---@param dict table<string, string>
 ---@param boundaries number
@@ -341,9 +323,7 @@ local function substitute_command(count, line1, line2, bad, good, flags, preview
     --- @type string[]
     local lines_after = vim.tbl_map(
       ---@param line string
-      function(line)
-        return vim.fn.substitute(line, preview_lhs, [[\=luaeval("Abolished()")]], opts.flags or "")
-      end,
+      function(line) return vim.fn.substitute(line, preview_lhs, [[\=luaeval("Abolished()")]], opts.flags or "") end,
       lines_before
     )
     ---@type string[]
@@ -376,9 +356,7 @@ local function substitute_command(count, line1, line2, bad, good, flags, preview
     -- Future me: do not change `max_lines` to `max_lines + 1`. Lua loops work like this, it is not needed.
     for i = 1, max_lines do
       local row = line1 + i - 1
-      if row > visible_line_range[2] then
-        break
-      end
+      if row > visible_line_range[2] then break end
       local splited_preview_good = vim.split(preview_good, "\n", {})
       if row >= visible_line_range[1] then
         local line_before = splice(lines_before[i])
@@ -452,14 +430,10 @@ M.subvert_dispatcher = function(opts)
   local count = opts.count
 
   local bang_regex = vim.regex [[^\%(\w\|$\)]] --[[@as vim.regex]]
-  if bang_regex:match_str(args) then
-    args = (opts.bang and "!" or "") .. args
-  end
+  if bang_regex:match_str(args) then args = (opts.bang and "!" or "") .. args end
 
   local first_char = args:sub(1, 1)
-  if first_char == "?" then
-    first_char = [[\]] .. first_char
-  end
+  if first_char == "?" then first_char = [[\]] .. first_char end
   local separator = [[\v((\\)@<!(\\\\)*\\)@<!]] .. first_char
   local split = vim.fn.split(args, separator, true)
   split = vim.list_slice(split, 2)
@@ -520,9 +494,7 @@ M.complete = function(arg_lead, _cmd_line, _cursor_pos)
     all_words = get_words()
     all_words = vim.tbl_map(
       ---@param word string
-      function(word)
-        return char .. word
-      end,
+      function(word) return char .. word end,
       all_words
     )
   elseif does_not_start_with_search:match_str(arg_lead) then
@@ -537,9 +509,7 @@ M.complete = function(arg_lead, _cmd_line, _cursor_pos)
   local filtered_words = vim.tbl_filter(
     ---@param word string
     function(word)
-      if already_seen[word] then
-        return false
-      end
+      if already_seen[word] then return false end
       already_seen[word] = true
       return vim.startswith(word, arg_lead)
     end,
@@ -556,9 +526,7 @@ M.subvert_preview = function(opts, preview_ns)
   local separator = opts.args:sub(1, 1)
   local _, occurrences = opts.args:gsub(separator, "")
 
-  if occurrences < 2 and opts.count == 0 and #opts.args <= 1 then
-    return DO_NOT_PREVIEW
-  end
+  if occurrences < 2 and opts.count == 0 and #opts.args <= 1 then return DO_NOT_PREVIEW end
 
   ---@cast opts + {preview_ns: integer}
   opts.preview_ns = preview_ns

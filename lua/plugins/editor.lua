@@ -33,12 +33,8 @@ return {
         },
         mappings = {
           i = {
-            ["<c-n>"] = function(...)
-              require("telescope.actions").cycle_history_next(...)
-            end,
-            ["<c-p>"] = function(...)
-              require("telescope.actions").cycle_history_prev(...)
-            end,
+            ["<c-n>"] = function(...) require("telescope.actions").cycle_history_next(...) end,
+            ["<c-p>"] = function(...) require("telescope.actions").cycle_history_prev(...) end,
             ["<c-space>"] = function(prompt_bufnr)
               local action_state = require "telescope.actions.state"
               local picker = action_state.get_current_picker(prompt_bufnr)
@@ -47,9 +43,7 @@ return {
             end,
           },
           n = {
-            ["<c-{>"] = function(...)
-              require("telescope.actions").close(...)
-            end,
+            ["<c-{>"] = function(...) require("telescope.actions").close(...) end,
           },
         },
       },
@@ -96,9 +90,7 @@ return {
                 local picker = action_state.get_current_picker(prompt_bufnr)
                 local prompt = picker:_get_prompt()
                 prompt = vim.trim(prompt)
-                if prompt == "" then
-                  prompt = vim.trim(vim.fn.getreg '"')
-                end
+                if prompt == "" then prompt = vim.trim(vim.fn.getreg '"') end
                 prompt = string.format([=[__name__ = ['"]%s['"]]=], prompt)
                 prompt = helpers.quote(prompt, { quote_char = '"' })
                 picker:set_prompt(prompt)
@@ -108,9 +100,7 @@ return {
                 local picker = action_state.get_current_picker(prompt_bufnr)
                 local prompt = picker:_get_prompt()
                 prompt = vim.trim(prompt)
-                if prompt == "" then
-                  prompt = vim.trim(vim.fn.getreg '"')
-                end
+                if prompt == "" then prompt = vim.trim(vim.fn.getreg '"') end
                 prompt = prompt:gsub("([%^%$%(%)%.%[%]%*%+%?|{}])", [[\%1]])
                 -- caracteres mágicos en lua
                 -- ^$()%.[]*+-?
@@ -146,9 +136,7 @@ return {
     keys = {
       {
         "<leader>fs",
-        function()
-          require("telescope").extensions.live_grep_args.live_grep_args()
-        end,
+        function() require("telescope").extensions.live_grep_args.live_grep_args() end,
         mode = "n",
       },
     },
@@ -163,9 +151,7 @@ return {
             prompt = "lang:",
             default = vim.treesitter.language.get_lang(vim.bo[0].filetype),
           }, function(lang)
-            if not lang then
-              return
-            end
+            if not lang then return end
             require("telescope").extensions.ast_grep.ast_grep {
               lang = lang,
             }
@@ -181,9 +167,7 @@ return {
     keys = {
       {
         "<leader>fp",
-        function()
-          require("telescope").extensions.projects.projects()
-        end,
+        function() require("telescope").extensions.projects.projects() end,
         mode = "n",
       },
     },
@@ -199,9 +183,7 @@ return {
 
           --- @type {exists: fun():boolean}
           local session_name = config.dir_to_session_filename { filename = vim.loop.cwd() }
-          if not session_name:exists() then
-            return true
-          end
+          if not session_name:exists() then return true end
 
           require("session_manager").load_current_dir_session(true)
           return false
@@ -286,9 +268,7 @@ return {
       {
         "s",
         mode = { "n", "x", "o" },
-        function()
-          require("flash").jump()
-        end,
+        function() require("flash").jump() end,
         desc = "Flash",
       },
       {
@@ -314,25 +294,19 @@ return {
       {
         "r",
         mode = "o",
-        function()
-          require("flash").remote()
-        end,
+        function() require("flash").remote() end,
         desc = "Remote Flash",
       },
       {
         "R",
         mode = { "o", "x" },
-        function()
-          require("flash").treesitter_search()
-        end,
+        function() require("flash").treesitter_search() end,
         desc = "Flash Treesitter Search",
       },
       {
         "<c-s>",
         mode = { "c" },
-        function()
-          require("flash").toggle()
-        end,
+        function() require("flash").toggle() end,
         desc = "Toggle Flash Search",
       },
     },
@@ -349,9 +323,7 @@ return {
         file = function(_, opts)
           local full_path = vim.fn.expand("%:p", false)
 
-          if full_path:match "fern://" ~= nil then
-            return " fern"
-          end
+          if full_path:match "fern://" ~= nil then return " fern" end
 
           local filename = vim.fn.expand("%:t", false)
           local extension = vim.fn.expand("%:e", false)
@@ -377,9 +349,7 @@ return {
 
           return " " .. relative_path .. " " .. status, icon
         end,
-        cwd = function()
-          return vim.loop.cwd()
-        end,
+        cwd = function() return vim.loop.cwd() end,
         navic = function(_, opts)
           local win_size = vim.api.nvim_win_get_width(0)
           local location = navic.get_location(opts)
@@ -569,7 +539,7 @@ return {
         function()
           local cwd = vim.loop.cwd()
           if cwd then
-            if vim.startswith(vim.fn.expand "%:p:h", cwd) then
+            if vim.startswith(vim.fs.normalize(vim.fn.expand "%:p:h"), cwd) then
               vim.cmd.Fern { args = { ".", "-reveal=%" } }
             else
               vim.cmd.Fern { args = { "%:h", "-reveal=%:p" } }
@@ -626,9 +596,7 @@ return {
         pattern = "*",
         callback = function()
           local event = vim.api.nvim_get_chan_info(vim.v.event.chan)
-          if event == nil or event.client == nil then
-            return
-          end
+          if event == nil or event.client == nil then return end
           --- @type string
           local name = event.client.name
           if name == "Firenvim" then
@@ -638,9 +606,7 @@ return {
         end,
       })
     end,
-    build = function()
-      vim.fn["firenvim#install"](0)
-    end,
+    build = function() vim.fn["firenvim#install"](0) end,
   },
   {
     "kevinhwang91/nvim-ufo",

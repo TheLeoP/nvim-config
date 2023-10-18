@@ -21,9 +21,7 @@ M.capabilities.textDocument.foldingRange = {
 }
 
 M.on_attach_general = function(client, bufnr)
-  if client.server_capabilities.documentSymbolProvider then
-    require("nvim-navic").attach(client, bufnr)
-  end
+  if client.server_capabilities.documentSymbolProvider then require("nvim-navic").attach(client, bufnr) end
 
   vim.keymap.set("n", "gd", "<cmd>Telescope lsp_definitions<cr>", { buffer = bufnr, desc = "Go to definition" })
   vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { buffer = bufnr, desc = "Go to declaration" })

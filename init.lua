@@ -11,9 +11,7 @@ local function bootstrap(url, ref)
     print(name .. ": installing in data dir...")
 
     vim.fn.system { "git", "clone", url, path }
-    if ref then
-      vim.fn.system { "git", "-C", path, "checkout", ref }
-    end
+    if ref then vim.fn.system { "git", "-C", path, "checkout", ref } end
 
     vim.cmd "redraw"
     print(name .. ": finished installing")

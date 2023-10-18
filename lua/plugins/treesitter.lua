@@ -1,9 +1,6 @@
-local treesitter_dev = false
-
 return {
   {
     "nvim-treesitter/nvim-treesitter",
-    dev = treesitter_dev,
     build = ":TSUpdate",
     opts = {
       ensure_installed = "all",
@@ -49,30 +46,39 @@ return {
           },
         },
       },
+      autotag = {
+        enable = true,
+      },
     },
     config = function(_, opts)
-      if vim.fn.has "win32" == 1 then
-        require("nvim-treesitter.install").compilers = { "clang" }
-      end
-      if treesitter_dev then
-        require("nvim-treesitter").setup(opts)
-      else
-        require("nvim-treesitter.configs").setup(opts)
-      end
+      if vim.fn.has "win32" == 1 then require("nvim-treesitter.install").compilers = { "clang" } end
+      require("nvim-treesitter.configs").setup(opts)
+
+      local parsers = require "nvim-treesitter.parsers"
+      local installer = require "nvim-treesitter.install"
+      local parser_config = parsers.get_parser_configs()
+      parser_config.angular = {
+        install_info = {
+          url = "https://github.com/ShooTeX/tree-sitter-angular",
+          files = { "src/parser.c" },
+          branch = "main",
+          generate_requires_npm = false,
+          requires_generate_from_grammar = false,
+        },
+      }
+
+      if not parsers.has_parser "angular" then vim.cmd.TSInstallFromGrammar "angular" end
     end,
     dependencies = {
       {
         "folke/twilight.nvim",
-        enabled = not treesitter_dev,
         opts = {},
       },
       {
         "nvim-treesitter/nvim-treesitter-textobjects",
-        enabled = not treesitter_dev,
       },
       {
         "nvim-treesitter/playground",
-        enabled = not treesitter_dev,
       },
       {
         "LiadOZ/nvim-dap-repl-highlights",
@@ -84,6 +90,9 @@ return {
           max_lines = 4,
           multiline_threshold = 2,
         },
+      },
+      {
+        "windwp/nvim-ts-autotag",
       },
     },
   },

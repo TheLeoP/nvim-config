@@ -45,9 +45,7 @@ return {
         server = {
           on_attach = config.on_attach_general,
           capabilities = config.capabilities,
-          root_dir = function()
-            return jdtls_setup.find_root { ".git" }
-          end,
+          root_dir = function() return jdtls_setup.find_root { ".git" } end,
         },
       }
       lspconfig.pyright.setup {
@@ -75,6 +73,18 @@ return {
             "pyrightconfig.json",
           }
         end,
+      }
+
+      -- c#
+      require("lspconfig").omnisharp.setup {
+        on_attach = config.on_attach_general,
+        capabilities = config.capabilities,
+      }
+
+      -- angular
+      require("lspconfig").angularls.setup {
+        on_attach = config.on_attach_general,
+        capabilities = config.capabilities,
       }
 
       local servidores_generales = {
@@ -157,11 +167,17 @@ return {
       }
 
       -- powershell
+      local temp_path = vim.fs.normalize(vim.fn.stdpath "cache")
+      local function make_pwsh_cmd(bundle_path)
+        local command_fmt =
+          [[& '%s/PowerShellEditorServices/Start-EditorServices.ps1' -BundledModulesPath '%s' -LogPath '%s/powershell_es.log' -SessionDetailsPath '%s/powershell_es.session.json' -FeatureFlags @() -AdditionalModules @() -HostName nvim -HostProfileId 0 -HostVersion 1.0.0 -Stdio -LogLevel Normal]]
+        local command = command_fmt:format(bundle_path, bundle_path, temp_path, temp_path)
+        return { "pwsh", "-NoLogo", "-NoProfile", "-Command", command }
+      end
       lspconfig.powershell_es.setup {
         on_attach = config.on_attach_general,
         capabilities = config.capabilities,
-        ---@type string
-        bundle_path = config.mason_root .. "powershell-editor-services",
+        cmd = make_pwsh_cmd(vim.fs.normalize(config.mason_root .. "powershell-editor-services")),
       }
 
       -- json
@@ -180,7 +196,7 @@ return {
     end,
   },
   {
-    "jose-elias-alvarez/null-ls.nvim",
+    "nvimtools/none-ls.nvim",
     opts = function()
       local nls = require "null-ls"
       return {
@@ -191,6 +207,16 @@ return {
         },
       }
     end,
+  },
+  {
+    "jay-babu/mason-null-ls.nvim",
+    opts = {
+      automatic_installation = true,
+    },
+    dependencies = {
+      "nvimtools/none-ls.nvim",
+      "williamboman/mason.nvim",
+    },
   },
   {
     "j-hui/fidget.nvim",

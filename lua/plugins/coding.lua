@@ -19,18 +19,10 @@ local init_location_if_required = function()
   local widgets = require "dap.ui.widgets"
   if not location then
     location = {
-      ["h"] = function(widget)
-        return widgets.sidebar(widget, nil, "topleft 50 vsplit")
-      end,
-      ["k"] = function(widget)
-        return widgets.sidebar(widget, nil, "topleft 7 split")
-      end,
-      ["j"] = function(widget)
-        return widgets.sidebar(widget, nil, "7 split")
-      end,
-      ["l"] = function(widget)
-        return widgets.sidebar(widget, nil, "50 vsplit")
-      end,
+      ["h"] = function(widget) return widgets.sidebar(widget, nil, "topleft 50 vsplit") end,
+      ["k"] = function(widget) return widgets.sidebar(widget, nil, "topleft 7 split") end,
+      ["j"] = function(widget) return widgets.sidebar(widget, nil, "7 split") end,
+      ["l"] = function(widget) return widgets.sidebar(widget, nil, "50 vsplit") end,
       ["c"] = widgets.centered_float,
     }
   end
@@ -66,9 +58,7 @@ local function debug_menu()
     local ok, char = pcall(vim.fn.getcharstr)
     vim.cmd [[echo '' | redraw]]
 
-    if not ok or char == "\27" then
-      return
-    end
+    if not ok or char == "\27" then return end
 
     init_location_if_required() ---@cast location -nil
     if char == "c" then
@@ -208,6 +198,7 @@ return {
         cpp = false,
         telescopeprompt = false,
         xml = false,
+        dashboard = false,
       },
     },
   },
@@ -229,79 +220,57 @@ return {
     keys = {
       {
         "<leader>ae",
-        function()
-          require("refactoring").refactor "Extract Function"
-        end,
+        function() require("refactoring").refactor "Extract Function" end,
         mode = "x",
       },
       {
         "<leader>af",
-        function()
-          require("refactoring").refactor "Extract Function To File"
-        end,
+        function() require("refactoring").refactor "Extract Function To File" end,
         mode = "x",
       },
       {
         "<leader>av",
-        function()
-          require("refactoring").refactor "Extract Variable"
-        end,
+        function() require("refactoring").refactor "Extract Variable" end,
         mode = "x",
       },
       {
         "<leader>ai",
-        function()
-          require("refactoring").refactor "Inline Variable"
-        end,
+        function() require("refactoring").refactor "Inline Variable" end,
         mode = { "n", "x" },
       },
       {
         "<leader>abb",
-        function()
-          require("refactoring").refactor "Extract Block"
-        end,
+        function() require("refactoring").refactor "Extract Block" end,
         mode = "n",
       },
       {
         "<leader>abf",
-        function()
-          require("refactoring").refactor "Extract Block To File"
-        end,
+        function() require("refactoring").refactor "Extract Block To File" end,
         mode = "n",
       },
       {
         "<leader>apP",
-        function()
-          require("refactoring").debug.printf { below = false }
-        end,
+        function() require("refactoring").debug.printf { below = false } end,
         mode = "n",
       },
       {
         "<leader>app",
-        function()
-          require("refactoring").debug.printf { below = true }
-        end,
+        function() require("refactoring").debug.printf { below = true } end,
         mode = "n",
       },
       {
         "<leader>apv",
-        function()
-          require("refactoring").debug.print_var { below = true }
-        end,
+        function() require("refactoring").debug.print_var { below = true } end,
         mode = { "x", "n" },
       },
       {
         "<leader>ac",
-        function()
-          require("refactoring").debug.cleanup {}
-        end,
+        function() require("refactoring").debug.cleanup {} end,
         mode = "n",
       },
       {
         "<leader>aI",
-        function()
-          require("refactoring").refactor(115)
-        end,
+        function() require("refactoring").refactor(115) end,
         mode = "n",
       },
     },
@@ -353,44 +322,32 @@ return {
       },
       {
         "<leader>dp",
-        function()
-          require("dap.ui.widgets").preview()
-        end,
+        function() require("dap.ui.widgets").preview() end,
         mode = "n",
       },
       {
         "<leader>dh",
-        function()
-          require("dap.ui.widgets").hover()
-        end,
+        function() require("dap.ui.widgets").hover() end,
         mode = "n",
       },
       {
         "<leader>dc",
-        function()
-          require("dap").continue()
-        end,
+        function() require("dap").continue() end,
         mode = "n",
       },
       {
         "<leader>dr",
-        function()
-          require("dap").repl.toggle()
-        end,
+        function() require("dap").repl.toggle() end,
         mode = "n",
       },
       {
         "<leader>de",
-        function()
-          require("dap").terminate()
-        end,
+        function() require("dap").terminate() end,
         mode = "n",
       },
       {
         "<leader>db",
-        function()
-          require("dap").toggle_breakpoint()
-        end,
+        function() require("dap").toggle_breakpoint() end,
         mode = "n",
       },
       {
@@ -400,9 +357,7 @@ return {
             { prompt = "Breakpoint condition: " },
             ---@param input string|nil
             function(input)
-              if input then
-                require("dap").set_breakpoint(input)
-              end
+              if input then require("dap").set_breakpoint(input) end
             end
           )
         end,
@@ -418,37 +373,27 @@ return {
       },
       {
         "<leader>dv",
-        function()
-          require("dap").step_over()
-        end,
+        function() require("dap").step_over() end,
         mode = "n",
       },
       {
         "<leader>dsi",
-        function()
-          require("dap").step_into()
-        end,
+        function() require("dap").step_into() end,
         mode = "n",
       },
       {
         "<leader>dso",
-        function()
-          require("dap").step_out()
-        end,
+        function() require("dap").step_out() end,
         mode = "n",
       },
       {
         "<leader>dsb",
-        function()
-          require("dap").step_back()
-        end,
+        function() require("dap").step_back() end,
         mode = "n",
       },
       {
         "<leader>dtc",
-        function()
-          require("dap").run_to_cursor()
-        end,
+        function() require("dap").run_to_cursor() end,
         mode = "n",
       },
     },
@@ -535,9 +480,10 @@ return {
               -- The pid is the parent pid, we need to attach to the child. This uses the `ps` tool to get it
               -- It takes a bit for the child to arrive. This uses the `vim.wait` function to wait up to a second
               -- to get the child pid.
-              vim.wait(1000, function()
-                return tonumber(vim.fn.system("ps -o pid= --ppid " .. tostring(ppid))) ~= nil
-              end)
+              vim.wait(
+                1000,
+                function() return tonumber(vim.fn.system("ps -o pid= --ppid " .. tostring(ppid))) ~= nil end
+              )
               local pid = tonumber(vim.fn.system("ps -o pid= --ppid " .. tostring(ppid)))
 
               -- If we found it, spawn another debug session that attaches to the pid.
@@ -600,6 +546,16 @@ return {
       "mfussenegger/nvim-dap-python",
       "mxsdev/nvim-dap-vscode-js",
       "theHamsta/nvim-dap-virtual-text",
+    },
+  },
+  {
+    "jay-babu/mason-nvim-dap.nvim",
+    opts = {
+      automatic_installation = true,
+    },
+    dependencies = {
+      "mfussenegger/nvim-dap",
+      "williamboman/mason.nvim",
     },
   },
   {
