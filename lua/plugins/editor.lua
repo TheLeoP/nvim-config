@@ -538,10 +538,11 @@ return {
         function()
           local cwd = vim.loop.cwd()
           if cwd then
-            if vim.startswith(vim.fs.normalize(vim.fn.expand "%:p:h"), cwd) then
+            local head = vim.fs.normalize(vim.fn.expand "%:p:h")
+            if vim.startswith(head, cwd) then
               vim.cmd.Fern { args = { ".", "-reveal=%" } }
             else
-              vim.cmd.Fern { args = { "%:h", "-reveal=%:p" } }
+              vim.cmd.Fern { args = { head, ("-reveal=%s"):format(head) } }
             end
           end
         end,
