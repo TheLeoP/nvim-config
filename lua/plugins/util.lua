@@ -48,6 +48,11 @@ return {
         message = "Take a break.",
         enabled = true,
       })
+      pulse.add("posture", {
+        interval = 15,
+        message = "Take a break.",
+        enabled = true,
+      })
     end,
   },
 }
