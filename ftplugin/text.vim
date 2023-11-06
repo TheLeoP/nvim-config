@@ -4,12 +4,6 @@ setlocal colorcolumn=0
 
 let b:undo_ftplugin = "setlocal nospell nowrap"
 
-nmap <buffer> <leader>sc z=
-nmap <buffer> <leader>sg zg
-nmap <buffer> <leader>sug zug
-nmap <buffer> <leader>sw zw
-nmap <buffer> <leader>suw zuw
-
 nnoremap <expr><buffer> j v:count ? 'j' : 'gj'
 nnoremap <expr><buffer> k v:count ? 'k' : 'gk'
 nnoremap <buffer> gj j

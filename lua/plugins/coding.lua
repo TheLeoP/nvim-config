@@ -574,11 +574,13 @@ return {
   },
   {
     "echasnovski/mini.nvim",
+
     lazy = false,
     version = false,
     dependencies = { "nvim-treesitter-textobjects" },
     config = function()
       local ai = require "mini.ai"
+      local gen_ai_spec = require("mini.extra").gen_ai_spec
 
       ai.setup {
         n_lines = 500,
@@ -592,12 +594,13 @@ return {
           F = ai.gen_spec.function_call(),
           t = { "<([%p%w]-)%f[^<%w][^<>]->.-</%1>", "^<.->().*()</[^/]->$" },
 
-          l = { "^()%s*().*()()\n$" },
+          B = gen_ai_spec.buffer(),
+          D = gen_ai_spec.diagnostic(),
+          I = gen_ai_spec.indent(),
+          L = gen_ai_spec.line(),
+          N = gen_ai_spec.number(),
         },
         mappings = {
-          around_last = "",
-          inside_last = "",
-
           goto_left = "g{",
           goto_right = "g}",
         },
@@ -641,7 +644,7 @@ return {
   {
     "andymass/vim-matchup",
     init = function()
-      vim.g.matchup_delim_noskips = 2 -- don't recognize anything in comments
+      vim.g.matchup_delim_noskips = 1 -- recognize only symbols in strings and comments
       vim.g.matchup_matchparen_offscreen = {} -- disable feature
       vim.g.matchup_matchparen_deferred = 1
     end,
