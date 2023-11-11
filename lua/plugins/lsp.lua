@@ -271,9 +271,5 @@ return {
         enableProfileLoading = false,
       },
     },
-    config = function(_, opts)
-      require("powershell").setup(opts)
-      vim.keymap.set("n", "<leader>P", require("powershell").toggle_term)
-    end,
   },
 }
