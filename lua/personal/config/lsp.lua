@@ -1,9 +1,5 @@
 local M = {}
 
-local jdtls = require "jdtls"
-local jdtls_dap = require "jdtls.dap"
-local jdtls_setup = require "jdtls.setup"
-
 M.mason_root = vim.fn.stdpath "data" .. "/mason/packages/" --[[@as string]]
 
 M.capabilities = vim.lsp.protocol.make_client_capabilities()
@@ -92,9 +88,9 @@ end
 -- java
 local on_attach_java = function(client, bufnr)
   M.on_attach_general(client, bufnr)
-  jdtls.setup_dap { hotcodereplace = "auto" }
-  jdtls_dap.setup_dap_main_class_configs()
-  jdtls_setup.add_commands()
+  require "jdtls".setup_dap { hotcodereplace = "auto" }
+  require "jdtls.dap".setup_dap_main_class_configs()
+  require "jdtls.setup".add_commands()
 end
 
 local on_init = function(client)
@@ -120,7 +116,7 @@ function M.jdtls_setup()
     .. vim.fn.fnamemodify(root_dir, ":h:t")
     .. "/"
     .. vim.fn.fnamemodify(root_dir, ":t")
-  local extendedClientCapabilities = jdtls.extendedClientCapabilities
+  local extendedClientCapabilities = require "jdtls".extendedClientCapabilities
   extendedClientCapabilities.resolveAdditionalTextEditsSupport = true
 
   local jdtls_root = M.mason_root .. "jdtls/"
@@ -201,7 +197,7 @@ function M.jdtls_setup()
     vim.split(vim.fn.glob(M.mason_root .. "java-test/extension/server/*.jar"), "\n")
   )
 
-  jdtls.start_or_attach(config)
+  require "jdtls".start_or_attach(config)
 end
 
 return M

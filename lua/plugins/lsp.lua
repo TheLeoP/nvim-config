@@ -87,6 +87,22 @@ return {
         capabilities = config.capabilities,
       }
 
+      -- fennel
+      require("lspconfig").fennel_language_server.setup {
+        on_attach = config.on_attach_general,
+        capabilities = config.capabilities,
+        settings = {
+          fennel = {
+            workspace = {
+              library = vim.api.nvim_list_runtime_paths(),
+            },
+            diagnostics = {
+              globals = { "vim" },
+            },
+          },
+        },
+      }
+
       local servidores_generales = {
         "vimls",
         "clangd",
@@ -167,16 +183,16 @@ return {
         },
       }
 
-      -- powershell
-      lspconfig.powershell_es.setup {
-        on_attach = config.on_attach_general,
-        capabilities = config.capabilities,
-        ---@type string
-        bundle_path = vim.fs.normalize(config.mason_root .. "powershell-editor-services"),
-        init_options = {
-          enableProfileLoading = false,
-        },
-      }
+      -- -- powershell
+      -- lspconfig.powershell_es.setup {
+      --   on_attach = config.on_attach_general,
+      --   capabilities = config.capabilities,
+      --   ---@type string
+      --   bundle_path = vim.fs.normalize(config.mason_root .. "powershell-editor-services"),
+      --   init_options = {
+      --     enableProfileLoading = false,
+      --   },
+      -- }
 
       -- json
       lspconfig.jsonls.setup {
@@ -236,9 +252,28 @@ return {
   },
   {
     "RRethy/vim-illuminate",
-    enabled = true,
     dependencies = {
       "neovim/nvim-lspconfig",
     },
+  },
+  {
+    "TheLeoP/powershell.nvim",
+    dev = true,
+    ---@type powershell.config
+    opts = {
+      on_attach = require("personal.config.lsp").on_attach_general,
+      capabilities = require("personal.config.lsp").capabilities,
+      bundle_path = vim.fs.normalize(require("personal.config.lsp").mason_root .. "powershell-editor-services"),
+      init_options = {
+        enableProfileLoading = false,
+      },
+      settings = {
+        enableProfileLoading = false,
+      },
+    },
+    config = function(_, opts)
+      require("powershell").setup(opts)
+      vim.keymap.set("n", "<leader>P", require("powershell").toggle_term)
+    end,
   },
 }

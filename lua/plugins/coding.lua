@@ -40,6 +40,8 @@ local cache = {
 local function debug_menu()
   init_components_if_required() ---@cast components -nil
   vim.ui.select(vim.tbl_keys(components), { prompt = "Select debug widget:" }, function(choice)
+    if not choice then return end
+
     local separator = { " | ", "WarningMsg" }
 
     vim.cmd [[echo '' | redraw]]
@@ -183,6 +185,7 @@ return {
   },
   {
     "zbirenbaum/copilot.lua",
+    enabled = false,
     opts = {
       suggestion = {
         auto_trigger = true,
@@ -215,7 +218,6 @@ return {
   {
     "theprimeagen/refactoring.nvim",
     lazy = false,
-    enabled = true,
     dev = true,
     keys = {
       {
@@ -594,11 +596,11 @@ return {
           F = ai.gen_spec.function_call(),
           t = { "<([%p%w]-)%f[^<%w][^<>]->.-</%1>", "^<.->().*()</[^/]->$" },
 
-          B = gen_ai_spec.buffer(),
-          D = gen_ai_spec.diagnostic(),
-          I = gen_ai_spec.indent(),
+          -- B = gen_ai_spec.buffer(),
+          -- D = gen_ai_spec.diagnostic(),
+          -- I = gen_ai_spec.indent(),
           L = gen_ai_spec.line(),
-          N = gen_ai_spec.number(),
+          -- N = gen_ai_spec.number(),
         },
         mappings = {
           goto_left = "g{",
