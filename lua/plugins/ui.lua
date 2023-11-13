@@ -126,7 +126,7 @@ return {
           vim.cmd.nohlsearch()
           vim.cmd.diffupdate()
           require("notify").dismiss { silent = true, pending = true }
-          vim.cmd.normal { "", bang = true }
+          vim.cmd.normal { "\12", bang = true } -- ctrl-l
         end,
       },
     },
