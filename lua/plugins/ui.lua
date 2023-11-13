@@ -125,7 +125,7 @@ return {
         function()
           vim.cmd.nohlsearch()
           vim.cmd.diffupdate()
-          require("notify").dismiss { silent = true }
+          require("notify").dismiss { silent = true, pending = true }
           vim.cmd.normal { "", bang = true }
         end,
       },
