@@ -107,6 +107,8 @@ return {
     opts = {
       input = {
         insert_only = false,
+        start_in_insert = false,
+        border = "single",
         win_options = {
           winblend = 0,
         },
