@@ -542,7 +542,8 @@ return {
             if vim.startswith(head, cwd) then
               vim.cmd.Fern { args = { ".", "-reveal=%" } }
             else
-              vim.cmd.Fern { args = { head, ("-reveal=%s"):format(head) } }
+              local whole = vim.fs.normalize(vim.fn.expand "%:p")
+              vim.cmd.Fern { args = { head, ("-reveal=%s"):format(whole) } }
             end
           end
         end,
