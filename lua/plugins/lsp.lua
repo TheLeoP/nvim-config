@@ -109,7 +109,7 @@ return {
         "html",
         "cssls",
         "lemminx",
-        "groovyls",
+        -- "groovyls",
         "intelephense",
         "prismals",
         "eslint",

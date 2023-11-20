@@ -595,11 +595,11 @@ return {
           F = ai.gen_spec.function_call(),
           t = { "<([%p%w]-)%f[^<%w][^<>]->.-</%1>", "^<.->().*()</[^/]->$" },
 
-          -- B = gen_ai_spec.buffer(),
-          -- D = gen_ai_spec.diagnostic(),
-          -- I = gen_ai_spec.indent(),
+          B = gen_ai_spec.buffer(),
+          D = gen_ai_spec.diagnostic(),
+          I = gen_ai_spec.indent(),
           L = gen_ai_spec.line(),
-          -- N = gen_ai_spec.number(),
+          N = gen_ai_spec.number(),
         },
         mappings = {
           goto_left = "g{",
@@ -640,6 +640,16 @@ return {
       vim.keymap.set("x", "<leader>s", [[:<C-u>lua MiniSurround.add('visual')<CR>]], { silent = true })
 
       require("mini.comment").setup {}
+
+      require("mini.hipatterns").setup {
+        highlighters = {
+          -- Highlight standalone 'FIXME', 'HACK', 'TODO', 'NOTE'
+          fixme = { pattern = "%f[%w]()FIXME()%f[%W]", group = "MiniHipatternsFixme" },
+          hack = { pattern = "%f[%w]()HACK()%f[%W]", group = "MiniHipatternsHack" },
+          todo = { pattern = "%f[%w]()TODO()%f[%W]", group = "MiniHipatternsTodo" },
+          note = { pattern = "%f[%w]()NOTE()%f[%W]", group = "MiniHipatternsNote" },
+        },
+      }
     end,
   },
   {

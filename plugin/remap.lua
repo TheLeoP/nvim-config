@@ -1,4 +1,4 @@
--- :fennel:1697647221
+-- :fennel:1700436409
 local function _1_()
   local _2_ = vim.bo.filetype
   if (_2_ == "lua") then

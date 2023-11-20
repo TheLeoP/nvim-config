@@ -129,7 +129,7 @@ return {
   },
   {
     "nvim-telescope/telescope-fzf-native.nvim",
-    build = "make",
+    build = "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build",
   },
   {
     "nvim-telescope/telescope-live-grep-args.nvim",
@@ -536,7 +536,7 @@ return {
       {
         "-",
         function()
-          local cwd = vim.loop.cwd()
+          local cwd = vim.fs.normalize(vim.loop.cwd())
           if cwd then
             local head = vim.fs.normalize(vim.fn.expand "%:p:h")
             if vim.startswith(head, cwd) then
