@@ -11,9 +11,7 @@ return {
         topdelete = { text = "‾" },
         changedelete = { text = "~" },
       },
-      signcolumn = false,
-      numhl = false,
-      linehl = false,
+      signcolumn = true,
       on_attach = function(bufnr)
         local opts = { buffer = bufnr, expr = true }
         local gs = package.loaded.gitsigns

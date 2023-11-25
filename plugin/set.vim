@@ -29,14 +29,13 @@ set signcolumn=yes
 set updatetime=300
 
 if has('win32')
-	set undodir=~/undodir    "señala el directorio en el cual guardar los archivos de deshacer/rehacer
-	let &guifont = 'CaskaydiaCove Nerd Font Mono:h14'
-else
-	let &guifont = 'CaskaydiaCove Nerd Font Mono:h15'
+    set undodir=~/undodir    "señala el directorio en el cual guardar los archivos de deshacer/rehacer
 endif
+let &guifont = 'CaskaydiaCove Nerd Font Mono:h12'
 
 if executable('rg')
-	set grepprg=rg\ --vimgrep\ --hidden
+    set grepprg=rg\ --vimgrep\ --hidden
+    set grepformat=%f:%l:%c:%m
 endif
 
 " mouse
@@ -49,3 +48,14 @@ set splitright
 set laststatus=3
 
 set cursorline
+
+set diffopt+=vertical,context:99
+
+set shortmess+=w
+set shortmess+=s
+
+" Disable health checks for these providers.
+let g:loaded_python3_provider = 0
+let g:loaded_ruby_provider = 0
+let g:loaded_perl_provider = 0
+let g:loaded_node_provider = 0

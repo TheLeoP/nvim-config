@@ -1,4 +1,11 @@
+local methods = vim.lsp.protocol.Methods
+
 local M = {}
+
+M.format = {
+  autoformat = true,
+  exclude = { "lemminx" },
+}
 
 M.mason_root = vim.fn.stdpath "data" .. "/mason/packages/" --[[@as string]]
 
@@ -15,79 +22,128 @@ M.capabilities.textDocument.foldingRange = {
   dynamicRegistration = false,
   lineFoldingOnly = true,
 }
+-- PERF: didChangeWatchedFiles is too slow.
+-- TODO: Remove this when https://github.com/neovim/neovim/issues/23291#issuecomment-1686709265 is fixed.
+M.capabilities.workspace.didChangeWatchedFiles.dynamicRegistration = false
 
-M.on_attach_general = function(client, bufnr)
-  if client.server_capabilities.documentSymbolProvider then require("nvim-navic").attach(client, bufnr) end
+local lsp_group = vim.api.nvim_create_augroup("LSP", { clear = true })
+local inlay_hints_group = vim.api.nvim_create_augroup("toggle_inlay_hints", { clear = true })
 
-  vim.keymap.set("n", "gd", "<cmd>Telescope lsp_definitions<cr>", { buffer = bufnr, desc = "Go to definition" })
-  vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { buffer = bufnr, desc = "Go to declaration" })
-  vim.keymap.set("n", "gr", "<cmd>Telescope lsp_references<cr>", { buffer = bufnr, desc = "Go to reference" })
-  vim.keymap.set("n", "gi", "<cmd>Telescope lsp_implementations<cr>", { buffer = bufnr, desc = "Go to implementation" })
-  vim.keymap.set("i", "<c-k>", vim.lsp.buf.signature_help, { buffer = bufnr, desc = "Signature help" })
-  vim.keymap.set("n", "K", vim.lsp.buf.hover, { buffer = bufnr, desc = "Hover" })
-  vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { buffer = bufnr, desc = "Rename" })
-  vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, { buffer = bufnr, desc = "Code actions" })
-  vim.keymap.set(
-    "x",
-    "<leader>ca",
-    ":lua vim.lsp.buf.code_action()<cr>",
-    { buffer = bufnr, desc = "Ranged code actions" }
-  )
-  vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { buffer = bufnr, desc = "Show error" })
-  vim.keymap.set(
-    "n",
-    "<leader>fds",
-    "<cmd>Telescope lsp_document_symbols<cr>",
-    { buffer = bufnr, desc = "Find document symbols" }
-  )
-  vim.keymap.set(
-    "n",
-    "<leader>fws",
-    "<cmd>Telescope lsp_workspace_symbols<cr>",
-    { buffer = bufnr, desc = "Find workspace symbols" }
-  )
-  vim.keymap.set(
-    "n",
-    "<leader>fki",
-    "<cmd>Telescope lsp_incoming_calls<cr>",
-    { buffer = bufnr, desc = "Find incoming calls" }
-  )
-  vim.keymap.set(
-    "n",
-    "<leader>fko",
-    "<cmd>Telescope lsp_outgoing_calls<cr>",
-    { buffer = bufnr, desc = "Find outgoing calls" }
-  )
+vim.api.nvim_create_autocmd("LspAttach", {
+  group = lsp_group,
+  ---@param args {buf:integer, data:{client_id:integer}}}
+  callback = function(args)
+    local bufnr = args.buf
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    if not client then return end
 
-  local ft = vim.bo[bufnr].filetype
-  local have_null_ls = #require("null-ls.sources").get_available(ft, "NULL_LS_FORMATTING") > 0
+    if client.server_capabilities.documentSymbolProvider then require("nvim-navic").attach(client, bufnr) end
 
-  local format = function()
-    vim.lsp.buf.format {
-      filter = function(client)
-        local have_null_ls = #require("null-ls.sources").get_available(ft, "NULL_LS_FORMATTING") > 0
-        if have_null_ls then
-          return client.name == "null-ls"
-        else
-          return client.name ~= "null-ls" and client.name ~= "lemminx"
-        end
-      end,
-      bufnr = bufnr,
-    }
-  end
-  if (client.supports_method "textDocument/formatting" and client.name ~= "lemminx") or have_null_ls then
-    vim.api.nvim_create_autocmd("BufWritePre", {
-      group = vim.api.nvim_create_augroup("LspFormat." .. bufnr, {}),
-      buffer = bufnr,
-      callback = format,
-    })
-    vim.keymap.set("n", "<leader>fm", format, { buffer = bufnr, desc = "formatting" })
-  end
-end
+    if client.supports_method(methods.textDocument_definition) then
+      vim.keymap.set("n", "gd", "<cmd>Telescope lsp_definitions<cr>", { buffer = bufnr, desc = "Go to definition" })
+    end
+    vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { buffer = bufnr, desc = "Go to declaration" })
+    vim.keymap.set("n", "gr", "<cmd>Telescope lsp_references<cr>", { buffer = bufnr, desc = "Go to reference" })
+    vim.keymap.set(
+      "n",
+      "gi",
+      "<cmd>Telescope lsp_implementations<cr>",
+      { buffer = bufnr, desc = "Go to implementation" }
+    )
+    if client.supports_method(methods.textDocument_signatureHelp) then
+      vim.keymap.set("i", "<c-k>", vim.lsp.buf.signature_help, { buffer = bufnr, desc = "Signature help" })
+    end
+    vim.keymap.set("n", "K", vim.lsp.buf.hover, { buffer = bufnr, desc = "Hover" })
+    if client.supports_method(methods.textDocument_rename) then
+      vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { buffer = bufnr, desc = "Rename" })
+    end
+
+    if client.supports_method(methods.textDocument_codeAction) then
+      vim.keymap.set({ "n", "x" }, "<leader>ca", vim.lsp.buf.code_action, { buffer = bufnr, desc = "Code actions" })
+    end
+    vim.keymap.set(
+      "n",
+      "<leader>fds",
+      "<cmd>Telescope lsp_document_symbols<cr>",
+      { buffer = bufnr, desc = "Find document symbols" }
+    )
+    vim.keymap.set(
+      "n",
+      "<leader>fws",
+      "<cmd>Telescope lsp_workspace_symbols<cr>",
+      { buffer = bufnr, desc = "Find workspace symbols" }
+    )
+    vim.keymap.set(
+      "n",
+      "<leader>fki",
+      "<cmd>Telescope lsp_incoming_calls<cr>",
+      { buffer = bufnr, desc = "Find incoming calls" }
+    )
+    vim.keymap.set(
+      "n",
+      "<leader>fko",
+      "<cmd>Telescope lsp_outgoing_calls<cr>",
+      { buffer = bufnr, desc = "Find outgoing calls" }
+    )
+
+    local ft = vim.bo[bufnr].filetype
+    local have_null_ls = #require("null-ls.sources").get_available(ft, "NULL_LS_FORMATTING") > 0
+
+    if
+      (client.supports_method "textDocument/formatting" and not vim.list_contains(M.format.exclude, client.name))
+      or have_null_ls
+    then
+      vim.api.nvim_create_autocmd("BufWritePre", {
+        group = vim.api.nvim_create_augroup("LspFormat." .. bufnr, {}),
+        buffer = bufnr,
+        callback = function()
+          if not M.format.autoformat then return end
+
+          vim.lsp.buf.format {
+            filter = function(client)
+              if have_null_ls then
+                return client.name == "null-ls"
+              else
+                return client.name ~= "null-ls" and not vim.list_contains(M.format.exclude, client.name)
+              end
+            end,
+            bufnr = bufnr,
+          }
+        end,
+      })
+    end
+
+    vim.keymap.set("n", "<leader>ft", function()
+      M.format.autoformat = not M.format.autoformat
+      vim.notify(string.format("Autoformat is %s", M.format.autoformat and "on" or "off"))
+    end)
+
+    if client.supports_method(methods.textDocument_inlayHint) then
+      -- Initial inlay hint display.
+      -- Idk why but without the delay inlay hints aren't displayed at the very start.
+      vim.defer_fn(function()
+        local mode = vim.api.nvim_get_mode().mode
+        vim.lsp.inlay_hint.enable(bufnr, mode == "n" or mode == "v")
+      end, 500)
+
+      vim.api.nvim_create_autocmd("InsertEnter", {
+        group = inlay_hints_group,
+        desc = "Enable inlay hints",
+        buffer = bufnr,
+        callback = function() vim.lsp.inlay_hint.enable(bufnr, false) end,
+      })
+      vim.api.nvim_create_autocmd("InsertLeave", {
+        group = inlay_hints_group,
+        desc = "Disable inlay hints",
+        buffer = bufnr,
+        callback = function() vim.lsp.inlay_hint.enable(bufnr, true) end,
+      })
+    end
+  end,
+})
 
 -- java
-local on_attach_java = function(client, bufnr)
-  M.on_attach_general(client, bufnr)
+local on_attach_java = function()
   require("jdtls").setup_dap { hotcodereplace = "auto" }
   require("jdtls.dap").setup_dap_main_class_configs()
   require("jdtls.setup").add_commands()
@@ -100,6 +156,7 @@ local on_init = function(client)
 end
 
 function M.jdtls_setup()
+  local jdts_setup = require "jdtls.setup"
   local root_dir = jdtls_setup.find_root { "build.gradle", "pom.xml", "build.xml" }
 
   -- si no se encuentra la raíz del proyecto, se finaliza sin inicializar jdt.ls
@@ -201,5 +258,56 @@ function M.jdtls_setup()
 
   require("jdtls").start_or_attach(config)
 end
+
+local diagnostic_icons = {
+  ERROR = "",
+  WARN = "",
+  HINT = "",
+  INFO = "",
+}
+
+-- Define the diagnostic signs.
+for severity, icon in pairs(diagnostic_icons) do
+  local hl = "DiagnosticSign" .. severity:sub(1, 1) .. severity:sub(2):lower()
+  vim.fn.sign_define(hl, { text = icon, texthl = hl })
+end
+
+vim.diagnostic.config {
+  virtual_text = {
+    prefix = "",
+    ---@param diagnostic Diagnostic
+    ---@return string
+    format = function(diagnostic)
+      local icon = diagnostic_icons[vim.diagnostic.severity[diagnostic.severity]] --[[@as string]]
+      local message = vim.split(diagnostic.message, "\n")[1]
+      return string.format("%s %s ", icon, message)
+    end,
+  },
+  float = {
+    border = "rounded",
+    source = "if_many",
+    -- Show severity icons as prefixes.
+    ---@param diagnostic Diagnostic
+    ---@return string, string
+    prefix = function(diagnostic)
+      local level = vim.diagnostic.severity[diagnostic.severity] --[[@as string]]
+      local prefix = string.format(" %s ", diagnostic_icons[level])
+      return prefix, "Diagnostic" .. level:gsub("^%l", string.upper)
+    end,
+  },
+  -- Disable signs in the gutter.
+  signs = false,
+}
+
+-- Override the virtual text diagnostic handler so that the most severe diagnostic is shown first.
+local show_handler = vim.diagnostic.handlers.virtual_text.show
+local hide_handler = vim.diagnostic.handlers.virtual_text.hide
+vim.diagnostic.handlers.virtual_text = {
+  show = function(ns, bufnr, diagnostics, opts)
+    table.sort(diagnostics, function(diag1, diag2) return diag1.severity > diag2.severity end)
+    return show_handler(ns, bufnr, diagnostics, opts)
+  end,
+  hide = hide_handler,
+}
 
 return M

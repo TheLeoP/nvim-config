@@ -18,6 +18,10 @@ return {
 
           FloatBorder = { link = "NormalFloat" },
 
+          FoldColumn = { link = "Normal" },
+          Folded = { bg = "#1d2021" },
+          SignColumn = { link = "Normal" },
+
           debugPC = { bg = "#1d2021" },
         },
         italic = {

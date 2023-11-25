@@ -35,25 +35,29 @@ inoremap & &<c-g>u
 inoremap \| \|<c-g>u
 inoremap : :<c-g>u
 inoremap ; ;<c-g>u
+inoremap = =<c-g>u
 
 " jumplist para j y k
 nnoremap <silent><expr> k (v:count > 0 ? "m'" . v:count : "") . 'k'
 nnoremap <silent><expr> j (v:count > 0 ? "m'" . v:count : "") . 'j'
 
-nnoremap <silent> ]e <cmd>lua vim.diagnostic.goto_next()<cr>
-nnoremap <silent> [e <cmd>lua vim.diagnostic.goto_prev()<cr>
+nnoremap <silent> ]e <cmd>lua vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.ERROR })<cr>
+nnoremap <silent> [e <cmd>lua vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.ERROR })<cr>
+nnoremap <silent> <leader>e <cmd>lua vim.diagnostic.open_float()<cr>
+nnoremap <silent> ]d <cmd>lua vim.diagnostic.goto_next()<cr>
+nnoremap <silent> [d <cmd>lua vim.diagnostic.goto_prev()<cr>
 
 " permitir salir del modo terminal con <c-[>
 tnoremap  <c-\><c-n>
 tnoremap <c-{><c-{> <c-\><c-n>
 
 " w and q
-nnoremap <silent> <leader>w :w<cr>
-nnoremap <silent> <leader>q :q<cr>
+nnoremap <silent> <leader>w <cmd>w<cr>
+nnoremap <silent> <leader>q <cmd>q<cr>
 
 " permite ejecutar un comando seleccionado visualmente en la última consola
 " abierta
-xnoremap <silent> <leader><leader>e :lua require('personal.util.general').visual_ejecutar_en_terminal()<cr>
+xnoremap <silent> <leader><leader>e <cmd>lua require('personal.util.general').visual_ejecutar_en_terminal()<cr>
 
 " borrar palabra con <c-bs>
 inoremap <C-BS> 
@@ -61,7 +65,7 @@ inoremap  
 
 " mejores macros
 nnoremap @ <cmd>execute "noautocmd normal! " . v:count1 . "@" . getcharstr()<cr>
-xnoremap @ :<C-U>execute "noautocmd '<,'>norm! " . v:count1 . "@" . getcharstr()<cr>
+xnoremap @ :<C-U>execute "noautocmd '<,'>normal! " . v:count1 . "@" . getcharstr()<cr>
 
 " tabs
 nnoremap <a-h> <cmd>tabprevious<cr>

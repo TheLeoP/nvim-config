@@ -609,21 +609,4 @@ return {
     end,
     build = function() vim.fn["firenvim#install"](0) end,
   },
-  {
-    "kevinhwang91/nvim-ufo",
-    init = function()
-      -- vim.o.foldcolumn = "1"
-      vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
-      vim.o.foldlevelstart = 99
-      vim.o.foldenable = true
-    end,
-    config = function()
-      require("ufo").setup()
-      vim.keymap.set("n", "zR", require("ufo").openAllFolds)
-      vim.keymap.set("n", "zM", require("ufo").closeAllFolds)
-    end,
-    dependencies = {
-      "kevinhwang91/promise-async",
-    },
-  },
 }

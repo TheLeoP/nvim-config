@@ -43,13 +43,11 @@ return {
 
       require("typescript").setup {
         server = {
-          on_attach = config.on_attach_general,
           capabilities = config.capabilities,
           root_dir = function() return jdtls_setup.find_root { ".git" } end,
         },
       }
       lspconfig.pyright.setup {
-        on_attach = config.on_attach_general,
         capabilities = config.capabilities,
         settings = {
           python = {
@@ -77,19 +75,16 @@ return {
 
       -- c#
       require("lspconfig").omnisharp.setup {
-        on_attach = config.on_attach_general,
         capabilities = config.capabilities,
       }
 
       -- angular
       require("lspconfig").angularls.setup {
-        on_attach = config.on_attach_general,
         capabilities = config.capabilities,
       }
 
       -- fennel
       require("lspconfig").fennel_language_server.setup {
-        on_attach = config.on_attach_general,
         capabilities = config.capabilities,
         settings = {
           fennel = {
@@ -117,7 +112,6 @@ return {
 
       for _, server in ipairs(servidores_generales) do
         lspconfig[server].setup {
-          on_attach = config.on_attach_general,
           capabilities = config.capabilities,
         }
       end
@@ -126,12 +120,16 @@ return {
 
       require("neodev").setup()
       lspconfig.lua_ls.setup {
-        on_attach = config.on_attach_general,
         capabilities = config.capabilities,
         settings = {
           Lua = {
+            hint = {
+              enable = true,
+              arrayIndex = "Disable",
+            },
             completion = {
               showWord = "Disable",
+              callSnippet = "Replace",
             },
             diagnostics = {
               groupFileStatus = {
@@ -166,7 +164,6 @@ return {
       end
 
       lspconfig.volar.setup {
-        on_attach = config.on_attach_general,
         capabilities = config.capabilities,
         on_new_config = on_new_config,
         filetypes = { "vue" },
@@ -174,7 +171,6 @@ return {
 
       -- go
       lspconfig.gopls.setup {
-        on_attach = config.on_attach_general,
         capabilities = config.capabilities,
         settings = {
           gopls = {
@@ -185,7 +181,6 @@ return {
 
       -- -- powershell
       -- lspconfig.powershell_es.setup {
-      --   on_attach = config.on_attach_general,
       --   capabilities = config.capabilities,
       --   ---@type string
       --   bundle_path = vim.fs.normalize(config.mason_root .. "powershell-editor-services"),
@@ -196,7 +191,6 @@ return {
 
       -- json
       lspconfig.jsonls.setup {
-        on_attach = config.on_attach_general,
         capabilities = config.capabilities,
         settings = {
           json = {
@@ -258,7 +252,6 @@ return {
     dev = true,
     ---@type powershell.config
     opts = {
-      on_attach = require("personal.config.lsp").on_attach_general,
       capabilities = require("personal.config.lsp").capabilities,
       bundle_path = vim.fs.normalize(require("personal.config.lsp").mason_root .. "powershell-editor-services"),
       init_options = {

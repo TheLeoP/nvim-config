@@ -592,7 +592,7 @@ return {
           }, {}),
           f = ai.gen_spec.treesitter({ a = "@function.outer", i = "@function.inner" }, {}),
           c = ai.gen_spec.treesitter({ a = "@class.outer", i = "@class.inner" }, {}),
-          F = ai.gen_spec.function_call(),
+          F = ai.gen_spec.treesitter { a = "@call.outer", i = "@call.inner" },
           t = { "<([%p%w]-)%f[^<%w][^<>]->.-</%1>", "^<.->().*()</[^/]->$" },
 
           B = gen_ai_spec.buffer(),
