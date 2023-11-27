@@ -27,7 +27,6 @@ M.capabilities.textDocument.foldingRange = {
 M.capabilities.workspace.didChangeWatchedFiles.dynamicRegistration = false
 
 local lsp_group = vim.api.nvim_create_augroup("LSP", { clear = true })
-local inlay_hints_group = vim.api.nvim_create_augroup("toggle_inlay_hints", { clear = true })
 
 vim.api.nvim_create_autocmd("LspAttach", {
   group = lsp_group,
@@ -119,25 +118,13 @@ vim.api.nvim_create_autocmd("LspAttach", {
     end)
 
     if client.supports_method(methods.textDocument_inlayHint) then
-      -- Initial inlay hint display.
-      -- Idk why but without the delay inlay hints aren't displayed at the very start.
-      vim.defer_fn(function()
-        local mode = vim.api.nvim_get_mode().mode
-        vim.lsp.inlay_hint.enable(bufnr, mode == "n" or mode == "v")
-      end, 500)
-
-      vim.api.nvim_create_autocmd("InsertEnter", {
-        group = inlay_hints_group,
-        desc = "Enable inlay hints",
-        buffer = bufnr,
-        callback = function() vim.lsp.inlay_hint.enable(bufnr, false) end,
-      })
-      vim.api.nvim_create_autocmd("InsertLeave", {
-        group = inlay_hints_group,
-        desc = "Disable inlay hints",
-        buffer = bufnr,
-        callback = function() vim.lsp.inlay_hint.enable(bufnr, true) end,
-      })
+      local inlay_hint = vim.lsp.inlay_hint
+      vim.keymap.set(
+        "n",
+        "<leader>ti",
+        function() inlay_hint.enable(bufnr, not inlay_hint.is_enabled()) end,
+        { buffer = bufnr }
+      )
     end
   end,
 })

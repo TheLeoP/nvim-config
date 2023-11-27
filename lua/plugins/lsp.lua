@@ -129,7 +129,6 @@ return {
             },
             completion = {
               showWord = "Disable",
-              callSnippet = "Replace",
             },
             diagnostics = {
               groupFileStatus = {

@@ -84,17 +84,6 @@ return {
                 prompt = helpers.quote(prompt, { quote_char = '"' }) .. " --type "
                 picker:set_prompt(prompt)
               end,
-              ["<c-l>"] = function(prompt_bufnr)
-                local action_state = require "telescope.actions.state"
-                local helpers = require "telescope-live-grep-args.helpers"
-                local picker = action_state.get_current_picker(prompt_bufnr)
-                local prompt = picker:_get_prompt()
-                prompt = vim.trim(prompt)
-                if prompt == "" then prompt = vim.trim(vim.fn.getreg '"') end
-                prompt = string.format([=[__name__ = ['"]%s['"]]=], prompt)
-                prompt = helpers.quote(prompt, { quote_char = '"' })
-                picker:set_prompt(prompt)
-              end,
               ["<c-e>"] = function(prompt_bufnr)
                 local action_state = require "telescope.actions.state"
                 local picker = action_state.get_current_picker(prompt_bufnr)
