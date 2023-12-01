@@ -16,7 +16,7 @@ end
 ---@param type "line"|"char"|"block"
 function M.coerce(type)
   local cursor_location = vim.api.nvim_win_get_cursor(0)
-  local c = vim.v.count1
+  local c = vim.v.count1 ---@type integer
   while c > 0 do
     c = c - 1
 
@@ -68,14 +68,26 @@ function M.coerce(type)
   vim.api.nvim_win_set_cursor(0, cursor_location)
 end
 
---- @type table<string, string>
+---@type table<string, string>
 local abolish_last_dict
 
---- @alias abolish.command_opts {name: string, args: string, fargs: string[], bang: boolean, line1: number, line2: number, range: number, count: number, reg: string, mods: string, smods: string[]}
+---@class abolish.command_opts
+---@field name string Command name
+---@field args string The args passed to the command, if any
+---@field fargs string[] The args split by unescaped whitespace (when more than one argument is allowed), if any
+---@field nargs number Number of arguments
+---@field bang boolean "true" if the command was executed with a ! modifier
+---@field line1 number The starting line of the command range
+---@field line2 number The final line of the command range
+---@field range number The number of items in the command range: 0, 1, or 2
+---@field count number Any count supplied
+---@field reg string The optional register, if specified
+---@field mods string Command modifiers, if any
+---@field smods string[] Command modifiers in a structured format. Has the same structure as the "mods" key of nvim_parse_cmd()
 
 ---@param flags string|table<string, any>
 local function normalize_options(flags)
-  --- @type table<string, any>, string
+  ---@type table<string, any>, string
   local opts
   if type(flags) == "table" then
     opts = flags
@@ -94,113 +106,99 @@ local function normalize_options(flags)
     opts.boundaries = 0
   end
 
-  local i_flag = vim.regex "i" --[[@ as vim.regex]]
+  local i_flag = vim.regex "I" --[[@ as vim.regex]]
   opts.case = opts.case or true
   opts.case = not i_flag:match_str(flags) and opts.case or false
-  opts.flags = vim.fn.substitute(flags, [=[\C[avIiw]]=], "", "g")
+  opts.flags = vim.fn.substitute(flags, [=[\C[Ivwi]]=], "", "g")
   return opts
 end
 
----@param dict table<string, string>
-local function expand_braces(dict)
+---@param p abolish.parsed_input
+local function expand_braces(p)
   ---@type table<string, string>
-  local new_dict = {}
+  local out = {}
+  local string = p.string or { before = "", fragments = {}, after = "" }
 
-  ---@type boolean
-  local redo
+  local total = math.max(#p.pattern.fragments, #string.fragments)
 
-  local regex = vim.regex "{.*}" --[[@as vim.regex]]
-  for key, val in pairs(dict) do
-    if regex:match_str(key) then
-      redo = true
-      ---@type string, string, string, string
-      local all, kbefore, kmiddle, kafter = unpack(vim.fn.matchlist(key, [[\(.\{-\}\){\(.\{-\}\)}\(.*\)]]))
-      ---@type string, string, string, string
-      local _all, vbefore, vmiddle, vafter = unpack(vim.fn.matchlist(val, [[\(.\{-\}\){\(.\{-\}\)}\(.*\)]]))
-      all = all or _all or ""
-      vbefore, vmiddle, vafter = vbefore or "", vmiddle or "", vafter or ""
-
-      if all == "" then
-        vbefore, vmiddle, vafter = val, ",", ""
-      end
-
-      local targets = vim.fn.split(kmiddle, ",", 1)
-      local replacements = vim.fn.split(vmiddle, ",", 1)
-
-      if #replacements == 1 and replacements[1] == "" then replacements = targets end
-
-      for i = 1, #targets do
-        new_dict[kbefore .. targets[i] .. kafter] = vbefore .. replacements[((i - 1) % #replacements + 1)] .. vafter
-      end
-    else
-      new_dict[key] = val
-    end
+  if total == 0 then
+    out[p.pattern.before .. p.pattern.after] = string.before .. string.after
+    return out
   end
 
-  if redo then
-    return expand_braces(new_dict)
-  else
-    return new_dict
+  for i = 1, total do
+    out[p.pattern.before .. p.pattern.fragments[i] .. p.pattern.after] = string.before
+      .. string.fragments[i]
+      .. string.after
   end
+  return out
 end
 
 ---@param word string
+---@return string
 function M.camelcase(word)
-  word = vim.fn.substitute(word, "-", "_", "g")
+  word = assert(vim.fn.substitute(word, "-", "_", "g"))
   local regex_ = vim.regex "_" --[[@as vim.regex]]
   local regex_l = vim.regex [[\l]] --[[@as vim.regex]]
   if not regex_:match_str(word) and regex_l:match_str(word) then
-    return vim.fn.substitute(word, "^.", [[\l&]], "")
+    return assert(vim.fn.substitute(word, "^.", [[\l&]], ""))
   else
-    return vim.fn.substitute(
-      word,
-      [[\C\(_\)\=\(.\)]],
-      [[\=submatch(1)==""?tolower(submatch(2)) : toupper(submatch(2))]],
-      "g"
+    return assert(
+      vim.fn.substitute(
+        word,
+        [[\C\(_\)\=\(.\)]],
+        [[\=submatch(1)==""?tolower(submatch(2)) : toupper(submatch(2))]],
+        "g"
+      )
     )
   end
 end
 
 ---@param word string
-function M.mixedcase(word) return vim.fn.substitute(M.camelcase(word), "^.", [[\u&]], "") end
+---@return string
+function M.mixedcase(word) return assert(vim.fn.substitute(M.camelcase(word), "^.", [[\u&]], "")) end
 
 ---@param word string
+---@return string
 function M.snakecase(word)
-  word = vim.fn.substitute(word, "::", "/", "g")
-  word = vim.fn.substitute(word, [[\(\u\+\)\(\u\l\)]], [[\1_\2]], "g")
-  word = vim.fn.substitute(word, [[\(\l\|\d\)\(\u\)]], [[\1_\2]], "g")
-  word = vim.fn.substitute(word, [=[[.-]]=], "_", "g")
-  word = vim.fn.tolower(word)
+  word = assert(vim.fn.substitute(word, "::", "/", "g"))
+  word = assert(vim.fn.substitute(word, [[\(\u\+\)\(\u\l\)]], [[\1_\2]], "g"))
+  word = assert(vim.fn.substitute(word, [[\(\l\|\d\)\(\u\)]], [[\1_\2]], "g"))
+  word = assert(vim.fn.substitute(word, [=[[.-]]=], "_", "g"))
+  word = assert(vim.fn.tolower(word))
   return word
 end
 
 ---@param word string
-function M.uppercase(word) return vim.fn.toupper(M.snakecase(word)) end
+---@return string
+function M.uppercase(word) return assert(vim.fn.toupper(M.snakecase(word))) end
 
 ---@param word string
-function M.dashcase(word) return vim.fn.substitute(M.snakecase(word), "_", "-", "g") end
+---@return string
+function M.dashcase(word) return assert(vim.fn.substitute(M.snakecase(word), "_", "-", "g")) end
 
 ---@param word string
-function M.spacecase(word) return vim.fn.substitute(M.snakecase(word), "_", " ", "g") end
+---@return string
+function M.spacecase(word) return assert(vim.fn.substitute(M.snakecase(word), "_", " ", "g")) end
 
 ---@param word string
-function M.dotcase(word) return vim.fn.substitute(M.snakecase(word), "_", ".", "g") end
+---@return string
+function M.dotcase(word) return assert(vim.fn.substitute(M.snakecase(word), "_", ".", "g")) end
 
----@param lhs string
----@param rhs string
+---@param parsed abolish.parsed_input
 ---@param opts table<string, any>
-local function create_dictionary(lhs, rhs, opts)
+local function create_dictionary(parsed, opts)
   ---@type table<string, string>
   local dict = {}
-  local expanded = expand_braces { [lhs] = rhs }
+  local expanded = expand_braces(parsed)
 
   local case = true
   if opts.case ~= nil then case = opts.case end
   for lhs, rhs in pairs(expanded) do
     if case then
       dict[M.mixedcase(lhs)] = M.mixedcase(rhs)
-      dict[vim.fn.tolower(lhs)] = vim.fn.tolower(rhs)
-      dict[vim.fn.toupper(lhs)] = vim.fn.toupper(rhs)
+      dict[assert(vim.fn.tolower(lhs))] = vim.fn.tolower(rhs)
+      dict[assert(vim.fn.toupper(lhs))] = vim.fn.toupper(rhs)
     end
     dict[lhs] = rhs
   end
@@ -230,12 +228,12 @@ end
 
 ---@param pattern string
 ---@return string
-local function subesc(pattern) return vim.fn.substitute(pattern, [=[[][\\/.*+?~%()&]]=], [[\\&]], "g") end
+local function subesc(pattern) return assert(vim.fn.substitute(pattern, [=[[][\\/.*+?~%()&]]=], [[\\&]], "g")) end
 
 ---@param dict table<string, string>
 ---@param boundaries number
 local function pattern(dict, boundaries)
-  --- @type string, string
+  ---@type string, string
   local a, b
   if boundaries == 2 then
     a = "<"
@@ -267,7 +265,7 @@ local highlights
 ---@return string
 -- TODO: handle multibyte chars
 local function splice(s)
-  --- @type string[]
+  ---@type string[]
   local chars = {}
   for i = 1, #s do
     chars[2 * i - 1] = s:sub(i, i)
@@ -279,11 +277,9 @@ end
 ---@param count integer
 ---@param line1 integer
 ---@param line2 integer
----@param bad string
----@param good string
----@param flags string
+---@param parsed abolish.parsed_input
 ---@param preview_ns integer|nil
-local function substitute_command(count, line1, line2, bad, good, flags, preview_ns)
+local function substitute_command(count, line1, line2, parsed, preview_ns)
   ---@type string
   local cmd
   if count then
@@ -301,26 +297,32 @@ local function substitute_command(count, line1, line2, bad, good, flags, preview
     visible_line_range = { vim.fn.line "w0", vim.fn.line "w$" }
   end
 
-  local opts = normalize_options(flags)
-  local dict = create_dictionary(bad, good, opts)
-  local lhs = pattern(dict, opts.boundaries)
-  abolish_last_dict = dict
+  if not preview_ns or (preview_ns and parsed.string) then
+    local opts = normalize_options(parsed.flags or "")
+    local dict = create_dictionary(parsed, opts)
+    local lhs = pattern(dict, opts.boundaries)
+    abolish_last_dict = dict
 
-  vim.fn.execute(cmd .. "/" .. lhs .. [[/\=luaeval("Abolished()")]] .. "/" .. opts.flags)
+    vim.fn.execute(cmd .. "/" .. lhs .. [[/\=luaeval("Abolished()")]] .. "/" .. opts.flags)
+  end
 
-  if preview_ns and not (good == "") then
+  if preview_ns then
     visible_line_range = {
       math.max(visible_line_range[1], vim.fn.line "w0"),
       math.max(visible_line_range[2], vim.fn.line "w$"),
     }
 
-    -- use "" by default to preview matches while searching (before replace)
-    local preview_good = good or ""
-    preview_good = vim.fn.substitute(preview_good, "\r", "\n", "g")
-    local preview_dict = create_dictionary(bad, preview_good, opts)
+    parsed.pattern.before = assert(vim.fn.substitute(parsed.pattern.before, "\r", "\n", "g"))
+    for i, v in ipairs(parsed.pattern.fragments) do
+      parsed.pattern.fragments[i] = assert(vim.fn.substitute(v, "\r", "\n", "g"))
+    end
+    parsed.pattern.after = assert(vim.fn.substitute(parsed.pattern.after, "\r", "\n", "g"))
+
+    local opts = normalize_options(parsed.flags or "")
+    local preview_dict = create_dictionary(parsed, opts)
     local preview_lhs = pattern(preview_dict, opts.boundaries)
     abolish_last_dict = preview_dict
-    --- @type string[]
+    ---@type string[]
     local lines_after = vim.tbl_map(
       ---@param line string
       function(line) return vim.fn.substitute(line, preview_lhs, [[\=luaeval("Abolished()")]], opts.flags or "") end,
@@ -357,7 +359,6 @@ local function substitute_command(count, line1, line2, bad, good, flags, preview
     for i = 1, max_lines do
       local row = line1 + i - 1
       if row > visible_line_range[2] then break end
-      local splited_preview_good = vim.split(preview_good, "\n", {})
       if row >= visible_line_range[1] then
         local line_before = splice(lines_before[i])
         local line_after = splice(splited_lines_after[i])
@@ -368,7 +369,7 @@ local function substitute_command(count, line1, line2, bad, good, flags, preview
           table.insert(highlights, {
             kind = "change",
             line = row,
-            column = splited_preview_good[i] == "" and start_b + 1 or start_b,
+            column = (count_b == 0) and start_b + 1 or start_b,
             length = math.max(count_b, count_a),
           })
         end
@@ -381,72 +382,30 @@ end
 ---@param line1 number
 ---@param line2 number
 ---@param count number
----@param args string[]
-local function parse_substitute(preview_ns, line1, line2, count, args)
-  local regex = vim.regex [=[^[/?]]=] --[[@as vim.regex]]
-  if regex:match_str(args[1]) then
-    local separator = args[1]:sub(1, 1)
-    args = vim.fn.split(vim.fn.join(args, ""), separator, true) --[=[@as string[]]=]
-    args = vim.list_slice(args, 2)
+---@param parsed abolish.parsed_input
+local function parse_substitute(preview_ns, line1, line2, count, parsed)
+  if not parsed.pattern and not parsed.string and not preview_ns then
+    vim.notify("Argument required", vim.log.levels.ERROR)
+    return
   end
 
-  if #args < 2 and not preview_ns then
-    vim.notify "E471: Argument required"
-  elseif #args > 3 and not preview_ns then
-    vim.notify "E488: Trailing characters"
-  end
-
-  ---@type string, string, string
-  local bad, good, flags = unpack(args)
-  flags = flags or ""
-
-  substitute_command(count, line1, line2, bad, good, flags, preview_ns)
+  substitute_command(count, line1, line2, parsed, preview_ns)
 end
 
----@param cmd string
----@param flags string
----@param word string
-local find_command = function(cmd, flags, word)
-  local opts = normalize_options(flags)
-  local dict = create_dictionary(word, "", opts)
-  cmd = vim.regex("[?!]$"):match_str(cmd) and "?" or "/"
+---@param parsed abolish.parsed_input
+local find_command = function(parsed)
+  local opts = normalize_options(parsed.flags or "")
+  local dict = create_dictionary(parsed, opts)
+  local cmd = parsed.separator == "?" and "?" or "/"
 
   local search = pattern(dict, opts.boundaries)
   vim.fn.setreg("/", search)
 
   if opts.flags == "" or vim.fn.search(vim.fn.getreg "/", "n") == 0 then
     vim.cmd.execute([["normal! ]] .. cmd .. [[\<CR>"]])
-  elseif vim.regex([=[;[/?]\@!]=]):match_str(opts.flags) then
-    vim.notify "E386: Expected '?' or '/' after ';'"
   else
     vim.cmd.execute([["normal! ]] .. cmd .. cmd .. opts.flags .. [[\<CR>"]])
     vim.fn.histdel("search", -1)
-  end
-end
-
---- @param opts abolish.command_opts | {preview_ns: integer|nil}
-M.subvert_dispatcher = function(opts)
-  local args = opts.args
-  local count = opts.count
-
-  local bang_regex = vim.regex [[^\%(\w\|$\)]] --[[@as vim.regex]]
-  if bang_regex:match_str(args) then args = (opts.bang and "!" or "") .. args end
-
-  local first_char = args:sub(1, 1)
-  if first_char == "?" then first_char = [[\]] .. first_char end
-  local separator = [[\v((\\)@<!(\\\\)*\\)@<!]] .. first_char
-  local split = vim.fn.split(args, separator, true)
-  split = vim.list_slice(split, 2)
-
-  local search_flags = vim.regex [=[^[A-Za-z]*\%([+-]\d\+\)\=$]=] --[[@as vim.regex]]
-  if count ~= 0 or (#split == 1 and split[1] == "") then
-    return parse_substitute(opts.preview_ns, opts.line1, opts.line2, opts.count, split)
-  elseif #split == 1 then
-    return find_command(separator, "", split[1])
-  elseif #split == 2 and search_flags:match_str(split[2]) then
-    return find_command(separator, split[2], split[1])
-  else
-    return parse_substitute(opts.preview_ns, opts.line1, opts.line2, opts.count, split)
   end
 end
 
@@ -460,14 +419,14 @@ local hl_groups = {
   change = "DiffChange",
 }
 
---- @alias abolish.highlight.kind "insertion" | "deletion" | "change"
---- @alias abolish.highlight { kind : abolish.highlight.kind, line: integer, column: integer, length: integer}
+---@alias abolish.highlight.kind "insertion" | "deletion" | "change"
+---@alias abolish.highlight { kind : abolish.highlight.kind, line: integer, column: integer, length: integer}
 
 ---@return string[]
 local function get_words()
-  --- @type string[]
+  ---@type string[]
   local words = {}
-  local lnum = vim.fn.line "w0"
+  local lnum = assert(vim.fn.line "w0")
   while lnum <= vim.fn.line "w$" do
     local line = vim.fn.getline(lnum)
     local col = 0
@@ -487,7 +446,7 @@ end
 M.complete = function(arg_lead, _cmd_line, _cursor_pos)
   local start_with_search = vim.regex [=[^[/?]\k\+$]=] --[[@as vim.regex]]
   local does_not_start_with_search = vim.regex [=[^\k\+$]=] --[[@as vim.regex]]
-  --- @type string[]
+  ---@type string[]
   local all_words
   if start_with_search:match_str(arg_lead) then
     local char = arg_lead:sub(1, 1)
@@ -518,25 +477,21 @@ M.complete = function(arg_lead, _cmd_line, _cursor_pos)
   return filtered_words
 end
 
---- @param opts abolish.command_opts
---- @param preview_ns integer
+---@param opts abolish.command_opts|{preview_ns: integer}
+---@param preview_ns integer
 M.subvert_preview = function(opts, preview_ns)
   highlights = {}
 
-  local separator = opts.args:sub(1, 1)
-  local _, occurrences = opts.args:gsub(separator, "")
-
-  if occurrences < 2 and opts.count == 0 and #opts.args <= 1 then return DO_NOT_PREVIEW end
-
-  ---@cast opts + {preview_ns: integer}
-  opts.preview_ns = preview_ns
-  M.subvert_dispatcher(opts)
+  opts.preview_ns = preview_ns or vim.api.nvim_create_namespace "abolish"
+  local t = M.subvert_dispatcher(opts)
+  if not t then return DO_NOT_PREVIEW end
+  if not t.pattern or (not opts.count and not t.string) then return DO_NOT_PREVIEW end
 
   for _, hl in ipairs(highlights) do
     local hl_group = hl_groups[hl.kind]
     vim.api.nvim_buf_add_highlight(
       0,
-      preview_ns,
+      opts.preview_ns,
       hl_group,
       hl.line - 1,
       hl.column - 1,
@@ -560,5 +515,73 @@ M.coercions = {
   ["."] = M.dotcase,
   [" "] = M.spacecase,
 }
+
+local l = vim.lpeg
+local P, S, V, C, Cg, Cmt, Cb, Ct = l.P, l.S, l.V, l.C, l.Cg, l.Cmt, l.Cb, l.Ct
+local locale = l.locale {}
+
+-- Own flags
+-- I: Disable case variations (box, Box, BOX)
+-- v: Match inside variable names (match my_box, myBox, but not mybox)
+-- w: Match whole words (like surrounding with \< and \>)
+M.grammar = P {
+  "command",
+  prefix = Cg(P "S", "command"),
+  separator = -S [[\"| ]] * -locale.alnum * 1,
+  start_separator = Cg(V "separator", "separator"),
+  end_separator = Cmt(C(V "separator") * Cb "separator", function(_s, _i, a, b) return a == b end),
+  char = locale.alnum + S "_-.",
+  fragment = C(V "char" ^ 0) * P "," + C(V "char" ^ 0) * P "}",
+  section = Ct(
+    Cg(V "char" ^ 0, "before") * Cg(Ct((P "{" * V "fragment" ^ 1) ^ -1), "fragments") * Cg(V "char" ^ 0, "after")
+  ),
+  pattern = Cg(V "section", "pattern"),
+  string = Cg(V "section", "string"),
+  vim_flags = S "&ceginp#lr",
+  own_flags = S "Ivw",
+  flags = Cg((V "vim_flags" + V "own_flags") ^ 0, "flags"),
+  command = Ct(
+    V "prefix" ^ -1
+      * V "start_separator"
+      * V "pattern"
+      * (V "end_separator" * V "string" * (V "end_separator" * V "flags") ^ -1) ^ -1
+  ),
+}
+
+---@class abolish.section
+---@field before string
+---@field after string
+---@field fragments string[]
+
+---@class abolish.parsed_input
+---@field command string
+---@field separator string
+---@field pattern abolish.section
+---@field string? abolish.section
+---@field flags string
+
+---@param opts abolish.command_opts | {preview_ns: integer|nil}
+---@return abolish.parsed_input?
+M.subvert_dispatcher = function(opts)
+  local count = opts.count
+
+  ---@type abolish.parsed_input?
+  local t = M.grammar:match(opts.args)
+  if not t then
+    if not opts.preview_ns then vim.notify(("Invalid input: %s"):format(opts.args), vim.log.levels.ERROR) end
+    return
+  end
+
+  if count ~= 0 then
+    parse_substitute(opts.preview_ns, opts.line1, opts.line2, opts.count, t)
+  elseif not t.string then
+    find_command(t)
+  elseif t.pattern and t.flags and t.flags ~= "" then
+    find_command(t)
+  else
+    parse_substitute(opts.preview_ns, opts.line1, opts.line2, opts.count, t)
+  end
+  return t
+end
 
 return M

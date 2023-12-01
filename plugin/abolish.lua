@@ -1,7 +1,7 @@
 vim.api.nvim_create_user_command("S", require("personal.abolish").subvert_dispatcher, {
   bang = true,
   bar = true,
-  nargs = "+",
+  nargs = 1,
   complete = require("personal.abolish").complete,
   force = true,
   range = 0,
@@ -11,7 +11,7 @@ vim.api.nvim_create_user_command("S", require("personal.abolish").subvert_dispat
 vim.api.nvim_create_user_command("Subvert", require("personal.abolish").subvert_dispatcher, {
   bang = true,
   bar = true,
-  nargs = "+",
+  nargs = 1,
   complete = require("personal.abolish").complete,
   force = true,
   range = 0,
@@ -20,9 +20,7 @@ vim.api.nvim_create_user_command("Subvert", require("personal.abolish").subvert_
 
 vim.keymap.set("n", "cr", function()
   local aux = require("personal.abolish").opertator_func()
-  if not aux then
-    return
-  end
+  if not aux then return end
   return aux .. "iw"
 end, { expr = true })
 
