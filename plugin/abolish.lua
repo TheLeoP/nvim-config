@@ -8,14 +8,13 @@ vim.api.nvim_create_user_command("S", require("personal.abolish").subvert_dispat
   preview = require("personal.abolish").subvert_preview,
 })
 
-vim.api.nvim_create_user_command("Subvert", require("personal.abolish").subvert_dispatcher, {
+vim.api.nvim_create_user_command("F", require("personal.abolish").find_dispatcher, {
   bang = true,
   bar = true,
   nargs = 1,
   complete = require("personal.abolish").complete,
   force = true,
   range = 0,
-  preview = require("personal.abolish").subvert_preview,
 })
 
 vim.keymap.set("n", "cr", function()

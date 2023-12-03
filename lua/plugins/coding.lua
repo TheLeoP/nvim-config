@@ -60,15 +60,20 @@ local function debug_menu()
     local ok, char = pcall(vim.fn.getcharstr)
     vim.cmd [[echo '' | redraw]]
 
-    if not ok or char == "\27" then return end
-
+    if not ok or char == "\27" or not char then return end
     init_location_if_required() ---@cast location -nil
+    local component_by_location = location[char]
+    if not component_by_location then
+      vim.notify(("There is no location for char %s"):format(char), vim.log.levels.Warning)
+      return
+    end
+
     if char == "c" then
-      location[char](components[choice])
+      component_by_location(components[choice])
     else
       local widget = cache[char][choice]
       if not widget then
-        widget = location[char](components[choice])
+        widget = component_by_location(components[choice])
         cache[char][choice] = widget
       end
       widget.toggle()

@@ -528,7 +528,7 @@ return {
           local cwd = vim.fs.normalize(vim.loop.cwd())
           if cwd then
             local head = vim.fs.normalize(vim.fn.expand "%:p:h")
-            if vim.startswith(head, cwd) then
+            if vim.startswith(head, cwd .. "/") then
               vim.cmd.Fern { args = { ".", "-reveal=%" } }
             else
               local whole = vim.fs.normalize(vim.fn.expand "%:p")
