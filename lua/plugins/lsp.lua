@@ -11,7 +11,10 @@ return {
       "williamboman/mason-lspconfig.nvim",
       "folke/neodev.nvim",
       "mfussenegger/nvim-jdtls",
-      "jose-elias-alvarez/typescript.nvim",
+      {
+        "pmizio/typescript-tools.nvim",
+        dependencies = { "nvim-lua/plenary.nvim", "neovim/nvim-lspconfig" },
+      },
     },
     config = function()
       local lspconfig = require "lspconfig"
@@ -20,7 +23,7 @@ return {
 
       require("mason").setup()
       require("mason-lspconfig").setup {
-        ensure_installed = { "tsserver", "jdtls" },
+        ensure_installed = { "jdtls" },
         automatic_installation = true,
       }
 
@@ -41,10 +44,15 @@ return {
         filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue", "php", "html" },
       }
 
-      require("typescript").setup {
-        server = {
-          capabilities = config.capabilities,
-          root_dir = function() return jdtls_setup.find_root { ".git" } end,
+      require("typescript-tools").setup {
+        capabilities = config.capabilities,
+        root_dir = function() return jdtls_setup.find_root { ".git" } end,
+        settings = {
+          expose_as_code_action = {
+            "add_missing_imports",
+            "remove_unused_imports",
+            "organize_imports",
+          },
         },
       }
       lspconfig.pyright.setup {

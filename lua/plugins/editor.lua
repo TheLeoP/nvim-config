@@ -311,8 +311,6 @@ return {
         file = function(_, opts)
           local full_path = vim.fn.expand("%:p", false)
 
-          if full_path:match "fern://" ~= nil then return " fern" end
-
           local filename = vim.fn.expand("%:t", false)
           local extension = vim.fn.expand("%:e", false)
           local p = Path:new(full_path)
@@ -518,45 +516,33 @@ return {
       "SmiteshP/nvim-navic",
     },
   },
+
   {
+    "stevearc/oil.nvim",
     lazy = false,
-    "lambdalisue/fern.vim",
+    dev = true,
     keys = {
-      {
-        "-",
-        function()
-          local cwd = vim.fs.normalize(vim.loop.cwd())
-          if cwd then
-            local head = vim.fs.normalize(vim.fn.expand "%:p:h")
-            if vim.startswith(head, cwd .. "/") then
-              vim.cmd.Fern { args = { ".", "-reveal=%" } }
-            else
-              local whole = vim.fs.normalize(vim.fn.expand "%:p")
-              vim.cmd.Fern { args = { head, ("-reveal=%s"):format(whole) } }
-            end
-          end
-        end,
-        mode = "n",
+      { "-", "<cmd>Oil<cr>", desc = "Open parent directory" },
+    },
+    opts = {
+      delete_to_trash = true,
+      keymaps = {
+        ["<C-l>"] = {
+          callback = function()
+            require("oil.actions").refresh.callback()
+            vim.cmd.nohlsearch()
+            vim.cmd.diffupdate()
+            require("notify").dismiss { silent = true, pending = true }
+            vim.cmd.normal { "\12", bang = true } -- ctrl-l
+          end,
+          mode = "n",
+        },
+      },
+      view_options = {
+        show_hidden = true,
       },
     },
-    init = function()
-      vim.g["fern#renderer"] = "nvim-web-devicons"
-      vim.g["glyph_palette#palette"] = require("fr-web-icons").palette()
-    end,
-  },
-  {
-    "TheLeoP/fern-renderer-web-devicons.nvim",
-    dependencies = {
-      "lambdalisue/fern.vim",
-      "kyazdani42/nvim-web-devicons",
-      "lambdalisue/glyph-palette.vim",
-    },
-  },
-  {
-    "lambdalisue/fern-hijack.vim",
-    dependencies = {
-      "lambdalisue/fern.vim",
-    },
+    dependencies = { "nvim-tree/nvim-web-devicons" },
   },
   "mbbill/undotree",
   {
