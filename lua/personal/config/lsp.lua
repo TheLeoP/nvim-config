@@ -213,8 +213,6 @@ function M.jdtls_setup()
     -- stylua: ignore
     cmd = {
       "java",
-      -- "-javaagent:" .. lombok,
-      -- "-Xbootclasspath/a:" .. lombok,
       "-Declipse.application=org.eclipse.jdt.ls.core.id1",
       "-Dosgi.bundles.defaultStartLevel=4",
       "-Declipse.product=org.eclipse.jdt.ls.core.product",
@@ -227,6 +225,8 @@ function M.jdtls_setup()
       "-jar", jar,
       "-configuration", config_location,
       "-data", eclipse_wd,
+      "-javaagent:" .. lombok,
+      -- "-Xbootclasspath/a:" .. lombok,
     },
     root_dir = root_dir,
     init_options = {
