@@ -632,8 +632,8 @@ return {
         mappings = {
           add = "<leader>s",
           delete = "<leader>sd",
-          find = "<leader>sf",
-          find_left = "<leader>sF",
+          find = "",
+          find_left = "",
           highlight = "<leader>sh",
           replace = "<leader>sc",
           update_n_lines = "<leader>sn",

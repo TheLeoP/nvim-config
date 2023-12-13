@@ -133,7 +133,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
 local on_attach_java = function()
   require("jdtls").setup_dap { hotcodereplace = "auto" }
   require("jdtls.dap").setup_dap_main_class_configs()
-  require("jdtls.setup").add_commands()
 end
 
 local on_init = function(client)
@@ -143,7 +142,7 @@ local on_init = function(client)
 end
 
 function M.jdtls_setup()
-  local jdts_setup = require "jdtls.setup"
+  local jdtls_setup = require "jdtls.setup"
   local root_dir = jdtls_setup.find_root { "build.gradle", "pom.xml", "build.xml" }
 
   -- si no se encuentra la raíz del proyecto, se finaliza sin inicializar jdt.ls

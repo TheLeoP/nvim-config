@@ -51,60 +51,7 @@ return {
         "nvim-treesitter/nvim-treesitter-textobjects",
         dev = true,
         opts = {},
-        config = function(_, opts)
-          require("nvim-treesitter-textobjects").setup(opts)
-
-          vim.keymap.set(
-            { "n", "x" },
-            "<leader>df",
-            function()
-              require("nvim-treesitter-textobjects.lsp_interop").peek_definition_code("@function.outer", "textobjects")
-            end
-          )
-
-          vim.keymap.set(
-            { "n", "x", "o" },
-            "[f",
-            function() require("nvim-treesitter-textobjects.move").goto_previous "@function.outer" end
-          )
-          vim.keymap.set(
-            { "n", "x", "o" },
-            "]f",
-            function() require("nvim-treesitter-textobjects.move").goto_next "@function.outer" end
-          )
-
-          vim.keymap.set(
-            "o",
-            "<F5>",
-            function()
-              require("nvim-treesitter-textobjects.select").select_textobject("@function.inner", "textobjects", "o")
-            end
-          )
-          vim.keymap.set(
-            "o",
-            "<S-F5>",
-            function()
-              require("nvim-treesitter-textobjects.select").select_textobject("@function.outer", "textobjects", "o")
-            end
-          )
-          vim.keymap.set(
-            "x",
-            "<F5>",
-            function()
-              require("nvim-treesitter-textobjects.select").select_textobject("@function.inner", "textobjects", "x")
-            end
-          )
-          vim.keymap.set(
-            "x",
-            "<S-F5>",
-            function()
-              require("nvim-treesitter-textobjects.select").select_textobject("@function.outer", "textobjects", "x")
-            end
-          )
-
-          vim.keymap.set("n", "<F6>", require("nvim-treesitter-textobjects.swap").swap_next "@parameter.inner")
-          vim.keymap.set("n", "<S-F6>", require("nvim-treesitter-textobjects.swap").swap_previous "@parameter.inner")
-        end,
+        config = function(_, opts) require("nvim-treesitter-textobjects").setup(opts) end,
       },
       {
         "nvim-treesitter/playground",

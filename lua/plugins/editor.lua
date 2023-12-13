@@ -526,6 +526,7 @@ return {
     },
     opts = {
       delete_to_trash = true,
+      cleanup_delay_ms = false,
       keymaps = {
         ["<C-l>"] = {
           callback = function()
