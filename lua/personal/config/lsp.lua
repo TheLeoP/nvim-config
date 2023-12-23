@@ -5,6 +5,7 @@ local M = {}
 M.format = {
   autoformat = true,
   exclude = { "lemminx" },
+  only_null_ls = true,
 }
 
 M.mason_root = vim.fn.stdpath "data" .. "/mason/packages/" --[[@as string]]
@@ -36,7 +37,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
     local client = vim.lsp.get_client_by_id(args.data.client_id)
     if not client then return end
 
-    if client.server_capabilities.documentSymbolProvider then require("nvim-navic").attach(client, bufnr) end
+    if client.supports_method(methods.textDocument_documentSymbol) then require("nvim-navic").attach(client, bufnr) end
 
     if client.supports_method(methods.textDocument_definition) then
       vim.keymap.set("n", "gd", "<cmd>Telescope lsp_definitions<cr>", { buffer = bufnr, desc = "Go to definition" })
@@ -100,7 +101,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
 
           vim.lsp.buf.format {
             filter = function(client)
-              if have_null_ls then
+              if M.format.only_null_ls and have_null_ls then
                 return client.name == "null-ls"
               else
                 return client.name ~= "null-ls" and not vim.list_contains(M.format.exclude, client.name)
@@ -112,9 +113,14 @@ vim.api.nvim_create_autocmd("LspAttach", {
       })
     end
 
-    vim.keymap.set("n", "<leader>ft", function()
+    vim.keymap.set("n", "<leader>tf", function()
       M.format.autoformat = not M.format.autoformat
       vim.notify(string.format("Autoformat is %s", M.format.autoformat and "on" or "off"))
+    end)
+
+    vim.keymap.set("n", "<leader>tn", function()
+      M.format.only_null_ls = not M.format.only_null_ls
+      vim.notify(string.format("Only null-ls is %s", M.format.only_null_ls and "on" or "off"))
     end)
 
     if client.supports_method(methods.textDocument_inlayHint) then

@@ -90,11 +90,11 @@ return {
                 local prompt = picker:_get_prompt()
                 prompt = vim.trim(prompt)
                 if prompt == "" then prompt = vim.trim(vim.fn.getreg '"') end
-                prompt = prompt:gsub("([%^%$%(%)%.%[%]%*%+%?|{}])", [[\%1]])
+                prompt = prompt:gsub("([%^%$%(%)%.%[%]%*%+%-%?|{}])", [[\%1]])
                 -- caracteres mágicos en lua
                 -- ^$()%.[]*+-?
                 -- caracteres maǵicos en rust regex
-                -- ^$().[]*+?|{}
+                -- ^$().[]*+-?|{}
                 picker:set_prompt(prompt)
               end,
             },
