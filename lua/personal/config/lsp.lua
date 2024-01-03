@@ -37,7 +37,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
     local client = vim.lsp.get_client_by_id(args.data.client_id)
     if not client then return end
 
-    require("nvim-navic").attach(client, bufnr)
+    if client.supports_method(methods.textDocument_documentSymbol) then require("nvim-navic").attach(client, bufnr) end
 
     vim.keymap.set("n", "gd", function()
       if client.supports_method(methods.textDocument_definition) then
