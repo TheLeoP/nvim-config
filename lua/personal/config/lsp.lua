@@ -37,30 +37,59 @@ vim.api.nvim_create_autocmd("LspAttach", {
     local client = vim.lsp.get_client_by_id(args.data.client_id)
     if not client then return end
 
-    if client.supports_method(methods.textDocument_documentSymbol) then require("nvim-navic").attach(client, bufnr) end
+    require("nvim-navic").attach(client, bufnr)
 
-    if client.supports_method(methods.textDocument_definition) then
-      vim.keymap.set("n", "gd", "<cmd>Telescope lsp_definitions<cr>", { buffer = bufnr, desc = "Go to definition" })
-    end
-    vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { buffer = bufnr, desc = "Go to declaration" })
-    vim.keymap.set("n", "gr", "<cmd>Telescope lsp_references<cr>", { buffer = bufnr, desc = "Go to reference" })
-    vim.keymap.set(
-      "n",
-      "gi",
-      "<cmd>Telescope lsp_implementations<cr>",
-      { buffer = bufnr, desc = "Go to implementation" }
-    )
-    if client.supports_method(methods.textDocument_signatureHelp) then
-      vim.keymap.set("i", "<c-k>", vim.lsp.buf.signature_help, { buffer = bufnr, desc = "Signature help" })
-    end
+    vim.keymap.set("n", "gd", function()
+      if client.supports_method(methods.textDocument_definition) then
+        return "<cmd>Telescope lsp_definitions<cr>"
+      else
+        return "gd"
+      end
+    end, { buffer = bufnr, desc = "Go to definition", expr = true })
+    vim.keymap.set("n", "gD", function()
+      if client.supports_method(methods.textDocument_definition) then
+        return "<cmd>lua vim.lsp.buf.declaration<cr>"
+      else
+        return "gD"
+      end
+    end, { buffer = bufnr, desc = "Go to declaration", expr = true })
+    vim.keymap.set("n", "gr", function()
+      if client.supports_method(methods.textDocument_definition) then
+        return "<cmd>Telescope lsp_references<cr>"
+      else
+        return "gr"
+      end
+    end, { buffer = bufnr, desc = "Go to reference", expr = true })
+    vim.keymap.set("n", "gi", function()
+      if client.supports_method(methods.textDocument_definition) then
+        return "<cmd>Telescope lsp_implementations<cr>"
+      else
+        return "gi"
+      end
+    end, { buffer = bufnr, desc = "Go to implementation" })
+    vim.keymap.set("i", "<c-k>", function()
+      if client.supports_method(methods.textDocument_signatureHelp) then
+        return "<cmd> lua vim.lsp.buf.signature_help() <cr>"
+      else
+        return "<c-k>"
+      end
+    end, { buffer = bufnr, desc = "Signature help", expr = true })
     vim.keymap.set("n", "K", vim.lsp.buf.hover, { buffer = bufnr, desc = "Hover" })
-    if client.supports_method(methods.textDocument_rename) then
-      vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { buffer = bufnr, desc = "Rename" })
-    end
+    vim.keymap.set("n", "<leader>rn", function()
+      if client.supports_method(methods.textDocument_rename) then
+        return "<cmd> lua vim.lsp.buf.rename() <cr>"
+      else
+        return "<leader>rn"
+      end
+    end, { buffer = bufnr, desc = "Rename", expr = true })
 
-    if client.supports_method(methods.textDocument_codeAction) then
-      vim.keymap.set({ "n", "x" }, "<leader>ca", vim.lsp.buf.code_action, { buffer = bufnr, desc = "Code actions" })
-    end
+    vim.keymap.set({ "n", "x" }, "<leader>ca", function()
+      if client.supports_method(methods.textDocument_codeAction) then
+        return "<cmd> lua vim.lsp.buf.code_action() <cr>"
+      else
+        return "<leader>ca"
+      end
+    end, { buffer = bufnr, desc = "Code actions", expr = true })
     vim.keymap.set(
       "n",
       "<leader>fds",
@@ -89,29 +118,32 @@ vim.api.nvim_create_autocmd("LspAttach", {
     local ft = vim.bo[bufnr].filetype
     local have_null_ls = #require("null-ls.sources").get_available(ft, "NULL_LS_FORMATTING") > 0
 
-    if
-      (client.supports_method "textDocument/formatting" and not vim.list_contains(M.format.exclude, client.name))
-      or have_null_ls
-    then
-      vim.api.nvim_create_autocmd("BufWritePre", {
-        group = vim.api.nvim_create_augroup("LspFormat." .. bufnr, {}),
-        buffer = bufnr,
-        callback = function()
-          if not M.format.autoformat then return end
+    vim.api.nvim_create_autocmd("BufWritePre", {
+      group = vim.api.nvim_create_augroup("LspFormat." .. bufnr, {}),
+      buffer = bufnr,
+      callback = function()
+        if not M.format.autoformat then return end
+        if
+          (
+            not client.supports_method(methods.textDocument_formatting)
+            or vim.list_contains(M.format.exclude, client.name)
+          ) and not have_null_ls
+        then
+          return
+        end
 
-          vim.lsp.buf.format {
-            filter = function(client)
-              if M.format.only_null_ls and have_null_ls then
-                return client.name == "null-ls"
-              else
-                return client.name ~= "null-ls" and not vim.list_contains(M.format.exclude, client.name)
-              end
-            end,
-            bufnr = bufnr,
-          }
-        end,
-      })
-    end
+        vim.lsp.buf.format {
+          filter = function(client)
+            if M.format.only_null_ls and have_null_ls then
+              return client.name == "null-ls"
+            else
+              return client.name ~= "null-ls" and not vim.list_contains(M.format.exclude, client.name)
+            end
+          end,
+          bufnr = bufnr,
+        }
+      end,
+    })
 
     vim.keymap.set("n", "<leader>tf", function()
       M.format.autoformat = not M.format.autoformat
@@ -123,15 +155,12 @@ vim.api.nvim_create_autocmd("LspAttach", {
       vim.notify(string.format("Only null-ls is %s", M.format.only_null_ls and "on" or "off"))
     end)
 
-    if client.supports_method(methods.textDocument_inlayHint) then
-      local inlay_hint = vim.lsp.inlay_hint
-      vim.keymap.set(
-        "n",
-        "<leader>ti",
-        function() inlay_hint.enable(bufnr, not inlay_hint.is_enabled()) end,
-        { buffer = bufnr }
-      )
-    end
+    local inlay_hint = vim.lsp.inlay_hint
+    vim.keymap.set("n", "<leader>ti", function()
+      if client.supports_method(methods.textDocument_inlayHint) then
+        inlay_hint.enable(bufnr, not inlay_hint.is_enabled())
+      end
+    end, { buffer = bufnr })
   end,
 })
 
