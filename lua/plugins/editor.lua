@@ -520,6 +520,7 @@ return {
   {
     "stevearc/oil.nvim",
     lazy = false,
+    dev = true,
     keys = {
       { "-", "<cmd>Oil<cr>", desc = "Open parent directory" },
     },
@@ -536,7 +537,13 @@ return {
             vim.cmd.normal { "\12", bang = true } -- ctrl-l
           end,
           mode = "n",
+          desc = "Refresh and dismiss notifications",
         },
+        ["<leader>cd"] = "actions.tcd",
+        ["gt"] = "actions.toggle_trash",
+        ["g\\"] = false,
+        ["`"] = false,
+        ["~"] = false,
       },
       view_options = {
         show_hidden = true,

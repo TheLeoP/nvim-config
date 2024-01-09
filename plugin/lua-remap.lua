@@ -30,3 +30,5 @@ vim.keymap.set("n", "z=", function()
     end)
   )
 end, { desc = "Spelling suggestions" })
+
+vim.keymap.set("c", "Mes", "mes")

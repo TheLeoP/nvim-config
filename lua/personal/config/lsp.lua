@@ -39,57 +39,20 @@ vim.api.nvim_create_autocmd("LspAttach", {
 
     if client.supports_method(methods.textDocument_documentSymbol) then require("nvim-navic").attach(client, bufnr) end
 
-    vim.keymap.set("n", "gd", function()
-      if client.supports_method(methods.textDocument_definition) then
-        return "<cmd>Telescope lsp_definitions<cr>"
-      else
-        return "gd"
-      end
-    end, { buffer = bufnr, desc = "Go to definition", expr = true })
-    vim.keymap.set("n", "gD", function()
-      if client.supports_method(methods.textDocument_definition) then
-        return "<cmd>lua vim.lsp.buf.declaration<cr>"
-      else
-        return "gD"
-      end
-    end, { buffer = bufnr, desc = "Go to declaration", expr = true })
-    vim.keymap.set("n", "gr", function()
-      if client.supports_method(methods.textDocument_definition) then
-        return "<cmd>Telescope lsp_references<cr>"
-      else
-        return "gr"
-      end
-    end, { buffer = bufnr, desc = "Go to reference", expr = true })
-    vim.keymap.set("n", "gi", function()
-      if client.supports_method(methods.textDocument_definition) then
-        return "<cmd>Telescope lsp_implementations<cr>"
-      else
-        return "gi"
-      end
-    end, { buffer = bufnr, desc = "Go to implementation" })
-    vim.keymap.set("i", "<c-k>", function()
-      if client.supports_method(methods.textDocument_signatureHelp) then
-        return "<cmd> lua vim.lsp.buf.signature_help() <cr>"
-      else
-        return "<c-k>"
-      end
-    end, { buffer = bufnr, desc = "Signature help", expr = true })
+    vim.keymap.set("n", "gd", "<cmd>Telescope lsp_definitions<cr>", { buffer = bufnr, desc = "Go to definition" })
+    vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { buffer = bufnr, desc = "Go to declaration" })
+    vim.keymap.set("n", "gr", "<cmd>Telescope lsp_references<cr>", { buffer = bufnr, desc = "Go to reference" })
+    vim.keymap.set(
+      "n",
+      "gi",
+      "<cmd>Telescope lsp_implementations<cr>",
+      { buffer = bufnr, desc = "Go to implementation" }
+    )
+    vim.keymap.set("i", "<c-k>", vim.lsp.buf.signature_help, { buffer = bufnr, desc = "Signature help" })
     vim.keymap.set("n", "K", vim.lsp.buf.hover, { buffer = bufnr, desc = "Hover" })
-    vim.keymap.set("n", "<leader>rn", function()
-      if client.supports_method(methods.textDocument_rename) then
-        return "<cmd> lua vim.lsp.buf.rename() <cr>"
-      else
-        return "<leader>rn"
-      end
-    end, { buffer = bufnr, desc = "Rename", expr = true })
+    vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { buffer = bufnr, desc = "Rename" })
 
-    vim.keymap.set({ "n", "x" }, "<leader>ca", function()
-      if client.supports_method(methods.textDocument_codeAction) then
-        return "<cmd> lua vim.lsp.buf.code_action() <cr>"
-      else
-        return "<leader>ca"
-      end
-    end, { buffer = bufnr, desc = "Code actions", expr = true })
+    vim.keymap.set({ "n", "x" }, "<leader>ca", vim.lsp.buf.code_action, { buffer = bufnr, desc = "Code actions" })
     vim.keymap.set(
       "n",
       "<leader>fds",

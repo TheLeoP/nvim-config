@@ -271,6 +271,11 @@ return {
         mode = { "x", "n" },
       },
       {
+        "<leader>apV",
+        function() require("refactoring").debug.print_var { below = false } end,
+        mode = { "x", "n" },
+      },
+      {
         "<leader>ac",
         function() require("refactoring").debug.cleanup {} end,
         mode = "n",
