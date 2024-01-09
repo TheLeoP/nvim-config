@@ -12,3 +12,9 @@ vim.api.nvim_create_autocmd("CmdwinEnter", {
   desc = "Execute command and stay in the command-line window",
   callback = function(args) vim.keymap.set({ "n", "i" }, "<S-CR>", "<cr>q:", { buffer = args.buf }) end,
 })
+
+vim.api.nvim_create_autocmd("Filetype", {
+  group = vim.api.nvim_create_augroup("Format options", { clear = true }),
+  desc = "Remove unwanted flags from format options",
+  callback = function() vim.opt.formatoptions:remove "o" end,
+})
