@@ -22,9 +22,12 @@ function M.visual_ejecutar_en_terminal()
   --- @type integer, integer
   local end_col, _end_row = unpack(api.nvim_buf_get_mark(0, ">"))
 
-  local lines = api.nvim_buf_get_lines(0, start_col - 1, end_col, true)
+  local lines = vim
+    .iter(api.nvim_buf_get_lines(0, start_col - 1, end_col, true))
+    :map(function(line) return line .. line_end end)
+    :totable()
 
-  local commands = table.concat(lines, line_end)
+  local commands = table.concat(lines)
   api.nvim_chan_send(get_last_terminal(), commands)
 end
 

@@ -57,7 +57,7 @@ nnoremap <silent> <leader>q <cmd>q<cr>
 
 " permite ejecutar un comando seleccionado visualmente en la última consola
 " abierta
-xnoremap <silent> <leader><leader>e <cmd>lua require('personal.util.general').visual_ejecutar_en_terminal()<cr>
+xnoremap <silent> <leader><leader>e :lua require('personal.util.general').visual_ejecutar_en_terminal()<cr>
 
 " borrar palabra con <c-bs>
 inoremap <C-BS> 
