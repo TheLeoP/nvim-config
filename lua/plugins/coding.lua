@@ -618,7 +618,15 @@ return {
         },
       }
 
-      require("mini.align").setup()
+      require("mini.align").setup {
+        modifiers = {
+          I = function(steps, _)
+            local pattern = vim.fn.input { prompt = "Ignore pattern: " }
+            if pattern == nil then return end
+            table.insert(steps.pre_split, MiniAlign.gen_step.ignore_split { pattern })
+          end,
+        },
+      }
       require("mini.move").setup {
         mappings = {
           line_right = "",
@@ -630,7 +638,7 @@ return {
           prefix = "<leader>r",
         },
         exchange = {
-          prefix = "<leader>ox",
+          prefix = "<leader>x",
         },
       }
       require("mini.misc").setup()

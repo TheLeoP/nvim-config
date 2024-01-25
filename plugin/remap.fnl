@@ -1,6 +1,6 @@
 (vim.keymap.set
   [:n]
-  :<leader>x
+  :<leader><leader>x
   #(match vim.bo.filetype
           :lua (do
                                   (vim.cmd "silent! write")

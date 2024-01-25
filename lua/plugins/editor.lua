@@ -520,12 +520,13 @@ return {
   {
     "stevearc/oil.nvim",
     lazy = false,
-    dev = true,
     keys = {
       { "-", "<cmd>Oil<cr>", desc = "Open parent directory" },
     },
     opts = {
+      skip_confirm_for_simple_edits = true,
       delete_to_trash = true,
+      lsp_rename_autosave = "unmodified",
       cleanup_delay_ms = false,
       keymaps = {
         ["<C-l>"] = {
