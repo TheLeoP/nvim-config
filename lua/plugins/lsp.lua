@@ -186,16 +186,6 @@ return {
         },
       }
 
-      -- -- powershell
-      -- lspconfig.powershell_es.setup {
-      --   capabilities = config.capabilities,
-      --   ---@type string
-      --   bundle_path = vim.fs.normalize(config.mason_root .. "powershell-editor-services"),
-      --   init_options = {
-      --     enableProfileLoading = false,
-      --   },
-      -- }
-
       -- json
       lspconfig.jsonls.setup {
         capabilities = config.capabilities,

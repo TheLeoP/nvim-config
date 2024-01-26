@@ -107,6 +107,7 @@ return {
         keymap = {
           recommended = false,
           jump_to_mark = "<m-,>",
+          bigger_preview = "",
         },
         clients = {
           snippets = {
@@ -131,9 +132,6 @@ return {
           ghost_text = {
             enabled = true,
           },
-          -- preview = {
-          --   border = vim.g.lsp_borders,
-          -- },
           pum = {
             fast_close = false,
           },
@@ -261,12 +259,12 @@ return {
         mode = "n",
       },
       {
-        "<leader>app",
+        "<leader>pp",
         function() require("refactoring").debug.printf { below = true } end,
         mode = "n",
       },
       {
-        "<leader>apv",
+        "<leader>pv",
         function() require("refactoring").debug.print_var { below = true } end,
         mode = { "x", "n" },
       },
@@ -276,7 +274,7 @@ return {
         mode = { "x", "n" },
       },
       {
-        "<leader>ac",
+        "<leader>pc",
         function() require("refactoring").debug.cleanup {} end,
         mode = "n",
       },
