@@ -32,9 +32,7 @@ return {
           ["}"] = false,
         },
       },
-      templates = {
-        "builtin",
-      },
+      templates = { "builtin", "personal.cs.clean", "personal.cs.build" },
       form = {
         win_opts = { winblend = 0 },
       },

@@ -550,6 +550,21 @@ return {
           skipFiles = { "${workspaceFolder}/node_modules/**/*.js", "**/@vite/*", "**/src/client/*", "**/src/*" },
         })
       end
+
+      dap.adapters.coreclr = {
+        type = "executable",
+        command = require("personal.config.lsp").mason_root .. "/netcoredbg/netcoredbg/netcoredbg",
+        args = { "--interpreter=vscode" },
+      }
+
+      dap.configurations.cs = {
+        {
+          type = "coreclr",
+          name = "launch - netcoredbg",
+          request = "launch",
+          program = function() return vim.fn.input("Path to dll", vim.fn.getcwd() .. "/bin/Debug/", "file") end,
+        },
+      }
     end,
     dependencies = {
       "jbyuki/one-small-step-for-vimkind",
