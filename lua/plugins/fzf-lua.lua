@@ -1,4 +1,4 @@
 return {
   "ibhagwan/fzf-lua",
-  dev = true,
+  branch = "windows",
 }

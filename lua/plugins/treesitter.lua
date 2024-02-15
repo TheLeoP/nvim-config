@@ -39,7 +39,6 @@ return {
         "nvim-treesitter/nvim-treesitter-textobjects",
         dev = true,
         opts = {},
-        config = function(_, opts) require("nvim-treesitter-textobjects").setup(opts) end,
       },
       {
         "nvim-treesitter/playground",
