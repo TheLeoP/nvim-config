@@ -31,6 +31,12 @@ require("tangerine").setup {
 
     hooks = { "onsave", "oninit" },
   },
+
+  keymaps = {
+    eval_buffer = "<nop>",
+    peek_buffer = "<nop>",
+    goto_output = "<nop>",
+  },
 }
 
 require "personal.config.globals"
