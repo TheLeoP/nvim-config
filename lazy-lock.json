@@ -1,4 +1,5 @@
 {
+  "LuaSnip": { "branch": "master", "commit": "f3b3d3446bcbfa62d638b1903ff00a78b2b730a1" },
   "bigfile.nvim": { "branch": "main", "commit": "33eb067e3d7029ac77e081cfe7c45361887a311a" },
   "ccc.nvim": { "branch": "main", "commit": "0ca30a4fd8429bffb6394f4ee27166fb4ff29fbf" },
   "coq_nvim": { "branch": "coq", "commit": "f795031dca0dee4825e21a7f5756e30b1280683c" },
