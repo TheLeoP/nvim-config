@@ -27,10 +27,6 @@ return {
         automatic_installation = true,
       }
 
-      vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
-        border = vim.g.lsp_borders,
-      })
-
       vim.lsp.handlers["workspace/diagnostic/refresh"] = function(_, _, ctx)
         local ns = vim.lsp.diagnostic.get_namespace(ctx.client_id)
         local bufnr = vim.api.nvim_get_current_buf()

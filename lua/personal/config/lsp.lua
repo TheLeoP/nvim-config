@@ -268,7 +268,6 @@ vim.diagnostic.config {
     end,
   },
   float = {
-    border = "rounded",
     source = "if_many",
     -- Show severity icons as prefixes.
     ---@param diagnostic Diagnostic
