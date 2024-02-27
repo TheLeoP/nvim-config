@@ -1,20 +1,50 @@
--- :fennel:1708023464
-local function _1_()
-  local _2_ = vim.bo.filetype
-  if (_2_ == "lua") then
-    vim.cmd("silent! write")
-    vim.cmd("source %")
-    return nil
-  elseif (_2_ == "vim") then
-    vim.cmd("silent! write")
-    vim.cmd("source %")
-    return nil
-  elseif (_2_ == "fennel") then
-    vim.cmd.FnlBuffer()
-    return nil
-  else
-    return nil
+-- Toggle the quickfix/loclist window.
+-- When toggling these, ignore error messages and restore the cursor to the original window when opening the list.
+local silent_mods = { mods = { silent = true, emsg_silent = true } }
+vim.keymap.set("n", "<leader>lq", function()
+  if vim.fn.getqflist({ winid = 0 }).winid ~= 0 then
+    vim.cmd.cclose(silent_mods)
+  elseif #vim.fn.getqflist() > 0 then
+    local win = vim.api.nvim_get_current_win()
+    vim.cmd.copen(silent_mods)
+    if win ~= vim.api.nvim_get_current_win() then vim.cmd.wincmd "p" end
   end
-end
-vim.keymap.set({"n"}, "<leader><leader>x", _1_, {desc = "Execute current buffer (vim, lua or fennel)"})
-return vim.keymap.set({"n"}, "<leader><leader>t", "<cmd>tab split<cr>")
+end, { desc = "Toggle quickfix list" })
+vim.keymap.set("n", "<leader>ll", function()
+  if vim.fn.getloclist(0, { winid = 0 }).winid ~= 0 then
+    vim.cmd.lclose(silent_mods)
+  elseif #vim.fn.getloclist(0) > 0 then
+    local win = vim.api.nvim_get_current_win()
+    vim.cmd.lopen(silent_mods)
+    if win ~= vim.api.nvim_get_current_win() then vim.cmd.wincmd "p" end
+  end
+end, { desc = "Toggle location list" })
+
+-- Use dressing for spelling suggestions.
+vim.keymap.set("n", "z=", function()
+  vim.ui.select(
+    vim.fn.spellsuggest(vim.fn.expand "<cword>"),
+    {},
+    vim.schedule_wrap(function(selected)
+      if selected then vim.cmd([[normal! "_ciw]] .. selected) end
+    end)
+  )
+end, { desc = "Spelling suggestions" })
+
+vim.keymap.set("c", "Mes", "mes")
+
+vim.keymap.set({ "n" }, "<leader><leader>x", function()
+  if vim.bo.filetype == "lua" then
+    vim.cmd "silent! write"
+    vim.cmd "source %"
+  elseif vim.bo.filetype == "vim" then
+    vim.cmd "silent! write"
+    vim.cmd "source %"
+  elseif vim.bo.filetype == "fennel" then
+    vim.cmd "FnlBuffer"
+  else
+    vim.notify(("The current filetype is `%s`"):format(vim.bo.filetype), vim.log.levels.WARN)
+  end
+end, { desc = "Execute current buffer (vim, lua or fennel)" })
+
+vim.keymap.set({ "n" }, "<leader><leader>t", "<cmd>tab split<cr>")

@@ -39,6 +39,8 @@ require("tangerine").setup {
   },
 }
 
+require "personal.set"
+
 require "personal.config.globals"
 
 require "personal.config.lazy"
