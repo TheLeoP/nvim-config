@@ -113,7 +113,6 @@ return {
       require("telescope").setup(opts)
       require("telescope").load_extension "fzf"
       require("telescope").load_extension "live_grep_args"
-      require "personal.util.telescope"
     end,
   },
   {

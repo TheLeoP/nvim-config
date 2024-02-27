@@ -33,6 +33,7 @@ end, { desc = "Spelling suggestions" })
 
 vim.keymap.set("c", "Mes", "mes")
 
+-- execute current buffer
 vim.keymap.set({ "n" }, "<leader><leader>x", function()
   if vim.bo.filetype == "lua" then
     vim.cmd "silent! write"
@@ -45,6 +46,21 @@ vim.keymap.set({ "n" }, "<leader><leader>x", function()
   else
     vim.notify(("The current filetype is `%s`"):format(vim.bo.filetype), vim.log.levels.WARN)
   end
-end, { desc = "Execute current buffer (vim, lua or fennel)" })
+end, { desc = "Execute current buffer (vim or lua)" })
 
 vim.keymap.set({ "n" }, "<leader><leader>t", "<cmd>tab split<cr>")
+
+-- telescope
+
+vim.keymap.set({ "n" }, "<leader>fi", function()
+  local builtin = require "telescope.builtin"
+  return builtin.find_files { prompt_title = "< Nvim config >", cwd = vim.fn.stdpath "config" }
+end, { desc = "Fuzzy search files in nvim config", silent = true })
+
+return vim.keymap.set({ "n" }, "<leader>fI", function()
+  local telescope = require "telescope"
+  return telescope.extensions.live_grep_args.live_grep_args {
+    prompt_title = "< Rg nvim_config >",
+    cwd = vim.fn.stdpath "config",
+  }
+end, { desc = "Rg in nvim config", silent = true })
