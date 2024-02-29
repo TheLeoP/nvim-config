@@ -70,3 +70,5 @@ xnoremap @ :<C-U>execute "noautocmd '<,'>normal! " . v:count1 . "@" . getcharstr
 " tabs
 nnoremap <a-h> <cmd>tabprevious<cr>
 nnoremap <a-l> <cmd>tabnext<cr>
+
+inoremap <c-a> <c-k>
