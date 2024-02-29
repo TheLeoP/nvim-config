@@ -1,16 +1,4 @@
-vim.opt_local.spell = true
-vim.opt_local.wrap = true
-vim.opt_local.linebreak = true
-vim.opt_local.breakindent = true
-vim.opt_local.colorcolumn = "0"
-vim.opt_local.conceallevel = 3
-
-vim.b[0].undo_ftplugin = "setlocal nospell nowrap nolinebreak nobreakindent conceallevel=0"
-
-vim.keymap.set("n", "j", "v:count ? 'j' : 'gj'", { buffer = true, expr = true })
-vim.keymap.set("n", "k", "v:count ? 'k' : 'gk'", { buffer = true, expr = true })
-vim.keymap.set("n", "gj", "j", { buffer = true })
-vim.keymap.set("n", "gk", "k", { buffer = true })
+require("personal.util.writing").setup()
 
 -- Permite crear un *operador* usando el nombre de una función lua.
 -- El nombre de la función puede incluir 'require', pero se deben omitir los paréntesis
