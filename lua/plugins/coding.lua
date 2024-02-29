@@ -176,7 +176,7 @@ return {
         mode = { "x", "n" },
       },
       {
-        "<leader>apV",
+        "<leader>pV",
         function() require("refactoring").debug.print_var { below = false } end,
         mode = { "x", "n" },
       },
