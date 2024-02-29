@@ -13,14 +13,13 @@ return {
     vim.keymap.set({ "i", "s" }, "<C-L>", function() ls.jump(1) end)
     vim.keymap.set({ "i", "s" }, "<C-J>", function() ls.jump(-1) end)
 
-    vim.keymap.set("i", "<c-e>", function()
-      if ls.choice_active() then
-        require "luasnip.extras.select_choice"()
-        return ""
-      else
-        return [[<c-e>]]
-      end
-    end, { expr = true })
+    vim.keymap.set("i", "<c-s>", function()
+      if ls.choice_active() then require "luasnip.extras.select_choice"() end
+    end)
+
+    vim.keymap.set({ "i", "s" }, "<C-b>", function()
+      if ls.choice_active() then ls.change_choice(1) end
+    end)
 
     vim.cmd.source(vim.fn.stdpath "config" .. "/lua/personal/config/snippets.lua")
   end,
