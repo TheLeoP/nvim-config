@@ -48,7 +48,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
       "<cmd>Telescope lsp_implementations<cr>",
       { buffer = bufnr, desc = "Go to implementation" }
     )
-    vim.keymap.set("i", "<c-k>", vim.lsp.buf.signature_help, { buffer = bufnr, desc = "Signature help" })
+    vim.keymap.set("i", "<a-k>", vim.lsp.buf.signature_help, { buffer = bufnr, desc = "Signature help" })
     vim.keymap.set("n", "K", vim.lsp.buf.hover, { buffer = bufnr, desc = "Hover" })
     vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { buffer = bufnr, desc = "Rename" })
 
