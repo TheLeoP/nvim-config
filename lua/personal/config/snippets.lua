@@ -27,5 +27,16 @@ local ms = ls.multi_snippet
 local k = require("luasnip.nodes.key_indexer").new_key
 
 ls.add_snippets("all", {
-  s("todo", fmta("<>: <>", { c(1, { t "TODO(TheLeoP)", t "TODO", t "TODO:(luis)" }), i(2) })),
+  s("todo", {
+    d(1, function()
+      local template = vim.o.commentstring:format "<>: <>"
+      return sn(
+        nil,
+        fmta(template, {
+          c(1, { t "TODO", t "TODO(TheLeoP)", t "TODO(luis)" }),
+          i(2),
+        })
+      )
+    end),
+  }, {}),
 }, { key = "personal snippets" })
