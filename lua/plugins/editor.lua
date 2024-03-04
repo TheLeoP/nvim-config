@@ -33,8 +33,8 @@ return {
         },
         mappings = {
           i = {
-            ["<c-n>"] = function(...) require("telescope.actions").cycle_history_next(...) end,
-            ["<c-p>"] = function(...) require("telescope.actions").cycle_history_prev(...) end,
+            ["<a-n>"] = function(...) require("telescope.actions").cycle_history_next(...) end,
+            ["<a-p>"] = function(...) require("telescope.actions").cycle_history_prev(...) end,
             ["<c-space>"] = function(prompt_bufnr)
               local action_state = require "telescope.actions.state"
               local picker = action_state.get_current_picker(prompt_bufnr)
