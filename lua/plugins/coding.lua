@@ -320,6 +320,9 @@ return {
 
       dap.defaults.fallback.external_terminal = { command = "gnome-terminal", args = { "--" } }
 
+      require("overseer").patch_dap(true)
+      require("dap.ext.vscode").json_decode = require("overseer.json").decode
+
       dap.adapters.nlua = function(callback, config)
         callback {
           type = "server",
@@ -474,6 +477,7 @@ return {
       }
     end,
     dependencies = {
+      "stevearc/overseer.nvim",
       "jbyuki/one-small-step-for-vimkind",
       "mfussenegger/nvim-dap-python",
       "mxsdev/nvim-dap-vscode-js",
