@@ -23,9 +23,6 @@ M.capabilities.textDocument.foldingRange = {
   dynamicRegistration = false,
   lineFoldingOnly = true,
 }
--- PERF: didChangeWatchedFiles is too slow.
--- TODO: Remove this when https://github.com/neovim/neovim/issues/23291#issuecomment-1686709265 is fixed.
-M.capabilities.workspace.didChangeWatchedFiles.dynamicRegistration = false
 
 local lsp_group = vim.api.nvim_create_augroup("LSP", { clear = true })
 
