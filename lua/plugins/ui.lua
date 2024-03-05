@@ -23,6 +23,8 @@ return {
           SignColumn = { link = "Normal" },
 
           debugPC = { bg = "#1d2021" },
+
+          TreesitterContextBottom = { underline = true, sp = "#665c54" },
         },
         italic = {
           strings = false,
