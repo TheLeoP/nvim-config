@@ -81,6 +81,7 @@ local function debug_menu()
   end)
 end
 
+local is_windows = vim.fn.has "win32" == 1
 return {
   "tpope/vim-sleuth",
   {
@@ -200,7 +201,7 @@ return {
       ---@type string
       local mason_root = vim.fn.stdpath "data" .. "/mason/packages/"
 
-      local tail = vim.fn.has "win32" == 0 and "debugpy/venv/bin/python" or "debugpy/venv/Scripts/python.exe"
+      local tail = not is_windows and "debugpy/venv/bin/python" or "debugpy/venv/Scripts/python.exe"
       require("dap-python").setup(mason_root .. tail)
     end,
   },
@@ -212,9 +213,9 @@ return {
         "microsoft/vscode-js-debug",
         version = "1.x",
         build = "npm i && npm run compile vsDebugServerBundle &&"
-          .. (vim.fn.has "win32" and "(if exist out\\ rd /s /q out)" or "rm -rf out")
+          .. (is_windows and "(if exist out\\ rd /s /q out)" or "rm -rf out")
           .. "&&"
-          .. (vim.fn.has "win32" and "move dist out" or "mv dist out"),
+          .. (is_windows and "move dist out" or "mv dist out"),
       },
     },
     config = function()
