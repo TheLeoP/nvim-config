@@ -39,4 +39,47 @@ ls.add_snippets("all", {
       )
     end),
   }, {}),
-}, { key = "personal snippets" })
+}, { key = "personal all" })
+
+ls.add_snippets("cs", {
+  s(
+    "cl",
+    fmta(
+      [[
+<visibility> class <name>
+{
+    <inside>
+}
+  ]],
+      {
+        visibility = c(
+          2,
+          { t "public", t "private", t "protected", t "internal", t "protected internal", t "private protected" }
+        ),
+        name = i(1),
+        inside = i(0),
+      }
+    )
+  ),
+  s(
+    "fn",
+    fmta(
+      [[
+<visibility> <return_type> <name> (<args>)
+{
+    <inside>
+}
+  ]],
+      {
+        visibility = c(
+          4,
+          { t "public", t "private", t "protected", t "internal", t "protected internal", t "private protected" }
+        ),
+        return_type = i(2),
+        name = i(1),
+        args = i(3),
+        inside = i(0),
+      }
+    )
+  ),
+}, { key = "personal cs" })
