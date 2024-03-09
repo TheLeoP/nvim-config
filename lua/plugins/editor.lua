@@ -554,7 +554,12 @@ return {
     },
     dependencies = { "nvim-tree/nvim-web-devicons" },
   },
-  "mbbill/undotree",
+  {
+    "mbbill/undotree",
+    init = function()
+      if vim.fn.has "win32" == 1 then vim.g.undotree_DiffCommand = "FC" end
+    end,
+  },
   {
     "glacambre/firenvim",
     lazy = not vim.g.started_by_firenvim,
