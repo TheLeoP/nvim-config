@@ -82,4 +82,47 @@ ls.add_snippets("cs", {
       }
     )
   ),
+  s(
+    "for",
+    fmta(
+      [[
+<type>
+{
+    <inside>
+}
+]],
+      {
+        inside = i(0),
+        type = c(1, {
+          sn(
+            nil,
+            fmta([[for (<init>;<condition>;<step>)]], {
+              init = i(1, "int i = 0"),
+              condition = i(2, "i < 5"),
+              step = i(3, "i++"),
+            })
+          ),
+          sn(
+            nil,
+            fmta([[foreach (var <element> in <elements>)]], {
+              element = i(1, "element"),
+              elements = i(2, "elements"),
+            })
+          ),
+        }),
+      }
+    )
+  ),
+  s(
+    "if",
+    fmta(
+      [[
+if (<condition>)
+{
+    <inside>
+}
+]],
+      { inside = i(0), condition = i(1, "true") }
+    )
+  ),
 }, { key = "personal cs" })
