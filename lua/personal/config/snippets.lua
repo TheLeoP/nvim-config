@@ -38,7 +38,7 @@ ls.add_snippets("all", {
         })
       )
     end),
-  }, {}),
+  }),
 }, { key = "personal all" })
 
 ls.add_snippets("cs", {

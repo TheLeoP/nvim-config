@@ -5,6 +5,7 @@ return {
     link_roots = true,
     link_children = true,
     update_events = { "TextChanged", "TextChangedI" },
+    store_selection_keys = "<c-k>",
   },
   config = function(_, opts)
     local ls = require "luasnip"
