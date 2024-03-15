@@ -37,10 +37,6 @@ inoremap : :<c-g>u
 inoremap ; ;<c-g>u
 inoremap = =<c-g>u
 
-" jumplist para j y k
-nnoremap <silent><expr> k (v:count > 0 ? "m'" . v:count : "") . 'k'
-nnoremap <silent><expr> j (v:count > 0 ? "m'" . v:count : "") . 'j'
-
 nnoremap <silent> ]e <cmd>lua vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.ERROR })<cr>
 nnoremap <silent> [e <cmd>lua vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.ERROR })<cr>
 nnoremap <silent> <leader>e <cmd>lua vim.diagnostic.open_float()<cr>

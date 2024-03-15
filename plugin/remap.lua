@@ -50,6 +50,11 @@ end, { desc = "Execute current buffer (vim or lua)" })
 
 vim.keymap.set({ "n" }, "<leader><leader>t", "<cmd>tab split<cr>")
 
+-- jumplist on j and k
+
+vim.keymap.set("n", "j", [[(v:count ? "m'" . v:count : "") . "gj"]], { buffer = true, expr = true })
+vim.keymap.set("n", "k", [[(v:count ? "m'" . v:count : "") . "gk"]], { buffer = true, expr = true })
+
 -- telescope
 
 vim.keymap.set({ "n" }, "<leader>fi", function()
@@ -57,7 +62,7 @@ vim.keymap.set({ "n" }, "<leader>fi", function()
   return builtin.find_files { prompt_title = "< Nvim config >", cwd = vim.fn.stdpath "config" }
 end, { desc = "Fuzzy search files in nvim config", silent = true })
 
-return vim.keymap.set({ "n" }, "<leader>fI", function()
+vim.keymap.set({ "n" }, "<leader>fI", function()
   local telescope = require "telescope"
   return telescope.extensions.live_grep_args.live_grep_args {
     prompt_title = "< Rg nvim_config >",
