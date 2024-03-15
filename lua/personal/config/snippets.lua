@@ -126,3 +126,17 @@ if (<condition>)
     )
   ),
 }, { key = "personal cs" })
+
+ls.add_snippets("lua", {
+  s(
+    "if",
+    fmta(
+      [[
+if <condition> then
+  <inside>
+end
+  ]],
+      { condition = i(1), inside = i(0) }
+    )
+  ),
+}, { key = "personal lua" })
