@@ -62,7 +62,7 @@ ls.add_snippets("cs", {
     )
   ),
   s(
-    "fn",
+    "fun",
     fmta(
       [[
 <visibility> <return_type> <name> (<args>)
@@ -122,7 +122,10 @@ if (<condition>)
     <inside>
 }
 ]],
-      { inside = i(0), condition = i(1, "true") }
+      {
+        inside = i(0),
+        condition = i(1, "true"),
+      }
     )
   ),
 }, { key = "personal cs" })
@@ -137,6 +140,22 @@ if <condition> then
 end
   ]],
       { condition = i(1), inside = i(0) }
+    )
+  ),
+  s(
+    "fun",
+    fmta(
+      [[
+<visibility>function <name>(<args>)
+  <inside>
+end
+]],
+      {
+        visibility = c(1, { t "local ", t "" }),
+        name = i(2),
+        args = i(3),
+        inside = i(0),
+      }
     )
   ),
 }, { key = "personal lua" })
