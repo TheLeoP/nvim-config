@@ -1,6 +1,12 @@
 return {
   "tpope/vim-fugitive",
   {
+    "rbong/vim-flog",
+    dependencies = {
+      "tpope/vim-fugitive",
+    },
+  },
+  {
     "lewis6991/gitsigns.nvim",
     opts = {
       signs = {
