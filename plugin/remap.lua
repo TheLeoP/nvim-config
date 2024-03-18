@@ -52,8 +52,8 @@ vim.keymap.set({ "n" }, "<leader><leader>t", "<cmd>tab split<cr>")
 
 -- jumplist on j and k
 
-vim.keymap.set("n", "j", [[(v:count ? "m'" . v:count : "") . "gj"]], { buffer = true, expr = true })
-vim.keymap.set("n", "k", [[(v:count ? "m'" . v:count : "") . "gk"]], { buffer = true, expr = true })
+vim.keymap.set("n", "j", [[(v:count ? "m'" . v:count : "") . "gj"]], { expr = true })
+vim.keymap.set("n", "k", [[(v:count ? "m'" . v:count : "") . "gk"]], { expr = true })
 
 -- telescope
 
