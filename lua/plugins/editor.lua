@@ -236,11 +236,6 @@ return {
     end,
   },
   {
-    "NTBBloodbath/rest.nvim",
-    opts = {},
-    config = function(_, opts) require("rest-nvim").setup(opts) end,
-  },
-  {
     "folke/flash.nvim",
     opts = {
       modes = {

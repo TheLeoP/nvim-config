@@ -3,7 +3,7 @@ return {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
     opts = {
-      ensure_installed = { "c", "lua", "luadoc", "vim", "vimdoc", "query" },
+      ensure_installed = { "c", "lua", "luadoc", "vim", "vimdoc", "query", "xml", "http", "json", "graphql" },
       sync_install = true,
       auto_install = true,
       ignore_install = {
