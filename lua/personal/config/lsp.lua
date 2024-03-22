@@ -36,15 +36,28 @@ vim.api.nvim_create_autocmd("LspAttach", {
 
     if client.supports_method(methods.textDocument_documentSymbol) then require("nvim-navic").attach(client, bufnr) end
 
-    vim.keymap.set("n", "gd", "<cmd>Telescope lsp_definitions<cr>", { buffer = bufnr, desc = "Go to definition" })
+    vim.keymap.set("n", "gd", function()
+      if vim.bo.filetype == "cs" then
+        require("omnisharp_extended").telescope_lsp_definitions()
+      else
+        require("telescope.builtin").lsp_definitions()
+      end
+    end, { buffer = bufnr, desc = "Go to definition" })
     vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { buffer = bufnr, desc = "Go to declaration" })
-    vim.keymap.set("n", "gr", "<cmd>Telescope lsp_references<cr>", { buffer = bufnr, desc = "Go to reference" })
-    vim.keymap.set(
-      "n",
-      "gi",
-      "<cmd>Telescope lsp_implementations<cr>",
-      { buffer = bufnr, desc = "Go to implementation" }
-    )
+    vim.keymap.set("n", "gr", function()
+      if vim.bo.filetype == "cs" then
+        require("omnisharp_extended").telescope_lsp_references()
+      else
+        require("telescope.builtin").lsp_references()
+      end
+    end, { buffer = bufnr, desc = "Go to reference" })
+    vim.keymap.set("n", "gi", function()
+      if vim.bo.filetype == "cs" then
+        require("omnisharp_extended").telescope_lsp_implementations()
+      else
+        require("telescope.builtin").lsp_implementations()
+      end
+    end, { buffer = bufnr, desc = "Go to implementation" })
     vim.keymap.set("i", "<a-k>", vim.lsp.buf.signature_help, { buffer = bufnr, desc = "Signature help" })
     vim.keymap.set("n", "K", vim.lsp.buf.hover, { buffer = bufnr, desc = "Hover" })
     vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { buffer = bufnr, desc = "Rename" })

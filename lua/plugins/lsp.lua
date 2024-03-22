@@ -13,8 +13,9 @@ return {
       "mfussenegger/nvim-jdtls",
       {
         "pmizio/typescript-tools.nvim",
-        dependencies = { "nvim-lua/plenary.nvim", "neovim/nvim-lspconfig" },
+        dependencies = { "nvim-lua/plenary.nvim" },
       },
+      "Hoffs/omnisharp-extended-lsp.nvim",
     },
     config = function()
       local lspconfig = require "lspconfig"
