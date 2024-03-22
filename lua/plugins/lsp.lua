@@ -81,6 +81,11 @@ return {
       -- c#
       require("lspconfig").omnisharp.setup {
         capabilities = config.capabilities,
+        settings = {
+          FormattingOptions = {
+            OrganizeImports = true,
+          },
+        },
       }
 
       -- angular
