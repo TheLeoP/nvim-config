@@ -26,6 +26,7 @@
   "neogen": { "branch": "main", "commit": "0daffcec249bf42275e322361fe55b89a05ff278" },
   "neorg": { "branch": "main", "commit": "bedbbe208e61491d1d8be0b6775793b246b444d0" },
   "neovim-session-manager": { "branch": "master", "commit": "d8e1ba3bbcf3fdc6a887bcfbd94c48ae4707b457" },
+  "none-ls-extras.nvim": { "branch": "main", "commit": "4d1b26b963edb82c45ed261d988f9e72253c3469" },
   "none-ls.nvim": { "branch": "main", "commit": "18910d09d21d7df339805343bfe4a2b2e41c057b" },
   "nvim-colorizer.lua": { "branch": "master", "commit": "85855b38011114929f4058efc97af1059ab3e41d" },
   "nvim-dap": { "branch": "master", "commit": "405df1dcc2e395ab5173a9c3d00e03942c023074" },

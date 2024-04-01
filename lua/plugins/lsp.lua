@@ -117,7 +117,6 @@ return {
         -- "groovyls",
         "intelephense",
         "prismals",
-        "eslint",
       }
 
       for _, server in ipairs(servidores_generales) do
@@ -162,13 +161,13 @@ return {
 
       local function on_new_config(new_config, _)
         if
-          new_config.init_options
-          and new_config.init_options.typescript
-          and new_config.init_options.typescript.tsdk == ""
+            new_config.init_options
+            and new_config.init_options.typescript
+            and new_config.init_options.typescript.tsdk == ""
         then
           ---@type string
           new_config.init_options.typescript.tsdk = config.mason_root
-            .. "typescript-language-server/node_modules/typescript/lib"
+              .. "typescript-language-server/node_modules/typescript/lib"
         end
       end
 
@@ -209,12 +208,18 @@ return {
       return {
         sources = {
           nls.builtins.formatting.prettierd,
+          require("none-ls.diagnostics.eslint_d"),
+          require("none-ls.formatting.eslint_d"),
+          require("none-ls.code_actions.eslint_d"),
           nls.builtins.formatting.stylua,
           nls.builtins.formatting.csharpier,
           nls.builtins.formatting.black.with { extra_args = { "--line-length=80", "--skip-string-normalization" } },
         },
       }
     end,
+    dependencies = {
+      "nvimtools/none-ls-extras.nvim",
+    }
   },
   {
     "jay-babu/mason-null-ls.nvim",
