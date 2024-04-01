@@ -246,6 +246,13 @@ return {
     dependencies = {
       "neovim/nvim-lspconfig",
     },
+    config = function()
+      require("illuminate").configure {
+        filetype_overrides = {
+          cs = { providers = { "treesitter", "regex" } },
+        },
+      }
+    end,
   },
   {
     "TheLeoP/powershell.nvim",
