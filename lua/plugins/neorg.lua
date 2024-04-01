@@ -1,6 +1,5 @@
 return {
   "nvim-neorg/neorg",
-  build = ":Neorg sync-parsers",
   opts = {
     load = {
       ["core.defaults"] = {}, -- Loads default behaviour
@@ -23,5 +22,6 @@ return {
   },
   dependencies = {
     "folke/zen-mode.nvim",
+    "luarocks.nvim",
   },
 }
