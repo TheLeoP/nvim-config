@@ -27,7 +27,7 @@ vim.opt.showmode = false
 vim.opt.signcolumn = "yes"
 
 vim.opt.updatetime = 300
-vim.opt.timeoutlen = 300
+vim.opt.timeoutlen = 500
 
 vim.opt.guifont = "CaskaydiaCove Nerd Font Mono:h12"
 
