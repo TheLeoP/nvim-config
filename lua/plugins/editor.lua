@@ -233,6 +233,21 @@ return {
         autosave_only_in_session = false,
         max_path_length = 80,
       }
+
+      local config_group = vim.api.nvim_create_augroup("post-session", {})
+
+      vim.api.nvim_create_autocmd({ "User" }, {
+        pattern = "SessionLoadPost",
+        group = config_group,
+        callback = function()
+          local cwd = vim.fn.getcwd()
+          local exrc = vim.fs.find({ ".nvim.lua", ".nvimrc", ".exrc" }, { path = cwd, type = "file" })[1]
+          if not exrc then return end
+          local content = vim.secure.read(exrc)
+          if not content then return end
+          loadstring(content)()
+        end,
+      })
     end,
   },
   {
