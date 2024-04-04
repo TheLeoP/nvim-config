@@ -57,7 +57,7 @@ ls.add_snippets("cs", {
           { t "public", t "private", t "protected", t "internal", t "protected internal", t "private protected" }
         ),
         name = i(1),
-        inside = i(0),
+        inside = i(3),
       }
     )
   ),
@@ -78,7 +78,7 @@ ls.add_snippets("cs", {
         return_type = i(2),
         name = i(1),
         args = i(3),
-        inside = i(0),
+        inside = i(5),
       }
     )
   ),
@@ -92,7 +92,7 @@ ls.add_snippets("cs", {
 }
 ]],
       {
-        inside = i(0),
+        inside = i(2),
         type = c(1, {
           sn(
             nil,
@@ -123,7 +123,7 @@ if (<condition>)
 }
 ]],
       {
-        inside = i(0),
+        inside = i(2),
         condition = i(1, "true"),
       }
     )
@@ -139,7 +139,7 @@ if <condition> then
   <inside>
 end
   ]],
-      { condition = i(1), inside = i(0) }
+      { condition = i(1), inside = i(2) }
     )
   ),
   s(
@@ -154,7 +154,48 @@ end
         visibility = c(1, { t "local ", t "" }),
         name = i(2),
         args = i(3),
-        inside = i(0),
+        inside = i(4),
+      }
+    )
+  ),
+  s(
+    "forn",
+    fmta(
+      [[
+for <start><end><step> do
+  <inside>
+end
+]],
+      { start = i(1, "i = 1"), ["end"] = i(2, ", #some_table"), step = i(3, ", 1"), inside = i(4) }
+    )
+  ),
+  s(
+    "for",
+    fmta(
+      [[
+for <iterator> do
+  <inside>
+end
+]],
+      {
+        iterator = c(1, {
+          sn(
+            nil,
+            fmta(
+              [[<i>, <value> in ipairs(<table>)]],
+              { i = i(1, "_"), value = i(2, "value"), table = i(3, "some_table") }
+            )
+          ),
+          sn(
+            nil,
+            fmta(
+              [[<key>, <value> in pairs(<table>)]],
+              { key = i(1, "key"), value = i(2, "value"), table = i(3, "some_table") }
+            )
+          ),
+          sn(nil, fmta([[<values> in <iterator>]], { values = i(1, "value"), iterator = i(2, "some_iterator()") })),
+        }),
+        inside = i(2),
       }
     )
   ),
