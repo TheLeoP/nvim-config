@@ -15,6 +15,7 @@ return {
   {
     "stevearc/overseer.nvim",
     opts = {
+      strategy = "jobstart",
       dap = true,
       task_list = {
         default_detail = 2,
