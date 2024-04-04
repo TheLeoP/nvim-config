@@ -80,3 +80,5 @@ vim.opt.fillchars = {
   foldsep = " ",
   msgsep = "─",
 }
+
+vim.o.exrc = true
