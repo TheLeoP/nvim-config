@@ -537,6 +537,18 @@ return {
           I = gen_ai_spec.indent(),
           L = gen_ai_spec.line(),
           N = gen_ai_spec.number(),
+          P = function()
+            local start_row, start_col = unpack(vim.api.nvim_buf_get_mark(0, "[")) --[[@as integer, integer]]
+            local end_row, end_col = unpack(vim.api.nvim_buf_get_mark(0, "]")) --[[@as integer, integer]]
+            local vis_mode = vim.fn.getregtype '"'
+            if #vis_mode > 1 then vis_mode = vis_mode:sub(1, 1) end
+            local region = {
+              from = { line = start_row, col = start_col + 1 },
+              to = { line = end_row, col = end_col + 1 },
+              vis_mode = vis_mode,
+            }
+            return region
+          end,
         },
         mappings = {
           goto_left = "g{",
