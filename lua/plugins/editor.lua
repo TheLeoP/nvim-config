@@ -30,6 +30,7 @@ return {
           "lazy%-lock%.json",
           "node_modules",
           "%.rst$",
+          "%.git",
         },
         mappings = {
           i = {
