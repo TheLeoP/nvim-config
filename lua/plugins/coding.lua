@@ -162,7 +162,7 @@ return {
         mode = "n",
       },
       {
-        "<leader>apP",
+        "<leader>pP",
         function() require("refactoring").debug.printf { below = false } end,
         mode = "n",
       },
