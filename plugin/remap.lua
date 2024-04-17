@@ -54,18 +54,3 @@ vim.keymap.set({ "n" }, "<leader><leader>t", "<cmd>tab split<cr>")
 
 vim.keymap.set("n", "j", [[(v:count ? "m'" . v:count : "") . "gj"]], { expr = true })
 vim.keymap.set("n", "k", [[(v:count ? "m'" . v:count : "") . "gk"]], { expr = true })
-
--- telescope
-
-vim.keymap.set({ "n" }, "<leader>fi", function()
-  local builtin = require "telescope.builtin"
-  return builtin.find_files { prompt_title = "< Nvim config >", cwd = vim.fn.stdpath "config" }
-end, { desc = "Fuzzy search files in nvim config", silent = true })
-
-vim.keymap.set({ "n" }, "<leader>fI", function()
-  local telescope = require "telescope"
-  return telescope.extensions.live_grep_args.live_grep_args {
-    prompt_title = "< Rg nvim_config >",
-    cwd = vim.fn.stdpath "config",
-  }
-end, { desc = "Rg in nvim config", silent = true })

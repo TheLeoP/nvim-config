@@ -36,26 +36,27 @@ vim.api.nvim_create_autocmd("LspAttach", {
 
     if client.supports_method(methods.textDocument_documentSymbol) then require("nvim-navic").attach(client, bufnr) end
 
+    -- TODO: create custom commands for the omnisharp_extended plugin?
     vim.keymap.set("n", "gd", function()
       if vim.bo.filetype == "cs" then
-        require("omnisharp_extended").telescope_lsp_definitions()
+        require("omnisharp_extended").lsp_definitions()
       else
-        require("telescope.builtin").lsp_definitions()
+        require("fzf-lua").lsp_definitions()
       end
     end, { buffer = bufnr, desc = "Go to definition" })
     vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { buffer = bufnr, desc = "Go to declaration" })
     vim.keymap.set("n", "gr", function()
       if vim.bo.filetype == "cs" then
-        require("omnisharp_extended").telescope_lsp_references()
+        require("omnisharp_extended").lsp_references()
       else
-        require("telescope.builtin").lsp_references()
+        require("fzf-lua").lsp_references()
       end
     end, { buffer = bufnr, desc = "Go to reference" })
     vim.keymap.set("n", "gi", function()
       if vim.bo.filetype == "cs" then
-        require("omnisharp_extended").telescope_lsp_implementations()
+        require("omnisharp_extended").lsp_implementations()
       else
-        require("telescope.builtin").lsp_implementations()
+        require("fzf-lua").lsp_implementations()
       end
     end, { buffer = bufnr, desc = "Go to implementation" })
     vim.keymap.set("i", "<a-k>", vim.lsp.buf.signature_help, { buffer = bufnr, desc = "Signature help" })
@@ -66,25 +67,25 @@ vim.api.nvim_create_autocmd("LspAttach", {
     vim.keymap.set(
       "n",
       "<leader>fds",
-      "<cmd>Telescope lsp_document_symbols<cr>",
+      require("fzf-lua").lsp_document_symbols,
       { buffer = bufnr, desc = "Find document symbols" }
     )
     vim.keymap.set(
       "n",
       "<leader>fws",
-      "<cmd>Telescope lsp_workspace_symbols<cr>",
+      require("fzf-lua").lsp_workspace_symbols,
       { buffer = bufnr, desc = "Find workspace symbols" }
     )
     vim.keymap.set(
       "n",
       "<leader>fki",
-      "<cmd>Telescope lsp_incoming_calls<cr>",
+      require("fzf-lua").lsp_incoming_calls,
       { buffer = bufnr, desc = "Find incoming calls" }
     )
     vim.keymap.set(
       "n",
       "<leader>fko",
-      "<cmd>Telescope lsp_outgoing_calls<cr>",
+      require("fzf-lua").lsp_outgoing_calls,
       { buffer = bufnr, desc = "Find outgoing calls" }
     )
 

@@ -110,7 +110,6 @@ return {
         ["dap-repl"] = false,
         c = false,
         cpp = false,
-        telescopeprompt = false,
         xml = false,
         dashboard = false,
       },
