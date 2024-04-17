@@ -48,7 +48,7 @@ return {
       },
       {
         "nvim-treesitter/nvim-treesitter-textobjects",
-        dev = true,
+        branch = "main",
         opts = {},
       },
       {
