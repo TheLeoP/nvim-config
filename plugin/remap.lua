@@ -20,17 +20,6 @@ vim.keymap.set("n", "<leader>ll", function()
   end
 end, { desc = "Toggle location list" })
 
--- Use dressing for spelling suggestions.
-vim.keymap.set("n", "z=", function()
-  vim.ui.select(
-    vim.fn.spellsuggest(vim.fn.expand "<cword>"),
-    {},
-    vim.schedule_wrap(function(selected)
-      if selected then vim.cmd([[normal! "_ciw]] .. selected) end
-    end)
-  )
-end, { desc = "Spelling suggestions" })
-
 vim.keymap.set("c", "Mes", "mes")
 
 -- execute current buffer

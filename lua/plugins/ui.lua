@@ -40,6 +40,9 @@ return {
   },
   {
     "stevearc/dressing.nvim",
+    dependencies = {
+      "fzf-lua",
+    },
     opts = {
       input = {
         insert_only = false,
@@ -50,6 +53,12 @@ return {
         },
       },
       select = {
+        fzf_lua = {
+          winopts = {
+            height = 0.5,
+            width = 0.5,
+          },
+        },
         backend = { "fzf_lua", "nui", "builtin" },
       },
     },
