@@ -41,7 +41,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
       if vim.bo.filetype == "cs" then
         require("omnisharp_extended").lsp_definitions()
       else
-        require("fzf-lua").lsp_definitions()
+        require("fzf-lua").lsp_definitions { jump_to_single_result = true }
       end
     end, { buffer = bufnr, desc = "Go to definition" })
     vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { buffer = bufnr, desc = "Go to declaration" })
@@ -49,14 +49,14 @@ vim.api.nvim_create_autocmd("LspAttach", {
       if vim.bo.filetype == "cs" then
         require("omnisharp_extended").lsp_references()
       else
-        require("fzf-lua").lsp_references()
+        require("fzf-lua").lsp_references { jump_to_single_result = true }
       end
     end, { buffer = bufnr, desc = "Go to reference" })
     vim.keymap.set("n", "gi", function()
       if vim.bo.filetype == "cs" then
         require("omnisharp_extended").lsp_implementations()
       else
-        require("fzf-lua").lsp_implementations()
+        require("fzf-lua").lsp_implementations { jump_to_single_result = true }
       end
     end, { buffer = bufnr, desc = "Go to implementation" })
     vim.keymap.set("i", "<a-k>", vim.lsp.buf.signature_help, { buffer = bufnr, desc = "Signature help" })
