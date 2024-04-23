@@ -45,7 +45,6 @@ nnoremap <silent> [d <cmd>lua vim.diagnostic.goto_prev()<cr>
 
 " permitir salir del modo terminal con <c-[>
 tnoremap  <c-\><c-n>
-tnoremap <c-{><c-{> <c-\><c-n>
 
 " w and q
 nnoremap <silent> <leader>w <cmd>w<cr>
