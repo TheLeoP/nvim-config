@@ -33,6 +33,7 @@ return {
     config = function(_, opts)
       if vim.fn.has "win32" == 1 then require("nvim-treesitter.install").compilers = { "clang" } end
       require("nvim-treesitter.configs").setup(opts)
+      vim.treesitter.language.register("markdown", "octo")
     end,
     dependencies = {
       {
