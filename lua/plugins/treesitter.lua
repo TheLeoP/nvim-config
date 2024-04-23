@@ -1,7 +1,6 @@
 return {
   {
     "nvim-treesitter/nvim-treesitter",
-    build = ":TSUpdate",
     opts = {
       ensure_installed = {
         "c",
@@ -27,12 +26,6 @@ return {
           "dashboard",
         },
       },
-      indent = {
-        enable = false,
-      },
-      playground = {
-        enable = true,
-      },
       autotag = {
         enable = true,
       },
@@ -49,10 +42,11 @@ return {
       {
         "nvim-treesitter/nvim-treesitter-textobjects",
         branch = "main",
-        opts = {},
-      },
-      {
-        "nvim-treesitter/playground",
+        opts = {
+          select = {
+            lookahead = true,
+          },
+        },
       },
       {
         "LiadOZ/nvim-dap-repl-highlights",
