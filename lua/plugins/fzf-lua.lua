@@ -3,6 +3,7 @@ return {
   opts = {
     "telescope",
     grep = {
+      glob_separator = "%s%-%-%s",
       rg_glob = true,
       rg_glob_fn = function(query, opts)
         ---@type string, string
