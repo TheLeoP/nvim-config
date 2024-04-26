@@ -8,7 +8,7 @@ function M.projects()
         local config = require "session_manager.config"
         local project_path = selected[1] ---@type string
 
-        vim.cmd.tcd(project_path)
+        vim.cmd.tcd { args = { project_path }, mods = { silent = true } }
 
         local session_name = config.dir_to_session_filename(vim.loop.cwd()) --- @type {exists: fun():boolean}
         if session_name:exists() then
