@@ -40,7 +40,7 @@ return {
       return { timeout_ms = 500, lsp_fallback = lsp_fallback }, on_format
     end,
     format_after_save = function(bufnr)
-      if not format_options.slow_filetypes[vim.bo[bufnr].filetype] then return end
+      if not format_options.autoformat or not format_options.slow_filetypes[vim.bo[bufnr].filetype] then return end
       local lsp_fallback = vim.list_contains(format_options.excluded_ft, vim.bo[bufnr].filetype)
       return { lsp_fallback = lsp_fallback }
     end,
