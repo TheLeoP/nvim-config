@@ -5,6 +5,8 @@ return {
       ensure_installed = {
         "c",
         "lua",
+        "luap",
+        "printf",
         "luadoc",
         "vim",
         "vimdoc",
