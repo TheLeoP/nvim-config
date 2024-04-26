@@ -48,6 +48,20 @@ return {
             lookahead = true,
           },
         },
+        config = function(_, opts)
+          require("nvim-treesitter-textobjects").setup(opts)
+
+          vim.keymap.set(
+            { "x", "o" },
+            "<F4>",
+            function() require("nvim-treesitter-textobjects.select").select_textobject("@function.inner", "textobjects") end
+          )
+          vim.keymap.set(
+            { "x", "o" },
+            "<F5>",
+            function() require("nvim-treesitter-textobjects.select").select_textobject("@function.outer", "textobjects") end
+          )
+        end,
       },
       {
         "LiadOZ/nvim-dap-repl-highlights",

@@ -4,17 +4,11 @@ return {
     "neovim/nvim-lspconfig",
     dependencies = {
       "b0o/schemastore.nvim",
-      {
-        "williamboman/mason.nvim",
-        build = ":MasonUpdate",
-      },
+      "typescript-tools.nvim",
       "williamboman/mason-lspconfig.nvim",
+      "mason.nvim",
       "folke/neodev.nvim",
       "mfussenegger/nvim-jdtls",
-      {
-        "pmizio/typescript-tools.nvim",
-        dependencies = { "nvim-lua/plenary.nvim" },
-      },
       "Hoffs/omnisharp-extended-lsp.nvim",
     },
     config = function()
@@ -202,42 +196,8 @@ return {
     end,
   },
   {
-    "nvimtools/none-ls.nvim",
-    opts = function()
-      local nls = require "null-ls"
-      return {
-        sources = {
-          nls.builtins.formatting.prettierd,
-          require "none-ls.diagnostics.eslint_d",
-          require "none-ls.formatting.eslint_d",
-          require "none-ls.code_actions.eslint_d",
-          nls.builtins.formatting.stylua,
-          nls.builtins.formatting.csharpier,
-          nls.builtins.formatting.black.with { extra_args = { "--line-length=80", "--skip-string-normalization" } },
-        },
-      }
-    end,
-    dependencies = {
-      "nvimtools/none-ls-extras.nvim",
-    },
-  },
-  {
-    "jay-babu/mason-null-ls.nvim",
-    opts = {
-      automatic_installation = true,
-    },
-    dependencies = {
-      "nvimtools/none-ls.nvim",
-      "williamboman/mason.nvim",
-    },
-  },
-  {
     "j-hui/fidget.nvim",
-    opts = {
-      progress = {
-        ignore = { "null-ls" },
-      },
-    },
+    opts = {},
   },
   {
     "SmiteshP/nvim-navic",
@@ -262,7 +222,6 @@ return {
   {
     "TheLeoP/powershell.nvim",
     dev = true,
-    ---@type powershell.config
     opts = {
       capabilities = require("personal.config.lsp").capabilities,
       bundle_path = vim.fs.normalize(require("personal.config.lsp").mason_root .. "powershell-editor-services"),
@@ -273,5 +232,9 @@ return {
         enableProfileLoading = false,
       },
     },
+  },
+  {
+    "pmizio/typescript-tools.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
   },
 }

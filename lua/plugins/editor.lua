@@ -5,7 +5,7 @@ return {
     config = function()
       require("project_nvim").setup {
         detection_methods = { "lsp", "pattern" },
-        ignore_lsp = { "null-ls", "emmet_ls", "lemminx", "lua-ls" },
+        ignore_lsp = { "emmet_ls", "lemminx", "lua-ls" },
         show_hidden = true,
         scope_chdir = "tab",
         patterns = {

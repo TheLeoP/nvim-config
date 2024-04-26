@@ -2,12 +2,6 @@ local methods = vim.lsp.protocol.Methods
 
 local M = {}
 
-M.format = {
-  autoformat = true,
-  exclude = { "lemminx" },
-  only_null_ls = true,
-}
-
 M.mason_root = vim.fn.stdpath "data" .. "/mason/packages/" --[[@as string]]
 
 M.capabilities = vim.lsp.protocol.make_client_capabilities()
@@ -89,51 +83,9 @@ vim.api.nvim_create_autocmd("LspAttach", {
       { buffer = bufnr, desc = "Find outgoing calls" }
     )
 
-    local ft = vim.bo[bufnr].filetype
-    local have_null_ls = #require("null-ls.sources").get_available(ft, "NULL_LS_FORMATTING") > 0
-
-    vim.api.nvim_create_autocmd("BufWritePre", {
-      group = vim.api.nvim_create_augroup("LspFormat." .. bufnr, {}),
-      buffer = bufnr,
-      callback = function()
-        if not M.format.autoformat then return end
-        if
-          (
-            not client.supports_method(methods.textDocument_formatting)
-            or vim.list_contains(M.format.exclude, client.name)
-          ) and not have_null_ls
-        then
-          return
-        end
-
-        vim.lsp.buf.format {
-          filter = function(client)
-            if M.format.only_null_ls and have_null_ls then
-              return client.name == "null-ls"
-            else
-              return client.name ~= "null-ls" and not vim.list_contains(M.format.exclude, client.name)
-            end
-          end,
-          bufnr = bufnr,
-        }
-      end,
-    })
-
-    vim.keymap.set("n", "<leader>tf", function()
-      M.format.autoformat = not M.format.autoformat
-      vim.notify(string.format("Autoformat is %s", M.format.autoformat and "on" or "off"))
-    end)
-
-    vim.keymap.set("n", "<leader>tn", function()
-      M.format.only_null_ls = not M.format.only_null_ls
-      vim.notify(string.format("Only null-ls is %s", M.format.only_null_ls and "on" or "off"))
-    end)
-
     local inlay_hint = vim.lsp.inlay_hint
     vim.keymap.set("n", "<leader>ti", function()
-      if client.supports_method(methods.textDocument_inlayHint) then
-        inlay_hint.enable(bufnr, not inlay_hint.is_enabled())
-      end
+      if client.supports_method(methods.textDocument_inlayHint) then inlay_hint.enable(not inlay_hint.is_enabled()) end
     end, { buffer = bufnr })
   end,
 })
