@@ -1,3 +1,7 @@
+local lint_options = {
+  enabled = true,
+}
+
 return {
   "mfussenegger/nvim-lint",
   opts = {},
@@ -11,7 +15,15 @@ return {
     }
 
     vim.api.nvim_create_autocmd({ "BufWritePost" }, {
-      callback = function() require("lint").try_lint() end,
+      callback = function()
+        if not lint_options.enabled then return end
+        require("lint").try_lint()
+      end,
     })
+
+    vim.keymap.set("n", "<leader>tl", function()
+      lint_options.enabled = not lint_options.enabled
+      vim.notify(("Linting is %s"):format(lint_options.enabled and "enabled" or "disabled"))
+    end)
   end,
 }

@@ -50,7 +50,7 @@ return {
 
     vim.keymap.set("n", "<leader>tf", function()
       format_options.autoformat = not format_options.autoformat
-      vim.notify(string.format("Autoformat is %s", format_options.autoformat and "on" or "off"))
+      vim.notify(("Autoformat is %s"):format(format_options.autoformat and "on" or "off"))
     end)
   end,
 }
