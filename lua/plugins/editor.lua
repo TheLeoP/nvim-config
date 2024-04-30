@@ -78,53 +78,6 @@ return {
     end,
   },
   {
-    "folke/flash.nvim",
-    opts = {
-      modes = {
-        search = {
-          enabled = false,
-        },
-        char = {
-          enabled = false,
-        },
-      },
-    },
-    keys = {
-      {
-        "s",
-        mode = { "n", "x", "o" },
-        function() require("flash").jump() end,
-        desc = "Flash",
-      },
-      {
-        "S",
-        mode = { "n", "o", "x" },
-        function()
-          local filetype = vim.bo[0].filetype
-          local lang = vim.treesitter.language.get_lang(filetype)
-          local ok, _parser = pcall(vim.treesitter.get_parser, 0, lang)
-          if ok then
-            require("flash").treesitter()
-          else
-            vim.notify(
-              string.format(
-                "There is no treesitter parser for filetype `%s`. Flash treesitter is deactivated",
-                filetype
-              )
-            )
-          end
-        end,
-        desc = "Flash Treesitter",
-      },
-      {
-        "<c-s>",
-        mode = { "c" },
-        function() require("flash").toggle() end,
-        desc = "Toggle Flash Search",
-      },
-    },
-  },
-  {
     "freddiehaddad/feline.nvim",
     config = function()
       local devicons = require "nvim-web-devicons"
