@@ -1,9 +1,6 @@
 return {
   "L3MON4D3/LuaSnip",
   opts = {
-    keep_roots = true,
-    link_roots = true,
-    link_children = true,
     update_events = { "TextChanged", "TextChangedI" },
     store_selection_keys = "<c-k>",
   },
