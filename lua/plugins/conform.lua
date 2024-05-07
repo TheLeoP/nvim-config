@@ -1,7 +1,6 @@
 local format_options = {
   autoformat = true,
   excluded_ft = { "xml" }, ---@type string[]
-  slow_filetypes = {}, ---@type table<string, true>
 }
 
 return {
@@ -30,19 +29,9 @@ return {
     },
     format_on_save = function(bufnr)
       if not format_options.autoformat or format_options[vim.bo[bufnr].filetype] then return end
-      local lsp_fallback = vim.list_contains(format_options.excluded_ft, vim.bo[bufnr].filetype)
+      local lsp_fallback = not vim.list_contains(format_options.excluded_ft, vim.bo[bufnr].filetype)
 
-      ---@param err string
-      local function on_format(err)
-        if err and err:match "timeout$" then format_options.slow_filetypes[vim.bo[bufnr].filetype] = true end
-      end
-
-      return { timeout_ms = 500, lsp_fallback = lsp_fallback }, on_format
-    end,
-    format_after_save = function(bufnr)
-      if not format_options.autoformat or not format_options.slow_filetypes[vim.bo[bufnr].filetype] then return end
-      local lsp_fallback = vim.list_contains(format_options.excluded_ft, vim.bo[bufnr].filetype)
-      return { lsp_fallback = lsp_fallback }
+      return { timeout_ms = 500, lsp_fallback = lsp_fallback }
     end,
   },
   config = function(_, opts)
