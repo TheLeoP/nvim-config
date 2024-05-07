@@ -35,9 +35,6 @@ return {
     },
   },
   {
-    "romainl/vim-cool",
-  },
-  {
     "linguini1/pulse.nvim",
     opts = {},
     config = function(_, opts)
