@@ -15,6 +15,10 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.runtimepath:prepend(lazypath)
 
+local is_win = vim.fn.has "win32" == 1
+
+local documents = is_win and "D:/Lucho" or vim.api.nvim_eval "$HOME" .. "/Documentos"
+local personal = documents .. "/Personal"
 require("lazy").setup("plugins", {
   performance = {
     cache = {
@@ -26,7 +30,7 @@ require("lazy").setup("plugins", {
     },
   },
   dev = {
-    path = vim.g.documentos .. "/Personal",
+    path = personal,
   },
   install = {
     colorscheme = { "gruvbox" },
