@@ -95,27 +95,6 @@ return {
     },
   },
   {
-    "zbirenbaum/copilot.lua",
-    enabled = false,
-    opts = {
-      suggestion = {
-        auto_trigger = true,
-        keymap = {
-          accept = "<M-f>",
-          next = "<M-}>",
-          prev = "<M-{>",
-        },
-      },
-      filetypes = {
-        ["dap-repl"] = false,
-        c = false,
-        cpp = false,
-        xml = false,
-        dashboard = false,
-      },
-    },
-  },
-  {
     "kristijanhusak/vim-dadbod-ui",
     init = function()
       vim.g.db_ui_force_echo_notifications = 1
