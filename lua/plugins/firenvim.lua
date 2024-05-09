@@ -1,6 +1,6 @@
 return {
   "glacambre/firenvim",
-  cond = vim.g.started_by_firenvim,
+  cond = vim.g.started_by_firenvim ~= nil,
   init = function()
     vim.g.firenvim_config = {
       globalSettings = {
