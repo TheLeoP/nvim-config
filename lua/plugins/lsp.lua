@@ -46,7 +46,7 @@ return {
           },
         },
       }
-      lspconfig.pyright.setup {
+      lspconfig.basedpyright.setup {
         capabilities = config.capabilities,
         settings = {
           python = {
@@ -73,7 +73,7 @@ return {
       }
 
       -- c#
-      require("lspconfig").omnisharp.setup {
+      lspconfig.omnisharp.setup {
         capabilities = config.capabilities,
         settings = {
           FormattingOptions = {
@@ -83,12 +83,12 @@ return {
       }
 
       -- angular
-      require("lspconfig").angularls.setup {
+      lspconfig.angularls.setup {
         capabilities = config.capabilities,
       }
 
       -- fennel
-      require("lspconfig").fennel_language_server.setup {
+      lspconfig.fennel_language_server.setup {
         capabilities = config.capabilities,
         settings = {
           fennel = {
@@ -155,13 +155,13 @@ return {
 
       local function on_new_config(new_config, _)
         if
-          new_config.init_options
-          and new_config.init_options.typescript
-          and new_config.init_options.typescript.tsdk == ""
+            new_config.init_options
+            and new_config.init_options.typescript
+            and new_config.init_options.typescript.tsdk == ""
         then
           ---@type string
           new_config.init_options.typescript.tsdk = config.mason_root
-            .. "typescript-language-server/node_modules/typescript/lib"
+              .. "typescript-language-server/node_modules/typescript/lib"
         end
       end
 
