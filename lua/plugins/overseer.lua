@@ -44,36 +44,25 @@ return {
         win_opts = { winblend = 5 },
       },
     },
-    keys = {
-      {
-        "<leader>ot",
-        "<cmd>OverseerToggle<cr>",
-        desc = "Toggle task window",
-      },
-      {
-        "<leader>o<",
-        function()
-          local overseer = require "overseer"
+    config = function(_, opts)
+      require("overseer").setup(opts)
 
-          local tasks = overseer.list_tasks { recent_first = true }
-          if vim.tbl_isempty(tasks) then
-            vim.notify("No tasks found", vim.log.levels.WARN)
-          else
-            overseer.run_action(tasks[1], "restart")
-            open_and_close()
-          end
-        end,
-        desc = "Restart last task",
-      },
-      {
-        "<leader>or",
-        function()
-          require("overseer").run_template({}, function(task)
-            if task then open_and_close() end
-          end)
-        end,
-        desc = "Run task",
-      },
-    },
+      vim.keymap.set("n", "<leader>ot", "<cmd>OverseerToggle<cr>", { desc = "Toggle task window" })
+      vim.keymap.set("n", "<leader>o<", function()
+        local overseer = require "overseer"
+        local tasks = overseer.list_tasks { recent_first = true }
+        if vim.tbl_isempty(tasks) then
+          vim.notify("No tasks found", vim.log.levels.WARN)
+        else
+          overseer.run_action(tasks[1], "restart")
+          open_and_close()
+        end
+      end, { desc = "Restart last task" })
+      vim.keymap.set("n", "<leader>or", function()
+        require("overseer").run_template({}, function(task)
+          if task then open_and_close() end
+        end)
+      end, { desc = "Run task" })
+    end,
   },
 }

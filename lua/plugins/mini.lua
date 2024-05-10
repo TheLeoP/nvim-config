@@ -1,7 +1,6 @@
 return {
   "echasnovski/mini.nvim",
 
-  lazy = false,
   version = false,
   dependencies = { "nvim-treesitter-textobjects" },
   config = function()

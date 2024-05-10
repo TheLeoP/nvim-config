@@ -1,6 +1,5 @@
 return {
   "nvimdev/dashboard-nvim",
-  lazy = false,
   opts = {
     theme = "doom",
     config = {

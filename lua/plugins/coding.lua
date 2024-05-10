@@ -86,95 +86,34 @@ return {
   "tpope/vim-sleuth",
   {
     "tpope/vim-dispatch",
-    lazy = false,
-    keys = {
-      { "¿<cr>", "<cmd>Dispatch<cr>", mode = "n" },
-      { "¿<space>", ":Dispatch<space>", mode = "n" },
-      { "¿!", ":Dispatch!<space>", mode = "n" },
-      { "¿?", "<cmd>FocusDispatch<cr>", mode = "n" },
-    },
-  },
-  {
-    "kristijanhusak/vim-dadbod-ui",
-    init = function()
-      vim.g.db_ui_force_echo_notifications = 1
-      vim.g.db_ui_show_database_icon = 1
+    config = function()
+      vim.keymap.set("n", "¿<cr>", "<cmd>Dispatch<cr>")
+      vim.keymap.set("n", "¿<space>", ":Dispatch<space>")
+      vim.keymap.set("n", "¿!", ":Dispatch!<space>")
+      vim.keymap.set("n", "¿?", "<cmd>FocusDispatch<cr>")
     end,
-    dependencies = {
-      "tpope/vim-dadbod",
-    },
   },
   {
     "theprimeagen/refactoring.nvim",
-    lazy = false,
     dev = true,
-    keys = {
-      {
-        "<leader>ae",
-        function() require("refactoring").refactor "Extract Function" end,
-        mode = "x",
-      },
-      {
-        "<leader>af",
-        function() require("refactoring").refactor "Extract Function To File" end,
-        mode = "x",
-      },
-      {
-        "<leader>av",
-        function() require("refactoring").refactor "Extract Variable" end,
-        mode = "x",
-      },
-      {
-        "<leader>ai",
-        function() require("refactoring").refactor "Inline Variable" end,
-        mode = { "n", "x" },
-      },
-      {
-        "<leader>abb",
-        function() require("refactoring").refactor "Extract Block" end,
-        mode = "n",
-      },
-      {
-        "<leader>abf",
-        function() require("refactoring").refactor "Extract Block To File" end,
-        mode = "n",
-      },
-      {
-        "<leader>pP",
-        function() require("refactoring").debug.printf { below = false } end,
-        mode = "n",
-      },
-      {
-        "<leader>pp",
-        function() require("refactoring").debug.printf { below = true } end,
-        mode = "n",
-      },
-      {
-        "<leader>pv",
-        function() require("refactoring").debug.print_var { below = true } end,
-        mode = { "x", "n" },
-      },
-      {
-        "<leader>pV",
-        function() require("refactoring").debug.print_var { below = false } end,
-        mode = { "x", "n" },
-      },
-      {
-        "<leader>pc",
-        function() require("refactoring").debug.cleanup {} end,
-        mode = "n",
-      },
-      {
-        "<leader>aI",
-        function() require("refactoring").refactor(115) end,
-        mode = "n",
-      },
-    },
-    opts = {},
+    config = function(_, opts)
+      local refactoring = require "refactoring"
+      vim.keymap.set("x", "<leader>ae", function() refactoring.refactor "Extract Function" end)
+      vim.keymap.set("x", "<leader>af", function() refactoring.refactor "Extract Function To File" end)
+      vim.keymap.set("x", "<leader>av", function() refactoring.refactor "Extract Variable" end)
+      vim.keymap.set({ "n", "x" }, "<leader>ai", function() refactoring.refactor "Inline Variable" end)
+      vim.keymap.set("n", "<leader>abb", function() refactoring.refactor "Extract Block" end)
+      vim.keymap.set("n", "<leader>abf", function() refactoring.refactor "Extract Block To File" end)
+      vim.keymap.set("n", "<leader>pP", function() refactoring.debug.printf { below = false } end)
+      vim.keymap.set("n", "<leader>pp", function() refactoring.debug.printf { below = true } end)
+      vim.keymap.set({ "x", "n" }, "<leader>pv", function() refactoring.debug.print_var { below = true } end)
+      vim.keymap.set({ "x", "n" }, "<leader>pV", function() refactoring.debug.print_var { below = false } end)
+      vim.keymap.set("n", "<leader>pc", function() refactoring.debug.cleanup {} end)
+      vim.keymap.set("n", "<leader>aI", function() refactoring.refactor(115) end)
+    end,
   },
   {
     "mfussenegger/nvim-dap-python",
-    lazy = false,
     config = function()
       ---@type string
       local mason_root = vim.fn.stdpath "data" .. "/mason/packages/"
@@ -209,95 +148,32 @@ return {
   },
   {
     "mfussenegger/nvim-dap",
-    lazy = false,
-    keys = {
-      {
-        "<leader>dm",
-        debug_menu,
-        mode = "n",
-      },
-      {
-        "<leader>dp",
-        function() require("dap.ui.widgets").preview() end,
-        mode = "n",
-      },
-      {
-        "<leader>dh",
-        function() require("dap.ui.widgets").hover() end,
-        mode = "n",
-      },
-      {
-        "<leader>dc",
-        function() require("dap").continue() end,
-        mode = "n",
-      },
-      {
-        "<leader>dr",
-        function() require("dap").repl.toggle() end,
-        mode = "n",
-      },
-      {
-        "<leader>de",
-        function() require("dap").terminate() end,
-        mode = "n",
-      },
-      {
-        "<leader>db",
-        function() require("dap").toggle_breakpoint() end,
-        mode = "n",
-      },
-      {
-        "<leader>dB",
-        function()
-          vim.ui.input(
-            { prompt = "Breakpoint condition: " },
-            ---@param input string|nil
-            function(input)
-              if input then require("dap").set_breakpoint(input) end
-            end
-          )
-        end,
-        mode = "n",
-      },
-      {
-        "<leader>dl",
-        function()
-          local open_qflist = true
-          require("dap").list_breakpoints(open_qflist)
-        end,
-        mode = "n",
-      },
-      {
-        "<leader>dv",
-        function() require("dap").step_over() end,
-        mode = "n",
-      },
-      {
-        "<leader>dsi",
-        function() require("dap").step_into() end,
-        mode = "n",
-      },
-      {
-        "<leader>dso",
-        function() require("dap").step_out() end,
-        mode = "n",
-      },
-      {
-        "<leader>dsb",
-        function() require("dap").step_back() end,
-        mode = "n",
-      },
-      {
-        "<leader>dtc",
-        function() require("dap").run_to_cursor() end,
-        mode = "n",
-      },
-    },
     config = function()
       vim.fn.sign_define("DapBreakpoint", { text = "⦿", texthl = "Error", linehl = "", numhl = "" })
       local dap = require "dap"
 
-      dap.defaults.fallback.external_terminal = { command = "gnome-terminal", args = { "--" } }
+      vim.keymap.set("n", "<leader>dm", debug_menu)
+      vim.keymap.set("n", "<leader>dp", function() require("dap.ui.widgets").preview() end)
+      vim.keymap.set("n", "<leader>dh", function() require("dap.ui.widgets").hover() end)
+      vim.keymap.set("n", "<leader>dc", function() require("dap").continue() end)
+      vim.keymap.set("n", "<leader>dr", function() require("dap").repl.toggle() end)
+      vim.keymap.set("n", "<leader>de", function() require("dap").terminate() end)
+      vim.keymap.set("n", "<leader>db", function() require("dap").toggle_breakpoint() end)
+      vim.keymap.set("n", "<leader>dB", function()
+        vim.ui.input(
+          { prompt = "Breakpoint condition: " },
+          ---@param input string|nil
+          function(input)
+            if input then require("dap").set_breakpoint(input) end
+          end
+        )
+      end)
+      vim.keymap.set("n", "<leader>dl", function() require("dap").list_breakpoints(true) end)
+      vim.keymap.set("n", "<leader>dv", function() require("dap").step_over() end)
+      vim.keymap.set("n", "<leader>dsi", function() require("dap").step_into() end)
+      vim.keymap.set("n", "<leader>dso", function() require("dap").step_out() end)
+      vim.keymap.set("n", "<leader>dsb", function() require("dap").step_back() end)
+      vim.keymap.set("n", "<leader>dtc", function() require("dap").run_to_cursor() end)
 
       require("overseer").patch_dap(true)
       require("dap.ext.vscode").json_decode = require("overseer.json").decode
@@ -481,11 +357,12 @@ return {
   {
     "danymat/neogen",
     opts = {},
-    keys = {
-      { "<leader>gf", "<cmd>Neogen func<cr>", mode = "n" },
-      { "<leader>gF", "<cmd>Neogen file<cr>", mode = "n" },
-      { "<leader>gc", "<cmd>Neogen class<cr>", mode = "n" },
-      { "<leader>gt", "<cmd>Neogen type<cr>", mode = "n" },
-    },
+    config = function(_, opts)
+      require("neogen").setup(opts)
+      vim.keymap.set("n", "<leader>gf", "<cmd>Neogen func<cr>")
+      vim.keymap.set("n", "<leader>gF", "<cmd>Neogen file<cr>")
+      vim.keymap.set("n", "<leader>gc", "<cmd>Neogen class<cr>")
+      vim.keymap.set("n", "<leader>gt", "<cmd>Neogen type<cr>")
+    end,
   },
 }
