@@ -98,6 +98,13 @@ return {
       },
     }
 
-    require("mini.notify").setup()
+    require("mini.notify").setup {
+      lsp_progress = {
+        duration_last = 500,
+      },
+      window = {
+        max_width_share = 0.25,
+      },
+    }
   end,
 }
