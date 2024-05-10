@@ -6,7 +6,7 @@ return {
   opts = {
     input = {
       insert_only = false,
-      start_in_insert = false,
+      start_in_insert = true,
       border = "single",
       win_options = {
         winblend = 0,
