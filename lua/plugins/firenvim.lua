@@ -1,6 +1,5 @@
 return {
   "glacambre/firenvim",
-  cond = vim.g.started_by_firenvim ~= nil,
   init = function()
     vim.g.firenvim_config = {
       globalSettings = {
@@ -19,6 +18,8 @@ return {
     }
   end,
   config = function()
+    if not vim.g.started_by_firenvim then return end
+
     vim.o.laststatus = 0
     vim.o.winbar = nil
   end,
