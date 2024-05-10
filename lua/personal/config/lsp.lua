@@ -30,10 +30,9 @@ vim.api.nvim_create_autocmd("LspAttach", {
 
     if client.supports_method(methods.textDocument_documentSymbol) then require("nvim-navic").attach(client, bufnr) end
 
-    -- TODO: create custom commands for the omnisharp_extended plugin?
     vim.keymap.set("n", "gd", function()
       if vim.bo.filetype == "cs" then
-        require("omnisharp_extended").lsp_definitions()
+        require("personal.fzf-lua").omnisharp_lsp_definitions()
       else
         require("fzf-lua").lsp_definitions { jump_to_single_result = true }
       end
@@ -41,14 +40,14 @@ vim.api.nvim_create_autocmd("LspAttach", {
     vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { buffer = bufnr, desc = "Go to declaration" })
     vim.keymap.set("n", "gr", function()
       if vim.bo.filetype == "cs" then
-        require("omnisharp_extended").lsp_references()
+        require("personal.fzf-lua").omnisharp_lsp_references()
       else
         require("fzf-lua").lsp_references { jump_to_single_result = true }
       end
     end, { buffer = bufnr, desc = "Go to reference" })
     vim.keymap.set("n", "gi", function()
       if vim.bo.filetype == "cs" then
-        require("omnisharp_extended").lsp_implementations()
+        require("personal.fzf-lua").omnisharp_lsp_implementations()
       else
         require("fzf-lua").lsp_implementations { jump_to_single_result = true }
       end
