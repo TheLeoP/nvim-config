@@ -97,5 +97,7 @@ return {
         note = { pattern = "%f[%w]()NOTE()%f[%W]", group = "MiniHipatternsNote" },
       },
     }
+
+    require("mini.notify").setup()
   end,
 }
