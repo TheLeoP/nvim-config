@@ -293,7 +293,6 @@ local highlights
 
 ---@param s string
 ---@return string
--- TODO: handle multibyte chars
 local function splice(s)
   ---@type string[]
   local chars = {}
