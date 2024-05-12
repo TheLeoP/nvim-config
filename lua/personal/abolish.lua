@@ -126,20 +126,17 @@ local function normalize_options(flags)
     opts = {}
   end
 
-  local w_flag = vim.regex "w" --[[@ as vim.regex]]
-  local v_flag = vim.regex "v" --[[@ as vim.regex]]
-  if w_flag:match_str(flags) then
+  if flags:match "w" then
     opts.boundaries = 2
-  elseif v_flag:match_str(flags) then
+  elseif flags:match "v" then
     opts.boundaries = 1
   elseif not opts.boundaries then
     opts.boundaries = 0
   end
 
-  local i_flag = vim.regex "I" --[[@ as vim.regex]]
   opts.case = opts.case or true
-  opts.case = not i_flag:match_str(flags) and opts.case or false
-  opts.flags = vim.fn.substitute(flags, [=[\C[Ivwi]]=], "", "g")
+  opts.case = not flags:match "I" and opts.case or false
+  opts.flags = flags:gsub("[Iivw]", "")
   return opts
 end
 
@@ -167,53 +164,63 @@ end
 ---@param word string
 ---@return string
 function M.camelcase(word)
-  word = assert(vim.fn.substitute(word, "-", "_", "g"))
-  local regex_ = vim.regex "_" --[[@as vim.regex]]
-  local regex_l = vim.regex [[\l]] --[[@as vim.regex]]
-  if not regex_:match_str(word) and regex_l:match_str(word) then
-    return assert(vim.fn.substitute(word, "^.", [[\l&]], ""))
+  word = word:gsub("%-", "_")
+  if not word:match "_" and word:match "%l" then
+    return word:sub(1, 1):lower() .. word:sub(2)
   else
-    return assert(
-      vim.fn.substitute(
-        word,
-        [[\C\(_\)\=\(.\)]],
-        [[\=submatch(1)==""?tolower(submatch(2)) : toupper(submatch(2))]],
-        "g"
-      )
-    )
+    word = word:gsub("(_?)(.)", function(maybe_underscore, any)
+      if maybe_underscore == "" then
+        return any:lower()
+      else
+        return any:upper()
+      end
+    end)
+    return word
   end
+end
+
+--PascalCase
+---@param word string
+---@return string
+function M.mixedcase(word)
+  local camelcase = M.camelcase(word)
+  return camelcase:sub(1, 1):upper() .. camelcase:sub(2)
 end
 
 ---@param word string
 ---@return string
-function M.mixedcase(word) return assert(vim.fn.substitute(M.camelcase(word), "^.", [[\u&]], "")) end
-
----@param word string
----@return string
 function M.snakecase(word)
-  word = assert(vim.fn.substitute(word, "::", "/", "g"))
-  word = assert(vim.fn.substitute(word, [[\(\u\+\)\(\u\l\)]], [[\1_\2]], "g"))
-  word = assert(vim.fn.substitute(word, [[\(\l\|\d\)\(\u\)]], [[\1_\2]], "g"))
-  word = assert(vim.fn.substitute(word, [=[[.-]]=], "_", "g"))
-  word = assert(vim.fn.tolower(word))
+  word = word:gsub("(%u+)(%u%l)", "%1_%2")
+  word = word:gsub("([%l%d])(%u)", "%1_%2")
+  word = word:gsub("[.%-]", "_")
+  word = word:lower()
   return word
 end
 
 ---@param word string
 ---@return string
-function M.uppercase(word) return assert(vim.fn.toupper(M.snakecase(word))) end
+function M.uppercase(word) return M.snakecase(word):upper() end
 
 ---@param word string
 ---@return string
-function M.dashcase(word) return assert(vim.fn.substitute(M.snakecase(word), "_", "-", "g")) end
+function M.dashcase(word)
+  local dashcase = M.snakecase(word):gsub("_", "-")
+  return dashcase
+end
 
 ---@param word string
 ---@return string
-function M.spacecase(word) return assert(vim.fn.substitute(M.snakecase(word), "_", " ", "g")) end
+function M.spacecase(word)
+  local spacecase = M.snakecase(word):gsub("_", " ")
+  return spacecase
+end
 
 ---@param word string
 ---@return string
-function M.dotcase(word) return assert(vim.fn.substitute(M.snakecase(word), "_", ".", "g")) end
+function M.dotcase(word)
+  local dotcase = M.snakecase(word):gsub("_", ".")
+  return dotcase
+end
 
 ---@param parsed abolish.parsed_input
 ---@param opts table<string, any>
@@ -227,8 +234,8 @@ local function create_dictionary(parsed, opts)
   for lhs, rhs in pairs(expanded) do
     if case then
       dict[M.mixedcase(lhs)] = M.mixedcase(rhs)
-      dict[assert(vim.fn.tolower(lhs))] = vim.fn.tolower(rhs)
-      dict[assert(vim.fn.toupper(lhs))] = vim.fn.toupper(rhs)
+      dict[lhs:lower()] = rhs:lower()
+      dict[lhs:upper()] = rhs:upper()
     end
     dict[lhs] = rhs
   end
@@ -239,8 +246,8 @@ end
 ---@param a string
 ---@param b string
 local function sort(a, b)
-  local a_lower = vim.fn.tolower(a)
-  local b_lower = vim.fn.tolower(b)
+  local a_lower = a:lower()
+  local b_lower = b:lower()
   if a_lower == b_lower then
     if a == b then
       return true
@@ -258,13 +265,12 @@ end
 
 ---@param pattern string
 ---@return string
-local function subesc(pattern) return assert(vim.fn.substitute(pattern, [=[[][\\/.*+?~%()&]]=], [[\\&]], "g")) end
+local function subesc(pattern) return vim.fn.substitute(pattern, [=[[][\\/.*+?~%()&]]=], [[\\&]], "g") end
 
 ---@param dict table<string, string>
 ---@param boundaries number
 local function pattern(dict, boundaries)
-  ---@type string, string
-  local a, b
+  local a, b ---@type string, string
   if boundaries == 2 then
     a = "<"
     b = ">"
@@ -275,12 +281,9 @@ local function pattern(dict, boundaries)
     a = ""
     b = ""
   end
-  if vim.tbl_isempty(dict) then
-    dict = vim.empty_dict() --[[@as table]]
-  end
-  local keys = vim.fn.keys(dict)
+  local keys = vim.tbl_keys(dict)
   table.sort(keys, sort)
-  return [[\v\C]] .. a .. "%(" .. table.concat(vim.tbl_map(subesc, keys), "|") .. ")" .. b
+  return [[\v\C]] .. a .. "%(" .. vim.iter(keys):map(subesc):join "|" .. ")" .. b
 end
 
 function M.abolished()
@@ -335,11 +338,11 @@ local function substitute_command(count, line1, line2, parsed, preview_ns)
       math.max(visible_line_range[2], vim.fn.line "w$"),
     }
 
-    parsed.pattern.before = assert(vim.fn.substitute(parsed.pattern.before, "\r", "\n", "g"))
+    parsed.pattern.before = vim.fn.substitute(parsed.pattern.before, "\r", "\n", "g")
     for i, v in ipairs(parsed.pattern.fragments) do
-      parsed.pattern.fragments[i] = assert(vim.fn.substitute(v, "\r", "\n", "g"))
+      parsed.pattern.fragments[i] = vim.fn.substitute(v, "\r", "\n", "g")
     end
-    parsed.pattern.after = assert(vim.fn.substitute(parsed.pattern.after, "\r", "\n", "g"))
+    parsed.pattern.after = vim.fn.substitute(parsed.pattern.after, "\r", "\n", "g")
 
     local opts = normalize_options(parsed.flags or "")
     local preview_dict = create_dictionary(parsed, opts)
@@ -458,9 +461,9 @@ local hl_groups = {
 local function get_words()
   ---@type string[]
   local words = {}
-  local lnum = assert(vim.fn.line "w0")
+  local lnum = vim.fn.line "w0"
   while lnum <= vim.fn.line "w$" do
-    local line = vim.fn.getline(lnum)
+    local line = vim.api.nvim_buf_get_lines(0, lnum - 1, lnum, true)[1]
     local col = 0
     while vim.fn.match(line, [[\<\k\k\+\>]], col) ~= -1 do
       table.insert(words, vim.fn.matchstr(line, [[\<\k\k\+\>]], col))
@@ -476,8 +479,8 @@ end
 ---@param _cursor_pos integer
 ---@return string[]
 M.complete = function(arg_lead, _cmd_line, _cursor_pos)
-  local start_with_search = vim.regex [=[^[/?]\k\+$]=] --[[@as vim.regex]]
-  local does_not_start_with_search = vim.regex [=[^\k\+$]=] --[[@as vim.regex]]
+  local start_with_search = vim.regex [=[^[/?]\k\+$]=]
+  local does_not_start_with_search = vim.regex [=[^\k\+$]=]
   ---@type string[]
   local all_words
   if start_with_search:match_str(arg_lead) then
