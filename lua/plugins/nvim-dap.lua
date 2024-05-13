@@ -80,6 +80,55 @@ local function debug_menu()
     end
   end)
 end
+
+local dotnet_last_project ---@type string?
+local function dotnet_build_project()
+  local default_path = dotnet_last_project and dotnet_last_project or vim.fn.getcwd() .. "/"
+
+  local path = vim.fn.input("Path to your *proj file: ", default_path, "file")
+  dotnet_last_project = path
+  local cmd = { "dotnet", "build", "-c", "Debug", path }
+  vim.notify(([[Cmd to execute: %s]]):format(table.concat(cmd, " ")))
+  local result = vim.system(cmd):wait()
+  if result.code == 0 then
+    vim.notify "Build: ✔️ "
+  else
+    vim.notify(("Build: ❌ (error: %s)"):format(result.stderr))
+  end
+end
+
+local dotnet_last_dll ---@type string|nil
+---@return string
+local request = function() return vim.fn.input("Path to dll: ", vim.fn.getcwd() .. "/bin/Debug/", "file") end
+local function dotnet_get_dll_path()
+  if
+    not dotnet_last_dll
+    or vim.fn.confirm(("Do you want to change the path to dll?\n%s"):format(dotnet_last_dll), "&yes\n&no", 2) == 1
+  then
+    dotnet_last_dll = request()
+  end
+
+  return dotnet_last_dll
+end
+
+local last_args ---@type string[]|nil
+---@return string[]
+local function args()
+  if
+    not last_args
+    or vim.fn.confirm(
+        ("Do you want to change the last args?\n%s"):format(table.concat(last_args, " ")),
+        "&yes\n&no",
+        2
+      )
+      == 1
+  then
+    local args_string = vim.fn.input("args: ", "", "file")
+    last_args = vim.split(args_string, " +")
+  end
+  return last_args
+end
+
 return {
   "mfussenegger/nvim-dap",
   config = function()
@@ -256,9 +305,23 @@ return {
     dap.configurations.cs = {
       {
         type = "coreclr",
-        name = "launch - netcoredbg",
+        name = "launch",
         request = "launch",
-        program = function() return vim.fn.input("Path to dll", vim.fn.getcwd() .. "/bin/Debug/", "file") end,
+        program = function()
+          if vim.fn.confirm("Should I recompile first?", "&yes\n&no", 2) == 1 then dotnet_build_project() end
+          return dotnet_get_dll_path()
+        end,
+        cwd = "${workspaceFolder}",
+      },
+      {
+        type = "coreclr",
+        name = "launch with args",
+        request = "launch",
+        program = function()
+          if vim.fn.confirm("Should I recompile first?", "&yes\n&no", 2) == 1 then dotnet_build_project() end
+          return dotnet_get_dll_path()
+        end,
+        args = args,
         cwd = "${workspaceFolder}",
       },
     }
