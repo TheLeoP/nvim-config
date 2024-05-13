@@ -9,6 +9,7 @@
   "dressing.nvim": { "branch": "master", "commit": "5162edb1442a729a885c45455a07e9a89058be2f" },
   "feline.nvim": { "branch": "main", "commit": "b43be71ebc3ff0e451a627b47751fd7747dc15fb" },
   "firenvim": { "branch": "master", "commit": "03ba12a5a92a02d171005775a8150998c4060a74" },
+  "fzf": { "branch": "master", "commit": "4e9e842aa4df67051ce88963b0745679dbaeadb5" },
   "fzf-lua": { "branch": "main", "commit": "9c953dfa7650191d892800333d187f3439e01afd" },
   "gitsigns.nvim": { "branch": "main", "commit": "805610a9393fa231f2c2b49cb521bfa413fadb3d" },
   "gruvbox.nvim": { "branch": "main", "commit": "c442515506caa166118e157980f62a9ac24fa8c3" },

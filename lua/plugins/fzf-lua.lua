@@ -43,4 +43,10 @@ return {
 
     vim.keymap.set("n", "z=", require("fzf-lua").spell_suggest, { desc = "Spelling suggestions" })
   end,
+  dependencies = {
+    {
+      "junegunn/fzf",
+      build = function() vim.fn["fzf#install"]() end,
+    },
+  },
 }
