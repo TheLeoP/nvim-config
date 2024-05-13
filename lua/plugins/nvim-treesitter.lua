@@ -1,6 +1,6 @@
 return {
   "nvim-treesitter/nvim-treesitter",
-  build = "TSUpdateSync",
+  build = ":TSUpdateSync",
   opts = {
     ensure_installed = {
       "c",
