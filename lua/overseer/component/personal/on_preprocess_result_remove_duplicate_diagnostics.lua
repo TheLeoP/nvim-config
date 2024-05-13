@@ -15,7 +15,7 @@ return {
         if not result.diagnostics then return end
         ---@type table<string, true>
         local already_seen = {}
-        result.diagnostics = vim.iter.filter(function(diagnostic)
+        result.diagnostics = vim.tbl_filter(function(diagnostic)
           local key = ("%s:%s"):format(diagnostic.filename, diagnostic.lnum)
           if already_seen[key] then
             return false
