@@ -1,10 +1,10 @@
 local M = {}
 
 function M.setup()
-  vim.wo.spell = true
-  vim.wo.wrap = true
-  vim.wo.linebreak = true
-  vim.wo.conceallevel = 3
+  vim.opt_local.spell = true
+  vim.opt_local.wrap = true
+  vim.opt_local.linebreak = true
+  vim.opt_local.conceallevel = 3
 
   vim.b.undo_ftplugin = "setlocal nospell nowrap nolinebreak conceallevel=0"
 
