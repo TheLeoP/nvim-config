@@ -29,7 +29,7 @@ end
 
 local function start_prompt()
   local overseer = require "overseer"
-  vim.ui.input({ prompt = "cmd: " }, function(input)
+  vim.ui.input({ prompt = "cmd: ", completion = "file" }, function(input)
     if not input or input == "" then return end
     overseer.run_template({
       name = "shell",
