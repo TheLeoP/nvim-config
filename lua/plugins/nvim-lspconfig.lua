@@ -26,19 +26,14 @@ return {
     lspconfig.basedpyright.setup {
       capabilities = config.capabilities,
       settings = {
-        python = {
+        basedpyright = {
           analysis = {
-            autoSearchPaths = true,
-            diagnosticMode = "workspace",
-            useLibraryCodeForTypes = true,
-            diagnosticSeverityOverrides = {
-              reportGeneralTypeIssues = "warning",
-            },
+            typeCheckingMode = "standard",
           },
         },
       },
       root_dir = function()
-        vim.fs.root(0, {
+        return vim.fs.root(0, {
           "setup.cfg",
           "pyproject.toml",
           "setup.cfg",
