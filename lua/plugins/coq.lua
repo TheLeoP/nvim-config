@@ -1,3 +1,33 @@
+---@class coq_args
+---@field pos {[1]: integer, [2]:integer}
+---@field line string
+
+---@class coq_callback_args
+---@field isIncomplete boolean
+---@field items vim.lsp.CompletionResult
+
+---@class coq_source
+---@field name string
+---@field fn fun(args: coq_args, callback: fun(args?: coq_callback_args)): fun()|nil
+
+---@alias coq_sources table<integer, coq_source>
+
+---@param map coq_sources
+local function new_uid(map)
+  vim.validate {
+    map = { map, "table" },
+  }
+
+  local key ---@type integer|nil
+  while true do
+    if not key or map[key] then
+      key = math.floor(math.random() * 10000)
+    else
+      return key
+    end
+  end
+end
+
 return {
   "ms-jpq/coq_nvim",
   branch = "coq",
@@ -27,7 +57,7 @@ return {
           match_syms = false,
         },
         third_party = {
-          enabled = false,
+          enabled = true,
         },
         lsp = {
           weight_adjust = 1,
@@ -92,5 +122,117 @@ return {
         return "<BS>"
       end
     end, { expr = true, silent = true })
+
+    COQsources = COQsources or {} ---@type coq_sources
+
+    COQsources[new_uid(COQsources)] = {
+      name = "Q",
+      fn = function(args, callback)
+        if vim.bo.filetype ~= "query" then return callback() end
+        local row, col = unpack(args.pos) ---@type integer, integer
+
+        local start_col = vim.treesitter.query.omnifunc(1, "")
+        ---@cast start_col integer
+
+        if start_col == -2 or start_col == -3 then return callback() end
+
+        local cword = vim.api.nvim_buf_get_text(0, row, start_col, row, col, {})[1]
+        local maybe_matches = vim.treesitter.query.omnifunc(0, cword)
+
+        if maybe_matches == -2 or maybe_matches == -3 then return callback() end ---@cast maybe_matches -integer
+
+        local items = vim ---@type vim.lsp.CompletionResult
+          .iter(maybe_matches.words)
+          :map(
+            function(word)
+              return {
+                label = word,
+                insertText = word,
+              }
+            end
+          )
+          :totable()
+
+        callback {
+          isIncomplete = false,
+          items = items,
+        }
+      end,
+    }
+
+    COQsources[new_uid(COQsources)] = {
+      name = "DAP",
+      fn = function(args, callback)
+        if vim.bo.filetype ~= "dap-repl" then return callback() end
+        local row, col = unpack(args.pos) ---@type integer, integer
+
+        local start_col = require("dap.repl").omnifunc(1, "")
+        ---@cast start_col integer
+
+        if start_col == -2 or start_col == -3 then return callback() end
+
+        if start_col < 0 then start_col = vim.api.nvim_win_get_cursor(0)[2] end
+
+        local cword = vim.api.nvim_buf_get_text(0, row, start_col, row, col, {})[1]
+        local maybe_matches = require("dap.repl").omnifunc(0, cword)
+
+        if maybe_matches == -2 or maybe_matches == -3 then return callback() end ---@cast maybe_matches -integer
+
+        local items = vim ---@type vim.lsp.CompletionResult
+          .iter(maybe_matches.words)
+          :map(
+            function(word)
+              return {
+                label = word,
+                insertText = word,
+              }
+            end
+          )
+          :totable()
+
+        callback {
+          isIncomplete = false,
+          items = items,
+        }
+      end,
+    }
+
+    COQsources[new_uid(COQsources)] = {
+      name = "DB",
+      fn = function(args, callback)
+        if vim.bo.filetype ~= "sql" and vim.bo.filetype ~= "psql" then return callback() end
+        local row, col = unpack(args.pos) ---@type integer, integer
+
+        local start_col = vim.fn["vim_dadbod_completion#omni"](1, "")
+        ---@cast start_col integer
+
+        if start_col == -2 or start_col == -3 then return callback() end
+
+        if start_col < 0 then start_col = vim.api.nvim_win_get_cursor(0)[2] end
+
+        local cword = vim.api.nvim_buf_get_text(0, row, start_col, row, col, {})[1]
+        local maybe_matches = vim.fn["vim_dadbod_completion#omni"](0, cword)
+
+        if maybe_matches == -2 or maybe_matches == -3 then return callback() end ---@cast maybe_matches -integer
+
+        local items = vim ---@type vim.lsp.CompletionResult
+          .iter(maybe_matches)
+          :map(
+            function(match)
+              return {
+                label = match.abbr,
+                insertText = match.word,
+                detail = match.info,
+              }
+            end
+          )
+          :totable()
+
+        callback {
+          isIncomplete = false,
+          items = items,
+        }
+      end,
+    }
   end,
 }
