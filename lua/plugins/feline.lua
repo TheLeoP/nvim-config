@@ -3,14 +3,18 @@ local function file_provider(_, opts)
   local Path = require "plenary.path"
 
   local full_path = vim.fn.expand("%:p", false)
+  if full_path:match "^oil://" then
+    full_path = full_path:match "^oil://(.*)"
+    full_path = require("oil.fs").posix_to_os_path(full_path)
+  end
 
   local filename = vim.fn.expand("%:t", false)
   local extension = vim.fn.expand("%:e", false)
   local p = Path:new(full_path)
-  local relative_p = Path:new(p:make_relative())
+  local relative_p = Path:new(p:make_relative(vim.uv.cwd()))
 
   ---@type string
-  local relative_path = relative_p:shorten(opts.length)
+  local relative_path = opts and opts.length and relative_p:shorten(opts.length) or tostring(relative_p)
 
   ---@type string ,string
   local iconStr, name = devicons.get_icon(filename, extension)
@@ -125,9 +129,6 @@ return {
     table.insert(left, {
       provider = {
         name = "file",
-        opts = {
-          length = 3,
-        },
       },
     })
 
