@@ -73,6 +73,9 @@ return {
         pum = {
           fast_close = false,
         },
+        statusline = {
+          helo = false,
+        },
       },
       match = {
         unifying_chars = {
