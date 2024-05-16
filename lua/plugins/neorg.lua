@@ -18,6 +18,11 @@ return {
           zen_mode = "zen-mode",
         },
       },
+      ["core.completion"] = {
+        config = {
+          engine = "coq_nvim",
+        },
+      },
     },
   },
   dependencies = {
