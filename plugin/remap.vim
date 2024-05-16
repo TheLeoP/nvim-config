@@ -40,8 +40,7 @@ inoremap = =<c-g>u
 nnoremap <silent> ]e <cmd>lua vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.ERROR })<cr>
 nnoremap <silent> [e <cmd>lua vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.ERROR })<cr>
 nnoremap <silent> <leader>e <cmd>lua vim.diagnostic.open_float()<cr>
-nnoremap <silent> ]d <cmd>lua vim.diagnostic.goto_next()<cr>
-nnoremap <silent> [d <cmd>lua vim.diagnostic.goto_prev()<cr>
+" [d and ]d are now default mappings for navigating diagnostics
 
 " permitir salir del modo terminal con <c-[>
 tnoremap  <c-\><c-n>
