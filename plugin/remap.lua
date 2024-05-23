@@ -20,6 +20,8 @@ vim.keymap.set("n", "<leader>tl", function()
   end
 end, { desc = "Toggle location list" })
 
+vim.keymap.set("n", "<leader>tp", "<cmd>pclose<cr>")
+
 vim.keymap.set("c", "Mes", "mes")
 
 -- execute current buffer
