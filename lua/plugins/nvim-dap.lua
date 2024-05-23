@@ -137,6 +137,7 @@ return {
 
     vim.keymap.set("n", "<leader>dm", debug_menu)
     vim.keymap.set("n", "<leader>dp", function() require("dap.ui.widgets").preview() end)
+    vim.keymap.set("n", "<leader>dh", function() require("dap.ui.widgets").hover() end)
     vim.keymap.set("n", "<leader>dc", function() require("dap").continue() end)
     vim.keymap.set("n", "<leader>dr", function() require("dap").repl.toggle() end)
     vim.keymap.set("n", "<leader>de", function() require("dap").terminate() end)
