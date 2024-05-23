@@ -13,8 +13,10 @@ xnoremap <M-}> }
 
 
 " remap move in quickfix-list
-nnoremap <silent> ]q :cnext<cr>zzzv
-nnoremap <silent> [q :cprev<cr>zzzv
+nnoremap <silent> [Q <cmd>cfirst<cr>zzzv
+nnoremap <silent> [q <cmd>cprev<cr>zzzv
+nnoremap <silent> ]q <cmd>cnext<cr>zzzv
+nnoremap <silent> ]Q <cmd>clast<cr>zzzv
 
 " remap move in quickfix-list
 nnoremap <silent> ]l :lnext<cr>zzzv
