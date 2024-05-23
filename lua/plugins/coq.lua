@@ -98,27 +98,15 @@ return {
       end
     end, { expr = true, silent = true })
 
-    vim.keymap.set("i", "<CR>", function()
-      if vim.fn.pumvisible() == 1 then
-        if vim.fn.complete_info().selected == -1 then
-          return "<C-e><CR>"
-        else
-          return "<C-y>"
-        end
-      else
-        return "<CR>"
-      end
-    end, { expr = true, silent = true })
-
-    vim.keymap.set("i", "<Tab>", function()
+    vim.keymap.set("i", "<c-n>", function()
       if vim.fn.pumvisible() == 1 then
         return "<down>"
       else
-        return "<Tab>"
+        return "<c-n>"
       end
     end, { expr = true, silent = true })
 
-    vim.keymap.set("i", "<s-tab>", function()
+    vim.keymap.set("i", "<c-p>", function()
       if vim.fn.pumvisible() == 1 then
         return "<up>"
       else
