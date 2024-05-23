@@ -14,7 +14,6 @@ return {
         border = "none",
       },
       title = true,
-      preview_window = true,
     }
 
     -- Setup keymaps
