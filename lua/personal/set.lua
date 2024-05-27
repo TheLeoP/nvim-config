@@ -65,12 +65,7 @@ vim.o.foldmethod = "expr"
 vim.wo.foldtext = ""
 vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 
-local arrows = {
-  right = "",
-  left = "",
-  up = "",
-  down = "",
-}
+local arrows = require("personal.icons").arrows
 
 vim.opt.fillchars = {
   eob = " ",

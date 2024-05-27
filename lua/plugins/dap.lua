@@ -1,86 +1,3 @@
----@type table<string, table>|nil
-local components
-local init_components_if_required = function()
-  local widgets = require "dap.ui.widgets"
-  if not components then
-    components = {
-      ["sessions"] = widgets.sessions,
-      ["scopes"] = widgets.scopes,
-      ["frames"] = widgets.frames,
-      ["expression"] = widgets.expression,
-      ["threads"] = widgets.threads,
-    }
-  end
-end
-
----@type table<string, fun(widget:any, winopts:any):table>|nil
-local location
-local init_location_if_required = function()
-  local widgets = require "dap.ui.widgets"
-  if not location then
-    location = {
-      ["h"] = function(widget) return widgets.sidebar(widget, nil, "topleft 50 vsplit") end,
-      ["k"] = function(widget) return widgets.sidebar(widget, nil, "topleft 7 split") end,
-      ["j"] = function(widget) return widgets.sidebar(widget, nil, "7 split") end,
-      ["l"] = function(widget) return widgets.sidebar(widget, nil, "50 vsplit") end,
-      ["c"] = widgets.centered_float,
-    }
-  end
-end
-
----@type table<string, table<string, table>>
-local cache = {
-  ["h"] = {},
-  ["k"] = {},
-  ["j"] = {},
-  ["l"] = {},
-  ["c"] = {},
-}
-
-local function debug_menu()
-  init_components_if_required() ---@cast components -nil
-  vim.ui.select(vim.tbl_keys(components), { prompt = "Select debug widget:" }, function(choice)
-    if not choice then return end
-
-    local separator = { " | ", "WarningMsg" }
-
-    vim.cmd [[echo '' | redraw]]
-
-    --stylua: ignore
-    vim.api.nvim_echo({
-      {"h", "Question"}, {": left"},
-      separator,
-      {"l", "Question"}, {": right"},
-      separator,
-      {"k", "Question"}, {": up"},
-      separator,
-      {"j", "Question"}, {": down"}
-    }, false, {})
-
-    local ok, char = pcall(vim.fn.getcharstr)
-    vim.cmd [[echo '' | redraw]]
-
-    if not ok or char == "\27" or not char then return end
-    init_location_if_required() ---@cast location -nil
-    local component_by_location = location[char]
-    if not component_by_location then
-      vim.notify(("There is no location for char %s"):format(char), vim.log.levels.Warning)
-      return
-    end
-
-    if char == "c" then
-      component_by_location(components[choice])
-    else
-      local widget = cache[char][choice]
-      if not widget then
-        widget = component_by_location(components[choice])
-        cache[char][choice] = widget
-      end
-      widget.toggle()
-    end
-  end)
-end
-
 local dotnet_last_project ---@type string?
 local function dotnet_build_project()
   local default_path = dotnet_last_project and dotnet_last_project or vim.fn.getcwd() .. "/"
@@ -134,29 +51,35 @@ return {
   config = function()
     vim.fn.sign_define("DapBreakpoint", { text = "⦿", texthl = "Error", linehl = "", numhl = "" })
     local dap = require "dap"
+    local dapui = require "dapui"
 
-    vim.keymap.set("n", "<leader>dm", debug_menu)
-    vim.keymap.set("n", "<leader>dp", function() require("dap.ui.widgets").preview() end)
     vim.keymap.set("n", "<leader>dh", function() require("dap.ui.widgets").hover() end)
-    vim.keymap.set("n", "<leader>dc", function() require("dap").continue() end)
-    vim.keymap.set("n", "<leader>dr", function() require("dap").repl.toggle() end)
-    vim.keymap.set("n", "<leader>de", function() require("dap").terminate() end)
-    vim.keymap.set("n", "<leader>db", function() require("dap").toggle_breakpoint() end)
+    vim.keymap.set("n", "<leader>dc", function() dap.continue() end)
+    vim.keymap.set("n", "<leader>dr", function() dapui.toggle { layout = 2 } end)
+    vim.keymap.set("n", "<leader>de", function()
+      dap.terminate()
+      dapui.close()
+    end)
+    vim.keymap.set("n", "<leader>db", function() dap.toggle_breakpoint() end)
     vim.keymap.set("n", "<leader>dB", function()
       vim.ui.input(
         { prompt = "Breakpoint condition: " },
         ---@param input string|nil
         function(input)
-          if input then require("dap").set_breakpoint(input) end
+          if input then dap.set_breakpoint(input) end
         end
       )
     end)
-    vim.keymap.set("n", "<leader>dl", function() require("dap").list_breakpoints(true) end)
-    vim.keymap.set("n", "<leader>dv", function() require("dap").step_over() end)
-    vim.keymap.set("n", "<leader>dsi", function() require("dap").step_into() end)
-    vim.keymap.set("n", "<leader>dso", function() require("dap").step_out() end)
-    vim.keymap.set("n", "<leader>dsb", function() require("dap").step_back() end)
-    vim.keymap.set("n", "<leader>dtc", function() require("dap").run_to_cursor() end)
+    vim.keymap.set("n", "<leader>dl", function() dap.list_breakpoints(true) end)
+    vim.keymap.set("n", "<leader>dv", function() dap.step_over() end)
+    vim.keymap.set("n", "<leader>dsi", function() dap.step_into() end)
+    vim.keymap.set("n", "<leader>dso", function() dap.step_out() end)
+    vim.keymap.set("n", "<leader>dsb", function() dap.step_back() end)
+    vim.keymap.set("n", "<leader>dtc", function() dap.run_to_cursor() end)
+
+    dap.listeners.after.event_initialized["dapui_config"] = function() dapui.open {} end
+    dap.listeners.before.event_terminated["dapui_config"] = function() dapui.close {} end
+    dap.listeners.before.event_exited["dapui_config"] = function() dapui.close {} end
 
     require("overseer").patch_dap(true)
     require("dap.ext.vscode").json_decode = require("overseer.json").decode
