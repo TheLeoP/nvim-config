@@ -51,6 +51,10 @@ return {
   config = function()
     vim.fn.sign_define("DapBreakpoint", { text = "⦿", texthl = "Error", linehl = "", numhl = "" })
     local dap = require "dap"
+    dap.defaults.fallback.external_terminal = {
+      command = "/usr/bin/wezterm",
+      args = { "start", "--" },
+    }
     local dapui = require "dapui"
 
     vim.keymap.set("n", "<leader>dh", function() require("dap.ui.widgets").hover() end)
