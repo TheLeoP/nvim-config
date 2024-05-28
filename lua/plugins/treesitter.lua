@@ -4,6 +4,8 @@ return {
   opts = {
     ensure_installed = {
       "c",
+      "doxygen",
+      "re2c",
       "lua",
       "luap",
       "printf",
