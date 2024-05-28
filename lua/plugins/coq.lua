@@ -182,7 +182,7 @@ return {
         if maybe_matches == -2 or maybe_matches == -3 then return callback() end ---@cast maybe_matches -integer
 
         local items = vim ---@type vim.lsp.CompletionResult
-          .iter(maybe_matches.words)
+          .iter(maybe_matches)
           :map(
             function(word)
               return {
