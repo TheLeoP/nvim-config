@@ -1,3 +1,5 @@
+local is_windows = vim.fn.has "win32" == 1
+
 return {
   "mfussenegger/nvim-dap-python",
   config = function()
