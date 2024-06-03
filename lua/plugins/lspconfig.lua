@@ -4,7 +4,6 @@ return {
     "schemastore.nvim",
     "mason-lspconfig.nvim",
     "mason.nvim",
-    "neodev.nvim",
   },
   config = function()
     local lspconfig = require "lspconfig"
@@ -94,7 +93,6 @@ return {
 
     -- lua
 
-    require("neodev").setup()
     lspconfig.lua_ls.setup {
       capabilities = config.capabilities,
       settings = {
