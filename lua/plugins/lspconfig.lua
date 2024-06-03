@@ -83,6 +83,7 @@ return {
       "groovyls",
       "intelephense",
       "prismals",
+      "cmake",
     }
 
     for _, server in ipairs(servidores_generales) do
