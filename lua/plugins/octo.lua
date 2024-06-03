@@ -8,9 +8,8 @@ return {
   opts = {
     use_local_fs = true,
     picker = "fzf-lua",
-    suppress_missing_scope = {
-      projects_v2 = true,
-    },
+    -- NOTE: requires both read:project and project scopes
+    default_to_projects_v2 = true,
   },
   config = function(_, opts)
     require("octo").setup(opts)
