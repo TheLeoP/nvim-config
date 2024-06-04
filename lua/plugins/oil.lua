@@ -21,18 +21,8 @@ return {
       },
       ["<leader>cd"] = "actions.tcd",
       ["gt"] = "actions.toggle_trash",
-      ["<leader>y"] = {
-        callback = function()
-          local oil = require "oil"
-          local entry = oil.get_cursor_entry()
-          local dir = oil.get_current_dir()
-          if not entry or not dir then return vim.notify("Current entry has no dir or no name", vim.log.levels.WARN) end
-          local path = dir .. entry.name
-          vim.fn.setreg("+", path, 'V"')
-        end,
-        mode = "n",
-        desc = "Copy path under cursor to clipboard",
-      },
+      ["<leader>y"] = "actions.copy_entry_path",
+      ["<leader>:"] = "actions.open_cmdline",
       ["g\\"] = false,
       ["`"] = false,
       ["~"] = false,
