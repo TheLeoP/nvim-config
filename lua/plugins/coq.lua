@@ -14,10 +14,6 @@
 
 ---@param map coq_sources
 local function new_uid(map)
-  vim.validate {
-    map = { map, "table" },
-  }
-
   local key ---@type integer|nil
   while true do
     if not key or map[key] then
