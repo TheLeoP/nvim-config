@@ -7,11 +7,11 @@ return {
   opts = {},
   config = function()
     require("lint").linters_by_ft = {
-      javascript = { "eslint_d" },
-      javascriptreact = { "eslint_d" },
-      typescript = { "eslint_d" },
-      typescriptreact = { "eslint_d" },
-      vue = { "eslint_d" },
+      javascript = { "eslint" },
+      javascriptreact = { "eslint" },
+      typescript = { "eslint" },
+      typescriptreact = { "eslint" },
+      vue = { "eslint" },
     }
 
     vim.api.nvim_create_autocmd({ "BufWritePost" }, {
