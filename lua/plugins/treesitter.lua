@@ -18,6 +18,7 @@ return {
       "json",
       "graphql",
       "jsdoc",
+      "regex",
     },
     sync_install = true,
     auto_install = true,
