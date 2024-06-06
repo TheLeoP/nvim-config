@@ -80,7 +80,6 @@ return {
         },
       },
       limits = {
-        completion_auto_timeout = 1.0,
         completion_manual_timeout = 1.0,
       },
     }

@@ -83,6 +83,7 @@ return {
       "intelephense",
       "prismals",
       "cmake",
+      "tailwindcss",
     }
 
     for _, server in ipairs(servidores_generales) do
