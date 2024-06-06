@@ -17,6 +17,7 @@ return {
       "http",
       "json",
       "graphql",
+      "jsdoc",
     },
     sync_install = true,
     auto_install = true,
