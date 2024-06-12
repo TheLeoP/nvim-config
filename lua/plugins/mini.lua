@@ -20,10 +20,10 @@ return {
         t = { "<([%p%w]-)%f[^<%w][^<>]->.-</%1>", "^<.->().*()</[^/]->$" },
 
         B = gen_ai_spec.buffer(),
-        D = gen_ai_spec.diagnostic(),
-        I = gen_ai_spec.indent(),
-        L = gen_ai_spec.line(),
-        N = gen_ai_spec.number(),
+        d = gen_ai_spec.diagnostic(),
+        i = gen_ai_spec.indent(),
+        l = gen_ai_spec.line(),
+        n = gen_ai_spec.number(),
         P = function()
           local start_row, start_col = unpack(vim.api.nvim_buf_get_mark(0, "[")) --[[@as integer, integer]]
           local end_row, end_col = unpack(vim.api.nvim_buf_get_mark(0, "]")) --[[@as integer, integer]]
@@ -40,6 +40,10 @@ return {
       mappings = {
         goto_left = "g{",
         goto_right = "g}",
+        around_next = "",
+        inside_next = "",
+        around_last = "",
+        inside_last = "",
       },
     }
 
@@ -81,7 +85,7 @@ return {
         update_n_lines = "<leader>sn",
       },
 
-      n_lines = 20,
+      n_lines = 100,
     }
 
     vim.keymap.set("x", "<leader>s", [[:<C-u>lua MiniSurround.add('visual')<CR>]], { silent = true })
