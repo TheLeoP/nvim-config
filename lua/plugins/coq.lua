@@ -28,8 +28,6 @@ return {
   "ms-jpq/coq_nvim",
   branch = "coq",
   init = function()
-    vim.opt.shortmess:append "c"
-
     vim.opt.completeopt = { "menuone", "noselect", "noinsert" }
     vim.opt.showmode = false
 

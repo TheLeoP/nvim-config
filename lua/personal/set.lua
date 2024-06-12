@@ -47,8 +47,7 @@ vim.opt.cursorline = true
 
 vim.opt.diffopt:append { "vertical", "context:99" }
 
-vim.opt.shortmess:append "w"
-vim.opt.shortmess:append "s"
+vim.opt.shortmess:append "sWcC"
 
 vim.opt.breakindent = true
 
@@ -77,3 +76,9 @@ vim.opt.fillchars = {
 }
 
 vim.o.exrc = true
+
+vim.o.listchars = "tab:> ,extends:…,precedes:…,nbsp:␣"
+vim.o.list = true
+
+vim.o.pumblend = 10
+vim.o.winblend = 10
