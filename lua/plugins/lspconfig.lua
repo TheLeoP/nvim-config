@@ -73,6 +73,19 @@ return {
       },
     }
 
+    -- tailwind
+    lspconfig.tailwindcss.setup {
+      capabilities = config.capabilities,
+      root_dir = function()
+        return vim.fs.root(0, {
+          "tailwind.config.js",
+          "tailwind.config.cjs",
+          "tailwind.config.mjs",
+          "tailwind.config.ts",
+        })
+      end,
+    }
+
     local servidores_generales = {
       "vimls",
       "clangd",
@@ -83,7 +96,6 @@ return {
       "intelephense",
       "prismals",
       "cmake",
-      "tailwindcss",
     }
 
     for _, server in ipairs(servidores_generales) do
@@ -93,7 +105,6 @@ return {
     end
 
     -- lua
-
     lspconfig.lua_ls.setup {
       capabilities = config.capabilities,
       settings = {
