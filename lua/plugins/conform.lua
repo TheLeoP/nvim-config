@@ -3,6 +3,8 @@ local format_options = {
   excluded_ft = {}, ---@type string[]
 }
 
+local slow_format_filetypes = {} ---@type table<string, true>
+
 return {
   "stevearc/conform.nvim",
   opts = {
@@ -28,10 +30,25 @@ return {
       handlebars = { "prettierd" },
     },
     format_on_save = function(bufnr)
-      if not format_options.autoformat or format_options[vim.bo[bufnr].filetype] then return end
+      if not format_options.autoformat then return end
+
+      if slow_format_filetypes[vim.bo[bufnr].filetype] then return end
+      local function on_format(err)
+        if err and err:match "timeout$" then slow_format_filetypes[vim.bo[bufnr].filetype] = true end
+      end
 
       return {
         timeout_ms = 500,
+        lsp_format = vim.list_contains(format_options.excluded_ft, vim.bo[bufnr].filetype) and "never" or "fallback",
+      },
+        on_format
+    end,
+    format_after_save = function(bufnr)
+      if not format_options.autoformat then return end
+
+      if not slow_format_filetypes[vim.bo[bufnr].filetype] then return end
+
+      return {
         lsp_format = vim.list_contains(format_options.excluded_ft, vim.bo[bufnr].filetype) and "never" or "fallback",
       }
     end,
