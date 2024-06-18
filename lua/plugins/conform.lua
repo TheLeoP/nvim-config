@@ -1,6 +1,6 @@
 local format_options = {
   autoformat = true,
-  excluded_ft = { "xml" }, ---@type string[]
+  excluded_ft = {}, ---@type string[]
 }
 
 return {
@@ -29,9 +29,11 @@ return {
     },
     format_on_save = function(bufnr)
       if not format_options.autoformat or format_options[vim.bo[bufnr].filetype] then return end
-      local lsp_fallback = not vim.list_contains(format_options.excluded_ft, vim.bo[bufnr].filetype)
 
-      return { timeout_ms = 500, lsp_fallback = lsp_fallback }
+      return {
+        timeout_ms = 500,
+        lsp_format = vim.list_contains(format_options.excluded_ft, vim.bo[bufnr].filetype) and "never" or "fallback",
+      }
     end,
   },
   config = function(_, opts)
