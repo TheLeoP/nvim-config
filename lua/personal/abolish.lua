@@ -1,3 +1,5 @@
+local api = vim.api
+
 local M = {}
 
 M.char = ""
@@ -9,7 +11,7 @@ function M.opertator_func()
 
     local separator = { " | ", "WarningMsg" }
     --stylua: ignore
-    vim.api.nvim_echo({
+    api.nvim_echo({
       {"Enter coerce identifier (single character): "},
       {"c", "Question"}, {": camelcase"},
       separator,
@@ -41,13 +43,13 @@ end
 
 ---@param type "line"|"char"|"block"
 function M.coerce(type)
-  local cursor_location = vim.api.nvim_win_get_cursor(0)
+  local cursor_location = api.nvim_win_get_cursor(0)
   local count = vim.v.count1 ---@type integer
   while count > 0 do
     count = count - 1
 
-    local start_row, start_col = unpack(vim.api.nvim_buf_get_mark(0, "[")) ---@type integer, integer
-    local end_row, end_col = unpack(vim.api.nvim_buf_get_mark(0, "]")) ---@type integer, integer
+    local start_row, start_col = unpack(api.nvim_buf_get_mark(0, "[")) ---@type integer, integer
+    local end_row, end_col = unpack(api.nvim_buf_get_mark(0, "]")) ---@type integer, integer
 
     local coercion = M.coercions[M.char]
     if not coercion then
@@ -56,20 +58,20 @@ function M.coerce(type)
     end
 
     if type == "line" then
-      local lines = vim.api.nvim_buf_get_lines(0, start_row - 1, end_row, true)
+      local lines = api.nvim_buf_get_lines(0, start_row - 1, end_row, true)
       for i, line in ipairs(lines) do
         local coerced_line = coercion(line)
         if line ~= coerced_line then
-          vim.api.nvim_buf_set_lines(0, start_row - 1 + i - 1, start_row - 1 + i, true, { coerced_line })
+          api.nvim_buf_set_lines(0, start_row - 1 + i - 1, start_row - 1 + i, true, { coerced_line })
         end
       end
     elseif type == "block" then
-      local lines = vim.api.nvim_buf_get_lines(0, start_row - 1, end_row, true)
+      local lines = api.nvim_buf_get_lines(0, start_row - 1, end_row, true)
       for i, line in ipairs(lines) do
         local text = line:sub(start_col + 1, end_col + 1)
         local coerced_text = coercion(text)
         if text ~= coerced_text then
-          vim.api.nvim_buf_set_text(
+          api.nvim_buf_set_text(
             0,
             start_row - 1 + i - 1,
             start_col,
@@ -80,11 +82,11 @@ function M.coerce(type)
         end
       end
     else
-      local lines = vim.api.nvim_buf_get_text(0, start_row - 1, start_col, end_row - 1, end_col + 1, {})
+      local lines = api.nvim_buf_get_text(0, start_row - 1, start_col, end_row - 1, end_col + 1, {})
       local text = table.concat(lines, "\n")
       local coerced_text = coercion(text)
       if text ~= coerced_text then
-        vim.api.nvim_buf_set_text(
+        api.nvim_buf_set_text(
           0,
           start_row - 1,
           start_col,
@@ -95,7 +97,7 @@ function M.coerce(type)
       end
     end
   end
-  vim.api.nvim_win_set_cursor(0, cursor_location)
+  api.nvim_win_set_cursor(0, cursor_location)
 end
 
 ---@type table<string, string>
@@ -142,8 +144,7 @@ end
 
 ---@param p abolish.parsed_input
 local function expand_braces(p)
-  ---@type table<string, string>
-  local out = {}
+  local out = {} ---@type table<string, string>
   local string = p.string or { before = "", fragments = {}, after = "" }
 
   local total = math.max(#p.pattern.fragments, #string.fragments)
@@ -222,8 +223,10 @@ function M.dotcase(word)
   return dotcase
 end
 
+---returs {[""]= ""} when there is no pattern yet
 ---@param parsed abolish.parsed_input
 ---@param opts table<string, any>
+---@return table<string, string> dict key: lhs of substitution, value: rhs of substitution
 local function create_dictionary(parsed, opts)
   ---@type table<string, string>
   local dict = {}
@@ -288,22 +291,60 @@ end
 
 function M.abolished()
   local submatch = vim.fn.submatch(0)
-  return abolish_last_dict[submatch] and abolish_last_dict[submatch] or submatch
+  return abolish_last_dict[submatch] or submatch
 end
 
----@type abolish.highlight[]
-local highlights
+---@type table<string, {col:integer, row: integer}[]>
+local already_seen = {}
 
----@param s string
----@return string
-local function splice(s)
-  ---@type string[]
-  local chars = {}
-  for i = 1, #s do
-    chars[2 * i - 1] = s:sub(i, i)
-    chars[2 * i] = "\n"
+M.skip_start = function()
+  local row, col = unpack(api.nvim_win_get_cursor(0))
+  local id = ("%d,%d"):format(row, col)
+  if already_seen.start[id] then return true end
+  already_seen.start[id] = {
+    row = row,
+    col = col,
+  }
+  return false
+end
+
+M.skip_end = function()
+  local row, col = unpack(api.nvim_win_get_cursor(0))
+  local id = ("%d,%d"):format(row, col)
+  if already_seen.end_[id] then return true end
+  already_seen.end_[("%d,%d"):format(row, col)] = {
+    row = row,
+    col = col,
+  }
+  return false
+end
+
+---@param buf integer
+---@param preview_ns integer
+---@param stop_line integer
+---@param search string
+---@param opts {backward: boolean}
+local function highlight_search(buf, preview_ns, stop_line, search, opts)
+  local s_flags = opts.backward and "bnc" or "nc"
+  local e_flags = opts.backward and "bnce" or "nce"
+  while true do
+    ---@type integer, integer
+    local s_row, s_col =
+      unpack(vim.fn.searchpos(search, s_flags, stop_line, nil, "v:lua.require'personal.abolish'.skip_start()"))
+    if s_row == 0 then break end
+    s_row = s_row - 1
+    s_col = s_col - 1
+    ---@type integer, integer
+    local e_row, e_col =
+      unpack(vim.fn.searchpos(search, e_flags, stop_line, nil, "v:lua.require'personal.abolish'.skip_end()"))
+    if e_row == 0 then break end
+    e_row = e_row - 1
+    api.nvim_buf_set_extmark(buf, preview_ns, s_row, s_col, {
+      end_row = e_row,
+      end_col = e_col,
+      hl_group = "Search",
+    })
   end
-  return table.concat(chars)
 end
 
 ---@param count integer
@@ -312,102 +353,36 @@ end
 ---@param parsed abolish.parsed_input
 ---@param preview_ns integer|nil
 local function substitute_command(count, line1, line2, parsed, preview_ns)
-  ---@type string[], integer[]
-  local lines_before, visible_line_range
-  if preview_ns then
-    lines_before = vim.api.nvim_buf_get_lines(0, line1 - 1, line2, true)
-    visible_line_range = { vim.fn.line "w0", vim.fn.line "w$" }
-  end
+  local opts = normalize_options(parsed.flags or "")
+  local dict = create_dictionary(parsed, opts)
+  local lhs = pattern(dict, opts.boundaries)
 
   if not preview_ns or (preview_ns and parsed.string) then
     local cmd = {}
     if count then cmd.range = { line1, line2 } end
 
-    local opts = normalize_options(parsed.flags or "")
-    local dict = create_dictionary(parsed, opts)
-    local lhs = pattern(dict, opts.boundaries)
     abolish_last_dict = dict
 
-    cmd.args = { table.concat { "/", lhs, [[/\=luaeval("require'personal.abolish'.abolished()")]], "/", opts.flags } }
-    vim.cmd.substitute(cmd)
-  end
-
-  if preview_ns then
-    visible_line_range = {
-      math.max(visible_line_range[1], vim.fn.line "w0"),
-      math.max(visible_line_range[2], vim.fn.line "w$"),
+    cmd.args = {
+      table.concat {
+        "/",
+        lhs,
+        [[/\=luaeval("require'personal.abolish'.abolished()")]],
+        "/",
+        opts.flags,
+      },
     }
+    vim.cmd.substitute(cmd)
+  elseif preview_ns and #vim.tbl_keys(dict) > 1 then
+    already_seen.start = {}
+    already_seen.end_ = {}
 
-    parsed.pattern.before = vim.fn.substitute(parsed.pattern.before, "\r", "\n", "g")
-    for i, v in ipairs(parsed.pattern.fragments) do
-      parsed.pattern.fragments[i] = vim.fn.substitute(v, "\r", "\n", "g")
-    end
-    parsed.pattern.after = vim.fn.substitute(parsed.pattern.after, "\r", "\n", "g")
+    local buf = api.nvim_get_current_buf()
+    local stop_line = math.min(vim.fn.line "w$", line2)
+    highlight_search(buf, preview_ns, stop_line, lhs, { backward = false })
 
-    local opts = normalize_options(parsed.flags or "")
-    local preview_dict = create_dictionary(parsed, opts)
-    local preview_lhs = pattern(preview_dict, opts.boundaries)
-    abolish_last_dict = preview_dict
-    ---@type string[]
-    local lines_after = vim.tbl_map(
-      ---@param line string
-      function(line)
-        return vim.fn.substitute(
-          line,
-          preview_lhs,
-          [[\=luaeval("require'personal.abolish'.abolished()")]],
-          opts.flags or ""
-        )
-      end,
-      lines_before
-    )
-    ---@type string[]
-    local splited_lines_after = {}
-    for _, line_after in ipairs(lines_after) do
-      for _, line in ipairs(vim.split(line_after, "\n", { trimempty = true })) do
-        table.insert(splited_lines_after, line)
-      end
-    end
-
-    local max_lines = math.max(#lines_before, #splited_lines_after)
-    if #lines_before > #splited_lines_after then
-      ---@type string[]
-      local offset = {}
-      for _ = #splited_lines_after, #lines_before - 1 do
-        table.insert(offset, "")
-      end
-      vim.list_extend(offset, splited_lines_after)
-      splited_lines_after = offset
-    elseif #lines_before < #splited_lines_after then
-      ---@type string[]
-      local offset = {}
-      for _ = #lines_before, #splited_lines_after - 1 do
-        table.insert(offset, "")
-      end
-      vim.list_extend(offset, lines_before)
-      lines_before = offset
-    end
-
-    -- Future me: do not change `max_lines` to `max_lines + 1`. Lua loops work like this, it is not needed.
-    for i = 1, max_lines do
-      local row = line1 + i - 1
-      if row > visible_line_range[2] then break end
-      if row >= visible_line_range[1] then
-        local line_before = splice(lines_before[i])
-        local line_after = splice(splited_lines_after[i])
-        local hunks = vim.diff(line_before, line_after, { result_type = "indices" }) --[=[@as integer[][]]=]
-        for _, hunk in ipairs(hunks) do
-          ---@type integer, integer, integer, integer
-          local _, count_a, start_b, count_b = unpack(hunk)
-          table.insert(highlights, {
-            kind = "change",
-            line = row,
-            column = (count_b == 0) and start_b + 1 or start_b,
-            length = math.max(count_b, count_a),
-          })
-        end
-      end
-    end
+    stop_line = math.max(vim.fn.line "w0", line1)
+    highlight_search(buf, preview_ns, stop_line, lhs, { backward = true })
   end
 end
 
@@ -418,8 +393,7 @@ end
 ---@param parsed abolish.parsed_input
 local function parse_substitute(preview_ns, line1, line2, count, parsed)
   if not parsed.pattern and not parsed.string and not preview_ns then
-    vim.notify("Argument required", vim.log.levels.ERROR)
-    return
+    return vim.notify("Argument required", vim.log.levels.ERROR)
   end
 
   substitute_command(count, line1, line2, parsed, preview_ns)
@@ -447,23 +421,13 @@ end
 local DO_NOT_PREVIEW = 0
 local PREVIEW_IN_CURRENT_BUFFER = 1
 
----@type table<abolish.highlight.kind, string>
-local hl_groups = {
-  insertion = "DiffAdd",
-  deletion = "DiffDelete",
-  change = "DiffChange",
-}
-
----@alias abolish.highlight.kind "insertion" | "deletion" | "change"
----@alias abolish.highlight { kind : abolish.highlight.kind, line: integer, column: integer, length: integer}
-
 ---@return string[]
 local function get_words()
   ---@type string[]
   local words = {}
   local lnum = vim.fn.line "w0"
   while lnum <= vim.fn.line "w$" do
-    local line = vim.api.nvim_buf_get_lines(0, lnum - 1, lnum, true)[1]
+    local line = api.nvim_buf_get_lines(0, lnum - 1, lnum, true)[1]
     local col = 0
     while vim.fn.match(line, [[\<\k\k\+\>]], col) ~= -1 do
       table.insert(words, vim.fn.matchstr(line, [[\<\k\k\+\>]], col))
@@ -515,24 +479,10 @@ end
 ---@param opts abolish.command_opts|{preview_ns: integer}
 ---@param preview_ns integer
 M.subvert_preview = function(opts, preview_ns)
-  highlights = {}
-
-  opts.preview_ns = preview_ns or vim.api.nvim_create_namespace "abolish"
+  opts.preview_ns = preview_ns or api.nvim_create_namespace "abolish-preview"
   local t = M.subvert_dispatcher(opts)
   if not t then return DO_NOT_PREVIEW end
   if not t.pattern then return DO_NOT_PREVIEW end
-
-  for _, hl in ipairs(highlights) do
-    local hl_group = hl_groups[hl.kind]
-    vim.api.nvim_buf_add_highlight(
-      0,
-      opts.preview_ns,
-      hl_group,
-      hl.line - 1,
-      hl.column - 1,
-      hl.length == -1 and -1 or hl.column + hl.length - 1
-    )
-  end
 
   return PREVIEW_IN_CURRENT_BUFFER
 end
@@ -553,7 +503,7 @@ M.coercions = {
 
 local l = vim.lpeg
 local P, S, V, C, Cg, Cmt, Cb, Ct = l.P, l.S, l.V, l.C, l.Cg, l.Cmt, l.Cb, l.Ct
-local locale = l.locale {}
+local locale = l.locale {} ---@type table<string, vim.lpeg.Pattern>
 
 -- Own flags
 -- I: Disable case variations (box, Box, BOX)
@@ -616,8 +566,7 @@ M.find_grammar = P {
 ---@param opts abolish.command_opts | {preview_ns: integer|nil}
 ---@return abolish.parsed_input?
 M.subvert_dispatcher = function(opts)
-  ---@type abolish.parsed_input?
-  local t = M.subvert_grammar:match(opts.args)
+  local t = M.subvert_grammar:match(opts.args)--[[@as abolish.parsed_input?]]
   if not t then
     if not opts.preview_ns then vim.notify(("Invalid input: %s"):format(opts.args), vim.log.levels.ERROR) end
     return
@@ -630,8 +579,7 @@ end
 ---@param opts abolish.command_opts | {preview_ns: integer|nil}
 ---@return abolish.parsed_input?
 M.find_dispatcher = function(opts)
-  ---@type abolish.parsed_input?
-  local t = M.find_grammar:match(opts.args)
+  local t = M.find_grammar:match(opts.args) --[[@as abolish.parsed_input?]]
   if not t then
     if not opts.preview_ns then vim.notify(("Invalid input: %s"):format(opts.args), vim.log.levels.ERROR) end
     return
