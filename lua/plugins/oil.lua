@@ -19,7 +19,7 @@ return {
         mode = "n",
         desc = "Refresh and dismiss notifications",
       },
-      ["<leader>cd"] = "actions.tcd",
+      ["<leader>cd"] = { "actions.cd", opts = { scope = "tab", silent = true } },
       ["gt"] = "actions.toggle_trash",
       ["<leader>y"] = "actions.copy_entry_path",
       ["<leader>:"] = "actions.open_cmdline",
