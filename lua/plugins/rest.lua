@@ -1,6 +1,5 @@
 return {
   "rest-nvim/rest.nvim",
-  dependencies = { "luarocks.nvim" },
   config = function()
     require("rest-nvim").setup {
       keybinds = {
