@@ -25,7 +25,4 @@ return {
       },
     },
   },
-  dependencies = {
-    "folke/zen-mode.nvim",
-  },
 }
