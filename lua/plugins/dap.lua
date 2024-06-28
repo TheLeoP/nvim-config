@@ -85,7 +85,6 @@ return {
     dap.listeners.before.event_terminated["dapui_config"] = function() dapui.close {} end
     dap.listeners.before.event_exited["dapui_config"] = function() dapui.close {} end
 
-    require("overseer").patch_dap(true)
     require("dap.ext.vscode").json_decode = require("overseer.json").decode
 
     dap.adapters.nlua = function(callback, config)
