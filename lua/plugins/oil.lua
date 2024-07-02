@@ -7,6 +7,7 @@ return {
       autosave_changes = "unmodified",
     },
     cleanup_delay_ms = false,
+    watch_for_changes = true,
     keymaps = {
       ["<C-l>"] = {
         callback = function()
