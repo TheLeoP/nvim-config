@@ -5,5 +5,5 @@ api.nvim_create_autocmd("BufReadPost", {
   group = api.nvim_create_augroup("qfedit-plugin", {}),
 })
 
-vim.keymap.set("n", "<<", function() pcall(vim.cmd.colder) end)
-vim.keymap.set("n", ">>", function() pcall(vim.cmd.cnewer) end)
+vim.keymap.set("n", "<<", function() pcall(vim.cmd.colder) end, { buffer = true })
+vim.keymap.set("n", ">>", function() pcall(vim.cmd.cnewer) end, { buffer = true })
