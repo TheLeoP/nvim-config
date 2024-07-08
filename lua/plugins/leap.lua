@@ -57,6 +57,16 @@ return {
       vim.keymap.set({ "n", "x", "o" }, "s", "<Plug>(leap-forward)")
       vim.keymap.set({ "n", "x", "o" }, "S", "<Plug>(leap-backward)")
       vim.keymap.set({ "x", "o" }, "gs", leap_ts)
+      vim.api.nvim_set_hl(0, "LeapMatch", {
+        fg = "#ccff88",
+        underline = true,
+        nocombine = true,
+      })
+      vim.api.nvim_set_hl(0, "LeapLabel", {
+        fg = "black",
+        bg = "#ccff88",
+        nocombine = true,
+      })
     end,
   },
   {
