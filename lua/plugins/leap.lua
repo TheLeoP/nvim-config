@@ -66,8 +66,8 @@ return {
         local ok, char = pcall(vim.fn.getcharstr)
         if not ok or char == "\27" or not char then return end
 
-        -- requires mini.ai L mapping
-        if char == "r" then char = "L" end
+        -- requires mini.ai l mapping
+        if char == "r" then char = "l" end
 
         require("leap").leap {
           target_windows = { api.nvim_get_current_win() },
