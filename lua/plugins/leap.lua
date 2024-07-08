@@ -57,6 +57,23 @@ return {
       vim.keymap.set({ "n", "x", "o" }, "s", "<Plug>(leap-forward)")
       vim.keymap.set({ "n", "x", "o" }, "S", "<Plug>(leap-backward)")
       vim.keymap.set({ "x", "o" }, "gs", leap_ts)
+
+      vim.keymap.set({ "x", "o" }, "ir", function()
+        local ok, char = pcall(vim.fn.getcharstr)
+        if not ok or char == "\27" or not char then return end
+
+        require("leap.remote").action { input = "i" .. char }
+      end)
+
+      vim.keymap.set({ "x", "o" }, "ar", function()
+        local ok, char = pcall(vim.fn.getcharstr)
+        if not ok or char == "\27" or not char then return end
+
+        require("leap.remote").action { input = "a" .. char }
+      end)
+
+      vim.keymap.set({ "x", "o" }, "rr", function() require("leap.remote").action { input = "_" } end)
+
       vim.api.nvim_set_hl(0, "LeapMatch", {
         fg = "#ccff88",
         underline = true,
@@ -68,42 +85,5 @@ return {
         nocombine = true,
       })
     end,
-  },
-  {
-    "ggandor/leap-spooky.nvim",
-    config = function()
-      vim.keymap.set({ "x", "o" }, "ir", function()
-        local ok, char = pcall(vim.fn.getcharstr)
-        if not ok or char == "\27" or not char then return end
-
-        -- requires mini.ai l mapping
-        if char == "r" then char = "l" end
-
-        require("leap").leap {
-          target_windows = { api.nvim_get_current_win() },
-          action = require("leap-spooky").spooky_action(
-            function() return "vi" .. char end,
-            { keeppos = true, on_exit = false }
-          ),
-        }
-      end)
-
-      vim.keymap.set({ "x", "o" }, "ar", function()
-        local ok, char = pcall(vim.fn.getcharstr)
-        if not ok or char == "\27" or not char then return end
-
-        -- requires mini.ai L mapping
-        if char == "r" then char = "L" end
-
-        require("leap").leap {
-          target_windows = { api.nvim_get_current_win() },
-          action = require("leap-spooky").spooky_action(
-            function() return "va" .. char end,
-            { keeppos = true, on_exit = false }
-          ),
-        }
-      end)
-    end,
-    dependencies = { "leap.nvim", "mini.nvim" },
   },
 }
