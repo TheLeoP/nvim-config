@@ -11,7 +11,7 @@ return {
     vim.keymap.set({ "i", "s" }, "<C-L>", function() ls.jump(1) end)
     vim.keymap.set({ "i", "s" }, "<C-J>", function() ls.jump(-1) end)
 
-    vim.keymap.set("i", "<c-s>", function()
+    vim.keymap.set("i", "<a-b>", function()
       if ls.choice_active() then require "luasnip.extras.select_choice"() end
     end)
 
