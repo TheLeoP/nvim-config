@@ -3,6 +3,7 @@ return {
   opts = {
     update_events = { "TextChanged", "TextChangedI" },
     store_selection_keys = "<c-k>",
+    enable_autosnippets = true,
   },
   config = function(_, opts)
     local ls = require "luasnip"

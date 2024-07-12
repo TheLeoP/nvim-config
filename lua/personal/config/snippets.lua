@@ -17,7 +17,6 @@ local p = extras.partial
 local m = extras.match
 local n = extras.nonempty
 local dl = extras.dynamic_lambda
-local fmt = require("luasnip.extras.fmt").fmt
 local fmta = require("luasnip.extras.fmt").fmta
 local conds = require "luasnip.extras.expand_conditions"
 local postfix = require("luasnip.extras.postfix").postfix
@@ -29,7 +28,9 @@ local k = require("luasnip.nodes.key_indexer").new_key
 ls.add_snippets("all", {
   s("todo", {
     d(1, function()
-      local template = vim.o.commentstring:format "<>: <>"
+      local commentstring = require("ts_context_commentstring.internal").calculate_commentstring()
+        or vim.bo.commentstring
+      local template = commentstring:format "<>: <>"
       return sn(
         nil,
         fmta(template, {
@@ -43,7 +44,7 @@ ls.add_snippets("all", {
 
 ls.add_snippets("cs", {
   s(
-    "cl",
+    { trig = "cl", snippetType = "autosnippet" },
     fmta(
       [[
 <visibility> class <name>
@@ -62,7 +63,7 @@ ls.add_snippets("cs", {
     )
   ),
   s(
-    "fun",
+    { trig = "fn", snippetType = "autosnippet" },
     fmta(
       [[
 <visibility> <return_type> <name> (<args>)
@@ -83,7 +84,7 @@ ls.add_snippets("cs", {
     )
   ),
   s(
-    "for",
+    { trig = "for", snippetType = "autosnippet" },
     fmta(
       [[
 <type>
@@ -114,7 +115,7 @@ ls.add_snippets("cs", {
     )
   ),
   s(
-    "if",
+    { trig = "if", snippetType = "autosnippet" },
     fmta(
       [[
 if (<condition>)
@@ -132,7 +133,7 @@ if (<condition>)
 
 ls.add_snippets("lua", {
   s(
-    "if",
+    { trig = "if", snippetType = "autosnippet" },
     fmta(
       [[
 if <condition> then
@@ -143,7 +144,7 @@ end
     )
   ),
   s(
-    "fun",
+    { trig = "fn", snippetType = "autosnippet" },
     fmta(
       [[
 <visibility>function <name>(<args>)
@@ -159,7 +160,21 @@ end
     )
   ),
   s(
-    "forn",
+    { trig = "afn", snippetType = "autosnippet" },
+    fmta(
+      [[
+function (<args>)
+  <inside>
+end
+]],
+      {
+        args = i(1),
+        inside = i(2),
+      }
+    )
+  ),
+  s(
+    { trig = "nfor", snippetType = "autosnippet" },
     fmta(
       [[
 for <start><end><step> do
@@ -170,7 +185,7 @@ end
     )
   ),
   s(
-    "for",
+    { trig = "for", snippetType = "autosnippet" },
     fmta(
       [[
 for <iterator> do
