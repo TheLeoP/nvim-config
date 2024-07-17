@@ -33,6 +33,9 @@ return {
         ["@lsp.typemod.function.defaultLibrary"] = { link = "@function.builtin" },
         ["@lsp.typemod.variable.defaultLibrary"] = { link = "@variable.builtin" },
         ["@lsp.typemod.variable.readonly"] = { link = "@constant" },
+
+        -- personal preferences
+        ["@lsp.type.string"] = { link = "None" },
       },
       italic = {
         strings = false,
