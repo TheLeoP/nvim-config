@@ -20,6 +20,25 @@ return {
         },
       },
       backend = { "fzf_lua", "nui", "builtin" },
+      get_config = function(opts)
+        if opts.kind == "codeaction" then
+          return {
+            fzf_lua = {
+              winopts = {
+                height = 0.9,
+                width = 0.9,
+              },
+            },
+          }
+        end
+      end,
+      format_item_override = {
+        codeaction = function(action_tuple)
+          local title = action_tuple.action.title
+          local client = vim.lsp.get_client_by_id(action_tuple.ctx.client_id)
+          return string.format("%s\t[%s]", title, client.name)
+        end,
+      },
     },
   },
 }
