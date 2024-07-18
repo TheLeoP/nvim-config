@@ -6,6 +6,7 @@ return {
       force = true,
       nargs = 1,
     })
+    vim.keymap.set("n", "g<cr>", "<cmd>Git<cr>")
   end,
   dependencies = { "tpope/vim-rhubarb" },
 }
