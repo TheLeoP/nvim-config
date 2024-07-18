@@ -54,8 +54,26 @@ return {
     "ggandor/leap.nvim",
     dependencies = { "tpope/vim-repeat" },
     config = function()
-      vim.keymap.set({ "n", "x", "o" }, "s", "<Plug>(leap-forward)")
-      vim.keymap.set({ "n", "x", "o" }, "S", "<Plug>(leap-backward)")
+      local leap = require "leap"
+      leap.opts.equivalence_classes = { " \t\r\n", "([{", ")]}", "'\"`" }
+      leap.opts.special_keys.prev_target = "<up>"
+      leap.opts.special_keys.prev_group = "<up>"
+      leap.opts.special_keys.next_target = "<down>"
+      require("leap.user").set_repeat_keys("<down>", "<up>")
+
+      vim.keymap.set({ "n" }, "s", function() leap.leap {} end)
+      vim.keymap.set({ "x", "o" }, "s", function() leap.leap { offset = -1, inclusive_op = true } end)
+      vim.keymap.set({ "n" }, "S", function() leap.leap { backward = true } end)
+      vim.keymap.set({ "x", "o" }, "S", function()
+        vim.cmd.normal "v" -- simulates backward inclusive_op because it's broken on leap.nvim
+        leap.leap { backward = true, offset = 2 }
+      end)
+      vim.keymap.set(
+        { "x", "o" },
+        "<F4>",
+        function() leap.leap { backward = true, offset = 0, inclusive_op = true } end
+      )
+      vim.keymap.set({ "x", "o" }, "<F5>", function() leap.leap { backward = true, offset = 0 } end)
       vim.keymap.set({ "x", "o" }, "gs", leap_ts)
 
       vim.keymap.set({ "x", "o" }, "ir", function()
