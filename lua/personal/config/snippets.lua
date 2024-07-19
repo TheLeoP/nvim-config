@@ -18,7 +18,7 @@ local m = extras.match
 local n = extras.nonempty
 local dl = extras.dynamic_lambda
 local fmta = require("luasnip.extras.fmt").fmta
-local conds = require "luasnip.extras.expand_conditions"
+local conds = require "luasnip.extras.conditions.expand"
 local postfix = require("luasnip.extras.postfix").postfix
 local types = require "luasnip.util.types"
 local parse = require("luasnip.util.parser").parse_snippet
@@ -44,7 +44,7 @@ ls.add_snippets("all", {
 
 ls.add_snippets("cs", {
   s(
-    { trig = "cl", snippetType = "autosnippet" },
+    { trig = "cl", snippetType = "autosnippet", condition = conds.line_begin },
     fmta(
       [[
 <visibility> class <name>
@@ -63,7 +63,7 @@ ls.add_snippets("cs", {
     )
   ),
   s(
-    { trig = "fn", snippetType = "autosnippet" },
+    { trig = "fn", snippetType = "autosnippet", condition = conds.line_begin },
     fmta(
       [[
 <visibility> <return_type> <name> (<args>)
@@ -84,7 +84,7 @@ ls.add_snippets("cs", {
     )
   ),
   s(
-    { trig = "for", snippetType = "autosnippet" },
+    { trig = "for", snippetType = "autosnippet", condition = conds.line_begin },
     fmta(
       [[
 <type>
@@ -115,7 +115,7 @@ ls.add_snippets("cs", {
     )
   ),
   s(
-    { trig = "if", snippetType = "autosnippet" },
+    { trig = "if", snippetType = "autosnippet", condition = conds.line_begin },
     fmta(
       [[
 if (<condition>)
@@ -133,7 +133,7 @@ if (<condition>)
 
 ls.add_snippets("lua", {
   s(
-    { trig = "if", snippetType = "autosnippet" },
+    { trig = "if", snippetType = "autosnippet", condition = conds.line_begin },
     fmta(
       [[
 if <condition> then
@@ -144,7 +144,7 @@ end
     )
   ),
   s(
-    { trig = "fn", snippetType = "autosnippet" },
+    { trig = "fn", snippetType = "autosnippet", condition = conds.line_begin },
     fmta(
       [[
 <visibility>function <name>(<args>)
@@ -174,7 +174,7 @@ end
     )
   ),
   s(
-    { trig = "nfor", snippetType = "autosnippet" },
+    { trig = "nfor", snippetType = "autosnippet", condition = conds.line_begin },
     fmta(
       [[
 for <start><end><step> do
@@ -185,7 +185,7 @@ end
     )
   ),
   s(
-    { trig = "for", snippetType = "autosnippet" },
+    { trig = "for", snippetType = "autosnippet", condition = conds.line_begin },
     fmta(
       [[
 for <iterator> do
