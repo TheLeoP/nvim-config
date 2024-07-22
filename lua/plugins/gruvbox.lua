@@ -24,6 +24,8 @@ return {
 
         TreesitterContextBottom = { underline = true, sp = "#665c54" },
 
+        Cursor = {},
+
         ["@lsp.type.interface"] = { link = "@type" },
         ["@lsp.type.struct"] = { link = "@structure" },
 
