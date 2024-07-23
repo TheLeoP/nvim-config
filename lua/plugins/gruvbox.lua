@@ -24,7 +24,9 @@ return {
 
         TreesitterContextBottom = { underline = true, sp = "#665c54" },
 
-        Cursor = {},
+        FzfLuaSearch = { link = "Visual" },
+        -- fzf-lua uses this by default
+        TelescopeSelection = { link = "Visual" },
 
         ["@lsp.type.interface"] = { link = "@type" },
         ["@lsp.type.struct"] = { link = "@structure" },
