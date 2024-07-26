@@ -3,4 +3,8 @@ vim.filetype.add {
     props = "xml",
     http = "http",
   },
+  filename = {
+    ["qwerty.txt"] = "kinesis",
+    ["dvorak.txt"] = "kinesis",
+  },
 }
