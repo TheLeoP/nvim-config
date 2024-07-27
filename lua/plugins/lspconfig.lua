@@ -96,6 +96,7 @@ return {
       "intelephense",
       "prismals",
       "cmake",
+      "marksman",
     }
 
     for _, server in ipairs(servidores_generales) do
