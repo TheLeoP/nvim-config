@@ -91,6 +91,8 @@ return {
       "prismals",
       "cmake",
       "marksman",
+      "dockerls",
+      "docker_compose_language_service",
     }
 
     for _, server in ipairs(servidores_generales) do

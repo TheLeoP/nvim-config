@@ -12,6 +12,7 @@ return {
       typescript = { "eslint" },
       typescriptreact = { "eslint" },
       vue = { "eslint" },
+      dockerfile = { "hadolint" },
     }
 
     vim.api.nvim_create_autocmd({ "BufWritePost" }, {
