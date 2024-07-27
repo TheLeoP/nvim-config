@@ -74,7 +74,7 @@ return {
         end
       )
     end)
-    vim.keymap.set("n", "<leader>dl", function() dap.list_breakpoints(true) end)
+    vim.keymap.set("n", "<leader>dq", function() dap.list_breakpoints(true) end)
     vim.keymap.set("n", "<leader>dv", function() dap.step_over() end)
     vim.keymap.set("n", "<leader>dsi", function() dap.step_into() end)
     vim.keymap.set("n", "<leader>dso", function() dap.step_out() end)
