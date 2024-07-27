@@ -87,7 +87,7 @@ return {
       "cssls",
       "lemminx",
       "groovyls",
-      "intelephense",
+      "phpactor",
       "prismals",
       "cmake",
       "marksman",
