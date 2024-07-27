@@ -110,6 +110,9 @@ return {
             enable = true,
             arrayIndex = "Disable",
           },
+          codelens = {
+            enable = true,
+          },
           completion = {
             showWord = "Disable",
           },

@@ -81,10 +81,21 @@ vim.api.nvim_create_autocmd("LspAttach", {
       { buffer = bufnr, desc = "Find outgoing calls" }
     )
 
+    -- TODO: registering keymaps in this way may override older kemaps if a new client is attached that does not support inlay hints/codelens
     local inlay_hint = vim.lsp.inlay_hint
     vim.keymap.set("n", "<leader>ti", function()
       if client.supports_method(methods.textDocument_inlayHint) then inlay_hint.enable(not inlay_hint.is_enabled()) end
     end, { buffer = bufnr })
+
+    vim.keymap.set({ "n", "v" }, "<leader>cc", vim.lsp.codelens.run, { desc = "Run codelens" })
+    vim.keymap.set("n", "<leader>cC", vim.lsp.codelens.refresh, { desc = "Refresh & display codelens" })
+
+    vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
+      buffer = bufnr,
+      callback = function()
+        if client.supports_method(methods.textDocument_codeLens) then vim.lsp.codelens.refresh { bufnr = bufnr } end
+      end,
+    })
   end,
 })
 
