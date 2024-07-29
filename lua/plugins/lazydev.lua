@@ -4,6 +4,7 @@ return {
     cmp = false,
     library = {
       { path = "luvit-meta/library", words = { "vim%.uv" } },
+      { path = "busted/library", words = { "it%(", "describe%(" } },
       { path = "wezterm-types", mods = { "wezterm" } },
     },
     integrations = {
@@ -18,5 +19,6 @@ return {
   dependencies = {
     "Bilal2453/luvit-meta",
     "justinsgithub/wezterm-types",
+    "LuaCATS/busted",
   },
 }
