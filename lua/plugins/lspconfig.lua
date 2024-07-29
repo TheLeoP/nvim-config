@@ -128,7 +128,7 @@ return {
             unusedLocalExclude = { "_*" },
           },
           workspace = {
-            checkThirdParty = false,
+            checkThirdParty = "Disable",
           },
         },
       },
