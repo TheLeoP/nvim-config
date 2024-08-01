@@ -39,6 +39,7 @@ return {
 
     -- c#
     lspconfig.omnisharp.setup {
+      cmd = { "dotnet", config.mason_root .. "omnisharp/libexec/OmniSharp.dll" },
       capabilities = config.capabilities,
       settings = {
         FormattingOptions = {
