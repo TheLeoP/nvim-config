@@ -81,7 +81,9 @@ return {
         prefix = "<leader>x",
       },
     }
-    require("mini.misc").setup()
+    local mini_misc = require "mini.misc"
+    mini_misc.setup()
+    mini_misc.setup_termbg_sync()
     require("mini.surround").setup {
       mappings = {
         add = "<leader>s",
