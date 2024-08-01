@@ -84,7 +84,7 @@ ls.add_snippets("cs", {
     )
   ),
   s(
-    { trig = "for", snippetType = "autosnippet", condition = conds.line_begin },
+    { trig = "for ", snippetType = "autosnippet", condition = conds.line_begin },
     fmta(
       [[
 <type>
@@ -115,7 +115,7 @@ ls.add_snippets("cs", {
     )
   ),
   s(
-    { trig = "if", snippetType = "autosnippet", condition = conds.line_begin },
+    { trig = "if ", snippetType = "autosnippet", condition = conds.line_begin },
     fmta(
       [[
 if (<condition>)
@@ -133,7 +133,7 @@ if (<condition>)
 
 ls.add_snippets("lua", {
   s(
-    { trig = "if", snippetType = "autosnippet", condition = conds.line_begin },
+    { trig = "if ", snippetType = "autosnippet", condition = conds.line_begin },
     fmta(
       [[
 if <condition> then
@@ -195,7 +195,7 @@ end
     )
   ),
   s(
-    { trig = "for", snippetType = "autosnippet", condition = conds.line_begin },
+    { trig = "for ", snippetType = "autosnippet", condition = conds.line_begin },
     fmta(
       [[
 for <iterator> do
