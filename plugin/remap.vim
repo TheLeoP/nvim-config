@@ -60,8 +60,8 @@ inoremap <C-BS> 
 inoremap  
 
 " mejores macros
-nnoremap @ <cmd>execute "noautocmd normal! " . v:count1 . "@" . getcharstr()<cr>
-xnoremap @ :<C-U>execute "noautocmd '<,'>normal! " . v:count1 . "@" . getcharstr()<cr>
+nnoremap <silent> @ <cmd>execute "noautocmd normal! " . v:count1 . "@" . getcharstr()<cr>
+xnoremap <silent> @ :<C-U>execute "noautocmd '<,'>normal! " . v:count1 . "@" . getcharstr()<cr>
 
 " tabs
 nnoremap <a-h> <cmd>tabprevious<cr>
