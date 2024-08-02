@@ -57,6 +57,7 @@ return {
   },
   config = function(_, opts)
     require("conform").setup(opts)
+    vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
 
     vim.keymap.set("n", "<leader>tf", function()
       format_options.autoformat = not format_options.autoformat
