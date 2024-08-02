@@ -83,7 +83,7 @@ return {
     }
     local mini_misc = require "mini.misc"
     mini_misc.setup()
-    mini_misc.setup_termbg_sync()
+    if not vim.g.started_by_firenvim then mini_misc.setup_termbg_sync() end
     require("mini.surround").setup {
       mappings = {
         add = "<leader>s",
