@@ -63,7 +63,7 @@ ls.add_snippets("cs", {
     )
   ),
   s(
-    { trig = "fn", snippetType = "autosnippet", condition = conds.line_begin },
+    { trig = "fn ", snippetType = "autosnippet", condition = conds.line_begin },
     fmta(
       [[
 <visibility> <return_type> <name> (<args>)
@@ -154,7 +154,7 @@ elseif <condition> then
     )
   ),
   s(
-    { trig = "fn", snippetType = "autosnippet", condition = conds.line_begin },
+    { trig = "fn ", snippetType = "autosnippet", condition = conds.line_begin },
     fmta(
       [[
 <visibility>function <name>(<args>)
@@ -170,7 +170,7 @@ end
     )
   ),
   s(
-    { trig = "afn", snippetType = "autosnippet" },
+    { trig = "afn ", snippetType = "autosnippet" },
     fmta(
       [[
 function (<args>)
