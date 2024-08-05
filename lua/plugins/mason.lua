@@ -19,6 +19,7 @@ return {
         "sql-formatter",
         "java-debug-adapter",
         "java-test",
+        "delve",
       } do
         local p = mr.get_package(tool)
         if not p:is_installed() then p:install() end
