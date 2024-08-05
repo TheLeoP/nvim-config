@@ -1,5 +1,5 @@
 return {
-  "MeanderingProgrammer/markdown.nvim",
+  "MeanderingProgrammer/render-markdown.nvim",
   opts = {
     file_types = { "markdown", "rmd" },
     code = {
