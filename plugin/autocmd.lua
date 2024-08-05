@@ -3,7 +3,7 @@ vim.api.nvim_create_autocmd("TextYankPost", {
   desc = "Highlights yanked area",
   callback = function()
     -- Setting a priority higher than the LSP references one.
-    vim.highlight.on_yank { higroup = "Visual", priority = 250 }
+    vim.highlight.on_yank { higroup = "Visual", priority = 4200 }
   end,
 })
 
