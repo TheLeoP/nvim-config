@@ -1,36 +1,35 @@
-local function file_provider(_, opts)
+local function file_provider()
   local devicons = require "nvim-web-devicons"
-  local Path = require "plenary.path"
+
+  local filename = vim.fn.expand("%:t", false)
+  local extension = vim.fn.expand("%:e", false)
+  local icon_str, name = devicons.get_icon(filename, extension)
+  local fg = name and vim.fn.synIDattr(vim.fn.hlID(name), "fg") or "white"
+
+  local icon = {
+    str = icon_str,
+    hl = {
+      fg = fg,
+      bg = "bg",
+    },
+  }
+  local status = vim.bo.readonly and "🔒" or vim.bo.modified and "●" or ""
 
   local full_path = vim.fn.expand("%:p", false)
   if full_path:match "^oil://" then
     full_path = full_path:match "^oil://(.*)"
     full_path = require("oil.fs").posix_to_os_path(full_path)
   end
+  if vim.fn.has "win32" == 1 then full_path = full_path:lower() end
 
-  local filename = vim.fn.expand("%:t", false)
-  local extension = vim.fn.expand("%:e", false)
-  local p = Path:new(full_path)
-  local relative_p = Path:new(p:make_relative(vim.uv.cwd()))
+  local cwd = vim.uv.cwd()
+  if not cwd then return (" %s %s"):format(full_path, status), icon end
+  if vim.fn.has "win32" == 1 then cwd = cwd:lower() end
 
-  ---@type string
-  local relative_path = opts and opts.length and relative_p:shorten(opts.length) or tostring(relative_p)
+  local Path = require "plenary.path"
+  local relative_path = Path:new(full_path):make_relative(cwd) ---@type string
 
-  ---@type string ,string
-  local iconStr, name = devicons.get_icon(filename, extension)
-  local fg = name and vim.fn.synIDattr(vim.fn.hlID(name), "fg") or "white"
-
-  local icon = {
-    str = iconStr,
-    hl = {
-      fg = fg,
-      bg = "bg",
-    },
-  }
-
-  local status = vim.bo.readonly and "🔒" or vim.bo.modified and "●" or ""
-
-  return (" %s %s"):format(relative_path, status), icon
+  return (" %s%s %s"):format(Path.path.sep, relative_path, status), icon
 end
 
 local function navic_provider(_, opts)
@@ -49,6 +48,8 @@ local function navic_provider(_, opts)
   end
 end
 
+local function git_branch_provider() return vim.b.gitsigns_head or vim.g.gitsigns_head end
+
 return {
   "freddiehaddad/feline.nvim",
   config = function()
@@ -59,6 +60,7 @@ return {
       file = file_provider,
       cwd = vim.uv.cwd,
       navic = navic_provider,
+      git_branch_ = git_branch_provider,
     }
 
     local statusline_components = {
@@ -106,8 +108,8 @@ return {
     })
 
     table.insert(left, {
-      provider = "git_branch",
-      enabled = vim.b.gitsigns_head, ---@type string
+      provider = "git_branch_",
+      enabled = function() return vim.b.gitsigns_head ~= nil or vim.g.gitsigns_head ~= nil end,
       hl = {
         fg = "lightblue",
       },
@@ -116,6 +118,7 @@ return {
 
     table.insert(left, {
       provider = "cwd",
+      enabled = function() return vim.uv.cwd() ~= nil end,
       left_sep = " ",
       right_sep = {
         str = " | ",
