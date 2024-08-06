@@ -72,7 +72,7 @@ return {
           ["}"] = false,
         },
       },
-      templates = { "builtin", "personal.cs.clean", "personal.cs.build" },
+      templates = { "builtin", "personal.cs.clean", "personal.cs.build", "personal.cs.test" },
       form = {
         win_opts = { winblend = 0 },
       },
