@@ -11,6 +11,22 @@ return {
       win_options = {
         winblend = 0,
       },
+      get_config = function(opts)
+        if opts.prompt == "cmd: " then -- I use this to run shell commands
+          return {
+            insert_only = false,
+            start_in_insert = true,
+            border = "single",
+            relative = "editor",
+            prefer_width = 0.90,
+            max_width = 0.90,
+            min_width = 0.90,
+            win_options = {
+              winblend = 0,
+            },
+          }
+        end
+      end,
     },
     select = {
       fzf_lua = {
