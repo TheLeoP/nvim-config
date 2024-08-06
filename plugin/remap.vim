@@ -33,11 +33,17 @@ inoremap ! !<c-g>u
 inoremap ? ?<c-g>u
 inoremap ( (<c-g>u
 inoremap ) )<c-g>u
+inoremap [ [<c-g>u
+inoremap ] ]<c-g>u
+inoremap { {<c-g>u
+inoremap } }<c-g>u
 inoremap & &<c-g>u
 inoremap \| \|<c-g>u
 inoremap : :<c-g>u
 inoremap ; ;<c-g>u
 inoremap = =<c-g>u
+inoremap < <<c-g>u
+inoremap > ><c-g>u
 
 nnoremap <silent> ]e <cmd>lua vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.ERROR })<cr>
 nnoremap <silent> [e <cmd>lua vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.ERROR })<cr>
