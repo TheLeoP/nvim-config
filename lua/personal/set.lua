@@ -83,4 +83,4 @@ vim.o.list = true
 vim.o.pumblend = 10
 vim.o.winblend = 10
 
-vim.o.sessionoptions = "help,tabpages,winsize"
+vim.o.sessionoptions = "help,winsize,winpos"
