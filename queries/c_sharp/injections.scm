@@ -41,3 +41,53 @@
                    (raw_string_content) @injection.content)))
   (#any-of? @class "NpgsqlCommand")
   (#set! injection.language "sql"))
+
+; _.QueryUnbufferedAsync("");
+(invocation_expression
+  (member_access_expression
+    (generic_name
+      (identifier) @function))
+  (argument_list
+    (argument
+      (string_literal
+                   (string_literal_content) @injection.content)))
+  (#any-of? @function "QueryUnbufferedAsync")
+  (#set! injection.language "sql"))
+
+; _.QueryUnbufferedAsync($"");
+; _.QueryUnbufferedAsync(@$"");
+(invocation_expression
+  (member_access_expression
+    (generic_name
+      (identifier) @function))
+  (argument_list
+    (argument
+      (interpolated_string_expression
+                   (string_content) @injection.content)))
+  (#any-of? @function "QueryUnbufferedAsync")
+  (#set! injection.language "sql")
+  (#set! injection.combined))
+
+; _.QueryUnbufferedAsync(@"");
+(invocation_expression
+  (member_access_expression
+    (generic_name
+      (identifier) @function))
+  (argument_list
+    (argument
+      (verbatim_string_literal) @injection.content))
+  (#any-of? @function "QueryUnbufferedAsync")
+  (#offset! @injection.content 0 2 0 -1)
+  (#set! injection.language "sql"))
+
+; _.QueryUnbufferedAsync("""""");
+(invocation_expression
+  (member_access_expression
+    (generic_name
+      (identifier) @function))
+  (argument_list
+    (argument
+      (raw_string_literal
+        (raw_string_content) @injection.content)))
+  (#any-of? @function "QueryUnbufferedAsync")
+  (#set! injection.language "sql"))
