@@ -2,6 +2,8 @@
 
 ## Requirements
 
+- general
+  - git
 - coq_nvim
   - Python >= 3.8.2
   - pip
