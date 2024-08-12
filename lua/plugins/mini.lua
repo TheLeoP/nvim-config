@@ -83,7 +83,10 @@ return {
     }
     local mini_misc = require "mini.misc"
     mini_misc.setup()
-    if not vim.g.started_by_firenvim then mini_misc.setup_termbg_sync() end
+    -- The OSC codes break firenvim comunication
+    -- ConPTY (Windows) does not support querying for bg/fg colors (OSC 11, 12)
+    -- https://github.com/microsoft/terminal/issues/3718
+    if not vim.g.started_by_firenvim and vim.fn.has "win32" == 0 then mini_misc.setup_termbg_sync() end
     require("mini.surround").setup {
       mappings = {
         add = "<leader>s",
