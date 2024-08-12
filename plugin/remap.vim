@@ -62,8 +62,8 @@ nnoremap <silent> <leader>q <cmd>q<cr>
 xnoremap <silent> <leader><leader>e :lua require('personal.util.general').visual_ejecutar_en_terminal()<cr>
 
 " borrar palabra con <c-bs>
-inoremap <C-BS> 
-inoremap  
+imap <C-BS> 
+imap  
 
 " mejores macros
 nnoremap <silent> @ <cmd>execute "noautocmd normal! " . v:count1 . "@" . getcharstr()<cr>
