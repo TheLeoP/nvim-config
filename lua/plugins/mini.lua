@@ -101,8 +101,6 @@ return {
       n_lines = 100,
     }
 
-    vim.keymap.set("x", "<leader>s", [[:<C-u>lua MiniSurround.add('visual')<CR>]], { silent = true })
-
     require("mini.comment").setup {
       options = {
         custom_commentstring = function()
