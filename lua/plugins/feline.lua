@@ -212,6 +212,7 @@ return {
       components = statusline_components,
       custom_providers = custom_providers,
       theme = gruvbox,
+      force_inactive = {},
     }
 
     require("feline").winbar.setup {
