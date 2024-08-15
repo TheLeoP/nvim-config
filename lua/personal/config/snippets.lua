@@ -144,7 +144,7 @@ end
     )
   ),
   s(
-    { trig = "elseif", snippetType = "autosnippet", condition = conds.line_begin },
+    { trig = "elseif ", snippetType = "autosnippet", condition = conds.line_begin },
     fmta(
       [[
 elseif <condition> then
