@@ -1,11 +1,45 @@
 local function file_provider()
-  local devicons = require "nvim-web-devicons"
+  local status = vim.bo.readonly and "🔒" or vim.bo.modified and "●" or ""
 
+  local full_path = vim.fn.expand("%:p", false)
+  if full_path:match "^[^:]+:[/\\][/\\]" then
+    local protocol, _full_path = full_path:match "^([^:]+):[/\\][/\\](.*)"
+    full_path = _full_path or "" ---@type string
+    if protocol == "oil" then
+      full_path = require("oil.fs").posix_to_os_path(full_path)
+    elseif protocol == "fugitive" then
+      full_path = full_path:sub(2)
+    end
+  end
+  full_path = vim.fs.normalize(full_path)
+
+  local _full_path = full_path
+  if vim.fn.has "win32" == 1 then _full_path = _full_path:lower() end
+
+  local cwd = vim.uv.cwd()
+  if not cwd then return ("%s %s"):format(full_path, status) end
+  cwd = vim.fs.normalize(cwd)
+  local _cwd = cwd
+  if vim.fn.has "win32" == 1 then _cwd = _cwd:lower() end
+
+  local relative_path = full_path
+  if _full_path:match(_cwd) then relative_path = _full_path:gsub(_cwd, "") end
+
+  return ("%s %s"):format(relative_path, status)
+end
+
+local function protocol_provider()
+  local full_path = vim.fn.expand("%:p", false)
+  local protocol = full_path:match "^([^:]+):[/\\][/\\]"
+  return protocol
+end
+
+local function icon_provider()
+  local devicons = require "nvim-web-devicons"
   local filename = vim.fn.expand("%:t", false)
   local extension = vim.fn.expand("%:e", false)
   local icon_str, name = devicons.get_icon(filename, extension)
   local fg = name and vim.fn.synIDattr(vim.fn.hlID(name), "fg") or "white"
-
   local icon = {
     str = icon_str,
     hl = {
@@ -13,23 +47,7 @@ local function file_provider()
       bg = "bg",
     },
   }
-  local status = vim.bo.readonly and "🔒" or vim.bo.modified and "●" or ""
-
-  local full_path = vim.fn.expand("%:p", false)
-  if full_path:match "^oil://" then
-    full_path = full_path:match "^oil://(.*)"
-    full_path = require("oil.fs").posix_to_os_path(full_path)
-  end
-  if vim.fn.has "win32" == 1 then full_path = full_path:lower() end
-
-  local cwd = vim.uv.cwd()
-  if not cwd then return (" %s %s"):format(full_path, status), icon end
-  if vim.fn.has "win32" == 1 then cwd = cwd:lower() end
-
-  local Path = require "plenary.path"
-  local relative_path = Path:new(full_path):make_relative(cwd) ---@type string
-
-  return (" %s%s %s"):format(Path.path.sep, relative_path, status), icon
+  return " ", icon
 end
 
 local function navic_provider(_, opts)
@@ -58,7 +76,9 @@ return {
 
     local custom_providers = {
       file = file_provider,
-      cwd = vim.uv.cwd,
+      protocol = protocol_provider,
+      icon = icon_provider,
+      cwd = function() return vim.fs.normalize(vim.uv.cwd() or "") end,
       navic = navic_provider,
       git_branch_ = git_branch_provider,
     }
@@ -133,6 +153,27 @@ return {
       provider = {
         name = "file",
       },
+    })
+    table.insert(left, {
+      provider = {
+        name = "icon",
+      },
+      left_sep = " ",
+      right_sep = " ",
+    })
+    table.insert(left, {
+      provider = {
+        name = "protocol",
+      },
+      enabled = function()
+        local full_path = vim.fn.expand("%:p", false)
+        return full_path:match "^[^:]+:[/\\][/\\]"
+      end,
+      hl = {
+        fg = "lightblue",
+      },
+      left_sep = " ",
+      right_sep = " ",
     })
 
     table.insert(right, {
