@@ -1,3 +1,17 @@
+---@param idx integer
+local spell_on_choice = vim.schedule_wrap(function(idx)
+  if type(idx) ~= "number" then return end
+  vim.cmd("normal! " .. idx .. "z=")
+end)
+
+local spellsuggest_select = function()
+  if vim.v.count > 0 then
+    spell_on_choice(vim.v.count)
+    return
+  end
+  require("fzf-lua").spell_suggest()
+end
+
 return {
   "ibhagwan/fzf-lua",
   opts = {
@@ -15,33 +29,34 @@ return {
     },
   },
   config = function(_, opts)
-    require("fzf-lua").setup(opts)
+    local fzf = require "fzf-lua"
+    fzf.setup(opts)
 
-    vim.keymap.set("n", "<leader>ff", require("fzf-lua").files)
-    vim.keymap.set("n", "<leader>fb", require("fzf-lua").buffers)
-    vim.keymap.set("n", "<leader>fh", require("fzf-lua").help_tags)
-    vim.keymap.set("n", "<leader>fc", require("fzf-lua").lgrep_curbuf)
-    vim.keymap.set("n", "<leader>fr", require("fzf-lua").resume)
-    vim.keymap.set("n", "<leader>fs", require("fzf-lua").live_grep)
-    vim.keymap.set("n", "<leader>fwd", require("fzf-lua").diagnostics_workspace)
+    vim.keymap.set("n", "<leader>ff", fzf.files)
+    vim.keymap.set("n", "<leader>fb", fzf.buffers)
+    vim.keymap.set("n", "<leader>fh", fzf.help_tags)
+    vim.keymap.set("n", "<leader>fc", fzf.lgrep_curbuf)
+    vim.keymap.set("n", "<leader>fr", fzf.resume)
+    vim.keymap.set("n", "<leader>fs", fzf.live_grep)
+    vim.keymap.set("n", "<leader>fwd", fzf.diagnostics_workspace)
 
     vim.keymap.set(
       "n",
       "<leader>fi",
-      function() require("fzf-lua").files { prompt = "< Nvim config >", cwd = vim.fn.stdpath "config" } end,
+      function() fzf.files { prompt = "< Nvim config >", cwd = vim.fn.stdpath "config" } end,
       { desc = "Fuzzy search files in nvim config" }
     )
 
     vim.keymap.set(
       "n",
       "<leader>fI",
-      function() require("fzf-lua").live_grep { prompt = "< Rg nvim_config >", cwd = vim.fn.stdpath "config" } end,
+      function() fzf.live_grep { prompt = "< Rg nvim_config >", cwd = vim.fn.stdpath "config" } end,
       { desc = "Rg in nvim config" }
     )
 
     vim.keymap.set("n", "<leader>fp", require("personal.fzf-lua").projects, { desc = "Find projects" })
 
-    vim.keymap.set("n", "z=", require("fzf-lua").spell_suggest, { desc = "Spelling suggestions" })
+    vim.keymap.set("n", "z=", spellsuggest_select, { desc = "Shows spelling suggestions" })
   end,
   dependencies = {
     {
