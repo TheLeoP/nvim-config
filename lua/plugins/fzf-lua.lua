@@ -37,7 +37,7 @@ return {
     vim.keymap.set("n", "<leader>fh", fzf.help_tags)
     vim.keymap.set("n", "<leader>fc", fzf.lgrep_curbuf)
     vim.keymap.set("n", "<leader>fr", fzf.resume)
-    vim.keymap.set("n", "<leader>fs", fzf.live_grep)
+    vim.keymap.set("n", "<leader>fs", function() fzf.live_grep { silent = true } end)
     vim.keymap.set("n", "<leader>fwd", fzf.diagnostics_workspace)
 
     vim.keymap.set(
