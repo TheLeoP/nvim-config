@@ -13,17 +13,11 @@ local function file_provider()
   end
   full_path = vim.fs.normalize(full_path)
 
-  local _full_path = full_path
-  if vim.fn.has "win32" == 1 then _full_path = _full_path:lower() end
-
-  local cwd = vim.uv.cwd()
-  if not cwd then return ("%s %s"):format(full_path, status) end
-  cwd = vim.fs.normalize(cwd)
-  local _cwd = cwd
-  if vim.fn.has "win32" == 1 then _cwd = _cwd:lower() end
-
-  local relative_path = full_path
-  if _full_path:match(_cwd) then relative_path = _full_path:gsub(_cwd, "") end
+  local relative_path = vim.fn.fnamemodify(full_path, ":.")
+  if relative_path:sub(1, 1) ~= "/" then relative_path = "/" .. relative_path end
+  if relative_path == vim.uv.cwd() or (vim.fn.has "win32" == 1 and relative_path:lower() == vim.uv.cwd():lower()) then
+    relative_path = "."
+  end
 
   return ("%s %s"):format(relative_path, status)
 end
