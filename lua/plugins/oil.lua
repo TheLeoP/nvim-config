@@ -22,11 +22,13 @@ return {
       },
       ["<leader>cd"] = { "actions.cd", opts = { scope = "tab", silent = true } },
       ["gt"] = "actions.toggle_trash",
+      ["g_"] = "actions.open_cwd",
       ["<leader>y"] = "actions.copy_entry_path",
       ["<leader>:"] = "actions.open_cmdline",
       ["g\\"] = false,
       ["`"] = false,
       ["~"] = false,
+      ["_"] = false,
     },
     view_options = {
       show_hidden = true,
