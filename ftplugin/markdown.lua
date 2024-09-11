@@ -11,7 +11,7 @@ require("personal.util.writing").setup()
 ---@return function @closure a usar como parámetro en vim.keymap.set
 local operatorfunc_lua = function(fn_name)
   return function()
-    vim.o.operatorfunc = "v:lua." .. fn_name
+    vim.o.operatorfunc = ("v:lua.%s"):format(fn_name)
     return "g@"
   end
 end
@@ -29,3 +29,21 @@ vim.keymap.set(
   operatorfunc_lua "require'personal.util.markdown'.italic",
   { buffer = true, expr = true }
 )
+
+-- <c-bs>
+vim.keymap.set("n", "\08", function()
+  local cur_line = vim.api.nvim_get_current_line()
+  local replacement ---@type string
+  if cur_line:match "^%s*- %[ %]" then
+    replacement = cur_line:gsub("%[ %]", "[x]")
+  else
+    replacement = cur_line:gsub("%[x%]", "[ ]")
+  end
+  vim.api.nvim_set_current_line(replacement)
+end, { buffer = true })
+vim.keymap.set("n", "<c-cr>", function()
+  local row, col = unpack(vim.api.nvim_win_get_cursor(0)) --[[@as integer, integer]]
+  vim.api.nvim_buf_set_lines(0, row, row, true, { "- [ ] " })
+  vim.api.nvim_win_set_cursor(0, { row + 1, col })
+  vim.cmd.startinsert { bang = true }
+end, { buffer = true })
