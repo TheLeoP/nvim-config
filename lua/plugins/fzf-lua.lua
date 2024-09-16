@@ -62,6 +62,12 @@ return {
     {
       "junegunn/fzf",
       build = function() vim.fn["fzf#install"]() end,
+      init = function()
+        local separator = vim.fn.has "win32" == 1 and ";" or ":"
+        local fzf_path = vim.fn.stdpath "data" .. "/lazy/fzf/bin"
+        fzf_path = vim.fs.normalize(fzf_path)
+        vim.env.PATH = vim.env.PATH .. separator .. fzf_path
+      end,
     },
   },
 }
