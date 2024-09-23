@@ -12,5 +12,6 @@ return {
     bullet = {
       enabled = false,
     },
+    render_modes = { "n", "i" },
   },
 }
