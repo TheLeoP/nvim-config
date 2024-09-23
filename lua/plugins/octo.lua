@@ -8,6 +8,9 @@ return {
   opts = {
     use_local_fs = true,
     picker = "fzf-lua",
+    picker_config = {
+      use_emojis = true,
+    },
     -- NOTE: requires both read:project and project scopes
     default_to_projects_v2 = true,
   },
