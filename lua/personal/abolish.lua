@@ -4,6 +4,7 @@ local M = {}
 
 M.char = ""
 
+---@return 'g@'|nil
 function M.operator_func()
   local needs_help_msg = true
   vim.defer_fn(function()
