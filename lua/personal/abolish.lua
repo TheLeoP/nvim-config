@@ -4,7 +4,7 @@ local M = {}
 
 M.char = ""
 
-function M.opertator_func()
+function M.operator_func()
   local needs_help_msg = true
   vim.defer_fn(function()
     if not needs_help_msg then return end
