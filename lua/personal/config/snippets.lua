@@ -19,12 +19,27 @@ local m = extras.match
 local n = extras.nonempty
 local dl = extras.dynamic_lambda
 local fmta = require("luasnip.extras.fmt").fmta
+local make_condition = require("luasnip.extras.conditions").make_condition
 local conds = require "luasnip.extras.conditions.expand"
 local postfix = require("luasnip.extras.postfix").postfix
 local types = require "luasnip.util.types"
 local parse = require("luasnip.util.parser").parse_snippet
 local ms = ls.multi_snippet
 local k = require("luasnip.nodes.key_indexer").new_key
+
+local not_in_string = make_condition(function()
+  local js_blacklist = { "string", "template_string", "string_fragment" }
+  local blacklist_by_ft = {
+    lua = { "string", "string_content" },
+    javascript = js_blacklist,
+    typescript = js_blacklist,
+    typescriptreact = js_blacklist,
+    javascriptreact = js_blacklist,
+  }
+  local type = vim.treesitter.get_node():type()
+  local ft = vim.o.filetype
+  return not vim.list_contains(blacklist_by_ft[ft], type)
+end)
 
 ls.add_snippets("all", {
   s("todo", {
@@ -171,7 +186,11 @@ end
     )
   ),
   s(
-    { trig = "afn ", snippetType = "autosnippet" },
+    {
+      trig = "afn ",
+      snippetType = "autosnippet",
+      condition = not_in_string,
+    },
     fmta(
       [[
 function (<args>)
@@ -264,4 +283,40 @@ if (<condition>) {
       { condition = i(1), inside = i(2) }
     )
   ),
+  s(
+    { trig = "afn ", snippetType = "autosnippet", condition = not_in_string },
+    fmta(
+      [[
+  (<args>) =>> {
+    <inside>
+  }
+  ]],
+      { args = i(1), inside = i(2) }
+    )
+  ),
+  s(
+    { trig = "fn ", snippetType = "autosnippet", condition = not_in_string },
+    fmta(
+      [[
+function <name>(<args>) {
+  <inside>
+}
+]],
+      { name = i(1), args = i(2), inside = i(3) }
+    )
+  ),
 }, { key = "personal js" })
+
+ls.add_snippets("markdown", {
+  s(
+    "code",
+    fmta(
+      [[
+```<lang>
+<inside>
+```
+]],
+      { lang = i(1), inside = i(2) }
+    )
+  ),
+}, { key = "personal md" })
