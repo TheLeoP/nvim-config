@@ -1,3 +1,4 @@
+---@diagnostic disable: no-unknown
 local ls = require "luasnip"
 local s = ls.snippet
 local sn = ls.snippet_node
@@ -225,3 +226,42 @@ end
     )
   ),
 }, { key = "personal lua" })
+
+ls.filetype_extend("typescript", { "javascript" })
+ls.filetype_extend("javascriptreact", { "javascript" })
+ls.filetype_extend("typescriptreact", { "javascript" })
+ls.add_snippets("javascript", {
+  s(
+    { trig = "if ", snippetType = "autosnippet", condition = conds.line_begin },
+    fmta(
+      [[
+if (<condition>) {
+  <inside>
+}
+]],
+      { condition = i(1), inside = i(2) }
+    )
+  ),
+  s(
+    { trig = "} else ", snippetType = "autosnippet", condition = conds.line_begin },
+    fmta(
+      [[
+} else {
+  <inside>
+}
+]],
+      { inside = i(1) }
+    )
+  ),
+  s(
+    { trig = "} elseif ", snippetType = "autosnippet", condition = conds.line_begin },
+    fmta(
+      [[
+} else if (<condition>) {
+  <inside>
+}
+]],
+      { condition = i(1), inside = i(2) }
+    )
+  ),
+}, { key = "personal js" })
