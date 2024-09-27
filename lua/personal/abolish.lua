@@ -567,7 +567,7 @@ M.find_grammar = P {
 ---@param opts abolish.command_opts | {preview_ns: integer|nil}
 ---@return abolish.parsed_input?
 M.subvert_dispatcher = function(opts)
-  local t = M.subvert_grammar:match(opts.args)--[[@as abolish.parsed_input?]]
+  local t = M.subvert_grammar:match(opts.args) --[[@as abolish.parsed_input?]]
   if not t then
     if not opts.preview_ns then vim.notify(("Invalid input: %s"):format(opts.args), vim.log.levels.ERROR) end
     return
