@@ -3,6 +3,7 @@ local uv = vim.uv
 local api = vim.api
 local keymap = vim.keymap
 local compute_hex_color_group = require("mini.hipatterns").compute_hex_color_group
+local fs_exists = require("personal.util.general").fs_exists
 
 local M = {}
 
@@ -12,25 +13,6 @@ local client_secret = vim.env.GOOGLE_CALENDAR_CLIENT_SECRET ---@type string
 
 local data_path = ("%s/%s"):format(vim.fn.stdpath "data", "/calendar")
 data_path = vim.fs.normalize(data_path)
-
--- TODO: move this and the bujo one to utils
-
----@param path string
----@param cb fun(exists: boolean|nil, err: string|nil)
-local function fs_exists(path, cb)
-  uv.fs_stat(path, function(err)
-    if not err then
-      cb(true)
-      return
-    end
-
-    if not err:match "^ENOENT:" then
-      cb(nil, err)
-      return
-    end
-    cb(false)
-  end)
-end
 
 fs_exists(
   data_path,

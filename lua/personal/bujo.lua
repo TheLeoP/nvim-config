@@ -1,27 +1,10 @@
-local uv = vim.uv
+local fs_exists = require("personal.util.general").fs_exists
 
 local M = {}
 
 local data_path = ("%s/%s"):format(vim.fn.stdpath "data", "/bujo")
 data_path = vim.fs.normalize(data_path)
 local default_width = 30
-
----@param path string
----@param cb fun(exists: boolean|nil, err: string|nil)
-local function fs_exists(path, cb)
-  uv.fs_stat(path, function(err)
-    if not err then
-      cb(true)
-      return
-    end
-
-    if not err:match "^ENOENT:" then
-      cb(nil, err)
-      return
-    end
-    cb(false)
-  end)
-end
 
 fs_exists(
   data_path,

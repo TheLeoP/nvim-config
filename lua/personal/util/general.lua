@@ -1,4 +1,5 @@
 local api = vim.api
+local uv = vim.uv
 
 local M = {}
 
@@ -52,6 +53,23 @@ function M.str_multibyte_sub(str, i, j)
   local e = vim.str_byteindex(str, v)
   local aux = str:sub(s + 1, e)
   return aux
+end
+
+---@param path string
+---@param cb fun(exists: boolean|nil, err: string|nil)
+function M.fs_exists(path, cb)
+  uv.fs_stat(path, function(err)
+    if not err then
+      cb(true)
+      return
+    end
+
+    if not err:match "^ENOENT:" then
+      cb(nil, err)
+      return
+    end
+    cb(false)
+  end)
 end
 
 return M
