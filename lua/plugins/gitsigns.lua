@@ -25,8 +25,8 @@ return {
       end, opts)
 
       -- Actions
-      vim.keymap.set({ "n", "v" }, "<leader>hs", ":Gitsigns stage_hunk<CR>")
-      vim.keymap.set({ "n", "v" }, "<leader>hr", ":Gitsigns reset_hunk<CR>")
+      vim.keymap.set({ "n", "x" }, "<leader>hs", ":Gitsigns stage_hunk<CR>")
+      vim.keymap.set({ "n", "x" }, "<leader>hr", ":Gitsigns reset_hunk<CR>")
       vim.keymap.set("n", "<leader>hS", gs.stage_buffer)
       vim.keymap.set("n", "<leader>hu", gs.undo_stage_hunk)
       vim.keymap.set("n", "<leader>hR", gs.reset_buffer)
