@@ -14,7 +14,11 @@ return {
       vim.keymap.set({ "x", "o" }, "s", function() leap.leap { offset = -1, inclusive_op = true } end)
       vim.keymap.set({ "n" }, "S", function() leap.leap { backward = true } end)
       vim.keymap.set({ "x", "o" }, "S", function()
-        vim.cmd.normal "v" -- simulates backward inclusive_op because it's broken on leap.nvim
+        local mode = vim.api.nvim_get_mode().mode
+        if mode ~= "v" and mode ~= "V" and mode ~= "\22" then
+          -- simulates backward inclusive_op because it's broken on leap.nvim
+          vim.cmd.normal "v"
+        end
         leap.leap { backward = true, offset = 2 }
       end)
       vim.keymap.set({ "n", "x", "o" }, "gs", function() require("leap.treesitter").select() end)
