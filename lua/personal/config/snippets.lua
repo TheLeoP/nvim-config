@@ -204,7 +204,7 @@ end
     )
   ),
   s(
-    { trig = "nfor", snippetType = "autosnippet", condition = conds.line_begin },
+    { trig = "nfor ", snippetType = "autosnippet", condition = conds.line_begin },
     fmta(
       [[
 for <start><end><step> do
