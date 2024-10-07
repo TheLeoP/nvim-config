@@ -3,6 +3,7 @@
 local uv = vim.uv
 local api = vim.api
 local keymap = vim.keymap
+local iter = vim.iter
 local compute_hex_color_group = require("mini.hipatterns").compute_hex_color_group
 local fs_exists = require("personal.util.general").fs_exists
 
@@ -374,6 +375,7 @@ function M.calendar_list_show()
       api.nvim_create_autocmd("BufLeave", {
         buffer = buf,
         callback = function() api.nvim_buf_delete(buf, { force = true }) end,
+        once = true,
       })
       api.nvim_create_autocmd("BufWriteCmd", {
         buffer = buf,
@@ -400,7 +402,7 @@ function M.calendar_list_show()
           vim.bo[buf].modifiable = true
         end,
       })
-      vim.iter(ipairs(calendar_list.items)):each(
+      iter(ipairs(calendar_list.items)):each(
         ---@param i integer
         ---@param calendar CalendarListEntry
         function(i, calendar)
@@ -436,8 +438,8 @@ function M.calendar_list_show()
         M.calendar_show(id)
       end, { buffer = buf })
 
-      local width = math.floor(vim.o.columns * 0.7)
-      local height = math.floor(vim.o.lines * 0.7)
+      local width = math.floor(vim.o.columns * 0.85)
+      local height = math.floor(vim.o.lines * 0.85)
       local col = (vim.o.columns - width) / 2
       local row = (vim.o.lines - height) / 2
       api.nvim_open_win(buf, true, {
@@ -518,6 +520,7 @@ function M.calendar_show(id)
       api.nvim_create_autocmd("BufLeave", {
         buffer = buf,
         callback = function() api.nvim_buf_delete(buf, { force = true }) end,
+        once = true,
       })
       local calendar_string = vim.json.encode(calendar)
       api.nvim_buf_set_lines(buf, 0, 0, true, vim.split(calendar_string, "\n"))
@@ -529,8 +532,8 @@ function M.calendar_show(id)
         M.calendar_list_show()
       end, { buffer = buf })
 
-      local width = math.floor(vim.o.columns * 0.7)
-      local height = math.floor(vim.o.lines * 0.7)
+      local width = math.floor(vim.o.columns * 0.85)
+      local height = math.floor(vim.o.lines * 0.85)
       local col = (vim.o.columns - width) / 2
       local row = (vim.o.lines - height) / 2
       api.nvim_open_win(buf, true, {
@@ -720,7 +723,7 @@ function M.get_events(token_info, calendar_list, year, month, cb)
 
   local all_calendar_events = {} ---@type CalendarEvents[]
 
-  vim.iter(calendar_list.items):each(
+  iter(calendar_list.items):each(
     ---@param calendar CalendarListEntry
     function(calendar)
       vim.system(
@@ -730,8 +733,7 @@ function M.get_events(token_info, calendar_list, year, month, cb)
           "--silent",
           "--header",
           ("Authorization: Bearer %s"):format(token_info.access_token),
-          ("https://www.googleapis.com/calendar/v3/calendars/%s/events?timeMin=%s&timeMax=%s"):format(
-            -- ("https://www.googleapis.com/calendar/v3/calendars/%s/events?timeMin=%s&timeMax=%s&orderBy=startTime"):format(
+          ("https://www.googleapis.com/calendar/v3/calendars/%s/events?timeMin=%s&timeMax=%s&singleEvents=true"):format(
             url_encode(calendar.id),
             url_encode(time_min),
             url_encode(time_max)
@@ -773,54 +775,229 @@ function M.get_events(token_info, calendar_list, year, month, cb)
   )
 end
 
+---@param date_time string
+---@return {y: integer, m: integer, d: integer, h: integer, min: integer, s: integer, offset: string}
+local function parse_date_time(date_time)
+  ---@type string, string, string, string, string, string, string, string
+  local y, m, d, h, min, s, offset = date_time:match "(%d%d%d%d)-(%d%d)-(%d%d)T(%d%d):(%d%d):(%d%d)([-+]%d%d:%d%d)"
+  return {
+    y = tonumber(y),
+    m = tonumber(m),
+    d = tonumber(d),
+    h = tonumber(h),
+    min = tonumber(min),
+    s = tonumber(s),
+    offset = offset,
+  }
+end
+
+---@param date string
+---@return {y: integer, m: integer, d: integer}
+local function parse_date(date)
+  ---@type string, string, string, string, string, string, string, string
+  local y, m, d = date:match "(%d%d%d%d)-(%d%d)-(%d%d)"
+  return {
+    y = tonumber(y),
+    m = tonumber(m),
+    d = tonumber(d),
+  }
+end
+
+local days = { "Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado" }
+
 function M.events_show()
   get_token_info(function(token_info)
     M.get_calendar_list(token_info, function(calendar_list)
       M.get_events(token_info, calendar_list, 2024, 10, function(events)
-        local buf = api.nvim_create_buf(false, false)
-        api.nvim_create_autocmd("BufLeave", {
-          buffer = buf,
-          callback = function() api.nvim_buf_delete(buf, { force = true }) end,
-        })
+        local today = os.date "*t" --[[@as osdate]]
+        local last_day_month = os.date("*t", os.time { year = today.year, month = today.month + 1, day = 0 })
 
-        vim.iter(ipairs(events)):each(
-          ---@param i integer
+        ---@type table<string, Event[]>
+        local events_by_date = iter(events):fold(
+          {},
+          ---@param acc table<string, Event[]>
           ---@param event Event
-          function(i, event)
-            local row = i - 1
-            local line = ("%s%s%s%s%s"):format(
-              event.summary,
-              sep,
-              event.start.date or ("%s %s"):format(event.start.dateTime, event.start.timeZone),
-              sep,
-              event["end"].date or ("%s %s"):format(event["end"].dateTime, event["end"].timeZone),
-              sep,
-              event.id
-            )
-            -- first line replaces empty line
-            -- all other lines are inserted at the end of the buf
-            api.nvim_buf_set_lines(buf, row, row == 0 and row + 1 or row, true, { line })
+          function(acc, event)
+            local start_date ---@type {y: integer, m: integer, d: integer}
+            if event.start.date then
+              start_date = parse_date(event.start.date)
+            elseif event.start.dateTime then
+              start_date = parse_date_time(event.start.dateTime)
+            end
+            local end_date ---@type {y: integer, m: integer, d: integer}
+            if event["end"].date then
+              end_date = parse_date(event["end"].date)
+            elseif event["end"].dateTime then
+              end_date = parse_date_time(event["end"].dateTime)
+            end
+            local year = today.year
+            local month = today.month
+            local start_day = start_date.m == today.month and start_date.d or 1
+            local end_day = end_date.m == today.month and end_date.d or last_day_month.day
+            for i = start_day, end_day do
+              local key = ("%s_%s_%s"):format(year, month, i)
+              if not acc[key] then acc[key] = {} end
+              table.insert(acc[key], event)
+            end
+            return acc
           end
         )
 
-        local width = math.floor(vim.o.columns * 0.7)
-        local height = math.floor(vim.o.lines * 0.7)
-        local col = (vim.o.columns - width) / 2
-        local row = (vim.o.lines - height) / 2
-        api.nvim_open_win(buf, true, {
-          relative = "editor",
-          row = row,
-          col = col,
-          width = width,
-          height = height,
-          title = " Events ",
-          border = "single",
-          style = "minimal",
-        })
+        local days_in_month = {} ---@type integer[]
+        for i = 1, last_day_month.day do
+          table.insert(days_in_month, i)
+        end
+
+        M.calendar_view_show()
+        local x ---@type integer calendar coordinates
+        local y = 2 ---@type integer calendar coordinates
+        iter(days_in_month):each(
+          ---@param i integer
+          function(i)
+            local date = os.date("%Y-%m-%d", os.time { year = today.year, month = today.month, day = i }) --[[@as string]]
+            local lines = { date }
+
+            local key = ("%s_%s_%s"):format(today.year, today.month, i)
+            local day_events = events_by_date[key]
+            if day_events then
+              local events_text = iter(day_events)
+                :map(function(event)
+                  if not event.start.dateTime then return ("%s%s%s"):format(event.summary, sep, event.id) end
+                  local start_date_time = parse_date_time(event.start.dateTime)
+                  local end_date_time = parse_date_time(event["end"].dateTime)
+                  return ("%s%s%02d:%02d:%02d%s%02d:%02d:%02d"):format(
+                    event.summary,
+                    sep,
+                    start_date_time.h,
+                    start_date_time.m,
+                    start_date_time.s,
+                    sep,
+                    end_date_time.h,
+                    end_date_time.m,
+                    end_date_time.s,
+                    sep,
+                    event.id
+                  )
+                end)
+                :totable()
+              vim.list_extend(lines, events_text)
+            end
+
+            local day = os.date("*t", os.time { year = today.year, month = today.month, day = i }) --[[@as osdate]]
+            x = day.wday - 1
+            if x <= 0 then x = x + 7 end
+            local cal_buf = M.cal_bufs[y][x]
+            if x == 7 then y = y + 1 end -- advance to next row for next iteration
+            api.nvim_buf_set_lines(cal_buf, 0, -1, true, lines)
+          end
+        )
       end)
     end)
   end)
 end
 
+local cal_cols = 7
+local cal_rows = 6
+M.cal_bufs = {} ---@type table<integer, table<integer, integer>> cal_bufs[y][x] = buf 1-based
+M.cal_wins = {} ---@type table<integer, table<integer, integer>> cal_wins[y][x] = win 1-based
+
+function M.calendar_view_show()
+  if not vim.tbl_isempty(M.cal_bufs) then M.cal_bufs = {} end
+  if not vim.tbl_isempty(M.cal_wins) then M.cal_wins = {} end
+
+  for y = 1, cal_rows do
+    for x = 1, cal_cols do
+      local buf = api.nvim_create_buf(false, false)
+
+      if x == 1 then M.cal_bufs[y] = {} end
+      local w_day = x + 1
+      if w_day >= 8 then w_day = w_day - 7 end
+      if y == 1 then api.nvim_buf_set_lines(buf, 0, -1, true, { days[w_day] }) end
+
+      M.cal_bufs[y][x] = buf
+    end
+  end
+
+  local factor = 1
+  local max_width = math.floor(vim.o.columns * factor)
+  local max_height = math.floor(vim.o.lines * factor)
+
+  local width = math.floor(max_width / cal_cols)
+  local height = math.floor(max_height / cal_rows)
+
+  local col = (vim.o.columns - max_width) / 2
+  local row = (vim.o.lines - max_height) / 2
+
+  for y = 1, cal_rows do
+    local row_offset = (y - 1) * height
+    for x = 1, cal_cols do
+      local col_offset = (x - 1) * width
+      local buf = M.cal_bufs[y][x]
+      local win = api.nvim_open_win(buf, false, {
+        relative = "editor",
+        col = col + col_offset,
+        row = row + row_offset,
+        width = width,
+        height = height,
+        style = "minimal",
+      })
+      if x == 1 then M.cal_wins[y] = {} end
+      M.cal_wins[y][x] = win
+      if y == 1 and x == y then api.nvim_set_current_win(win) end
+    end
+  end
+
+  for y = 1, cal_rows do
+    for x = 1, cal_cols do
+      local buf = M.cal_bufs[y][x]
+
+      local win_l ---@type integer
+      if x - 1 >= 1 then
+        win_l = M.cal_wins[y][x - 1]
+      else
+        win_l = M.cal_wins[y][cal_cols]
+      end
+      keymap.set("n", "<left>", function() api.nvim_set_current_win(win_l) end, { buffer = buf })
+      local win_r ---@type integer
+      if x + 1 <= cal_cols then
+        win_r = M.cal_wins[y][x + 1]
+      else
+        win_r = M.cal_wins[y][1]
+      end
+      keymap.set("n", "<right>", function() api.nvim_set_current_win(win_r) end, { buffer = buf })
+      local win_u ---@type integer
+      if y - 1 >= 1 then
+        win_u = M.cal_wins[y - 1][x]
+      else
+        win_u = M.cal_wins[cal_rows][x]
+      end
+      keymap.set("n", "<up>", function() api.nvim_set_current_win(win_u) end, { buffer = buf })
+      local win_d ---@type integer
+      if y + 1 <= cal_rows then
+        win_d = M.cal_wins[y + 1][x]
+      else
+        win_d = M.cal_wins[1][x]
+      end
+      keymap.set("n", "<down>", function() api.nvim_set_current_win(win_d) end, { buffer = buf })
+    end
+  end
+
+  local all_bufs = iter(M.cal_bufs):flatten(1):totable()
+  local all_wins = iter(M.cal_wins):flatten(1):totable()
+  api.nvim_create_autocmd("WinClosed", {
+    pattern = iter(all_wins):map(function(win) return tostring(win) end):totable(),
+    callback = function()
+      iter(all_bufs):each(function(buf)
+        if api.nvim_buf_is_valid(buf) and api.nvim_buf_is_loaded(buf) then
+          api.nvim_buf_delete(buf, { force = true })
+        end
+      end)
+      iter(all_wins):each(function(win)
+        if api.nvim_win_is_valid(win) then api.nvim_win_close(win, true) end
+      end)
+    end,
+    once = true,
+  })
+end
+
 M.events_show()
--- M.calendar_list_show()
