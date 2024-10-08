@@ -809,6 +809,7 @@ function M.events_show()
   get_token_info(function(token_info)
     M.get_calendar_list(token_info, function(calendar_list)
       M.get_events(token_info, calendar_list, 2024, 10, function(events)
+        -- TODO: today will have to be replaced with the first day of the month in order to show different months
         local today = os.date "*t" --[[@as osdate]]
         local last_day_month = os.date("*t", os.time { year = today.year, month = today.month + 1, day = 0 })
 
@@ -889,6 +890,7 @@ function M.events_show()
             local cal_buf = M.cal_bufs[y][x]
             if x == 7 then y = y + 1 end -- advance to next row for next iteration
             api.nvim_buf_set_lines(cal_buf, 0, -1, true, lines)
+            vim.bo[cal_buf].modified = false
           end
         )
       end)
@@ -910,9 +912,14 @@ function M.calendar_view_show()
       local buf = api.nvim_create_buf(false, false)
 
       if x == 1 then M.cal_bufs[y] = {} end
+
       local w_day = x + 1
       if w_day >= 8 then w_day = w_day - 7 end
-      if y == 1 then api.nvim_buf_set_lines(buf, 0, -1, true, { days[w_day] }) end
+      if y == 1 then
+        api.nvim_buf_set_lines(buf, 0, -1, true, { days[w_day] })
+        vim.bo[buf].modified = false
+        vim.bo[buf].modifiable = false
+      end
 
       M.cal_bufs[y][x] = buf
     end
@@ -941,15 +948,36 @@ function M.calendar_view_show()
         height = height,
         style = "minimal",
       })
+      if y ~= 1 then
+        vim.wo[win].winhighlight = "" -- since filchars eob is ' ', this will make non-focused windows a different color
+      end
       if x == 1 then M.cal_wins[y] = {} end
       M.cal_wins[y][x] = win
-      if y == 1 and x == y then api.nvim_set_current_win(win) end
     end
   end
+
+  local all_bufs = iter(M.cal_bufs):flatten(1):totable()
+  local all_wins = iter(M.cal_wins):flatten(1):totable()
+
+  api.nvim_create_autocmd("WinClosed", {
+    pattern = iter(all_wins):map(function(win) return tostring(win) end):totable(),
+    callback = function()
+      iter(all_bufs):each(function(buf)
+        if api.nvim_buf_is_valid(buf) and api.nvim_buf_is_loaded(buf) then
+          api.nvim_buf_delete(buf, { force = true })
+        end
+      end)
+      iter(all_wins):each(function(win)
+        if api.nvim_win_is_valid(win) then api.nvim_win_close(win, true) end
+      end)
+    end,
+    once = true,
+  })
 
   for y = 1, cal_rows do
     for x = 1, cal_cols do
       local buf = M.cal_bufs[y][x]
+      local win = M.cal_wins[y][x]
 
       local win_l ---@type integer
       if x - 1 >= 1 then
@@ -979,25 +1007,10 @@ function M.calendar_view_show()
         win_d = M.cal_wins[1][x]
       end
       keymap.set("n", "<down>", function() api.nvim_set_current_win(win_d) end, { buffer = buf })
+
+      if y == 2 and x == 1 then api.nvim_set_current_win(win) end
     end
   end
-
-  local all_bufs = iter(M.cal_bufs):flatten(1):totable()
-  local all_wins = iter(M.cal_wins):flatten(1):totable()
-  api.nvim_create_autocmd("WinClosed", {
-    pattern = iter(all_wins):map(function(win) return tostring(win) end):totable(),
-    callback = function()
-      iter(all_bufs):each(function(buf)
-        if api.nvim_buf_is_valid(buf) and api.nvim_buf_is_loaded(buf) then
-          api.nvim_buf_delete(buf, { force = true })
-        end
-      end)
-      iter(all_wins):each(function(win)
-        if api.nvim_win_is_valid(win) then api.nvim_win_close(win, true) end
-      end)
-    end,
-    once = true,
-  })
 end
 
 M.events_show()
