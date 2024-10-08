@@ -719,7 +719,10 @@ function M.get_events(token_info, calendar_list, year, month, cb)
   local time_max = ("%04d-%02d-01T00:00:00Z"):format(end_year, end_month)
 
   local key = ("%s_%s"):format(year, month)
-  if _cache_events[key] then return _cache_events[key] end
+  if _cache_events[key] then
+    cb(_cache_events[key])
+    return
+  end
 
   local all_calendar_events = {} ---@type CalendarEvents[]
 
