@@ -5,6 +5,7 @@ local api = vim.api
 local keymap = vim.keymap
 local iter = vim.iter
 local compute_hex_color_group = require("mini.hipatterns").compute_hex_color_group
+local hl_enable = require("mini.hipatterns").enable
 local fs_exists = require("personal.util.general").fs_exists
 
 local M = {}
@@ -808,6 +809,135 @@ end
 
 local days = { "Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado" }
 
+---@class CalendarView
+---@field cal_bufs table<integer, table<integer, integer>> cal_bufs[y][x] = buf 1-based
+---@field cal_wins table<integer, table<integer, integer>> cal_wins[y][x] = win 1-based
+local CalendarView = {}
+CalendarView.__index = CalendarView
+CalendarView.cal_cols = 7
+CalendarView.cal_rows = 6
+
+---@return CalendarView
+function CalendarView.new()
+  local self = {}
+  self.cal_bufs = {}
+  self.cal_wins = {}
+  return setmetatable(self, CalendarView)
+end
+
+function CalendarView:show()
+  if not vim.tbl_isempty(self.cal_bufs) then self.cal_bufs = {} end
+  if not vim.tbl_isempty(self.cal_wins) then self.cal_wins = {} end
+
+  for y = 1, self.cal_rows do
+    for x = 1, self.cal_cols do
+      local buf = api.nvim_create_buf(false, false)
+
+      if x == 1 then self.cal_bufs[y] = {} end
+
+      local w_day = x + 1
+      if w_day >= 8 then w_day = w_day - 7 end
+      if y == 1 then
+        local day_name = days[w_day]
+        api.nvim_buf_set_lines(buf, 0, -1, true, { day_name })
+        hl_enable(buf, { highlighters = { day = { pattern = day_name, group = "TODO" } } })
+        vim.bo[buf].modified = false
+        vim.bo[buf].modifiable = false
+      end
+
+      self.cal_bufs[y][x] = buf
+    end
+  end
+
+  local factor = 1
+  local max_width = math.floor(vim.o.columns * factor)
+  local max_height = math.floor(vim.o.lines * factor)
+
+  local width = math.floor(max_width / self.cal_cols)
+  local height = math.floor(max_height / self.cal_rows)
+
+  local col = (vim.o.columns - max_width) / 2
+  local row = (vim.o.lines - max_height) / 2
+
+  for y = 1, self.cal_rows do
+    local row_offset = (y - 1) * height
+    for x = 1, self.cal_cols do
+      local col_offset = (x - 1) * width
+      local buf = self.cal_bufs[y][x]
+      local win = api.nvim_open_win(buf, false, {
+        relative = "editor",
+        col = col + col_offset,
+        row = row + row_offset,
+        width = width,
+        height = height,
+        style = "minimal",
+      })
+      if y ~= 1 then
+        vim.wo[win].winhighlight = "" -- since filchars eob is ' ', this will make non-focused windows a different color
+      end
+      if x == 1 then self.cal_wins[y] = {} end
+      self.cal_wins[y][x] = win
+    end
+  end
+
+  local all_bufs = iter(self.cal_bufs):flatten(1):totable()
+  local all_wins = iter(self.cal_wins):flatten(1):totable()
+
+  api.nvim_create_autocmd("WinClosed", {
+    pattern = iter(all_wins):map(function(win) return tostring(win) end):totable(),
+    callback = function()
+      iter(all_bufs):each(function(buf)
+        if api.nvim_buf_is_valid(buf) and api.nvim_buf_is_loaded(buf) then
+          api.nvim_buf_delete(buf, { force = true })
+        end
+      end)
+      iter(all_wins):each(function(win)
+        if api.nvim_win_is_valid(win) then api.nvim_win_close(win, true) end
+      end)
+    end,
+    once = true,
+  })
+
+  for y = 1, self.cal_rows do
+    for x = 1, self.cal_cols do
+      local buf = self.cal_bufs[y][x]
+      local win = self.cal_wins[y][x]
+
+      local win_l ---@type integer
+      if x - 1 >= 1 then
+        win_l = self.cal_wins[y][x - 1]
+      else
+        win_l = self.cal_wins[y][self.cal_cols]
+      end
+      keymap.set("n", "<left>", function() api.nvim_set_current_win(win_l) end, { buffer = buf })
+      local win_r ---@type integer
+      if x + 1 <= self.cal_cols then
+        win_r = self.cal_wins[y][x + 1]
+      else
+        win_r = self.cal_wins[y][1]
+      end
+      keymap.set("n", "<right>", function() api.nvim_set_current_win(win_r) end, { buffer = buf })
+      local win_u ---@type integer
+      if y - 1 >= 1 then
+        win_u = self.cal_wins[y - 1][x]
+      else
+        win_u = self.cal_wins[self.cal_rows][x]
+      end
+      keymap.set("n", "<up>", function() api.nvim_set_current_win(win_u) end, { buffer = buf })
+      local win_d ---@type integer
+      if y + 1 <= self.cal_rows then
+        win_d = self.cal_wins[y + 1][x]
+      else
+        win_d = self.cal_wins[1][x]
+      end
+      keymap.set("n", "<down>", function() api.nvim_set_current_win(win_d) end, { buffer = buf })
+
+      if y == 2 and x == 1 then api.nvim_set_current_win(win) end
+    end
+  end
+end
+
+local calendar_view = CalendarView.new()
 function M.events_show()
   get_token_info(function(token_info)
     M.get_calendar_list(token_info, function(calendar_list)
@@ -852,14 +982,19 @@ function M.events_show()
           table.insert(days_in_month, i)
         end
 
-        M.calendar_view_show()
-        local x ---@type integer calendar coordinates
-        local y = 2 ---@type integer calendar coordinates
+        calendar_view:show()
+        local y = 2 -- calendar coordinates
         iter(days_in_month):each(
           ---@param i integer
           function(i)
             local date = os.date("%Y-%m-%d", os.time { year = today.year, month = today.month, day = i }) --[[@as string]]
             local lines = { date }
+
+            local day = os.date("*t", os.time { year = today.year, month = today.month, day = i }) --[[@as osdate]]
+            local x = day.wday - 1 --calendar coordinates
+            if x <= 0 then x = x + 7 end
+            local cal_buf = calendar_view.cal_bufs[y][x]
+            if x == 7 then y = y + 1 end -- advance to next row for next iteration
 
             local key = ("%s_%s_%s"):format(today.year, today.month, i)
             local day_events = events_by_date[key]
@@ -884,14 +1019,30 @@ function M.events_show()
                   )
                 end)
                 :totable()
+              local highlighters = iter(day_events):fold(
+                {},
+                ---@param acc table<string, table>
+                ---@param event Event
+                function(acc, event)
+                  local calendar = vim.iter(calendar_list.items):find(
+                    ---@param calendar CalendarListEntry
+                    function(calendar) return calendar.id == event.organizer.email end
+                  )
+
+                  if not calendar then return acc end
+                  local fg = compute_hex_color_group(calendar.foregroundColor, "fg")
+                  local bg = compute_hex_color_group(calendar.backgroundColor, "bg")
+                  acc[event.id] = { pattern = "%f[%w]()" .. event.summary .. "()%f[%W]", group = fg }
+                  acc[event.id] = { pattern = "%f[%w]()" .. event.summary .. "()%f[%W]", group = bg }
+                  return acc
+                end
+              )
+              -- TODO: may need to put this in an autocmd because it gets disabled after :edit
+              hl_enable(cal_buf, { highlighters = highlighters })
+
               vim.list_extend(lines, events_text)
             end
 
-            local day = os.date("*t", os.time { year = today.year, month = today.month, day = i }) --[[@as osdate]]
-            x = day.wday - 1
-            if x <= 0 then x = x + 7 end
-            local cal_buf = M.cal_bufs[y][x]
-            if x == 7 then y = y + 1 end -- advance to next row for next iteration
             api.nvim_buf_set_lines(cal_buf, 0, -1, true, lines)
             vim.bo[cal_buf].modified = false
           end
@@ -901,119 +1052,71 @@ function M.events_show()
   end)
 end
 
-local cal_cols = 7
-local cal_rows = 6
-M.cal_bufs = {} ---@type table<integer, table<integer, integer>> cal_bufs[y][x] = buf 1-based
-M.cal_wins = {} ---@type table<integer, table<integer, integer>> cal_wins[y][x] = win 1-based
+---@class Color
+---@field background string,
+---@field foreground string
 
-function M.calendar_view_show()
-  if not vim.tbl_isempty(M.cal_bufs) then M.cal_bufs = {} end
-  if not vim.tbl_isempty(M.cal_wins) then M.cal_wins = {} end
+---@class Colors
+---@field kind "calendar#colors"
+---@field updated string
+---@field calendar table<string, Color>
+---@field event table<string, Color>
 
-  for y = 1, cal_rows do
-    for x = 1, cal_cols do
-      local buf = api.nvim_create_buf(false, false)
+local _cache_colors ---@type Colors
+-- TODO: do this for al get functions?
+local is_getting_colors = false
 
-      if x == 1 then M.cal_bufs[y] = {} end
-
-      local w_day = x + 1
-      if w_day >= 8 then w_day = w_day - 7 end
-      if y == 1 then
-        api.nvim_buf_set_lines(buf, 0, -1, true, { days[w_day] })
-        vim.bo[buf].modified = false
-        vim.bo[buf].modifiable = false
-      end
-
-      M.cal_bufs[y][x] = buf
-    end
+---@param token_info TokenInfo
+---@param cb fun(events: Colors)
+function M.get_colors(token_info, cb)
+  if _cache_colors then
+    cb(_cache_colors)
+    return
   end
 
-  local factor = 1
-  local max_width = math.floor(vim.o.columns * factor)
-  local max_height = math.floor(vim.o.lines * factor)
-
-  local width = math.floor(max_width / cal_cols)
-  local height = math.floor(max_height / cal_rows)
-
-  local col = (vim.o.columns - max_width) / 2
-  local row = (vim.o.lines - max_height) / 2
-
-  for y = 1, cal_rows do
-    local row_offset = (y - 1) * height
-    for x = 1, cal_cols do
-      local col_offset = (x - 1) * width
-      local buf = M.cal_bufs[y][x]
-      local win = api.nvim_open_win(buf, false, {
-        relative = "editor",
-        col = col + col_offset,
-        row = row + row_offset,
-        width = width,
-        height = height,
-        style = "minimal",
-      })
-      if y ~= 1 then
-        vim.wo[win].winhighlight = "" -- since filchars eob is ' ', this will make non-focused windows a different color
-      end
-      if x == 1 then M.cal_wins[y] = {} end
-      M.cal_wins[y][x] = win
-    end
-  end
-
-  local all_bufs = iter(M.cal_bufs):flatten(1):totable()
-  local all_wins = iter(M.cal_wins):flatten(1):totable()
-
-  api.nvim_create_autocmd("WinClosed", {
-    pattern = iter(all_wins):map(function(win) return tostring(win) end):totable(),
-    callback = function()
-      iter(all_bufs):each(function(buf)
-        if api.nvim_buf_is_valid(buf) and api.nvim_buf_is_loaded(buf) then
-          api.nvim_buf_delete(buf, { force = true })
-        end
-      end)
-      iter(all_wins):each(function(win)
-        if api.nvim_win_is_valid(win) then api.nvim_win_close(win, true) end
-      end)
-    end,
+  local colors_received_pattern = "CalendarColorsReceived"
+  api.nvim_create_autocmd("User", {
+    pattern = colors_received_pattern,
+    ---@param opts {data:{colors: Colors}}
+    callback = function(opts) cb(opts.data.colors) end,
     once = true,
   })
+  if is_getting_colors then return end
+  is_getting_colors = true
 
-  for y = 1, cal_rows do
-    for x = 1, cal_cols do
-      local buf = M.cal_bufs[y][x]
-      local win = M.cal_wins[y][x]
+  vim.system(
+    {
+      "curl",
+      "--http1.1",
+      "--silent",
+      "--header",
+      ("Authorization: Bearer %s"):format(token_info.access_token),
+      "https://www.googleapis.com/calendar/v3/colors",
+    },
+    { text = true },
+    vim.schedule_wrap(function(result)
+      assert(result.stderr == "", result.stderr)
+      local ok, colors = pcall(vim.json.decode, result.stdout) ---@type boolean, string|Colors|ApiErrorResponse
+      assert(ok, colors)
+      ---@cast colors -string
 
-      local win_l ---@type integer
-      if x - 1 >= 1 then
-        win_l = M.cal_wins[y][x - 1]
-      else
-        win_l = M.cal_wins[y][cal_cols]
+      if colors.error then
+        ---@cast colors -Colors
+        assert(colors.error.status == "UNAUTHENTICATED", colors.error.message)
+        refresh_access_token(
+          token_info.refresh_token,
+          function(refreshed_token_info) M.get_colors(refreshed_token_info, cb) end
+        )
+        return
       end
-      keymap.set("n", "<left>", function() api.nvim_set_current_win(win_l) end, { buffer = buf })
-      local win_r ---@type integer
-      if x + 1 <= cal_cols then
-        win_r = M.cal_wins[y][x + 1]
-      else
-        win_r = M.cal_wins[y][1]
-      end
-      keymap.set("n", "<right>", function() api.nvim_set_current_win(win_r) end, { buffer = buf })
-      local win_u ---@type integer
-      if y - 1 >= 1 then
-        win_u = M.cal_wins[y - 1][x]
-      else
-        win_u = M.cal_wins[cal_rows][x]
-      end
-      keymap.set("n", "<up>", function() api.nvim_set_current_win(win_u) end, { buffer = buf })
-      local win_d ---@type integer
-      if y + 1 <= cal_rows then
-        win_d = M.cal_wins[y + 1][x]
-      else
-        win_d = M.cal_wins[1][x]
-      end
-      keymap.set("n", "<down>", function() api.nvim_set_current_win(win_d) end, { buffer = buf })
+      ---@cast colors +Colors
+      ---@cast colors -ApiErrorResponse
 
-      if y == 2 and x == 1 then api.nvim_set_current_win(win) end
-    end
-  end
+      _cache_colors = colors
+      is_getting_colors = false
+      api.nvim_exec_autocmds("User", { pattern = colors_received_pattern, data = { colors = _cache_colors } })
+    end)
+  )
 end
 
 M.events_show()
