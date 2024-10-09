@@ -807,9 +807,9 @@ local function parse_date(date)
   }
 end
 
-local days = { "Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado" }
-
 ---@class CalendarView
+---@field y_m_buf integer
+---@field m_y_win integer
 ---@field day_bufs table<integer, integer> day_bufs[x] = buf 1-based
 ---@field day_wins table<integer, integer> day_wins[x] = win 1-based
 ---@field cal_bufs table<integer, table<integer, integer>> cal_bufs[y][x] = buf 1-based
@@ -818,10 +818,15 @@ local CalendarView = {}
 CalendarView.__index = CalendarView
 CalendarView.d_in_w = 7
 CalendarView.w_in_m = 5
+CalendarView.days = { "Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado" }
+CalendarView.months =
+  { "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Septiembre", "Octubre", "Noviembre", "Diciembre" }
 
 ---@return CalendarView
 function CalendarView.new()
   local self = {}
+  self.m_y_bufs = {}
+  self.m_y_wins = {}
   self.day_bufs = {}
   self.day_wins = {}
   self.cal_bufs = {}
@@ -829,17 +834,24 @@ function CalendarView.new()
   return setmetatable(self, CalendarView)
 end
 
-function CalendarView:show()
+---@param year integer
+---@param month integer
+function CalendarView:show(year, month)
   if not vim.tbl_isempty(self.day_bufs) then self.day_bufs = {} end
   if not vim.tbl_isempty(self.cal_bufs) then self.cal_bufs = {} end
   if not vim.tbl_isempty(self.cal_wins) then self.cal_wins = {} end
+
+  self.y_m_buf = api.nvim_create_buf(false, false)
+  api.nvim_buf_set_lines(self.y_m_buf, 0, -1, true, { tostring(year), self.months[month] })
+  vim.bo[self.y_m_buf].modified = false
+  vim.bo[self.y_m_buf].modifiable = false
 
   for x = 1, self.d_in_w do
     local buf = api.nvim_create_buf(false, false)
 
     local w_day = x + 1
     if w_day >= 8 then w_day = w_day - 7 end
-    local day_name = days[w_day]
+    local day_name = self.days[w_day]
     api.nvim_buf_set_lines(buf, 0, -1, true, { day_name })
     hl_enable(buf, { highlighters = { day = { pattern = day_name, group = "TODO" } } })
     vim.bo[buf].modified = false
@@ -868,6 +880,21 @@ function CalendarView:show()
   local col = (vim.o.columns - max_width) / 2
   local row = (vim.o.lines - max_height) / 2
 
+  local days_row_offset = height - 1
+  local days_height = 1
+
+  local y_m_height = height - days_height
+
+  self.y_m_win = api.nvim_open_win(self.y_m_buf, false, {
+    focusable = false,
+    relative = "editor",
+    col = col,
+    row = row,
+    width = max_width,
+    height = y_m_height,
+    style = "minimal",
+  })
+
   for x = 1, self.d_in_w do
     local col_offset = (x - 1) * width
     local buf = self.day_bufs[x]
@@ -875,9 +902,9 @@ function CalendarView:show()
       focusable = false,
       relative = "editor",
       col = col + col_offset,
-      row = row,
+      row = row + days_row_offset,
       width = width,
-      height = height,
+      height = days_height,
       style = "minimal",
     })
     self.day_wins[x] = win
@@ -904,8 +931,10 @@ function CalendarView:show()
 
   local all_bufs = iter(self.cal_bufs):flatten(1):totable()
   vim.list_extend(all_bufs, self.day_bufs)
+  table.insert(all_bufs, self.y_m_buf)
   local all_wins = iter(self.cal_wins):flatten(1):totable()
   vim.list_extend(all_wins, self.day_wins)
+  table.insert(all_wins, self.y_m_win)
 
   api.nvim_create_autocmd("WinClosed", {
     pattern = iter(all_wins):map(function(win) return tostring(win) end):totable(),
@@ -962,10 +991,12 @@ function CalendarView:show()
 end
 
 local calendar_view = CalendarView.new()
-function M.events_show()
+---@param year integer
+---@param month integer
+function M.events_show(year, month)
   get_token_info(function(token_info)
     M.get_calendar_list(token_info, function(calendar_list)
-      M.get_events(token_info, calendar_list, 2024, 10, function(events)
+      M.get_events(token_info, calendar_list, year, month, function(events)
         -- TODO: today will have to be replaced with the first day of the month in order to show different months
         local today = os.date "*t" --[[@as osdate]]
         local last_day_month = os.date("*t", os.time { year = today.year, month = today.month + 1, day = 0 })
@@ -1006,13 +1037,13 @@ function M.events_show()
           table.insert(days_in_month, i)
         end
 
-        calendar_view:show()
+        calendar_view:show(year, month)
         local y = 1 -- calendar coordinates
         iter(days_in_month):each(
           ---@param i integer
           function(i)
-            local date = os.date("%Y-%m-%d", os.time { year = today.year, month = today.month, day = i }) --[[@as string]]
-            local lines = { date }
+            local day_num = ("%s"):format(i)
+            local lines = { day_num }
 
             local day = os.date("*t", os.time { year = today.year, month = today.month, day = i }) --[[@as osdate]]
             local x = day.wday - 1 --calendar coordinates
@@ -1143,4 +1174,4 @@ function M.get_colors(token_info, cb)
   )
 end
 
-M.events_show()
+M.events_show(2024, 10)
