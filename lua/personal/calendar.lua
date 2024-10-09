@@ -384,8 +384,8 @@ function M.calendar_list_show()
           vim.bo[buf].modifiable = false
 
           local lines = api.nvim_buf_get_lines(buf, 0, -1, true)
-          vim
-            .iter(lines)
+
+          iter(lines)
             :map(function(line)
               local summary, description, id = unpack(vim.split(line, sep, { trimempty = true }))
               return {
@@ -770,8 +770,7 @@ function M.get_events(token_info, calendar_list, year, month, cb)
           table.insert(all_calendar_events, events)
 
           if #all_calendar_events == #calendar_list.items then
-            _cache_events[key] = vim
-              .iter(all_calendar_events)
+            _cache_events[key] = iter(all_calendar_events)
               :map(function(calendar_event) return calendar_event.items end)
               :flatten(1)
               :totable()
@@ -1370,7 +1369,7 @@ function M.events_show(year, month)
                 ---@param acc table<string, table>
                 ---@param event Event
                 function(acc, event)
-                  local calendar = vim.iter(calendar_list.items):find(
+                  local calendar = iter(calendar_list.items):find(
                     ---@param calendar CalendarListEntry
                     function(calendar) return calendar.id == event.organizer.email end
                   )
