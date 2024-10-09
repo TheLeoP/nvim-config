@@ -810,40 +810,49 @@ end
 local days = { "Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado" }
 
 ---@class CalendarView
+---@field day_bufs table<integer, integer> day_bufs[x] = buf 1-based
+---@field day_wins table<integer, integer> day_wins[x] = win 1-based
 ---@field cal_bufs table<integer, table<integer, integer>> cal_bufs[y][x] = buf 1-based
 ---@field cal_wins table<integer, table<integer, integer>> cal_wins[y][x] = win 1-based
 local CalendarView = {}
 CalendarView.__index = CalendarView
-CalendarView.cal_cols = 7
-CalendarView.cal_rows = 6
+CalendarView.d_in_w = 7
+CalendarView.w_in_m = 5
 
 ---@return CalendarView
 function CalendarView.new()
   local self = {}
+  self.day_bufs = {}
+  self.day_wins = {}
   self.cal_bufs = {}
   self.cal_wins = {}
   return setmetatable(self, CalendarView)
 end
 
 function CalendarView:show()
+  if not vim.tbl_isempty(self.day_bufs) then self.day_bufs = {} end
   if not vim.tbl_isempty(self.cal_bufs) then self.cal_bufs = {} end
   if not vim.tbl_isempty(self.cal_wins) then self.cal_wins = {} end
 
-  for y = 1, self.cal_rows do
-    for x = 1, self.cal_cols do
+  for x = 1, self.d_in_w do
+    local buf = api.nvim_create_buf(false, false)
+
+    local w_day = x + 1
+    if w_day >= 8 then w_day = w_day - 7 end
+    local day_name = days[w_day]
+    api.nvim_buf_set_lines(buf, 0, -1, true, { day_name })
+    hl_enable(buf, { highlighters = { day = { pattern = day_name, group = "TODO" } } })
+    vim.bo[buf].modified = false
+    vim.bo[buf].modifiable = false
+
+    self.day_bufs[x] = buf
+  end
+
+  for y = 1, self.w_in_m do
+    for x = 1, self.d_in_w do
       local buf = api.nvim_create_buf(false, false)
 
       if x == 1 then self.cal_bufs[y] = {} end
-
-      local w_day = x + 1
-      if w_day >= 8 then w_day = w_day - 7 end
-      if y == 1 then
-        local day_name = days[w_day]
-        api.nvim_buf_set_lines(buf, 0, -1, true, { day_name })
-        hl_enable(buf, { highlighters = { day = { pattern = day_name, group = "TODO" } } })
-        vim.bo[buf].modified = false
-        vim.bo[buf].modifiable = false
-      end
 
       self.cal_bufs[y][x] = buf
     end
@@ -853,15 +862,30 @@ function CalendarView:show()
   local max_width = math.floor(vim.o.columns * factor)
   local max_height = math.floor(vim.o.lines * factor)
 
-  local width = math.floor(max_width / self.cal_cols)
-  local height = math.floor(max_height / self.cal_rows)
+  local width = math.floor(max_width / self.d_in_w)
+  local height = math.floor(max_height / (self.w_in_m + 1))
 
   local col = (vim.o.columns - max_width) / 2
   local row = (vim.o.lines - max_height) / 2
 
-  for y = 1, self.cal_rows do
-    local row_offset = (y - 1) * height
-    for x = 1, self.cal_cols do
+  for x = 1, self.d_in_w do
+    local col_offset = (x - 1) * width
+    local buf = self.day_bufs[x]
+    local win = api.nvim_open_win(buf, false, {
+      focusable = false,
+      relative = "editor",
+      col = col + col_offset,
+      row = row,
+      width = width,
+      height = height,
+      style = "minimal",
+    })
+    self.day_wins[x] = win
+  end
+
+  for y = 1, self.w_in_m do
+    local row_offset = y * height
+    for x = 1, self.d_in_w do
       local col_offset = (x - 1) * width
       local buf = self.cal_bufs[y][x]
       local win = api.nvim_open_win(buf, false, {
@@ -872,16 +896,16 @@ function CalendarView:show()
         height = height,
         style = "minimal",
       })
-      if y ~= 1 then
-        vim.wo[win].winhighlight = "" -- since filchars eob is ' ', this will make non-focused windows a different color
-      end
+      vim.wo[win].winhighlight = "" -- since filchars eob is ' ', this will make non-focused windows a different color
       if x == 1 then self.cal_wins[y] = {} end
       self.cal_wins[y][x] = win
     end
   end
 
   local all_bufs = iter(self.cal_bufs):flatten(1):totable()
+  vim.list_extend(all_bufs, self.day_bufs)
   local all_wins = iter(self.cal_wins):flatten(1):totable()
+  vim.list_extend(all_wins, self.day_wins)
 
   api.nvim_create_autocmd("WinClosed", {
     pattern = iter(all_wins):map(function(win) return tostring(win) end):totable(),
@@ -898,8 +922,8 @@ function CalendarView:show()
     once = true,
   })
 
-  for y = 1, self.cal_rows do
-    for x = 1, self.cal_cols do
+  for y = 1, self.w_in_m do
+    for x = 1, self.d_in_w do
       local buf = self.cal_bufs[y][x]
       local win = self.cal_wins[y][x]
 
@@ -907,11 +931,11 @@ function CalendarView:show()
       if x - 1 >= 1 then
         win_l = self.cal_wins[y][x - 1]
       else
-        win_l = self.cal_wins[y][self.cal_cols]
+        win_l = self.cal_wins[y][self.d_in_w]
       end
       keymap.set("n", "<left>", function() api.nvim_set_current_win(win_l) end, { buffer = buf })
       local win_r ---@type integer
-      if x + 1 <= self.cal_cols then
+      if x + 1 <= self.d_in_w then
         win_r = self.cal_wins[y][x + 1]
       else
         win_r = self.cal_wins[y][1]
@@ -921,11 +945,11 @@ function CalendarView:show()
       if y - 1 >= 1 then
         win_u = self.cal_wins[y - 1][x]
       else
-        win_u = self.cal_wins[self.cal_rows][x]
+        win_u = self.cal_wins[self.w_in_m][x]
       end
       keymap.set("n", "<up>", function() api.nvim_set_current_win(win_u) end, { buffer = buf })
       local win_d ---@type integer
-      if y + 1 <= self.cal_rows then
+      if y + 1 <= self.w_in_m then
         win_d = self.cal_wins[y + 1][x]
       else
         win_d = self.cal_wins[1][x]
@@ -983,7 +1007,7 @@ function M.events_show()
         end
 
         calendar_view:show()
-        local y = 2 -- calendar coordinates
+        local y = 1 -- calendar coordinates
         iter(days_in_month):each(
           ---@param i integer
           function(i)
