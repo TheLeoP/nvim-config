@@ -1,5 +1,5 @@
 -- TODO: maybe change asserts to vim.notify errors (?)
--- TODO: maybe show notifications (maybe using mini.notify?) while loading/waiting for responses (?)
+-- TODO: maybe show notifications (maybe using mini.notify(to show progress)) while loading/waiting for responses (?)
 local uv = vim.uv
 local api = vim.api
 local keymap = vim.keymap
@@ -612,6 +612,11 @@ end
 ---@field url string
 ---@field title string
 
+---@class ConferenceSolution
+---@field key {type: string}
+---@field name string,
+---@field iconUri string
+
 ---@class ConferenceData
 ---@field createRequest CreateRequest
 ---@field entryPoints EntryPoint[]
@@ -807,6 +812,7 @@ local function parse_date(date)
   }
 end
 
+-- TODO: if the month starts in sunday, a 6th week row is be needed
 ---@class CalendarView
 ---@field year_buf integer
 ---@field year_win integer
@@ -1089,6 +1095,7 @@ function CalendarView:show(year, month)
   end
 
   local factor = 1
+  -- TODO: use max_[] to make last row/col longer if needed in order to use the full screen
   local max_width = math.floor(vim.o.columns * factor)
   local max_height = math.floor(vim.o.lines * factor)
 
@@ -1113,7 +1120,8 @@ function CalendarView:show(year, month)
     height = y_m_height,
     style = "minimal",
   })
-  self.month_win = api.nvim_open_win(self.year_buf, false, {
+  vim.wo[self.month_win].winblend = 0
+  self.year_win = api.nvim_open_win(self.year_buf, false, {
     focusable = false,
     relative = "editor",
     col = col + y_m_width,
@@ -1122,6 +1130,7 @@ function CalendarView:show(year, month)
     height = y_m_height,
     style = "minimal",
   })
+  vim.wo[self.year_win].winblend = 0
 
   for x = 1, self.d_in_w do
     local col_offset = (x - 1) * width
@@ -1135,6 +1144,7 @@ function CalendarView:show(year, month)
       height = days_height,
       style = "minimal",
     })
+    vim.wo[win].winblend = 0
     self.day_wins[x] = win
   end
 
@@ -1152,6 +1162,7 @@ function CalendarView:show(year, month)
         style = "minimal",
       })
       vim.wo[win].winhighlight = "" -- since filchars eob is ' ', this will make non-focused windows a different color
+      vim.wo[win].winblend = 0
       if x == 1 then self.cal_wins[y] = {} end
       self.cal_wins[y][x] = win
     end
@@ -1185,6 +1196,27 @@ function CalendarView:show(year, month)
     for x = 1, self.d_in_w do
       local buf = self.cal_bufs[y][x]
       local win = self.cal_wins[y][x]
+
+      keymap.set("n", "<", function()
+        api.nvim_win_close(win, true)
+        local target_year = year
+        local target_month = month - 1
+        if target_month == 0 then
+          target_month = 12
+          target_year = target_year - 1
+        end
+        M.events_show(target_year, target_month)
+      end, { buffer = buf })
+      keymap.set("n", ">", function()
+        api.nvim_win_close(win, true)
+        local target_month = month + 1
+        local target_year = year
+        if target_month == 13 then
+          target_month = 1
+          target_year = target_year + 1
+        end
+        M.events_show(target_year, target_month)
+      end, { buffer = buf })
 
       local win_l ---@type integer
       if x - 1 >= 1 then
@@ -1227,9 +1259,8 @@ function M.events_show(year, month)
   get_token_info(function(token_info)
     M.get_calendar_list(token_info, function(calendar_list)
       M.get_events(token_info, calendar_list, year, month, function(events)
-        -- TODO: today will have to be replaced with the first day of the month in order to show different months
-        local today = os.date "*t" --[[@as osdate]]
-        local last_day_month = os.date("*t", os.time { year = today.year, month = today.month + 1, day = 0 })
+        local first_day_month = os.date("*t", os.time { year = year, month = month, day = 1 }) --[[@as osdate]]
+        local last_day_month = os.date("*t", os.time { year = year, month = month + 1, day = 0 })--[[@as osdate]]
 
         ---@type table<string, Event[]>
         local events_by_date = iter(events):fold(
@@ -1249,10 +1280,8 @@ function M.events_show(year, month)
             elseif event["end"].dateTime then
               end_date = parse_date_time(event["end"].dateTime)
             end
-            local year = today.year
-            local month = today.month
-            local start_day = start_date.m == today.month and start_date.d or 1
-            local end_day = end_date.m == today.month and end_date.d or last_day_month.day
+            local start_day = start_date.m == first_day_month.month and start_date.d or 1
+            local end_day = end_date.m == first_day_month.month and end_date.d or last_day_month.day
             for i = start_day, end_day do
               local key = ("%s_%s_%s"):format(year, month, i)
               if not acc[key] then acc[key] = {} end
@@ -1275,13 +1304,13 @@ function M.events_show(year, month)
             local day_num = ("%s"):format(i)
             local lines = { day_num }
 
-            local day = os.date("*t", os.time { year = today.year, month = today.month, day = i }) --[[@as osdate]]
+            local day = os.date("*t", os.time { year = first_day_month.year, month = first_day_month.month, day = i }) --[[@as osdate]]
             local x = day.wday - 1 --calendar coordinates
             if x <= 0 then x = x + 7 end
             local cal_buf = calendar_view.cal_bufs[y][x]
             if x == 7 then y = y + 1 end -- advance to next row for next iteration
 
-            local key = ("%s_%s_%s"):format(today.year, today.month, i)
+            local key = ("%s_%s_%s"):format(first_day_month.year, first_day_month.month, i)
             local day_events = events_by_date[key]
             if day_events then
               local events_text = iter(day_events)
