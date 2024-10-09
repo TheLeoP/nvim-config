@@ -824,7 +824,6 @@ end
 local CalendarView = {}
 CalendarView.__index = CalendarView
 CalendarView.d_in_w = 7
-CalendarView.w_in_m = 5
 CalendarView.days = { "Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado" }
 CalendarView.header_required_height = 6
 CalendarView.months = {
@@ -1041,6 +1040,14 @@ function CalendarView.new()
   return setmetatable(self, CalendarView)
 end
 
+function CalendarView:w_in_m(year, month)
+  local first_day = os.date("*t", os.time { year = year, month = month, day = 1 })
+  local last_day = os.date("*t", os.time { year = year, month = month + 1, day = 0 })
+  -- if month starts in sunday a new row is needed
+  if first_day.wday == 1 or (first_day.wday == 6 and last_day.day == 31) then return 6 end
+  return 5
+end
+
 ---@param year integer
 ---@param height integer
 ---@return string[]
@@ -1086,16 +1093,27 @@ function CalendarView:show(year, month)
   local max_width = math.floor(vim.o.columns * factor)
   local max_height = math.floor(vim.o.lines * factor)
 
+  local w_in_m = self:w_in_m(year, month)
+
   local width = math.floor(max_width / self.d_in_w)
-  local height = math.floor(max_height / (self.w_in_m + 1))
+  local height = math.floor(max_height / (w_in_m + 1))
+
+  local col = (vim.o.columns - max_width) / 2
+  local row = (vim.o.lines - max_height) / 2
+
+  local days_row_offset = height - 1
+  local days_height = 1
+
+  local y_m_height = height - days_height
+  local y_m_width = math.floor(max_width / 2)
 
   self.month_buf = api.nvim_create_buf(false, false)
-  api.nvim_buf_set_lines(self.month_buf, 0, -1, true, self:month(month, height))
+  api.nvim_buf_set_lines(self.month_buf, 0, -1, true, self:month(month, y_m_height))
   vim.bo[self.month_buf].modified = false
   vim.bo[self.month_buf].modifiable = false
 
   self.year_buf = api.nvim_create_buf(false, false)
-  api.nvim_buf_set_lines(self.year_buf, 0, -1, true, self:year(year, height))
+  api.nvim_buf_set_lines(self.year_buf, 0, -1, true, self:year(year, y_m_height))
   vim.bo[self.year_buf].modified = false
   vim.bo[self.year_buf].modifiable = false
 
@@ -1113,7 +1131,7 @@ function CalendarView:show(year, month)
     self.day_bufs[x] = buf
   end
 
-  for y = 1, self.w_in_m do
+  for y = 1, w_in_m do
     for x = 1, self.d_in_w do
       local buf = api.nvim_create_buf(false, false)
 
@@ -1122,15 +1140,6 @@ function CalendarView:show(year, month)
       self.cal_bufs[y][x] = buf
     end
   end
-
-  local col = (vim.o.columns - max_width) / 2
-  local row = (vim.o.lines - max_height) / 2
-
-  local days_row_offset = height - 1
-  local days_height = 1
-
-  local y_m_height = height - days_height
-  local y_m_width = math.floor(max_width / 2)
 
   self.month_win = api.nvim_open_win(self.month_buf, false, {
     focusable = false,
@@ -1169,7 +1178,7 @@ function CalendarView:show(year, month)
     self.day_wins[x] = win
   end
 
-  for y = 1, self.w_in_m do
+  for y = 1, w_in_m do
     local row_offset = y * height
     for x = 1, self.d_in_w do
       local col_offset = (x - 1) * width
@@ -1213,7 +1222,7 @@ function CalendarView:show(year, month)
     once = true,
   })
 
-  for y = 1, self.w_in_m do
+  for y = 1, w_in_m do
     for x = 1, self.d_in_w do
       local buf = self.cal_bufs[y][x]
       local win = self.cal_wins[y][x]
@@ -1257,11 +1266,11 @@ function CalendarView:show(year, month)
       if y - 1 >= 1 then
         win_u = self.cal_wins[y - 1][x]
       else
-        win_u = self.cal_wins[self.w_in_m][x]
+        win_u = self.cal_wins[w_in_m][x]
       end
       keymap.set("n", "<up>", function() api.nvim_set_current_win(win_u) end, { buffer = buf })
       local win_d ---@type integer
-      if y + 1 <= self.w_in_m then
+      if y + 1 <= w_in_m then
         win_d = self.cal_wins[y + 1][x]
       else
         win_d = self.cal_wins[1][x]
