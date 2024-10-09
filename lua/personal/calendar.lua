@@ -372,7 +372,7 @@ function M.calendar_list_show()
   get_token_info(function(token_info)
     M.get_calendar_list(token_info, function(calendar_list)
       local buf = api.nvim_create_buf(false, false)
-      api.nvim_buf_set_name(buf, "calendar://list")
+      api.nvim_buf_set_name(buf, "calendar://calendar_list")
       api.nvim_create_autocmd("BufLeave", {
         buffer = buf,
         callback = function() api.nvim_buf_delete(buf, { force = true }) end,
@@ -395,8 +395,8 @@ function M.calendar_list_show()
               }
             end)
             :each(function(calendar_info)
-              -- TODO: handle CREATE, UPDATE and DELETE
-              if not calendar_info.id then print(("Creating calendar with name %s"):format(calendar_info.summary)) end
+              -- TODO: fist parse all the diffs and then CRUD
+              -- if not calendar_info.id then print(("Creating calendar with name %s"):format(calendar_info.summary)) end
             end)
 
           vim.bo[buf].modified = false
@@ -1137,7 +1137,8 @@ function CalendarView:show(year, month)
 
       if x == 1 then self.cal_bufs[y] = {} end
 
-      vim.bo[buf].filetype = "calendarday"
+      -- TODO: maybe use a name defined by the date and not the coordinate
+      api.nvim_buf_set_name(buf, ("calendar://day_%s_%s"):format(y, x))
       self.cal_bufs[y][x] = buf
     end
   end
@@ -1281,6 +1282,34 @@ function CalendarView:show(year, month)
       keymap.set("n", "<down>", function() api.nvim_set_current_win(win_d) end, { buffer = buf })
 
       if y == 2 and x == 1 then api.nvim_set_current_win(win) end
+
+      api.nvim_create_autocmd("BufWriteCmd", {
+        buffer = buf,
+        callback = function()
+          vim.bo[buf].modifiable = false
+
+          -- First line is always the number of date, don't parse it
+          local lines = api.nvim_buf_get_lines(buf, 1, -1, true)
+
+          for _, line in ipairs(lines) do
+            if line:match "^/[^ ]+" then -- existing entry
+              local id, tail = line:match "^/([^ ]+) (.*)" ---@type string, string
+              local summary, start_time, end_time = unpack(vim.split(tail, sep, { trimempty = true }))
+              -- TODO: check if id is in cache. If no, error
+              -- TODO: check if summary. If no, error
+              -- TODO: maybe clone event if id is the same but name is different from existing one (?)
+              -- TODO: if id is the same, compare fields and create diffs if needed
+              -- TODO: keep track of which events are in the cache. If some event is not in the cache at the end, delete
+            else -- new entry
+              local summary = line
+              -- TODO: if summary is not "" then create a new event
+            end
+          end
+
+          vim.bo[buf].modified = false
+          vim.bo[buf].modifiable = true
+        end,
+      })
     end
   end
 end
@@ -1330,18 +1359,23 @@ function M.events_show(year, month)
         end
 
         calendar_view:show(year, month)
-        local y = 1 -- calendar coordinates
+        -- TODO: intead of accessing calendar view and setting its state, define methods for doing it (?)
+        local y = 1
+        local x = first_day_month.wday - 1
+        if x <= 0 then x = x + 7 end
         iter(days_in_month):each(
           ---@param i integer
           function(i)
             local day_num = ("%s"):format(i)
             local lines = { day_num }
 
-            local day = os.date("*t", os.time { year = first_day_month.year, month = first_day_month.month, day = i }) --[[@as osdate]]
-            local x = day.wday - 1 --calendar coordinates
-            if x <= 0 then x = x + 7 end
             local cal_buf = calendar_view.cal_bufs[y][x]
-            if x == 7 then y = y + 1 end -- advance to next row for next iteration
+            -- advance to next row for next iteration
+            x = x + 1
+            if x > 7 then
+              y = y + 1
+              x = 1
+            end
 
             local key = ("%s_%s_%s"):format(first_day_month.year, first_day_month.month, i)
             local day_events = events_by_date[key]
@@ -1366,7 +1400,15 @@ function M.events_show(year, month)
                 end)
                 :totable()
               local highlighters = iter(day_events):fold(
-                {},
+                {
+                  conceal_id = {
+                    pattern = "^()/[^ ]+ ()",
+                    group = "", -- group needs to not be empty to work
+                    extmark_opts = {
+                      conceal = "",
+                    },
+                  },
+                },
                 ---@param acc table<string, table>
                 ---@param event Event
                 function(acc, event)
@@ -1378,8 +1420,8 @@ function M.events_show(year, month)
                   if not calendar then return acc end
                   local fg = compute_hex_color_group(calendar.foregroundColor, "fg")
                   local bg = compute_hex_color_group(calendar.backgroundColor, "bg")
-                  acc[event.id] = { pattern = "%f[%w]()" .. event.summary .. "()%f[%W]", group = fg }
-                  acc[event.id] = { pattern = "%f[%w]()" .. event.summary .. "()%f[%W]", group = bg }
+                  acc[event.id .. "fg"] = { pattern = "%f[%w]()" .. event.summary .. "()%f[%W]", group = fg }
+                  acc[event.id .. "bg"] = { pattern = "%f[%w]()" .. event.summary .. "()%f[%W]", group = bg }
                   return acc
                 end
               )
