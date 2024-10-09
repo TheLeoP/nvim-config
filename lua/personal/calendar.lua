@@ -799,14 +799,15 @@ local function parse_date_time(date_time)
 end
 
 ---@param date string
+---@param opts {is_end: boolean}
 ---@return {y: integer, m: integer, d: integer}
-local function parse_date(date)
+local function parse_date(date, opts)
   ---@type string, string, string, string, string, string, string, string
   local y, m, d = date:match "(%d%d%d%d)-(%d%d)-(%d%d)"
   return {
-    y = tonumber(y),
-    m = tonumber(m),
-    d = tonumber(d),
+    y = opts.is_end and tonumber(y) or tonumber(y),
+    m = opts.is_end and tonumber(m) or tonumber(m),
+    d = opts.is_end and tonumber(d) - 1 or tonumber(d), -- dates (without time) are end exclusive
   }
 end
 
@@ -1302,13 +1303,13 @@ function M.events_show(year, month)
           function(acc, event)
             local start_date ---@type {y: integer, m: integer, d: integer}
             if event.start.date then
-              start_date = parse_date(event.start.date)
+              start_date = parse_date(event.start.date, {})
             elseif event.start.dateTime then
               start_date = parse_date_time(event.start.dateTime)
             end
             local end_date ---@type {y: integer, m: integer, d: integer}
             if event["end"].date then
-              end_date = parse_date(event["end"].date)
+              end_date = parse_date(event["end"].date, { is_end = true })
             elseif event["end"].dateTime then
               end_date = parse_date_time(event["end"].dateTime)
             end
