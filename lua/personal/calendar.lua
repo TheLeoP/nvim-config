@@ -1014,8 +1014,20 @@ _| |_
 \____/
   ]],
 }
-CalendarView.months_short =
-  { "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Septiembre", "Octubre", "Noviembre", "Diciembre" }
+CalendarView.months_short = {
+  "Enero",
+  "Febrero",
+  "Marzo",
+  "Abril",
+  "Mayo",
+  "Junio",
+  "Julio",
+  "Agosto",
+  "Septiembre",
+  "Octubre",
+  "Noviembre",
+  "Diciembre",
+}
 
 ---@return CalendarView
 function CalendarView.new()
