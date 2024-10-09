@@ -473,7 +473,6 @@ local _cache_calendar = {} ---@type table<string, Calendar>
 ---@param id string
 ---@param cb fun(calendar: Calendar)
 function M.get_calendar(token_info, id, cb)
-  -- TODO: automatically or manually invalidate/reload this?
   if _cache_calendar[id] then
     cb(_cache_calendar[id])
     return
@@ -812,7 +811,7 @@ local function parse_date(date)
   }
 end
 
--- TODO: if the month starts in sunday, a 6th week row is be needed
+-- TODO: if the month starts in sunday, a 6th week row is needed
 ---@class CalendarView
 ---@field year_buf integer
 ---@field year_win integer
@@ -827,7 +826,7 @@ CalendarView.__index = CalendarView
 CalendarView.d_in_w = 7
 CalendarView.w_in_m = 5
 CalendarView.days = { "Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado" }
--- TODO: trim
+CalendarView.header_required_height = 6
 CalendarView.months = {
   [[
  _____                         
@@ -1031,8 +1030,11 @@ function CalendarView.new()
 end
 
 ---@param year integer
+---@param height integer
 ---@return string[]
-function CalendarView:year(year)
+function CalendarView:year(year, height)
+  if height < self.header_required_height then return { tostring(year) } end
+
   local digits = {}
   while year ~= 0 do
     table.insert(digits, 1, year % 10)
@@ -1052,6 +1054,14 @@ function CalendarView:year(year)
   return a
 end
 
+---@param month integer
+---@param height integer
+---@return string[]
+function CalendarView:month(month, height)
+  if height < self.header_required_height then return { self.months_short[month] } end
+  return vim.split(self.months[month], "\n")
+end
+
 ---@param year integer
 ---@param month integer
 function CalendarView:show(year, month)
@@ -1059,14 +1069,21 @@ function CalendarView:show(year, month)
   if not vim.tbl_isempty(self.cal_bufs) then self.cal_bufs = {} end
   if not vim.tbl_isempty(self.cal_wins) then self.cal_wins = {} end
 
-  -- TODO: if not enought height, simply show a string
+  local factor = 1
+  -- TODO: use max_[] to make last row/col longer if needed in order to use the full screen
+  local max_width = math.floor(vim.o.columns * factor)
+  local max_height = math.floor(vim.o.lines * factor)
+
+  local width = math.floor(max_width / self.d_in_w)
+  local height = math.floor(max_height / (self.w_in_m + 1))
+
   self.month_buf = api.nvim_create_buf(false, false)
-  api.nvim_buf_set_lines(self.month_buf, 0, -1, true, vim.split(self.months[month], "\n"))
+  api.nvim_buf_set_lines(self.month_buf, 0, -1, true, self:month(month, height))
   vim.bo[self.month_buf].modified = false
   vim.bo[self.month_buf].modifiable = false
 
   self.year_buf = api.nvim_create_buf(false, false)
-  api.nvim_buf_set_lines(self.year_buf, 0, -1, true, self:year(year))
+  api.nvim_buf_set_lines(self.year_buf, 0, -1, true, self:year(year, height))
   vim.bo[self.year_buf].modified = false
   vim.bo[self.year_buf].modifiable = false
 
@@ -1093,14 +1110,6 @@ function CalendarView:show(year, month)
       self.cal_bufs[y][x] = buf
     end
   end
-
-  local factor = 1
-  -- TODO: use max_[] to make last row/col longer if needed in order to use the full screen
-  local max_width = math.floor(vim.o.columns * factor)
-  local max_height = math.floor(vim.o.lines * factor)
-
-  local width = math.floor(max_width / self.d_in_w)
-  local height = math.floor(max_height / (self.w_in_m + 1))
 
   local col = (vim.o.columns - max_width) / 2
   local row = (vim.o.lines - max_height) / 2
