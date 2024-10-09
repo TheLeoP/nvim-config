@@ -1137,6 +1137,7 @@ function CalendarView:show(year, month)
 
       if x == 1 then self.cal_bufs[y] = {} end
 
+      vim.bo[buf].filetype = "calendarday"
       self.cal_bufs[y][x] = buf
     end
   end
@@ -1193,6 +1194,8 @@ function CalendarView:show(year, month)
       })
       vim.wo[win].winhighlight = "" -- since filchars eob is ' ', this will make non-focused windows a different color
       vim.wo[win].winblend = 0
+      vim.wo[win].conceallevel = 3
+      vim.wo[win].concealcursor = "nvic"
       if x == 1 then self.cal_wins[y] = {} end
       self.cal_wins[y][x] = win
     end
@@ -1345,21 +1348,20 @@ function M.events_show(year, month)
             if day_events then
               local events_text = iter(day_events)
                 :map(function(event)
-                  if not event.start.dateTime then return ("%s%s%s"):format(event.summary, sep, event.id) end
+                  if not event.start.dateTime then return ("/%s %s"):format(event.id, event.summary) end
                   local start_date_time = parse_date_time(event.start.dateTime)
                   local end_date_time = parse_date_time(event["end"].dateTime)
-                  return ("%s%s%02d:%02d:%02d%s%02d:%02d:%02d"):format(
+                  return ("/%s %s%s%02d:%02d:%02d%s%02d:%02d:%02d"):format(
+                    event.id,
                     event.summary,
                     sep,
                     start_date_time.h,
-                    start_date_time.m,
+                    start_date_time.min,
                     start_date_time.s,
                     sep,
                     end_date_time.h,
-                    end_date_time.m,
-                    end_date_time.s,
-                    sep,
-                    event.id
+                    end_date_time.min,
+                    end_date_time.s
                   )
                 end)
                 :totable()
