@@ -808,8 +808,10 @@ local function parse_date(date)
 end
 
 ---@class CalendarView
----@field y_m_buf integer
----@field m_y_win integer
+---@field year_buf integer
+---@field year_win integer
+---@field month_buf integer
+---@field month_win integer
 ---@field day_bufs table<integer, integer> day_bufs[x] = buf 1-based
 ---@field day_wins table<integer, integer> day_wins[x] = win 1-based
 ---@field cal_bufs table<integer, table<integer, integer>> cal_bufs[y][x] = buf 1-based
@@ -819,7 +821,195 @@ CalendarView.__index = CalendarView
 CalendarView.d_in_w = 7
 CalendarView.w_in_m = 5
 CalendarView.days = { "Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado" }
-CalendarView.months =
+-- TODO: trim
+CalendarView.months = {
+  [[
+ _____                         
+|  ___|                        
+| |__  _ __    ___  _ __  ___  
+|  __|| '_ \  / _ \| '__|/ _ \ 
+| |___| | | ||  __/| |  | (_) |
+\____/|_| |_| \___||_|   \___/ 
+]],
+  [[
+______     _                            
+|  ___|   | |                           
+| |_  ___ | |__   _ __  ___  _ __  ___  
+|  _|/ _ \| '_ \ | '__|/ _ \| '__|/ _ \ 
+| | |  __/| |_) || |  |  __/| |  | (_) |
+\_|  \___||_.__/ |_|   \___||_|   \___/ 
+]],
+  [[
+___  ___                        
+|  \/  |                        
+| .  . |  __ _  _ __  ____ ___  
+| |\/| | / _` || '__||_  // _ \ 
+| |  | || (_| || |    / /| (_) |
+\_|  |_/ \__,_||_|   /___|\___/ 
+]],
+  [[
+  ___   _            _  _ 
+ / _ \ | |          (_)| |
+/ /_\ \| |__   _ __  _ | |
+|  _  || '_ \ | '__|| || |
+| | | || |_) || |   | || |
+\_| |_/|_.__/ |_|   |_||_|
+]],
+  [[
+___  ___                     
+|  \/  |                     
+| .  . |  __ _  _   _   ___  
+| |\/| | / _` || | | | / _ \ 
+| |  | || (_| || |_| || (_) |
+\_|  |_/ \__,_| \__, | \___/ 
+                 __/ |       
+                |___/        
+]],
+  [[
+   ___                _        
+  |_  |              (_)       
+    | | _   _  _ __   _   ___  
+    | || | | || '_ \ | | / _ \ 
+/\__/ /| |_| || | | || || (_) |
+\____/  \__,_||_| |_||_| \___/ 
+]],
+  [[
+   ___         _  _  _        
+  |_  |       (_)| |(_)       
+    | | _   _  _ | | _   ___  
+    | || | | || || || | / _ \ 
+/\__/ /| |_| || || || || (_) |
+\____/  \__,_||_||_||_| \___/ 
+]],
+  [[
+  ___                      _         
+ / _ \                    | |        
+/ /_\ \  __ _   ___   ___ | |_  ___  
+|  _  | / _` | / _ \ / __|| __|/ _ \ 
+| | | || (_| || (_) |\__ \| |_| (_) |
+\_| |_/ \__, | \___/ |___/ \__|\___/ 
+         __/ |                       
+        |___/                        
+]],
+  [[
+ _____               _    _                   _                
+/  ___|             | |  (_)                 | |               
+\ `--.   ___  _ __  | |_  _   ___  _ __ ___  | |__   _ __  ___ 
+ `--. \ / _ \| '_ \ | __|| | / _ \| '_ ` _ \ | '_ \ | '__|/ _ \
+/\__/ /|  __/| |_) || |_ | ||  __/| | | | | || |_) || |  |  __/
+\____/  \___|| .__/  \__||_| \___||_| |_| |_||_.__/ |_|   \___|
+             | |                                               
+             |_|                                               
+]],
+  [[
+ _____        _           _                
+/  _  \      | |         | |               
+| | | |  ___ | |_  _   _ | |__   _ __  ___ 
+| | | | / __|| __|| | | || '_ \ | '__|/ _ \
+\ \_/ /| (__ | |_ | |_| || |_) || |  |  __/
+ \___/  \___| \__| \__,_||_.__/ |_|   \___|
+]],
+  [[
+ _   _               _                   _                
+| \ | |             (_)                 | |               
+|  \| |  ___ __   __ _   ___  _ __ ___  | |__   _ __  ___ 
+| . ` | / _ \\ \ / /| | / _ \| '_ ` _ \ | '_ \ | '__|/ _ \
+| |\  || (_) |\ V / | ||  __/| | | | | || |_) || |  |  __/
+\_| \_/ \___/  \_/  |_| \___||_| |_| |_||_.__/ |_|   \___|
+]],
+  [[
+______  _        _                   _                
+|  _  \(_)      (_)                 | |               
+| | | | _   ___  _   ___  _ __ ___  | |__   _ __  ___ 
+| | | || | / __|| | / _ \| '_ ` _ \ | '_ \ | '__|/ _ \
+| |/ / | || (__ | ||  __/| | | | | || |_) || |  |  __/
+|___/  |_| \___||_| \___||_| |_| |_||_.__/ |_|   \___|
+]],
+}
+
+CalendarView.digits = {
+  [0] = [[
+ _____ 
+/  _  \
+| |/' |
+|  /| |
+\ |_/ /
+ \___/ 
+  ]],
+  [[
+ __  
+/  | 
+`| | 
+ | | 
+_| |_
+\___/
+  ]],
+  [[
+ _____ 
+/ __  \
+`' / /'
+  / /  
+./ /___
+\_____/
+  ]],
+  [[
+ _____ 
+|____ |
+    / /
+    \ \
+.___/ /
+\____/ 
+  ]],
+  [[
+   ___ 
+  /   |
+ / /| |
+/ /_| |
+\___  |
+    |_/
+  ]],
+  [[
+ _____ 
+|  ___|
+|___ \ 
+    \ \
+/\__/ /
+\____/ 
+  ]],
+  [[
+  ____ 
+ / ___|
+/ /___ 
+| ___ \
+| \_/ |
+\_____/
+  ]],
+  [[
+ ______
+|___  /
+   / / 
+  / /  
+./ /   
+\_/    
+  ]],
+  [[
+ _____ 
+|  _  |
+ \ V / 
+ / _ \ 
+| |_| |
+\_____/
+  ]],
+  [[
+ _____
+|  _  |
+| |_| |
+\____ |
+.___/ /
+\____/
+  ]],
+}
+CalendarView.months_short =
   { "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Septiembre", "Octubre", "Noviembre", "Diciembre" }
 
 ---@return CalendarView
@@ -835,16 +1025,44 @@ function CalendarView.new()
 end
 
 ---@param year integer
+---@return string[]
+function CalendarView:year(year)
+  local digits = {}
+  while year ~= 0 do
+    table.insert(digits, 1, year % 10)
+    year = math.floor(year / 10)
+  end
+  local a = iter(digits):map(function(digit) return vim.split(self.digits[digit], "\n") end):fold(
+    {},
+    ---@param acc string[]
+    ---@param splitted_digit string[]
+    function(acc, splitted_digit)
+      for i, _ in ipairs(splitted_digit) do
+        acc[i] = (acc[i] or "") .. splitted_digit[i]
+      end
+      return acc
+    end
+  )
+  return a
+end
+
+---@param year integer
 ---@param month integer
 function CalendarView:show(year, month)
   if not vim.tbl_isempty(self.day_bufs) then self.day_bufs = {} end
   if not vim.tbl_isempty(self.cal_bufs) then self.cal_bufs = {} end
   if not vim.tbl_isempty(self.cal_wins) then self.cal_wins = {} end
 
-  self.y_m_buf = api.nvim_create_buf(false, false)
-  api.nvim_buf_set_lines(self.y_m_buf, 0, -1, true, { tostring(year), self.months[month] })
-  vim.bo[self.y_m_buf].modified = false
-  vim.bo[self.y_m_buf].modifiable = false
+  -- TODO: if not enought height, simply show a string
+  self.month_buf = api.nvim_create_buf(false, false)
+  api.nvim_buf_set_lines(self.month_buf, 0, -1, true, vim.split(self.months[month], "\n"))
+  vim.bo[self.month_buf].modified = false
+  vim.bo[self.month_buf].modifiable = false
+
+  self.year_buf = api.nvim_create_buf(false, false)
+  api.nvim_buf_set_lines(self.year_buf, 0, -1, true, self:year(year))
+  vim.bo[self.year_buf].modified = false
+  vim.bo[self.year_buf].modifiable = false
 
   for x = 1, self.d_in_w do
     local buf = api.nvim_create_buf(false, false)
@@ -884,13 +1102,23 @@ function CalendarView:show(year, month)
   local days_height = 1
 
   local y_m_height = height - days_height
+  local y_m_width = math.floor(max_width / 2)
 
-  self.y_m_win = api.nvim_open_win(self.y_m_buf, false, {
+  self.month_win = api.nvim_open_win(self.month_buf, false, {
     focusable = false,
     relative = "editor",
     col = col,
     row = row,
-    width = max_width,
+    width = y_m_width,
+    height = y_m_height,
+    style = "minimal",
+  })
+  self.month_win = api.nvim_open_win(self.year_buf, false, {
+    focusable = false,
+    relative = "editor",
+    col = col + y_m_width,
+    row = row,
+    width = y_m_width,
     height = y_m_height,
     style = "minimal",
   })
@@ -931,10 +1159,12 @@ function CalendarView:show(year, month)
 
   local all_bufs = iter(self.cal_bufs):flatten(1):totable()
   vim.list_extend(all_bufs, self.day_bufs)
-  table.insert(all_bufs, self.y_m_buf)
+  table.insert(all_bufs, self.month_buf)
+  table.insert(all_bufs, self.year_buf)
   local all_wins = iter(self.cal_wins):flatten(1):totable()
   vim.list_extend(all_wins, self.day_wins)
-  table.insert(all_wins, self.y_m_win)
+  table.insert(all_wins, self.month_win)
+  table.insert(all_wins, self.year_win)
 
   api.nvim_create_autocmd("WinClosed", {
     pattern = iter(all_wins):map(function(win) return tostring(win) end):totable(),
