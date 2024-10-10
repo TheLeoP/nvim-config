@@ -56,6 +56,9 @@ return {
         lsp = {
           weight_adjust = 1,
         },
+        tree_sitter = {
+          enabled = false,
+        },
       },
       display = {
         preview = {
