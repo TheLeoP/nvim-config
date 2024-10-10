@@ -1089,237 +1089,6 @@ function CalendarView:show(year, month)
   if not vim.tbl_isempty(self.cal_bufs) then self.cal_bufs = {} end
   if not vim.tbl_isempty(self.cal_wins) then self.cal_wins = {} end
 
-  local factor = 1
-  -- TODO: use max_[] to make last row/col longer if needed in order to use the full screen
-  local max_width = math.floor(vim.o.columns * factor)
-  local max_height = math.floor(vim.o.lines * factor)
-
-  local w_in_m = self:w_in_m(year, month)
-
-  local width = math.floor(max_width / self.d_in_w)
-  local height = math.floor(max_height / (w_in_m + 1))
-
-  local col = (vim.o.columns - max_width) / 2
-  local row = (vim.o.lines - max_height) / 2
-
-  local days_row_offset = height - 1
-  local days_height = 1
-
-  local y_m_height = height - days_height
-  local y_m_width = math.floor(max_width / 2)
-
-  self.month_buf = api.nvim_create_buf(false, false)
-  api.nvim_buf_set_lines(self.month_buf, 0, -1, true, self:month(month, y_m_height))
-  vim.bo[self.month_buf].modified = false
-  vim.bo[self.month_buf].modifiable = false
-
-  self.year_buf = api.nvim_create_buf(false, false)
-  api.nvim_buf_set_lines(self.year_buf, 0, -1, true, self:year(year, y_m_height))
-  vim.bo[self.year_buf].modified = false
-  vim.bo[self.year_buf].modifiable = false
-
-  for x = 1, self.d_in_w do
-    local buf = api.nvim_create_buf(false, false)
-
-    local w_day = x + 1
-    if w_day >= 8 then w_day = w_day - 7 end
-    local day_name = self.days[w_day]
-    api.nvim_buf_set_lines(buf, 0, -1, true, { day_name })
-    hl_enable(buf, { highlighters = { day = { pattern = day_name, group = "TODO" } } })
-    vim.bo[buf].modified = false
-    vim.bo[buf].modifiable = false
-
-    self.day_bufs[x] = buf
-  end
-
-  for y = 1, w_in_m do
-    for x = 1, self.d_in_w do
-      local buf = api.nvim_create_buf(false, false)
-
-      if x == 1 then self.cal_bufs[y] = {} end
-
-      -- TODO: maybe use a name defined by the date and not the coordinate
-      api.nvim_buf_set_name(buf, ("calendar://day_%s_%s"):format(y, x))
-      self.cal_bufs[y][x] = buf
-    end
-  end
-
-  self.month_win = api.nvim_open_win(self.month_buf, false, {
-    focusable = false,
-    relative = "editor",
-    col = col,
-    row = row,
-    width = y_m_width,
-    height = y_m_height,
-    style = "minimal",
-  })
-  vim.wo[self.month_win].winblend = 0
-  self.year_win = api.nvim_open_win(self.year_buf, false, {
-    focusable = false,
-    relative = "editor",
-    col = col + y_m_width,
-    row = row,
-    width = y_m_width,
-    height = y_m_height,
-    style = "minimal",
-  })
-  vim.wo[self.year_win].winblend = 0
-
-  for x = 1, self.d_in_w do
-    local col_offset = (x - 1) * width
-    local buf = self.day_bufs[x]
-    local win = api.nvim_open_win(buf, false, {
-      focusable = false,
-      relative = "editor",
-      col = col + col_offset,
-      row = row + days_row_offset,
-      width = width,
-      height = days_height,
-      style = "minimal",
-    })
-    vim.wo[win].winblend = 0
-    self.day_wins[x] = win
-  end
-
-  for y = 1, w_in_m do
-    local row_offset = y * height
-    for x = 1, self.d_in_w do
-      local col_offset = (x - 1) * width
-      local buf = self.cal_bufs[y][x]
-      local win = api.nvim_open_win(buf, false, {
-        relative = "editor",
-        col = col + col_offset,
-        row = row + row_offset,
-        width = width,
-        height = height,
-        style = "minimal",
-      })
-      vim.wo[win].winhighlight = "" -- since filchars eob is ' ', this will make non-focused windows a different color
-      vim.wo[win].winblend = 0
-      vim.wo[win].conceallevel = 3
-      vim.wo[win].concealcursor = "nvic"
-      if x == 1 then self.cal_wins[y] = {} end
-      self.cal_wins[y][x] = win
-    end
-  end
-
-  local all_bufs = iter(self.cal_bufs):flatten(1):totable()
-  vim.list_extend(all_bufs, self.day_bufs)
-  table.insert(all_bufs, self.month_buf)
-  table.insert(all_bufs, self.year_buf)
-  local all_wins = iter(self.cal_wins):flatten(1):totable()
-  vim.list_extend(all_wins, self.day_wins)
-  table.insert(all_wins, self.month_win)
-  table.insert(all_wins, self.year_win)
-
-  api.nvim_create_autocmd("WinClosed", {
-    pattern = iter(all_wins):map(function(win) return tostring(win) end):totable(),
-    callback = function()
-      iter(all_bufs):each(function(buf)
-        if api.nvim_buf_is_valid(buf) and api.nvim_buf_is_loaded(buf) then
-          api.nvim_buf_delete(buf, { force = true })
-        end
-      end)
-      iter(all_wins):each(function(win)
-        if api.nvim_win_is_valid(win) then api.nvim_win_close(win, true) end
-      end)
-    end,
-    once = true,
-  })
-
-  for y = 1, w_in_m do
-    for x = 1, self.d_in_w do
-      local buf = self.cal_bufs[y][x]
-      local win = self.cal_wins[y][x]
-
-      keymap.set("n", "<", function()
-        api.nvim_win_close(win, true)
-        local target_year = year
-        local target_month = month - 1
-        if target_month == 0 then
-          target_month = 12
-          target_year = target_year - 1
-        end
-        M.events_show(target_year, target_month)
-      end, { buffer = buf })
-      keymap.set("n", ">", function()
-        api.nvim_win_close(win, true)
-        local target_month = month + 1
-        local target_year = year
-        if target_month == 13 then
-          target_month = 1
-          target_year = target_year + 1
-        end
-        M.events_show(target_year, target_month)
-      end, { buffer = buf })
-
-      -- TODO: somehow support count for movement keymaps
-      local win_l ---@type integer
-      if x - 1 >= 1 then
-        win_l = self.cal_wins[y][x - 1]
-      else
-        win_l = self.cal_wins[y][self.d_in_w]
-      end
-      keymap.set("n", "<left>", function() api.nvim_set_current_win(win_l) end, { buffer = buf })
-      local win_r ---@type integer
-      if x + 1 <= self.d_in_w then
-        win_r = self.cal_wins[y][x + 1]
-      else
-        win_r = self.cal_wins[y][1]
-      end
-      keymap.set("n", "<right>", function() api.nvim_set_current_win(win_r) end, { buffer = buf })
-      local win_u ---@type integer
-      if y - 1 >= 1 then
-        win_u = self.cal_wins[y - 1][x]
-      else
-        win_u = self.cal_wins[w_in_m][x]
-      end
-      keymap.set("n", "<up>", function() api.nvim_set_current_win(win_u) end, { buffer = buf })
-      local win_d ---@type integer
-      if y + 1 <= w_in_m then
-        win_d = self.cal_wins[y + 1][x]
-      else
-        win_d = self.cal_wins[1][x]
-      end
-      keymap.set("n", "<down>", function() api.nvim_set_current_win(win_d) end, { buffer = buf })
-
-      if y == 2 and x == 1 then api.nvim_set_current_win(win) end
-
-      api.nvim_create_autocmd("BufWriteCmd", {
-        buffer = buf,
-        callback = function()
-          vim.bo[buf].modifiable = false
-
-          -- First line is always the number of date, don't parse it
-          local lines = api.nvim_buf_get_lines(buf, 1, -1, true)
-
-          for _, line in ipairs(lines) do
-            if line:match "^/[^ ]+" then -- existing entry
-              local id, tail = line:match "^/([^ ]+) (.*)" ---@type string, string
-              local summary, start_time, end_time = unpack(vim.split(tail, sep, { trimempty = true }))
-              -- TODO: check if id is in cache. If no, error
-              -- TODO: check if summary. If no, error
-              -- TODO: maybe clone event if id is the same but name is different from existing one (?)
-              -- TODO: if id is the same, compare fields and create diffs if needed
-              -- TODO: keep track of which events are in the cache. If some event is not in the cache at the end, delete
-            else -- new entry
-              local summary = line
-              -- TODO: if summary is not "" then create a new event
-            end
-          end
-
-          vim.bo[buf].modified = false
-          vim.bo[buf].modifiable = true
-        end,
-      })
-    end
-  end
-end
-
-local calendar_view = CalendarView.new()
----@param year integer
----@param month integer
-function M.events_show(year, month)
   get_token_info(function(token_info)
     M.get_calendar_list(token_info, function(calendar_list)
       M.get_events(token_info, calendar_list, year, month, function(events)
@@ -1349,7 +1118,7 @@ function M.events_show(year, month)
             -- concluded in the previous/next month (and is being shown in the
             -- current month because of something like a timezone issue), this
             -- will incorrectly show the event as taking place in all the days
-            -- of the curernt month
+            -- of the current month
             local start_day = start_date.m == first_day_month.month and start_date.d or 1
             local end_day = end_date.m == first_day_month.month and end_date.d or last_day_month.day
             for i = start_day, end_day do
@@ -1361,13 +1130,294 @@ function M.events_show(year, month)
           end
         )
 
+        local factor = 1
+        -- TODO: use max_[] to make last row/col longer if needed in order to use the full screen
+        local max_width = math.floor(vim.o.columns * factor)
+        local max_height = math.floor(vim.o.lines * factor)
+
+        local w_in_m = self:w_in_m(year, month)
+
+        local width = math.floor(max_width / self.d_in_w)
+        local height = math.floor(max_height / (w_in_m + 1))
+
+        local col = (vim.o.columns - max_width) / 2
+        local row = (vim.o.lines - max_height) / 2
+
+        local days_row_offset = height - 1
+        local days_height = 1
+
+        local y_m_height = height - days_height
+        local y_m_width = math.floor(max_width / 2)
+
+        self.month_buf = api.nvim_create_buf(false, false)
+        api.nvim_buf_set_lines(self.month_buf, 0, -1, true, self:month(month, y_m_height))
+        vim.bo[self.month_buf].modified = false
+        vim.bo[self.month_buf].modifiable = false
+
+        self.year_buf = api.nvim_create_buf(false, false)
+        api.nvim_buf_set_lines(self.year_buf, 0, -1, true, self:year(year, y_m_height))
+        vim.bo[self.year_buf].modified = false
+        vim.bo[self.year_buf].modifiable = false
+
+        for x = 1, self.d_in_w do
+          local buf = api.nvim_create_buf(false, false)
+
+          local w_day = x + 1
+          if w_day >= 8 then w_day = w_day - 7 end
+          local day_name = self.days[w_day]
+          api.nvim_buf_set_lines(buf, 0, -1, true, { day_name })
+          hl_enable(buf, { highlighters = { day = { pattern = day_name, group = "TODO" } } })
+          vim.bo[buf].modified = false
+          vim.bo[buf].modifiable = false
+
+          self.day_bufs[x] = buf
+        end
+
+        local x_first_day_month = first_day_month.wday - 1
+        if x_first_day_month <= 0 then x_first_day_month = x_first_day_month + 7 end
+        do
+          local i = 1
+          for y = 1, w_in_m do
+            for x = 1, self.d_in_w do
+              i = i + 1
+              local buf = api.nvim_create_buf(false, false)
+
+              if x == 1 then self.cal_bufs[y] = {} end
+
+              local date = os.date("*t", os.time { year = year, month = month, day = i - x_first_day_month }) --[[@as osdate]]
+
+              api.nvim_buf_set_name(buf, ("calendar://day_%04d_%02d_%02d"):format(date.year, date.month, date.day))
+              self.cal_bufs[y][x] = buf
+            end
+          end
+        end
+
+        self.month_win = api.nvim_open_win(self.month_buf, false, {
+          focusable = false,
+          relative = "editor",
+          col = col,
+          row = row,
+          width = y_m_width,
+          height = y_m_height,
+          style = "minimal",
+        })
+        vim.wo[self.month_win].winblend = 0
+        self.year_win = api.nvim_open_win(self.year_buf, false, {
+          focusable = false,
+          relative = "editor",
+          col = col + y_m_width,
+          row = row,
+          width = y_m_width,
+          height = y_m_height,
+          style = "minimal",
+        })
+        vim.wo[self.year_win].winblend = 0
+
+        for x = 1, self.d_in_w do
+          local col_offset = (x - 1) * width
+          local buf = self.day_bufs[x]
+          local win = api.nvim_open_win(buf, false, {
+            focusable = false,
+            relative = "editor",
+            col = col + col_offset,
+            row = row + days_row_offset,
+            width = width,
+            height = days_height,
+            style = "minimal",
+          })
+          vim.wo[win].winblend = 0
+          self.day_wins[x] = win
+        end
+
+        for y = 1, w_in_m do
+          local row_offset = y * height
+          for x = 1, self.d_in_w do
+            local col_offset = (x - 1) * width
+            local buf = self.cal_bufs[y][x]
+            local win = api.nvim_open_win(buf, false, {
+              relative = "editor",
+              col = col + col_offset,
+              row = row + row_offset,
+              width = width,
+              height = height,
+              style = "minimal",
+            })
+            vim.wo[win].winhighlight = "" -- since filchars eob is ' ', this will make non-focused windows a different color
+            vim.wo[win].winblend = 0
+            vim.wo[win].conceallevel = 3
+            vim.wo[win].concealcursor = "nvic"
+            if x == 1 then self.cal_wins[y] = {} end
+            self.cal_wins[y][x] = win
+          end
+        end
+
+        local all_bufs = iter(self.cal_bufs):flatten(1):totable()
+        vim.list_extend(all_bufs, self.day_bufs)
+        table.insert(all_bufs, self.month_buf)
+        table.insert(all_bufs, self.year_buf)
+        local all_wins = iter(self.cal_wins):flatten(1):totable()
+        vim.list_extend(all_wins, self.day_wins)
+        table.insert(all_wins, self.month_win)
+        table.insert(all_wins, self.year_win)
+
+        api.nvim_create_autocmd("WinClosed", {
+          pattern = iter(all_wins):map(function(win) return tostring(win) end):totable(),
+          callback = function()
+            iter(all_bufs):each(function(buf)
+              if api.nvim_buf_is_valid(buf) and api.nvim_buf_is_loaded(buf) then
+                api.nvim_buf_delete(buf, { force = true })
+              end
+            end)
+            iter(all_wins):each(function(win)
+              if api.nvim_win_is_valid(win) then api.nvim_win_close(win, true) end
+            end)
+          end,
+          once = true,
+        })
+
+        for y = 1, w_in_m do
+          for x = 1, self.d_in_w do
+            local buf = self.cal_bufs[y][x]
+            local win = self.cal_wins[y][x]
+
+            keymap.set("n", "<", function()
+              api.nvim_win_close(win, true)
+              local target_year = year
+              local target_month = month - 1
+              if target_month == 0 then
+                target_month = 12
+                target_year = target_year - 1
+              end
+              self:show(target_year, target_month)
+            end, { buffer = buf })
+            keymap.set("n", ">", function()
+              api.nvim_win_close(win, true)
+              local target_month = month + 1
+              local target_year = year
+              if target_month == 13 then
+                target_month = 1
+                target_year = target_year + 1
+              end
+              self:show(target_year, target_month)
+            end, { buffer = buf })
+
+            -- TODO: somehow support count for movement keymaps
+            local win_l ---@type integer
+            if x - 1 >= 1 then
+              win_l = self.cal_wins[y][x - 1]
+            else
+              win_l = self.cal_wins[y][self.d_in_w]
+            end
+            keymap.set("n", "<left>", function() api.nvim_set_current_win(win_l) end, { buffer = buf })
+            local win_r ---@type integer
+            if x + 1 <= self.d_in_w then
+              win_r = self.cal_wins[y][x + 1]
+            else
+              win_r = self.cal_wins[y][1]
+            end
+            keymap.set("n", "<right>", function() api.nvim_set_current_win(win_r) end, { buffer = buf })
+            local win_u ---@type integer
+            if y - 1 >= 1 then
+              win_u = self.cal_wins[y - 1][x]
+            else
+              win_u = self.cal_wins[w_in_m][x]
+            end
+            keymap.set("n", "<up>", function() api.nvim_set_current_win(win_u) end, { buffer = buf })
+            local win_d ---@type integer
+            if y + 1 <= w_in_m then
+              win_d = self.cal_wins[y + 1][x]
+            else
+              win_d = self.cal_wins[1][x]
+            end
+            keymap.set("n", "<down>", function() api.nvim_set_current_win(win_d) end, { buffer = buf })
+
+            if y == 1 and x == 1 then api.nvim_set_current_win(win) end
+
+            api.nvim_create_autocmd("BufWriteCmd", {
+              buffer = buf,
+              callback = function()
+                vim.bo[buf].modifiable = false
+
+                -- First line is always the number of date, don't parse it
+                local lines = api.nvim_buf_get_lines(buf, 1, -1, true)
+
+                local buf_name = api.nvim_buf_get_name(buf)
+                local buf_year, buf_month, buf_day = buf_name:match "^calendar://day_(%d%d%d%d)_(%d%d)_(%d%d)"
+                buf_year, buf_month, buf_day = tonumber(buf_year), tonumber(buf_month), tonumber(buf_day)
+
+                local diffs = {} ---@type {type:"new"|"edit"|"delete",summary: string, start: Date, end: Date}[]
+                for _, line in ipairs(lines) do
+                  if line:match "^/[^ ]+" then -- existing entry
+                    local id, tail = line:match "^/([^ ]+) (.*)" ---@type string, string
+                    local summary, start_time, end_time = unpack(vim.split(tail, sep, { trimempty = true }))
+
+                    local month_events = _cache_events[("%s_%s"):format(year, month)]
+                    ---@type Event
+                    local cached_event = iter(month_events):find(
+                      ---@param event Event
+                      function(event) return event.id == id end
+                    )
+                    assert(
+                      cached_event,
+                      ("The event with id `%s` is not in cache. Maybe you modified it by acciddent"):format(id)
+                    )
+                    assert(summary, ("The event with id `%s` has no summary"):format(id))
+                    -- TODO: maybe clone event if id is the same but name is different from existing one and existing one is still in buffer (?)
+                    -- maybe don't support cloning?
+
+                    -- TODO: modify date
+                    -- TODO: modify dateTime
+                    if cached_event.summary ~= summary then
+                      table.insert(diffs, {
+                        type = "edit",
+                        summary = summary,
+                      })
+                    end
+
+                  -- TODO: keep track of which events are in the cache. If some event is not in the cache at the end, delete
+                  else -- new entry
+                    local summary, start_time, end_time = unpack(vim.split(line, sep, { trimempty = true }))
+                    assert(summary ~= "", "The summary for a new event is empty")
+                    if not start_time or not end_time then
+                      table.insert(diffs, {
+                        type = "new",
+                        summary = summary,
+                        start = {
+                          date = ("%04d-%02d-%02d"):format(buf_year, buf_month, buf_day),
+                        },
+                        ["end"] = {
+                          date = ("%04d-%02d-%02d"):format(buf_year, buf_month, buf_day + 1),
+                        },
+                      })
+                    else
+                      table.insert(diffs, {
+                        type = "new",
+                        summary = summary,
+                        start = {
+                          -- TODO: hardcoded timezone
+                          dateTime = ("%04d-%02d-%02dT%s-05:00"):format(buf_year, buf_month, buf_day, start_time),
+                        },
+                        ["end"] = {
+                          -- TODO: hardcoded timezone
+                          dateTime = ("%04d-%02d-%02dT%s-05:00"):format(buf_year, buf_month, buf_day, end_time),
+                        },
+                      })
+                    end
+                  end
+                end
+
+                vim.bo[buf].modified = false
+                vim.bo[buf].modifiable = true
+              end,
+            })
+          end
+        end
+
         local days_in_month = {} ---@type integer[]
         for i = 1, last_day_month.day do
           table.insert(days_in_month, i)
         end
 
-        calendar_view:show(year, month)
-        -- TODO: intead of accessing calendar view and setting its state, define methods for doing it (?)
         local y = 1
         local x = first_day_month.wday - 1
         if x <= 0 then x = x + 7 end
@@ -1377,7 +1427,7 @@ function M.events_show(year, month)
             local day_num = ("%s"):format(i)
             local lines = { day_num }
 
-            local cal_buf = calendar_view.cal_bufs[y][x]
+            local cal_buf = self.cal_bufs[y][x]
             -- advance to next row for next iteration
             x = x + 1
             if x > 7 then
@@ -1522,4 +1572,5 @@ function M.get_colors(token_info, cb)
   )
 end
 
-M.events_show(2023, 12)
+local calendar_view = CalendarView.new()
+calendar_view:show(2024, 10)
