@@ -1253,6 +1253,7 @@ function CalendarView:show(year, month)
         M.events_show(target_year, target_month)
       end, { buffer = buf })
 
+      -- TODO: somehow support count for movement keymaps
       local win_l ---@type integer
       if x - 1 >= 1 then
         win_l = self.cal_wins[y][x - 1]
@@ -1386,6 +1387,23 @@ function M.events_show(year, month)
 
             local key = ("%s_%s_%s"):format(first_day_month.year, first_day_month.month, i)
             local day_events = events_by_date[key]
+            local highlighters = {
+              conceal_id = {
+                pattern = "^()/[^ ]+ ()",
+                group = "", -- group needs to not be `nil` to work
+                extmark_opts = {
+                  conceal = "",
+                },
+              },
+              time = {
+                pattern = "%d%d",
+                group = "Number",
+              },
+              punctuation = {
+                pattern = { sep, ":" },
+                group = "Delimiter",
+              },
+            }
             if day_events then
               local events_text = iter(day_events)
                 :map(function(event)
@@ -1406,45 +1424,27 @@ function M.events_show(year, month)
                   )
                 end)
                 :totable()
-              local highlighters = iter(day_events):fold(
-                {
-                  conceal_id = {
-                    pattern = "^()/[^ ]+ ()",
-                    group = "", -- group needs to not be empty to work
-                    extmark_opts = {
-                      conceal = "",
-                    },
-                  },
-                  time = {
-                    pattern = "%d%d",
-                    group = "Number", -- group needs to not be empty to work
-                  },
-                  punctuation = {
-                    pattern = { sep, ":" },
-                    group = "Delimiter", -- group needs to not be empty to work
-                  },
-                },
-                ---@param acc table<string, table>
+              iter(day_events):each(
                 ---@param event Event
-                function(acc, event)
+                function(event)
                   local calendar = iter(calendar_list.items):find(
                     ---@param calendar CalendarListEntry
                     function(calendar) return calendar.id == event.organizer.email end
                   )
 
-                  if not calendar then return acc end
+                  if not calendar then return end
                   local fg = compute_hex_color_group(calendar.foregroundColor, "fg")
                   local bg = compute_hex_color_group(calendar.backgroundColor, "bg")
-                  acc[event.id .. "fg"] = { pattern = "%f[%w]()" .. event.summary .. "()%f[%W]", group = fg }
-                  acc[event.id .. "bg"] = { pattern = "%f[%w]()" .. event.summary .. "()%f[%W]", group = bg }
-                  return acc
+                  highlighters[event.id .. "fg"] = { pattern = "%f[%w]()" .. event.summary .. "()%f[%W]", group = fg }
+                  highlighters[event.id .. "bg"] = { pattern = "%f[%w]()" .. event.summary .. "()%f[%W]", group = bg }
                 end
               )
-              -- TODO: may need to put this in an autocmd because it gets disabled after :edit
-              hl_enable(cal_buf, { highlighters = highlighters })
 
               vim.list_extend(lines, events_text)
             end
+            -- TODO: may need to put this in an autocmd because it gets disabled after :edit
+            -- TODO: add support for event.colorId using `get_colors` (currently I don't have any events with custom colors, so it's no neccesary)
+            hl_enable(cal_buf, { highlighters = highlighters })
 
             api.nvim_buf_set_lines(cal_buf, 0, -1, true, lines)
             vim.bo[cal_buf].modified = false
