@@ -1043,8 +1043,8 @@ end
 function CalendarView:w_in_m(year, month)
   local first_day = os.date("*t", os.time { year = year, month = month, day = 1 })
   local last_day = os.date("*t", os.time { year = year, month = month + 1, day = 0 })
-  -- if month starts in sunday a new row is needed
-  if first_day.wday == 1 or (first_day.wday == 6 and last_day.day == 31) then return 6 end
+
+  if (first_day.wday == 1 and month ~= 2) or (first_day.wday == 7 and last_day.day == 31) then return 6 end
   return 5
 end
 
@@ -1515,4 +1515,5 @@ function M.get_colors(token_info, cb)
   )
 end
 
-M.events_show(2024, 10)
+-- TODO: Why does the event on nov 30 appear on all days of december?
+M.events_show(2023, 12)
