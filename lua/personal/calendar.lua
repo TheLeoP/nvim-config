@@ -720,8 +720,9 @@ function M.get_events(token_info, calendar_list, year, month, cb)
     end_month = end_month - 12
   end
 
-  local time_min = ("%04d-%02d-01T00:00:00Z"):format(start_year, start_month)
-  local time_max = ("%04d-%02d-01T00:00:00Z"):format(end_year, end_month)
+  -- TODO: hardcoded offset for Ecuador
+  local time_min = ("%04d-%02d-01T00:00:00-05:00"):format(start_year, start_month)
+  local time_max = ("%04d-%02d-01T00:00:00-05:00"):format(end_year, end_month)
 
   local key = ("%s_%s"):format(year, month)
   if _cache_events[key] then
@@ -1342,6 +1343,12 @@ function M.events_show(year, month)
             elseif event["end"].dateTime then
               end_date = parse_date_time(event["end"].dateTime)
             end
+            -- this only works if the event started in a previous/next month
+            -- and continues into the current month. If the event started and
+            -- concluded in the previous/next month (and is being shown in the
+            -- current month because of something like a timezone issue), this
+            -- will incorrectly show the event as taking place in all the days
+            -- of the curernt month
             local start_day = start_date.m == first_day_month.month and start_date.d or 1
             local end_day = end_date.m == first_day_month.month and end_date.d or last_day_month.day
             for i = start_day, end_day do
@@ -1515,5 +1522,4 @@ function M.get_colors(token_info, cb)
   )
 end
 
--- TODO: Why does the event on nov 30 appear on all days of december?
 M.events_show(2023, 12)
