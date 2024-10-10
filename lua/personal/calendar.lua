@@ -1446,8 +1446,12 @@ function CalendarView:show(year, month)
                 },
               },
               time = {
-                pattern = "%d%d",
+                pattern = "[ :]()%d%d()",
                 group = "Number",
+              },
+              day = {
+                pattern = "^%d+",
+                group = "DiffAdd",
               },
               punctuation = {
                 pattern = { sep, ":" },
