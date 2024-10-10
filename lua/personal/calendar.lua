@@ -1408,6 +1408,14 @@ function M.events_show(year, month)
                       conceal = "",
                     },
                   },
+                  time = {
+                    pattern = "%d%d",
+                    group = "Number", -- group needs to not be empty to work
+                  },
+                  punctuation = {
+                    pattern = { sep, ":" },
+                    group = "Delimiter", -- group needs to not be empty to work
+                  },
                 },
                 ---@param acc table<string, table>
                 ---@param event Event
