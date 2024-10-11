@@ -131,7 +131,7 @@ ls.add_snippets("cs", {
     )
   ),
   s(
-    { trig = "if ", snippetType = "autosnippet", condition = conds.line_begin },
+    { trig = "if ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
     fmta(
       [[
 if (<condition>)
@@ -149,7 +149,7 @@ if (<condition>)
 
 ls.add_snippets("lua", {
   s(
-    { trig = "if ", snippetType = "autosnippet", condition = conds.line_begin },
+    { trig = "if ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
     fmta(
       [[
 if <condition> then
@@ -170,7 +170,7 @@ elseif <condition> then
     )
   ),
   s(
-    { trig = "fn ", snippetType = "autosnippet", condition = conds.line_begin },
+    { trig = "fn ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_ends },
     fmta(
       [[
 <visibility>function <name>(<args>)
@@ -251,7 +251,7 @@ ls.filetype_extend("javascriptreact", { "javascript" })
 ls.filetype_extend("typescriptreact", { "javascript" })
 ls.add_snippets("javascript", {
   s(
-    { trig = "if ", snippetType = "autosnippet", condition = conds.line_begin },
+    { trig = "if ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
     fmta(
       [[
 if (<condition>) {
