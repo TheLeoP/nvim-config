@@ -566,9 +566,9 @@ end
 ---@field additionalGuests integer
 
 ---@class Date
----@field date string
----@field dateTime string
----@field timeZone string
+---@field date string?
+---@field dateTime string?
+---@field timeZone string?
 
 ---@class ExtendedProperties
 ---@field public private table<string, string>
@@ -1366,14 +1366,43 @@ function CalendarView:show(year, month)
                     -- TODO: maybe clone event if id is the same but name is different from existing one and existing one is still in buffer (?)
                     -- maybe don't support cloning?
 
-                    -- TODO: modify date
-                    -- TODO: modify dateTime
-                    if cached_event.summary ~= summary then
-                      table.insert(diffs, {
-                        type = "edit",
-                        summary = summary,
-                        id = id,
-                      })
+                    local edit_diff = {}
+                    if cached_event.summary ~= summary then edit_diff.summary = summary end
+                    local start_date = ("%04d-%02d-%02d"):format(buf_year, buf_month, buf_day)
+                    local end_date = ("%04d-%02d-%02d"):format(buf_year, buf_month, buf_day + 1)
+                    -- TODO: hardcoded timezone
+                    local start_date_time = ("%04d-%02d-%02dT%s-05:00"):format(buf_year, buf_month, buf_day, start_time)
+                    local end_date_time = ("%04d-%02d-%02dT%s-05:00"):format(buf_year, buf_month, buf_day, end_time)
+                    -- TODO: maybe could be necessary  to add edit for start and end in different if conditions (?)
+                    if
+                      (not start_time or not end_time)
+                      and (start_date ~= cached_event.start.date or end_date ~= cached_event["end"].date)
+                    then
+                      edit_diff.start = {
+                        date = start_date,
+                      }
+                      edit_diff["end"] = {
+                        date = end_date,
+                      }
+                    elseif
+                      start_time
+                      and end_time
+                      and (
+                        start_date_time ~= cached_event.start.dateTime
+                        or end_date_time ~= cached_event["end"].dateTime
+                      )
+                    then
+                      edit_diff.start = {
+                        dateTime = start_date_time,
+                      }
+                      edit_diff["end"] = {
+                        dateTime = end_date_time,
+                      }
+                    end
+                    if not vim.tbl_isempty(edit_diff) then
+                      edit_diff.cached_event = cached_event
+                      edit_diff.type = "edit"
+                      table.insert(diffs, edit_diff)
                     end
 
                   -- TODO: keep track of which events are in the cache. If some event is not in the cache at the end, delete
@@ -1381,6 +1410,13 @@ function CalendarView:show(year, month)
                     local summary, start_time, end_time, calendar_summary =
                       unpack(vim.split(line, sep, { trimempty = true }))
                     assert(summary ~= "", "The summary for a new event is empty")
+
+                    local start_date = ("%04d-%02d-%02d"):format(buf_year, buf_month, buf_day)
+                    local end_date = ("%04d-%02d-%02d"):format(buf_year, buf_month, buf_day + 1)
+                    -- TODO: hardcoded timezone
+                    local start_date_time = ("%04d-%02d-%02dT%s-05:00"):format(buf_year, buf_month, buf_day, start_time)
+                    local end_date_time = ("%04d-%02d-%02dT%s-05:00"):format(buf_year, buf_month, buf_day, end_time)
+
                     if not start_time or not end_time then
                       calendar_summary = start_time -- line hast less fields
                       table.insert(diffs, {
@@ -1388,10 +1424,10 @@ function CalendarView:show(year, month)
                         summary = summary,
                         calendar_summary = calendar_summary,
                         start = {
-                          date = ("%04d-%02d-%02d"):format(buf_year, buf_month, buf_day),
+                          date = start_date,
                         },
                         ["end"] = {
-                          date = ("%04d-%02d-%02d"):format(buf_year, buf_month, buf_day + 1),
+                          date = end_date,
                         },
                       })
                     else
@@ -1401,29 +1437,61 @@ function CalendarView:show(year, month)
                         calendar_summary = calendar_summary,
                         start = {
                           -- TODO: hardcoded timezone
-                          dateTime = ("%04d-%02d-%02dT%s-05:00"):format(buf_year, buf_month, buf_day, start_time),
+                          dateTime = start_date_time,
                         },
                         ["end"] = {
                           -- TODO: hardcoded timezone
-                          dateTime = ("%04d-%02d-%02dT%s-05:00"):format(buf_year, buf_month, buf_day, end_time),
+                          dateTime = end_date_time,
                         },
                       })
                     end
                   end
                 end
 
-                for _, diff in ipairs(diffs) do
-                  -- TODO: handle other diffs types
-                  if diff.type == "new" then
-                    local calendar = iter(calendar_list.items):find(
-                      function(calendar) return calendar.summary == diff.calendar_summary end
-                    )
-                    M.create_event(token_info, calendar.id, diff, function(new_event)
-                      local key = ("%s_%s"):format(year, month)
-                      local month_events = _cache_events[key]
-                      table.insert(month_events, new_event)
-                      -- TODO: redraw with updated information (don't refresh cache)
-                    end)
+                do
+                  local diff_num = #diffs
+                  local i = 0
+                  local reload_if_last_diff = function()
+                    i = i + 1
+                    if i == diff_num then
+                      api.nvim_win_close(win, true)
+                      self:show(year, month)
+                    end
+                  end
+                  for _, diff in ipairs(diffs) do
+                    -- TODO: handle other diffs types
+                    if diff.type == "new" then
+                      assert(diff.calendar_summary, ("Diff has no calendar_summary %s"):format(vim.inspect(diff)))
+                      local calendar = iter(calendar_list.items):find(
+                        function(calendar) return calendar.summary == diff.calendar_summary end
+                      )
+
+                      M.create_event(token_info, calendar.id, diff, function(new_event)
+                        local key = ("%s_%s"):format(year, month)
+                        local month_events = _cache_events[key]
+                        table.insert(month_events, new_event)
+
+                        reload_if_last_diff()
+                      end)
+                    elseif diff.type == "edit" then
+                      local calendar = iter(calendar_list.items):find(
+                        ---@param calendar CalendarListEntry
+                        function(calendar) return calendar.id == diff.cached_event.organizer.email end
+                      )
+
+                      M.edit_event(token_info, calendar.id, diff, function(edited_event)
+                        local cached_event = diff.cached_event --[[@as table<unknown, unknown>]]
+
+                        -- can't only update some fields because google checks
+                        -- things like the last update time to check if the
+                        -- event has gone out-of-sync
+                        for key, _ in pairs(cached_event) do
+                          cached_event[key] = edited_event[key]
+                        end
+
+                        reload_if_last_diff()
+                      end)
+                    end
                   end
                 end
 
@@ -1602,14 +1670,14 @@ end
 ---@field summary string
 ---@field start Date?
 ---@field end Date?
----@field id string?
----@field calendar_summary string
+---@field cached_event Event?
+---@field calendar_summary string?
 
 ---@param token_info TokenInfo
----@param info {summary: string, start:Date, end: Date}
+---@param diff Diff
 ---@param cb fun(new_event: Event)
-function M.create_event(token_info, calendar_id, info, cb)
-  local data = vim.json.encode { start = info.start, ["end"] = info["end"], summary = info.summary }
+function M.create_event(token_info, calendar_id, diff, cb)
+  local data = vim.json.encode { start = diff.start, ["end"] = diff["end"], summary = diff.summary }
   vim.system(
     {
       "curl",
@@ -1633,7 +1701,7 @@ function M.create_event(token_info, calendar_id, info, cb)
         assert(new_event.error.status == "UNAUTHENTICATED", new_event.error.message)
         refresh_access_token(
           token_info.refresh_token,
-          function(refreshed_token_info) M.create_event(refreshed_token_info, calendar_id, info, cb) end
+          function(refreshed_token_info) M.create_event(refreshed_token_info, calendar_id, diff, cb) end
         )
         return
       end
@@ -1641,6 +1709,55 @@ function M.create_event(token_info, calendar_id, info, cb)
       ---@cast new_event -ApiErrorResponse
 
       cb(new_event)
+    end)
+  )
+end
+
+---@param token_info TokenInfo
+---@param diff Diff
+---@param cb fun(edited_event: Event)
+function M.edit_event(token_info, calendar_id, diff, cb)
+  local cached_event = vim.deepcopy(diff.cached_event) --[[@as Event]]
+  if diff.summary then cached_event.summary = diff.summary end
+  if diff.start then cached_event.start = diff.start end
+  if diff["end"] then cached_event["end"] = diff["end"] end
+  local data = vim.json.encode(cached_event)
+  vim.system(
+    {
+      "curl",
+      "--request",
+      "PUT",
+      "--data",
+      data,
+      "--http1.1",
+      "--silent",
+      "--header",
+      ("Authorization: Bearer %s"):format(token_info.access_token),
+      ("https://www.googleapis.com/calendar/v3/calendars/%s/events/%s"):format(
+        url_encode(calendar_id),
+        url_encode(diff.cached_event.id)
+      ),
+    },
+    { text = true },
+    vim.schedule_wrap(function(result)
+      assert(result.stderr == "", result.stderr)
+      local ok, edited_event = pcall(vim.json.decode, result.stdout) ---@type boolean, string|Event|ApiErrorResponse
+      assert(ok, edited_event)
+      ---@cast edited_event -string
+
+      if edited_event.error then
+        ---@cast edited_event -Event
+        assert(edited_event.error.status == "UNAUTHENTICATED", edited_event.error.message)
+        refresh_access_token(
+          token_info.refresh_token,
+          function(refreshed_token_info) M.edit_event(refreshed_token_info, calendar_id, diff, cb) end
+        )
+        return
+      end
+      ---@cast edited_event +Event
+      ---@cast edited_event -ApiErrorResponse
+
+      cb(edited_event)
     end)
   )
 end
