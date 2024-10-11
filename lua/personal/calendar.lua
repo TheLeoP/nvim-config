@@ -18,6 +18,9 @@ local client_secret = vim.env.GOOGLE_CALENDAR_CLIENT_SECRET ---@type string
 local data_path = ("%s/%s"):format(vim.fn.stdpath "data", "/calendar")
 data_path = vim.fs.normalize(data_path)
 
+local _timezone1, _timezone2 = tostring(os.date "%z"):match "([-+]%d%d)(%d%d)"
+local timezone = ("%s:%s"):format(_timezone1, _timezone2)
+
 fs_exists(
   data_path,
   vim.schedule_wrap(function(exists, err)
@@ -721,9 +724,8 @@ function M.get_events(token_info, calendar_list, year, month, cb)
     end_month = end_month - 12
   end
 
-  -- TODO: hardcoded offset for Ecuador
-  local time_min = ("%04d-%02d-01T00:00:00-05:00"):format(start_year, start_month)
-  local time_max = ("%04d-%02d-01T00:00:00-05:00"):format(end_year, end_month)
+  local time_min = ("%04d-%02d-01T00:00:00%s"):format(start_year, start_month, timezone)
+  local time_max = ("%04d-%02d-01T00:00:00%s"):format(end_year, end_month, timezone)
 
   local key = ("%s_%s"):format(year, month)
   if _cache_events[key] then
@@ -1386,9 +1388,20 @@ function CalendarView:show(year, month)
                     if cached_event.summary ~= summary then edit_diff.summary = summary end
                     local start_date = ("%04d-%02d-%02d"):format(buf_year, buf_month, buf_day)
                     local end_date = ("%04d-%02d-%02d"):format(buf_year, buf_month, buf_day + 1)
-                    -- TODO: hardcoded timezone
-                    local start_date_time = ("%04d-%02d-%02dT%s-05:00"):format(buf_year, buf_month, buf_day, start_time)
-                    local end_date_time = ("%04d-%02d-%02dT%s-05:00"):format(buf_year, buf_month, buf_day, end_time)
+                    local start_date_time = ("%04d-%02d-%02dT%s%s"):format(
+                      buf_year,
+                      buf_month,
+                      buf_day,
+                      start_time,
+                      timezone
+                    )
+                    local end_date_time = ("%04d-%02d-%02dT%s%s"):format(
+                      buf_year,
+                      buf_month,
+                      buf_day,
+                      end_time,
+                      timezone
+                    )
                     if
                       (not start_time or not end_time)
                       and (start_date ~= cached_event.start.date or end_date ~= cached_event["end"].date)
@@ -1428,9 +1441,20 @@ function CalendarView:show(year, month)
 
                     local start_date = ("%04d-%02d-%02d"):format(buf_year, buf_month, buf_day)
                     local end_date = ("%04d-%02d-%02d"):format(buf_year, buf_month, buf_day + 1)
-                    -- TODO: hardcoded timezone
-                    local start_date_time = ("%04d-%02d-%02dT%s-05:00"):format(buf_year, buf_month, buf_day, start_time)
-                    local end_date_time = ("%04d-%02d-%02dT%s-05:00"):format(buf_year, buf_month, buf_day, end_time)
+                    local start_date_time = ("%04d-%02d-%02dT%s%s"):format(
+                      buf_year,
+                      buf_month,
+                      buf_day,
+                      start_time,
+                      timezone
+                    )
+                    local end_date_time = ("%04d-%02d-%02dT%s%s"):format(
+                      buf_year,
+                      buf_month,
+                      buf_day,
+                      end_time,
+                      timezone
+                    )
 
                     if not start_time or not end_time then
                       calendar_summary = start_time -- line hast less fields
