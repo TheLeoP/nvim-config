@@ -7,6 +7,7 @@ local iter = vim.iter
 local compute_hex_color_group = require("mini.hipatterns").compute_hex_color_group
 local hl_enable = require("mini.hipatterns").enable
 local fs_exists = require("personal.util.general").fs_exists
+local new_uid = require("personal.util.general").new_uid
 
 local M = {}
 
@@ -703,7 +704,7 @@ end
 ---@field nextSyncToken string
 ---@field items Event[]
 
-local _cache_events = {} ---@type table<string, Event[]> id_month_year -> events
+local _cache_events = {} ---@type table<string, Event[]> year_month -> events
 
 ---@param token_info TokenInfo
 ---@param calendar_list CalendarList
@@ -1345,7 +1346,7 @@ function CalendarView:show(year, month)
                 local buf_year, buf_month, buf_day = buf_name:match "^calendar://day_(%d%d%d%d)_(%d%d)_(%d%d)"
                 buf_year, buf_month, buf_day = tonumber(buf_year), tonumber(buf_month), tonumber(buf_day)
 
-                local diffs = {} ---@type {type:"new"|"edit"|"delete",summary: string, start: Date, end: Date}[]
+                local diffs = {} ---@type Diff[]
                 for _, line in ipairs(lines) do
                   if line:match "^/[^ ]+" then -- existing entry
                     local id, tail = line:match "^/([^ ]+) (.*)" ---@type string, string
@@ -1371,17 +1372,21 @@ function CalendarView:show(year, month)
                       table.insert(diffs, {
                         type = "edit",
                         summary = summary,
+                        id = id,
                       })
                     end
 
                   -- TODO: keep track of which events are in the cache. If some event is not in the cache at the end, delete
                   else -- new entry
-                    local summary, start_time, end_time = unpack(vim.split(line, sep, { trimempty = true }))
+                    local summary, start_time, end_time, calendar_summary =
+                      unpack(vim.split(line, sep, { trimempty = true }))
                     assert(summary ~= "", "The summary for a new event is empty")
                     if not start_time or not end_time then
+                      calendar_summary = start_time -- line hast less fields
                       table.insert(diffs, {
                         type = "new",
                         summary = summary,
+                        calendar_summary = calendar_summary,
                         start = {
                           date = ("%04d-%02d-%02d"):format(buf_year, buf_month, buf_day),
                         },
@@ -1393,6 +1398,7 @@ function CalendarView:show(year, month)
                       table.insert(diffs, {
                         type = "new",
                         summary = summary,
+                        calendar_summary = calendar_summary,
                         start = {
                           -- TODO: hardcoded timezone
                           dateTime = ("%04d-%02d-%02dT%s-05:00"):format(buf_year, buf_month, buf_day, start_time),
@@ -1403,6 +1409,21 @@ function CalendarView:show(year, month)
                         },
                       })
                     end
+                  end
+                end
+
+                for _, diff in ipairs(diffs) do
+                  -- TODO: handle other diffs types
+                  if diff.type == "new" then
+                    local calendar = iter(calendar_list.items):find(
+                      function(calendar) return calendar.summary == diff.calendar_summary end
+                    )
+                    M.create_event(token_info, calendar.id, diff, function(new_event)
+                      local key = ("%s_%s"):format(year, month)
+                      local month_events = _cache_events[key]
+                      table.insert(month_events, new_event)
+                      -- TODO: redraw with updated information (don't refresh cache)
+                    end)
                   end
                 end
 
@@ -1486,7 +1507,7 @@ function CalendarView:show(year, month)
                     function(calendar) return calendar.id == event.organizer.email end
                   )
 
-                  if not calendar then return end
+                  if not calendar or not event.summary then return end
                   local fg = compute_hex_color_group(calendar.foregroundColor, "fg")
                   local bg = compute_hex_color_group(calendar.backgroundColor, "bg")
                   highlighters[event.id .. "fg"] = { pattern = "%f[%w]()" .. event.summary .. "()%f[%W]", group = fg }
@@ -1575,6 +1596,86 @@ function M.get_colors(token_info, cb)
     end)
   )
 end
+
+---@class Diff
+---@field type "new"|"edit"|"delete"
+---@field summary string
+---@field start Date?
+---@field end Date?
+---@field id string?
+---@field calendar_summary string
+
+---@param token_info TokenInfo
+---@param info {summary: string, start:Date, end: Date}
+---@param cb fun(new_event: Event)
+function M.create_event(token_info, calendar_id, info, cb)
+  local data = vim.json.encode { start = info.start, ["end"] = info["end"], summary = info.summary }
+  vim.system(
+    {
+      "curl",
+      "--data",
+      data,
+      "--http1.1",
+      "--silent",
+      "--header",
+      ("Authorization: Bearer %s"):format(token_info.access_token),
+      ("https://www.googleapis.com/calendar/v3/calendars/%s/events"):format(url_encode(calendar_id)),
+    },
+    { text = true },
+    vim.schedule_wrap(function(result)
+      assert(result.stderr == "", result.stderr)
+      local ok, new_event = pcall(vim.json.decode, result.stdout) ---@type boolean, string|Event|ApiErrorResponse
+      assert(ok, new_event)
+      ---@cast new_event -string
+
+      if new_event.error then
+        ---@cast new_event -Event
+        assert(new_event.error.status == "UNAUTHENTICATED", new_event.error.message)
+        refresh_access_token(
+          token_info.refresh_token,
+          function(refreshed_token_info) M.create_event(refreshed_token_info, calendar_id, info, cb) end
+        )
+        return
+      end
+      ---@cast new_event +Event
+      ---@cast new_event -ApiErrorResponse
+
+      cb(new_event)
+    end)
+  )
+end
+
+local function add_coq_completion()
+  COQsources = COQsources or {} ---@type coq_sources
+  COQsources[new_uid(COQsources)] = {
+    name = "CL",
+    fn = function(args, cb)
+      local buf_name = api.nvim_buf_get_name(0)
+      if not buf_name:match "^calendar://" then return cb() end
+      if args.line:match "^/[^ ]+ " then return cb() end
+      -- TODO: check that line matches the (to be defined) format for where the
+      -- calendar name should go
+      get_token_info(function(token_info)
+        M.get_calendar_list(
+          token_info,
+          ---@param calendar_list CalendarList
+          function(calendar_list)
+            local items = iter(calendar_list.items)
+              :map(
+                ---@param calendar CalendarListEntry
+                function(calendar) return { label = calendar.summary, insertText = calendar.summary } end
+              )
+              :totable()
+            cb { isIncomplete = false, items = items }
+          end
+        )
+      end)
+    end,
+  }
+end
+-- uncomment to debug
+-- COQsources = {}
+-- add_coq_completion()
 
 local calendar_view = CalendarView.new()
 calendar_view:show(2024, 10)
