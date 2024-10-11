@@ -758,7 +758,6 @@ function M.get_events(token_info, calendar_list, year, month, cb)
           assert(ok, events)
           ---@cast events -string
 
-          -- TODO: generalize error handling?
           if events.error then
             ---@cast events -CalendarEvents
             assert(events.error.status == "UNAUTHENTICATED", events.error.message)
@@ -815,7 +814,6 @@ local function parse_date(date, opts)
   }
 end
 
--- TODO: if the month starts in sunday, a 6th week row is needed
 ---@class CalendarView
 ---@field year_buf integer
 ---@field year_win integer
@@ -1432,8 +1430,6 @@ function CalendarView:show(year, month)
                       edit_diff.type = "edit"
                       table.insert(diffs, edit_diff)
                     end
-
-                  -- TODO: keep track of which events are in the cache. If some event is not in the cache at the end, delete
                   else -- new entry
                     local summary, start_time, end_time, calendar_summary =
                       unpack(vim.split(line, sep, { trimempty = true }))
