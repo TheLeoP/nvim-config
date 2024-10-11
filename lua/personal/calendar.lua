@@ -1346,6 +1346,18 @@ function CalendarView:show(year, month)
                 local buf_year, buf_month, buf_day = buf_name:match "^calendar://day_(%d%d%d%d)_(%d%d)_(%d%d)"
                 buf_year, buf_month, buf_day = tonumber(buf_year), tonumber(buf_month), tonumber(buf_day)
 
+                local key = ("%s_%s_%s"):format(buf_year, buf_month, buf_day)
+                ---@type table<string, Event>
+                local day_events_by_id = iter(events_by_date[key]):fold(
+                  {},
+                  ---@param acc table<string, Event>
+                  ---@param event Event
+                  function(acc, event)
+                    acc[event.id] = event
+                    return acc
+                  end
+                )
+
                 local diffs = {} ---@type Diff[]
                 for _, line in ipairs(lines) do
                   if line:match "^/[^ ]+" then -- existing entry
@@ -1363,6 +1375,10 @@ function CalendarView:show(year, month)
                       ("The event with id `%s` is not in cache. Maybe you modified it by acciddent"):format(id)
                     )
                     assert(summary, ("The event with id `%s` has no summary"):format(id))
+
+                    -- to keep track of the deleted events
+                    day_events_by_id[cached_event.id] = nil
+
                     -- TODO: maybe clone event if id is the same but name is different from existing one and existing one is still in buffer (?)
                     -- maybe don't support cloning?
 
@@ -1373,7 +1389,6 @@ function CalendarView:show(year, month)
                     -- TODO: hardcoded timezone
                     local start_date_time = ("%04d-%02d-%02dT%s-05:00"):format(buf_year, buf_month, buf_day, start_time)
                     local end_date_time = ("%04d-%02d-%02dT%s-05:00"):format(buf_year, buf_month, buf_day, end_time)
-                    -- TODO: maybe could be necessary  to add edit for start and end in different if conditions (?)
                     if
                       (not start_time or not end_time)
                       and (start_date ~= cached_event.start.date or end_date ~= cached_event["end"].date)
@@ -1436,16 +1451,21 @@ function CalendarView:show(year, month)
                         summary = summary,
                         calendar_summary = calendar_summary,
                         start = {
-                          -- TODO: hardcoded timezone
                           dateTime = start_date_time,
                         },
                         ["end"] = {
-                          -- TODO: hardcoded timezone
                           dateTime = end_date_time,
                         },
                       })
                     end
                   end
+                end
+
+                for _, event in pairs(day_events_by_id) do
+                  table.insert(diffs, {
+                    type = "delete",
+                    cached_event = event,
+                  })
                 end
 
                 do
@@ -1459,7 +1479,6 @@ function CalendarView:show(year, month)
                     end
                   end
                   for _, diff in ipairs(diffs) do
-                    -- TODO: handle other diffs types
                     if diff.type == "new" then
                       assert(diff.calendar_summary, ("Diff has no calendar_summary %s"):format(vim.inspect(diff)))
                       local calendar = iter(calendar_list.items):find(
@@ -1467,8 +1486,8 @@ function CalendarView:show(year, month)
                       )
 
                       M.create_event(token_info, calendar.id, diff, function(new_event)
-                        local key = ("%s_%s"):format(year, month)
-                        local month_events = _cache_events[key]
+                        local cache_key = ("%s_%s"):format(year, month)
+                        local month_events = _cache_events[cache_key]
                         table.insert(month_events, new_event)
 
                         reload_if_last_diff()
@@ -1487,6 +1506,21 @@ function CalendarView:show(year, month)
                         -- event has gone out-of-sync
                         for key, _ in pairs(cached_event) do
                           cached_event[key] = edited_event[key]
+                        end
+
+                        reload_if_last_diff()
+                      end)
+                    elseif diff.type == "delete" then
+                      local calendar = iter(calendar_list.items):find(
+                        ---@param calendar CalendarListEntry
+                        function(calendar) return calendar.id == diff.cached_event.organizer.email end
+                      )
+
+                      M.delete_event(token_info, calendar.id, diff, function()
+                        local cache_key = ("%s_%s"):format(year, month)
+                        local month_events = _cache_events[cache_key]
+                        for j, event in ipairs(month_events) do
+                          if event.id == diff.cached_event.id then table.remove(month_events, j) end
                         end
 
                         reload_if_last_diff()
@@ -1758,6 +1792,50 @@ function M.edit_event(token_info, calendar_id, diff, cb)
       ---@cast edited_event -ApiErrorResponse
 
       cb(edited_event)
+    end)
+  )
+end
+
+---@param token_info TokenInfo
+---@param diff Diff
+---@param cb fun()
+function M.delete_event(token_info, calendar_id, diff, cb)
+  vim.system(
+    {
+      "curl",
+      "--request",
+      "DELETE",
+      "--http1.1",
+      "--silent",
+      "--header",
+      ("Authorization: Bearer %s"):format(token_info.access_token),
+      ("https://www.googleapis.com/calendar/v3/calendars/%s/events/%s"):format(
+        url_encode(calendar_id),
+        url_encode(diff.cached_event.id)
+      ),
+    },
+    { text = true },
+    vim.schedule_wrap(function(result)
+      assert(result.stderr == "", result.stderr)
+
+      if result.stdout == "" then
+        cb()
+        return
+      end
+
+      local ok, response = pcall(vim.json.decode, result.stdout) ---@type boolean, string|ApiErrorResponse
+      assert(ok, response)
+      ---@cast response -string
+
+      if response.error then
+        ---@cast response -Event
+        assert(response.error.status == "UNAUTHENTICATED", response.error.message)
+        refresh_access_token(
+          token_info.refresh_token,
+          function(refreshed_token_info) M.edit_event(refreshed_token_info, calendar_id, diff, cb) end
+        )
+        return
+      end
     end)
   )
 end
