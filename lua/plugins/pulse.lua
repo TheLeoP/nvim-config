@@ -12,7 +12,7 @@ return {
         vim.notify("Toma un descanso, LPM >>>>>>>>>>>>>>>>>>>>>:c", vim.log.levels.ERROR, { title = "Descanso" })
         vim.api.nvim_set_hl(0, "Normal", { fg = "red", bg = "red" })
         ---@diagnostic disable-next-line: param-type-mismatch
-        vim.defer_fn(function() vim.api.nvim_set_hl(0, "Normal", normal_hl) end, 500)
+        vim.defer_fn(function() vim.api.nvim_set_hl(0, "Normal", normal_hl) end, 2000)
       end,
     })
   end,
