@@ -1104,16 +1104,19 @@ function CalendarView:write(token_info, calendar_list, events_by_date, year, mon
   buf_year, buf_month, buf_day = tonumber(buf_year), tonumber(buf_month), tonumber(buf_day)
 
   local key = ("%s_%s_%s"):format(buf_year, buf_month, buf_day)
+  local day_events = events_by_date[key]
   ---@type table<string, Event>
-  local day_events_by_id = iter(events_by_date[key]):fold(
-    {},
-    ---@param acc table<string, Event>
-    ---@param event Event
-    function(acc, event)
-      acc[event.id] = event
-      return acc
-    end
-  )
+  local day_events_by_id = day_events
+      and iter(day_events):fold(
+        {},
+        ---@param acc table<string, Event>
+        ---@param event Event
+        function(acc, event)
+          acc[event.id] = event
+          return acc
+        end
+      )
+    or {}
 
   local diffs = {} ---@type Diff[]
   for _, line in ipairs(lines) do
@@ -1718,11 +1721,17 @@ end
 ---@param cb fun(new_event: Event)
 function M.create_event(token_info, calendar_id, diff, cb)
   local data = vim.json.encode { start = diff.start, ["end"] = diff["end"], summary = diff.summary }
+  local tmp_name = os.tmpname()
+  local tmp_file = io.open(tmp_name, "w")
+  assert(tmp_file)
+  tmp_file:write(data)
+  tmp_file:close()
+
   vim.system(
     {
       "curl",
-      "--data",
-      data,
+      "--data-binary",
+      ("@%s"):format(tmp_name),
       "--http1.1",
       "--silent",
       "--header",
@@ -1762,13 +1771,19 @@ function M.edit_event(token_info, calendar_id, diff, cb)
   if diff.start then cached_event.start = diff.start end
   if diff["end"] then cached_event["end"] = diff["end"] end
   local data = vim.json.encode(cached_event)
+  local tmp_name = os.tmpname()
+  local tmp_file = io.open(tmp_name, "w")
+  assert(tmp_file)
+  tmp_file:write(data)
+  tmp_file:close()
+
   vim.system(
     {
       "curl",
       "--request",
       "PUT",
-      "--data",
-      data,
+      "--data-binary",
+      ("@%s"):format(tmp_name),
       "--http1.1",
       "--silent",
       "--header",
