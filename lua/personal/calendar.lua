@@ -91,9 +91,7 @@ Content-Type: text/html
 <!DOCTYPE html>
 <html>
   <body>
-    <h1>Everything done, you can return to Neovim :D</h1>
-    <h2>Your code is:</h2>
-    <pre>%s</pre>
+    <h1>Everything done, you can close this and return to Neovim :D</h1>
   </body>
 </html>
 ]]):format(code)
