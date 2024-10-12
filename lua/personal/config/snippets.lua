@@ -170,7 +170,7 @@ elseif <condition> then
     )
   ),
   s(
-    { trig = "fn ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_ends },
+    { trig = "fn ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
     fmta(
       [[
 <visibility>function <name>(<args>)
