@@ -1,3 +1,5 @@
+-- ported from https://github.com/tpope/vim-abolish
+
 local api = vim.api
 
 local M = {}

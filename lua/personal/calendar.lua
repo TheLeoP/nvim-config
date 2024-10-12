@@ -1,3 +1,5 @@
+-- based on https://github.com/itchyny/calendar.vim
+
 -- TODO: maybe change asserts to vim.notify errors (?)
 -- TODO: maybe show notifications (maybe using mini.notify(to show progress)) while loading/waiting for responses (?)
 local uv = vim.uv

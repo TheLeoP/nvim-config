@@ -1,3 +1,5 @@
+-- ported from https://github.com/vuciv/vim-bujo
+
 local fs_exists = require("personal.util.general").fs_exists
 
 local M = {}
