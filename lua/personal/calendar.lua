@@ -203,6 +203,7 @@ local function get_token_info(cb)
         local file = io.open(refresh_token_path, "r")
         assert(file)
         local content = file:read "*a"
+        file:close()
 
         local ok, token_info = pcall(vim.json.decode, content) ---@type boolean, string|TokenInfo
         assert(ok, token_info)
