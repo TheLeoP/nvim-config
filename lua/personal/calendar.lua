@@ -101,7 +101,7 @@ end
 
 local token_url = "https://oauth2.googleapis.com/token"
 local refresh_token_path = ("%s/refresh_token.json"):format(data_path)
-local _cache_token_info ---@type TokenInfo
+local _cache_token_info ---@type TokenInfo|nil
 local is_refreshing_access_token = false
 
 ---@param refresh_token string
@@ -134,12 +134,26 @@ local function refresh_access_token(refresh_token, cb)
     { text = true },
     vim.schedule_wrap(function(result)
       assert(result.stderr == "", result.stderr)
-      local ok, new_token_info = pcall(vim.json.decode, result.stdout) ---@type boolean, NewTokenInfo|ApiErrorResponse
+      local ok, new_token_info = pcall(vim.json.decode, result.stdout) ---@type boolean, NewTokenInfo|ApiTokenErrorResponse|string
       assert(ok, new_token_info)
+      ---@cast new_token_info -string
 
-      -- TODO: check for errors and refresh refresh_token if needed
-      if new_token_info.error then error(new_token_info.error.message) end
-      ---@cast new_token_info -ApiErrorResponse
+      if new_token_info.error then
+        ---@cast new_token_info -NewTokenInfo
+        assert(new_token_info.error == "invalid_grant", vim.inspect(new_token_info))
+
+        _cache_token_info = nil
+        assert(vim.fn.delete(refresh_token_path) == 0, ("Couldn't delete file %s"):format(refresh_token_path))
+
+        M.get_token_info(function(token_info)
+          is_refreshing_access_token = false
+          api.nvim_exec_autocmds("User", { pattern = token_refreshed_pattern, data = { token_info = token_info } })
+        end)
+
+        return
+      end
+      ---@cast new_token_info +NewTokenInfo
+      ---@cast new_token_info -ApiTokenErrorResponse
 
       _cache_token_info.access_token = new_token_info.access_token
       _cache_token_info.expires_in = new_token_info.expires_in
@@ -186,7 +200,7 @@ local full_auth_url = ("%s?client_id=%s&redirect_uri=%s&scope=%s&response_type=c
 ---@field token_type string
 
 ---@param cb fun(token_info: TokenInfo)
-local function get_token_info(cb)
+function M.get_token_info(cb)
   if _cache_token_info then
     cb(_cache_token_info)
     return
@@ -314,6 +328,10 @@ end
 ---@class ApiErrorResponse
 ---@field error ApiError
 
+---@class ApiTokenErrorResponse
+---@field error string
+---@field error_description string
+
 local _cache_calendar_list ---@type CalendarList
 
 ---@param token_info TokenInfo
@@ -363,7 +381,7 @@ local ns = api.nvim_create_namespace "Calendar"
 
 local sep = " | "
 function M.calendar_list_show()
-  get_token_info(function(token_info)
+  M.get_token_info(function(token_info)
     M.get_calendar_list(token_info, function(calendar_list)
       local buf = api.nvim_create_buf(false, false)
       api.nvim_buf_set_name(buf, "calendar://calendar_list")
@@ -508,7 +526,7 @@ end
 
 ---@param id string
 function M.calendar_show(id)
-  get_token_info(function(token_info)
+  M.get_token_info(function(token_info)
     M.get_calendar(token_info, id, function(calendar)
       local buf = api.nvim_create_buf(false, false)
       api.nvim_create_autocmd("BufLeave", {
@@ -1280,7 +1298,7 @@ function CalendarView:show(year, month, opts)
   if not vim.tbl_isempty(self.cal_bufs) then self.cal_bufs = {} end
   if not vim.tbl_isempty(self.cal_wins) then self.cal_wins = {} end
 
-  get_token_info(function(token_info)
+  M.get_token_info(function(token_info)
     M.get_calendar_list(token_info, function(calendar_list)
       M.get_events(token_info, calendar_list, year, month, opts, function(events)
         local first_day_month = os.date("*t", os.time { year = year, month = month, day = 1 }) --[[@as osdate]]
@@ -1861,7 +1879,7 @@ function M.add_coq_completion()
       if args.line:match "^/[^ ]+ " then return cb() end
       -- TODO: check that line matches the (to be defined) format for where the
       -- calendar name should go
-      get_token_info(function(token_info)
+      M.get_token_info(function(token_info)
         M.get_calendar_list(
           token_info,
           ---@param calendar_list CalendarList
