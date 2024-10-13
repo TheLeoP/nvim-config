@@ -23,17 +23,6 @@ data_path = vim.fs.normalize(data_path)
 local _timezone1, _timezone2 = tostring(os.date "%z"):match "([-+]%d%d)(%d%d)"
 local timezone = ("%s:%s"):format(_timezone1, _timezone2)
 
-fs_exists(
-  data_path,
-  vim.schedule_wrap(function(exists, err)
-    if exists == nil and err then
-      vim.notify(err, vim.log.levels.ERROR)
-      return
-    end
-    if not exists then vim.fn.mkdir(data_path) end
-  end)
-)
-
 ---@param c string
 ---@return string
 local char_to_hex = function(c) return string.format("%%%02X", string.byte(c)) end
