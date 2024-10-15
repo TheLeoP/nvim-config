@@ -1589,15 +1589,23 @@ function CalendarView:show(year, month, opts)
                 pattern = "[ :]()%d%d()",
                 group = "Number",
               },
-              day = {
-                pattern = "^%d+",
-                group = "DiffAdd",
-              },
               punctuation = {
                 pattern = { sep, ":" },
                 group = "Delimiter",
               },
             }
+            local today = os.date "*t"
+            if i == today.day then
+              highlighters.day = {
+                pattern = "^%d+",
+                group = "DiffText",
+              }
+            else
+              highlighters.day = {
+                pattern = "^%d+",
+                group = "DiffAdd",
+              }
+            end
             if day_events then
               local events_text = iter(day_events)
                 :map(function(event)
@@ -1636,7 +1644,6 @@ function CalendarView:show(year, month, opts)
 
               vim.list_extend(lines, events_text)
             end
-            -- TODO: may need to put this in an autocmd because it gets disabled after :edit
             -- TODO: add support for event.colorId using `get_colors` (currently I don't have any events with custom colors, so it's no neccesary)
             hl_enable(cal_buf, { highlighters = highlighters })
 
