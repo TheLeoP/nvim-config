@@ -160,7 +160,7 @@ end
     )
   ),
   s(
-    { trig = "elseif ", snippetType = "autosnippet", condition = conds.line_begin },
+    { trig = "elseif ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
     fmta(
       [[
 elseif <condition> then
@@ -273,7 +273,7 @@ if (<condition>) {
     )
   ),
   s(
-    { trig = "} elseif ", snippetType = "autosnippet", condition = conds.line_begin },
+    { trig = "} elseif ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
     fmta(
       [[
 } else if (<condition>) {
