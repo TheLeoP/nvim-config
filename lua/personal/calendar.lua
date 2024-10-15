@@ -8,6 +8,7 @@ local keymap = vim.keymap
 local iter = vim.iter
 local compute_hex_color_group = require("mini.hipatterns").compute_hex_color_group
 local hl_enable = require("mini.hipatterns").enable
+local notify = require "mini.notify"
 local fs_exists = require("personal.util.general").fs_exists
 local new_uid = require("personal.util.general").new_uid
 
@@ -1294,6 +1295,36 @@ end
 ---@param month integer
 ---@param opts? {refresh: boolean}
 function CalendarView:show(year, month, opts)
+  local has_loaded = false
+  local notification ---@type number|nil
+  vim.defer_fn(function()
+    if has_loaded then return end
+
+    notification = notify.add("Calendar: Loading    ", "INFO", "DiagnosticOk") ---@type number|nil
+    local timer = uv.new_timer()
+    local count = 1
+    local loading = {
+      "Calendar: Loading    ",
+      "Calendar: Loading.   ",
+      "Calendar: Loading..  ",
+      "Calendar: Loading... ",
+    }
+    timer:start(
+      0,
+      250,
+      vim.schedule_wrap(function()
+        count = count + 1
+        if count >= 5 then count = count - 4 end
+        if notification then
+          notify.update(notification, { msg = loading[count], hl = "DiagnosticOk" })
+        else
+          timer:stop()
+          timer:close()
+        end
+      end)
+    )
+  end, 250)
+
   if not vim.tbl_isempty(self.day_bufs) then self.day_bufs = {} end
   if not vim.tbl_isempty(self.cal_bufs) then self.cal_bufs = {} end
   if not vim.tbl_isempty(self.cal_wins) then self.cal_wins = {} end
@@ -1301,6 +1332,12 @@ function CalendarView:show(year, month, opts)
   M.get_token_info(function(token_info)
     M.get_calendar_list(token_info, function(calendar_list)
       M.get_events(token_info, calendar_list, year, month, opts, function(events)
+        has_loaded = true
+        if notification then
+          notify.remove(notification)
+          notification = nil
+        end
+
         local first_day_month = os.date("*t", os.time { year = year, month = month, day = 1 }) --[[@as osdate]]
         local last_day_month = os.date("*t", os.time { year = year, month = month + 1, day = 0 })--[[@as osdate]]
 
