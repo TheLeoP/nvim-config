@@ -1553,11 +1553,6 @@ function CalendarView:show(year, month, opts)
           end
         end
 
-        local days_in_month = {} ---@type integer[]
-        for i = 1, last_day_month.day do
-          table.insert(days_in_month, i)
-        end
-
         iter(self.cal_bufs):flatten(1):each(function(cal_buf)
           local buf_name = api.nvim_buf_get_name(cal_buf)
           local buf_year, buf_month, buf_day = buf_name:match "^calendar://day_(%d%d%d%d)_(%d%d)_(%d%d)"
