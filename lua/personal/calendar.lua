@@ -1558,99 +1558,95 @@ function CalendarView:show(year, month, opts)
           table.insert(days_in_month, i)
         end
 
-        local y = 1
-        local x = first_day_month.wday - 1
-        if x <= 0 then x = x + 7 end
-        iter(days_in_month):each(
-          ---@param i integer
-          function(i)
-            local day_num = ("%s"):format(i)
-            local lines = { day_num }
+        iter(self.cal_bufs):flatten(1):each(function(cal_buf)
+          local buf_name = api.nvim_buf_get_name(cal_buf)
+          local buf_year, buf_month, buf_day = buf_name:match "^calendar://day_(%d%d%d%d)_(%d%d)_(%d%d)"
+          buf_year, buf_month, buf_day = tonumber(buf_year), tonumber(buf_month), tonumber(buf_day)
 
-            local cal_buf = self.cal_bufs[y][x]
-            -- advance to next row for next iteration
-            x = x + 1
-            if x > 7 then
-              y = y + 1
-              x = 1
-            end
+          local day_num = ("%s"):format(buf_day)
+          local lines = { day_num }
 
-            local key = ("%s_%s_%s"):format(first_day_month.year, first_day_month.month, i)
-            local day_events = events_by_date[key]
-            local highlighters = {
-              conceal_id = {
-                pattern = "^()/[^ ]+ ()",
-                group = "", -- group needs to not be `nil` to work
-                extmark_opts = {
-                  conceal = "",
-                },
+          local key = ("%s_%s_%s"):format(buf_year, buf_month, buf_day)
+          local day_events = events_by_date[key]
+          local highlighters = {
+            conceal_id = {
+              pattern = "^()/[^ ]+ ()",
+              group = "", -- group needs to not be `nil` to work
+              extmark_opts = {
+                conceal = "",
               },
-              time = {
-                pattern = "[ :]()%d%d()",
-                group = "Number",
-              },
-              punctuation = {
-                pattern = { sep, ":" },
-                group = "Delimiter",
-              },
+            },
+            time = {
+              pattern = "[ :]()%d%d()",
+              group = "Number",
+            },
+            punctuation = {
+              pattern = { sep, ":" },
+              group = "Delimiter",
+            },
+          }
+
+          local today = os.date "*t"
+          if today.day == buf_day and today.month == buf_month and today.year == buf_year then
+            highlighters.day = {
+              pattern = "^%d+",
+              group = "DiffText",
             }
-            local today = os.date "*t"
-            if i == today.day then
-              highlighters.day = {
-                pattern = "^%d+",
-                group = "DiffText",
-              }
-            else
-              highlighters.day = {
-                pattern = "^%d+",
-                group = "DiffAdd",
-              }
-            end
-            if day_events then
-              local events_text = iter(day_events)
-                :map(function(event)
-                  if not event.start.dateTime then return ("/%s %s"):format(event.id, event.summary) end
-                  local start_date_time = parse_date_time(event.start.dateTime)
-                  local end_date_time = parse_date_time(event["end"].dateTime)
-                  return ("/%s %s%s%02d:%02d:%02d%s%02d:%02d:%02d"):format(
-                    event.id,
-                    event.summary,
-                    sep,
-                    start_date_time.h,
-                    start_date_time.min,
-                    start_date_time.s,
-                    sep,
-                    end_date_time.h,
-                    end_date_time.min,
-                    end_date_time.s
-                  )
-                end)
-                :totable()
-              iter(day_events):each(
-                ---@param event Event
-                function(event)
-                  local calendar = iter(calendar_list.items):find(
-                    ---@param calendar CalendarListEntry
-                    function(calendar) return calendar.id == event.organizer.email end
-                  )
-
-                  if not calendar or not event.summary then return end
-                  local fg = compute_hex_color_group(calendar.foregroundColor, "fg")
-                  local bg = compute_hex_color_group(calendar.backgroundColor, "bg")
-                  highlighters[event.id .. "fg"] = { pattern = "%f[%w]()" .. event.summary .. "()%f[%W]", group = fg }
-                  highlighters[event.id .. "bg"] = { pattern = "%f[%w]()" .. event.summary .. "()%f[%W]", group = bg }
-                end
-              )
-
-              vim.list_extend(lines, events_text)
-            end
-            -- TODO: add support for event.colorId using `get_colors` (currently I don't have any events with custom colors, so it's no neccesary)
-            hl_enable(cal_buf, { highlighters = highlighters })
-
-            api.nvim_buf_set_lines(cal_buf, 0, -1, true, lines)
-            vim.bo[cal_buf].modified = false
+          elseif buf_month == month then
+            highlighters.day = {
+              pattern = "^%d+",
+              group = "DiffAdd",
+            }
+          else
+            highlighters.day = {
+              pattern = "^%d+",
+              group = "Comment",
+            }
           end
-        )
+          if day_events then
+            local events_text = iter(day_events)
+              :map(function(event)
+                if not event.start.dateTime then return ("/%s %s"):format(event.id, event.summary) end
+                local start_date_time = parse_date_time(event.start.dateTime)
+                local end_date_time = parse_date_time(event["end"].dateTime)
+                return ("/%s %s%s%02d:%02d:%02d%s%02d:%02d:%02d"):format(
+                  event.id,
+                  event.summary,
+                  sep,
+                  start_date_time.h,
+                  start_date_time.min,
+                  start_date_time.s,
+                  sep,
+                  end_date_time.h,
+                  end_date_time.min,
+                  end_date_time.s
+                )
+              end)
+              :totable()
+            iter(day_events):each(
+              ---@param event Event
+              function(event)
+                local calendar = iter(calendar_list.items):find(
+                  ---@param calendar CalendarListEntry
+                  function(calendar) return calendar.id == event.organizer.email end
+                )
+
+                if not calendar or not event.summary then return end
+                local fg = compute_hex_color_group(calendar.foregroundColor, "fg")
+                local bg = compute_hex_color_group(calendar.backgroundColor, "bg")
+                highlighters[event.id .. "fg"] = { pattern = "%f[%w]()" .. event.summary .. "()%f[%W]", group = fg }
+                highlighters[event.id .. "bg"] = { pattern = "%f[%w]()" .. event.summary .. "()%f[%W]", group = bg }
+              end
+            )
+
+            vim.list_extend(lines, events_text)
+          end
+          -- TODO: add support for event.colorId using `get_colors` (currently I don't have any events with custom colors, so it's no neccesary)
+          hl_enable(cal_buf, { highlighters = highlighters })
+
+          api.nvim_buf_set_lines(cal_buf, 0, -1, true, lines)
+          vim.bo[cal_buf].modified = false
+        end)
       end)
     end)
   end)
