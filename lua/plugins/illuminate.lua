@@ -5,6 +5,9 @@ return {
       filetype_overrides = {
         cs = { providers = { "treesitter", "regex" } },
       },
+      filetypes_denylist = {
+        "",
+      },
     }
   end,
 }
