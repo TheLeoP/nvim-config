@@ -295,8 +295,8 @@ end
 ---@field timeZone string
 ---@field summaryOverride string
 ---@field colorId string
----@field backgroundColor string
----@field foregroundColor string
+---@field backgroundColor string?
+---@field foregroundColor string?
 ---@field hidden boolean
 ---@field selected boolean
 ---@field accessRole string
@@ -333,12 +333,14 @@ end
 ---@field error string
 ---@field error_description string
 
-local _cache_calendar_list ---@type CalendarList
+local _cache_calendar_list ---@type CalendarList|nil
 
 ---@param token_info TokenInfo
+---@param opts? {refresh:true}
 ---@param cb fun(calendar_list: CalendarList)
-function M.get_calendar_list(token_info, cb)
-  -- TODO: automatically or manually invalidate/reload this?
+function M.get_calendar_list(token_info, opts, cb)
+  if opts and opts.refresh then _cache_calendar_list = nil end
+
   if _cache_calendar_list then
     cb(_cache_calendar_list)
     return
@@ -365,7 +367,7 @@ function M.get_calendar_list(token_info, cb)
         assert(calendar_list.error.status == "UNAUTHENTICATED", calendar_list.error.message)
         refresh_access_token(
           token_info.refresh_token,
-          function(refreshed_token_info) M.get_calendar_list(refreshed_token_info, cb) end
+          function(refreshed_token_info) M.get_calendar_list(refreshed_token_info, {}, cb) end
         )
         return
       end
@@ -378,12 +380,11 @@ function M.get_calendar_list(token_info, cb)
   )
 end
 
-local ns = api.nvim_create_namespace "Calendar"
-
 local sep = " | "
-function M.calendar_list_show()
+---@param opts? {refresh:boolean}
+function M.calendar_list_show(opts)
   M.get_token_info(function(token_info)
-    M.get_calendar_list(token_info, function(calendar_list)
+    M.get_calendar_list(token_info, opts, function(calendar_list)
       local buf = api.nvim_create_buf(false, false)
       api.nvim_buf_set_name(buf, "calendar://calendar_list")
       api.nvim_create_autocmd("BufLeave", {
@@ -391,26 +392,149 @@ function M.calendar_list_show()
         callback = function() api.nvim_buf_delete(buf, { force = true }) end,
         once = true,
       })
+
+      local factor = 0.85
+      local width = math.floor(vim.o.columns * factor)
+      local height = math.floor(vim.o.lines * factor)
+      local col = (vim.o.columns - width) / 2
+      local row = (vim.o.lines - height) / 2
+      local win = api.nvim_open_win(buf, true, {
+        relative = "editor",
+        row = row,
+        col = col,
+        width = width,
+        height = height,
+        title = " Calendar list ",
+        border = "single",
+        style = "minimal",
+      })
+
       api.nvim_create_autocmd("BufWriteCmd", {
         buffer = buf,
         callback = function()
           vim.bo[buf].modifiable = false
 
-          local lines = api.nvim_buf_get_lines(buf, 0, -1, true)
+          ---@type table<string, CalendarListEntry>
+          local calendars_by_id = iter(calendar_list.items):fold(
+            {},
+            ---@param acc table<string, CalendarListEntry>
+            ---@param calendar CalendarListEntry
+            function(acc, calendar)
+              acc[calendar.id] = calendar
+              return acc
+            end
+          )
 
+          local lines = api.nvim_buf_get_lines(buf, 0, -1, true)
+          local diffs = {} ---@type CalendarDiff[]
           iter(lines)
             :map(function(line)
-              local summary, description, id = unpack(vim.split(line, sep, { trimempty = true }))
-              return {
-                summary = summary,
-                description = description,
-                id = id,
-              }
+              if line:match "^/[^ ]+" then -- existing entry
+                local id, tail = line:match "^/([^ ]+) (.*)" ---@type string, string
+                local summary, description = unpack(vim.split(tail, sep, { trimempty = true }))
+                return {
+                  summary = summary,
+                  description = description,
+                  id = id,
+                  is_new = false,
+                }
+              else
+                local summary, description = unpack(vim.split(line, sep, { trimempty = true }))
+                return {
+                  summary = summary,
+                  description = description,
+                  is_new = true,
+                }
+              end
             end)
-            :each(function(calendar_info)
-              -- TODO: fist parse all the diffs and then CRUD
-              -- if not calendar_info.id then print(("Creating calendar with name %s"):format(calendar_info.summary)) end
-            end)
+            :each(
+              ---@param calendar_info {summary:string, description:string, id: string?, is_new: boolean}
+              function(calendar_info)
+                local is_new = calendar_info.is_new
+                local summary = calendar_info.summary
+                local id = calendar_info.id
+
+                if not is_new then
+                  ---@cast id -nil
+
+                  local cached_calendar = iter(_cache_calendar_list.items):find(
+                    ---@param calendar CalendarListEntry
+                    function(calendar) return calendar.id == id end
+                  )
+                  assert(
+                    cached_calendar,
+                    ("The calendar with id `%s` is not in cache. Maybe you modified it by acciddent"):format(id)
+                  )
+                  assert(summary, ("The calendar with id `%s` has no summary"):format(id))
+                  calendars_by_id[id] = nil
+
+                  local edit_diff = {}
+                  if summary ~= cached_calendar.summary then edit_diff.summary = summary end
+                  if not vim.tbl_isempty(edit_diff) then
+                    edit_diff.cached_calendar = cached_calendar
+                    edit_diff.type = "edit"
+                    table.insert(diffs, edit_diff)
+                  end
+                else
+                  -- TODO: support adding an already existing calendar https://developers.google.com/calendar/api/v3/reference/calendarList/insert
+                  assert(summary ~= "", "The summary for a new calendar is empty")
+                  table.insert(diffs, {
+                    type = "new",
+                    summary = summary,
+                  })
+                end
+              end
+            )
+
+          iter(calendars_by_id):each(
+            function(id, calendar) table.insert(diffs, { type = "delete", cached_calendar = calendar }) end
+          )
+
+          local diff_num = #diffs
+          local i = 0
+          local reload_if_last_diff = function()
+            i = i + 1
+            if i == diff_num then
+              api.nvim_win_close(win, true)
+              M.calendar_list_show()
+            end
+          end
+          iter(diffs):each(
+            ---@param diff CalendarDiff
+            function(diff)
+              if diff.type == "new" then
+                assert(diff.summary, ("Diff has no summary %s"):format(vim.inspect(diff)))
+                M.create_calendar(token_info, diff, function(new_calendar)
+                  assert(_cache_calendar_list)
+                  table.insert(_cache_calendar_list.items, new_calendar)
+
+                  reload_if_last_diff()
+                end)
+              elseif diff.type == "edit" then
+                M.edit_calendar(token_info, diff, function(edited_calendar)
+                  local cached_calendar = diff.cached_calendar --[[@as table<unknown, unknown>]]
+
+                  -- can't only update some fields because google checks
+                  -- things like the last update time to check if the
+                  -- calendar has gone out-of-sync
+                  for key, _ in pairs(edited_calendar) do
+                    cached_calendar[key] = edited_calendar[key]
+                  end
+
+                  reload_if_last_diff()
+                end)
+              elseif diff.type == "delete" then
+                M.delete_calendar(token_info, diff, function()
+                  assert(_cache_calendar_list)
+                  for j, calendar in ipairs(_cache_calendar_list.items) do
+                    if calendar.id == diff.cached_calendar.id then table.remove(_cache_calendar_list.items, j) end
+                  end
+
+                  reload_if_last_diff()
+                end)
+              end
+            end
+          )
 
           vim.bo[buf].modified = false
           vim.bo[buf].modifiable = true
@@ -437,10 +561,14 @@ function M.calendar_list_show()
         :map(
           ---@param calendar CalendarListEntry
           function(calendar)
-            local bg = compute_hex_color_group(calendar.backgroundColor, "bg")
-            local fg = compute_hex_color_group(calendar.foregroundColor, "fg")
-            highlighters[calendar.id .. "fg"] = { pattern = "%f[%w]()" .. calendar.summary .. "()%f[%W]", group = fg }
-            highlighters[calendar.id .. "bg"] = { pattern = "%f[%w]()" .. calendar.summary .. "()%f[%W]", group = bg }
+            if calendar.foregroundColor then
+              local fg = compute_hex_color_group(calendar.foregroundColor, "fg")
+              highlighters[calendar.id .. "fg"] = { pattern = "%f[%w]()" .. calendar.summary .. "()%f[%W]", group = fg }
+            end
+            if calendar.backgroundColor then
+              local bg = compute_hex_color_group(calendar.backgroundColor, "bg")
+              highlighters[calendar.id .. "bg"] = { pattern = "%f[%w]()" .. calendar.summary .. "()%f[%W]", group = bg }
+            end
 
             if calendar.accessRole == "reader" then
               highlighters[calendar.id .. "deprecated"] =
@@ -457,26 +585,15 @@ function M.calendar_list_show()
 
       keymap.set("n", "<cr>", function()
         local line = api.nvim_get_current_line()
-        local _, _, id = unpack(vim.split(line, sep, { trimempty = true }))
+        local id = line:match "^/([^ ]+) " ---@type string, string
 
         api.nvim_win_close(0, true)
         M.calendar_show(id)
       end, { buffer = buf })
-
-      local width = math.floor(vim.o.columns * 0.85)
-      local height = math.floor(vim.o.lines * 0.85)
-      local col = (vim.o.columns - width) / 2
-      local row = (vim.o.lines - height) / 2
-      api.nvim_open_win(buf, true, {
-        relative = "editor",
-        row = row,
-        col = col,
-        width = width,
-        height = height,
-        title = " Calendar list ",
-        border = "single",
-        style = "minimal",
-      })
+      keymap.set("n", "<c-l>", function()
+        api.nvim_win_close(win, true)
+        M.calendar_list_show { refresh = true }
+      end, { buffer = buf })
     end)
   end)
 end
@@ -532,6 +649,143 @@ function M.get_calendar(token_info, id, cb)
 
       _cache_calendar[id] = calendar
       cb(calendar)
+    end)
+  )
+end
+
+---@param token_info TokenInfo
+---@param diff CalendarDiff
+---@param cb fun(new_calendar: Calendar)
+function M.create_calendar(token_info, diff, cb)
+  local data = vim.json.encode { summary = diff.summary }
+  local tmp_name = os.tmpname()
+  local tmp_file = io.open(tmp_name, "w")
+  assert(tmp_file)
+  tmp_file:write(data)
+  tmp_file:close()
+
+  vim.system(
+    {
+      "curl",
+      "--data-binary",
+      ("@%s"):format(tmp_name),
+      "--http1.1",
+      "--silent",
+      "--header",
+      ("Authorization: Bearer %s"):format(token_info.access_token),
+      "https://www.googleapis.com/calendar/v3/calendars",
+    },
+    { text = true },
+    vim.schedule_wrap(function(result)
+      assert(result.stderr == "", result.stderr)
+      local ok, new_calendar = pcall(vim.json.decode, result.stdout) ---@type boolean, string|Calendar|ApiErrorResponse
+      assert(ok, new_calendar)
+      ---@cast new_calendar -string
+
+      if new_calendar.error then
+        ---@cast new_calendar -Calendar
+        assert(new_calendar.error.status == "UNAUTHENTICATED", new_calendar.error.message)
+        refresh_access_token(
+          token_info.refresh_token,
+          function(refreshed_token_info) M.create_calendar(refreshed_token_info, diff, cb) end
+        )
+        return
+      end
+      ---@cast new_calendar +Calendar
+      ---@cast new_calendar -ApiErrorResponse
+
+      cb(new_calendar)
+    end)
+  )
+end
+
+---@param token_info TokenInfo
+---@param diff CalendarDiff
+---@param cb fun(new_calendar: Calendar)
+function M.edit_calendar(token_info, diff, cb)
+  local cached_calendar = vim.deepcopy(diff.cached_calendar)
+  if diff.summary then cached_calendar.summary = diff.summary end
+  local data = vim.json.encode(cached_calendar)
+  local tmp_name = os.tmpname()
+  local tmp_file = io.open(tmp_name, "w")
+  assert(tmp_file)
+  tmp_file:write(data)
+  tmp_file:close()
+
+  vim.system(
+    {
+      "curl",
+      "--request",
+      "PUT",
+      "--data-binary",
+      ("@%s"):format(tmp_name),
+      "--http1.1",
+      "--silent",
+      "--header",
+      ("Authorization: Bearer %s"):format(token_info.access_token),
+      ("https://www.googleapis.com/calendar/v3/calendars/%s"):format(diff.cached_calendar.id),
+    },
+    { text = true },
+    vim.schedule_wrap(function(result)
+      assert(result.stderr == "", result.stderr)
+      local ok, edited_calendar = pcall(vim.json.decode, result.stdout) ---@type boolean, string|Calendar|ApiErrorResponse
+      assert(ok, edited_calendar)
+      ---@cast edited_calendar -string
+
+      if edited_calendar.error then
+        ---@cast edited_calendar -Calendar
+        assert(edited_calendar.error.status == "UNAUTHENTICATED", edited_calendar.error.message)
+        refresh_access_token(
+          token_info.refresh_token,
+          function(refreshed_token_info) M.edit_calendar(refreshed_token_info, diff, cb) end
+        )
+        return
+      end
+      ---@cast edited_calendar +Calendar
+      ---@cast edited_calendar -ApiErrorResponse
+
+      cb(edited_calendar)
+    end)
+  )
+end
+
+---@param token_info TokenInfo
+---@param diff CalendarDiff
+---@param cb fun()
+function M.delete_calendar(token_info, diff, cb)
+  vim.system(
+    {
+      "curl",
+      "--request",
+      "DELETE",
+      "--http1.1",
+      "--silent",
+      "--header",
+      ("Authorization: Bearer %s"):format(token_info.access_token),
+      ("https://www.googleapis.com/calendar/v3/calendars/%s"):format(diff.cached_calendar.id),
+    },
+    { text = true },
+    vim.schedule_wrap(function(result)
+      assert(result.stderr == "", result.stderr)
+
+      if result.stdout == "" then
+        cb()
+        return
+      end
+
+      local ok, response = pcall(vim.json.decode, result.stdout) ---@type boolean, string|ApiErrorResponse
+      assert(ok, response)
+      ---@cast response -string
+
+      if response.error then
+        ---@cast response -Event
+        assert(response.error.status == "UNAUTHENTICATED", response.error.message)
+        refresh_access_token(
+          token_info.refresh_token,
+          function(refreshed_token_info) M.delete_calendar(refreshed_token_info, diff, cb) end
+        )
+        return
+      end
     end)
   )
 end
@@ -1191,9 +1445,7 @@ function CalendarView:write(token_info, calendar_list, events_by_date, year, mon
       local id, tail = line:match "^/([^ ]+) (.*)" ---@type string, string
       local summary, start_time, end_time = unpack(vim.split(tail, sep, { trimempty = true }))
 
-      local month_events = _cache_events[("%s_%s"):format(year, month)]
-      ---@type Event
-      local cached_event = iter(month_events):find(
+      local cached_event = iter(day_events):find(
         ---@param event Event
         function(event) return event.id == id end
       )
@@ -1302,9 +1554,7 @@ function CalendarView:write(token_info, calendar_list, events_by_date, year, mon
         )
 
         M.create_event(token_info, calendar.id, diff, function(new_event)
-          local cache_key = ("%s_%s"):format(year, month)
-          local month_events = _cache_events[cache_key]
-          table.insert(month_events, new_event)
+          table.insert(day_events, new_event)
 
           reload_if_last_diff()
         end)
@@ -1333,10 +1583,10 @@ function CalendarView:write(token_info, calendar_list, events_by_date, year, mon
         )
 
         M.delete_event(token_info, calendar.id, diff, function()
-          local cache_key = ("%s_%s"):format(year, month)
-          local month_events = _cache_events[cache_key]
-          for j, event in ipairs(month_events) do
-            if event.id == diff.cached_event.id then table.remove(month_events, j) end
+          for _, events in pairs(_cache_events) do
+            for j, event in ipairs(events) do
+              if event.id == diff.cached_event.id then table.remove(events, j) end
+            end
           end
 
           reload_if_last_diff()
@@ -1421,7 +1671,7 @@ function CalendarView:show(year, month, opts)
     os.date("*t", os.time { year = last_date.year, month = last_date.month, day = last_date.day + 1 })
 
   M.get_token_info(function(token_info)
-    M.get_calendar_list(token_info, function(calendar_list)
+    M.get_calendar_list(token_info, {}, function(calendar_list)
       M.get_events(token_info, calendar_list, {
         start = {
           year = first_date.year --[[@as integer]],
@@ -1708,16 +1958,21 @@ function CalendarView:show(year, month, opts)
             iter(day_events):each(
               ---@param event Event
               function(event)
+                ---@type CalendarListEntry
                 local calendar = iter(calendar_list.items):find(
                   ---@param calendar CalendarListEntry
                   function(calendar) return calendar.id == event.organizer.email end
                 )
 
                 if not calendar or not event.summary then return end
-                local fg = compute_hex_color_group(calendar.foregroundColor, "fg")
-                local bg = compute_hex_color_group(calendar.backgroundColor, "bg")
-                highlighters[event.id .. "fg"] = { pattern = "%f[%w]()" .. event.summary .. "()%f[%W]", group = fg }
-                highlighters[event.id .. "bg"] = { pattern = "%f[%w]()" .. event.summary .. "()%f[%W]", group = bg }
+                if calendar.foregroundColor then
+                  local fg = compute_hex_color_group(calendar.foregroundColor, "fg")
+                  highlighters[event.id .. "fg"] = { pattern = "%f[%w]()" .. event.summary .. "()%f[%W]", group = fg }
+                end
+                if calendar.backgroundColor then
+                  local bg = compute_hex_color_group(calendar.backgroundColor, "bg")
+                  highlighters[event.id .. "bg"] = { pattern = "%f[%w]()" .. event.summary .. "()%f[%W]", group = bg }
+                end
               end
             )
 
@@ -1808,6 +2063,11 @@ end
 ---@field end Date?
 ---@field cached_event Event?
 ---@field calendar_summary string?
+
+---@class CalendarDiff
+---@field type "new"|"edit"|"delete"
+---@field summary string?
+---@field cached_calendar Calendar?
 
 ---@param token_info TokenInfo
 ---@param diff Diff
@@ -1946,7 +2206,7 @@ function M.delete_event(token_info, calendar_id, diff, cb)
         assert(response.error.status == "UNAUTHENTICATED", response.error.message)
         refresh_access_token(
           token_info.refresh_token,
-          function(refreshed_token_info) M.edit_event(refreshed_token_info, calendar_id, diff, cb) end
+          function(refreshed_token_info) M.delete_event(refreshed_token_info, calendar_id, diff, cb) end
         )
         return
       end
@@ -1967,6 +2227,7 @@ function M.add_coq_completion()
       M.get_token_info(function(token_info)
         M.get_calendar_list(
           token_info,
+          {},
           ---@param calendar_list CalendarList
           function(calendar_list)
             local items = iter(calendar_list.items)
