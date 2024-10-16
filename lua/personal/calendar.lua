@@ -716,37 +716,55 @@ end
 ---@field nextSyncToken string
 ---@field items Event[]
 
-local _cache_events = {} ---@type table<string, Event[]> year_month -> events
+local _cache_events = {} ---@type table<string, Event[]> year_month_day -> events
+local already_seen = {} ---@type table<string, boolean>
+
+---@class CalendarDate
+---@field year integer
+---@field month integer
+---@field day integer
 
 ---@param token_info TokenInfo
 ---@param calendar_list CalendarList
----@param year integer
----@param month integer
----@param opts? {refresh: boolean}
----@param cb fun(events: Event[])
-function M.get_events(token_info, calendar_list, year, month, opts, cb)
-  if opts and opts.refresh then _cache_events = {} end
-
-  local start_year = year
-  local start_month = month
-  local end_year = year
-  local end_month = month + 1
-  if end_month > 12 then
-    end_year = end_year + 1
-    end_month = end_month - 12
+---@param opts {start: CalendarDate, end: CalendarDate, refresh: boolean?} start and end are exclusive TODO
+---@param cb fun(events: table<string, Event[]>)
+function M.get_events(token_info, calendar_list, opts, cb)
+  if opts.refresh then
+    _cache_events = {}
+    already_seen = {}
   end
 
-  local time_min = ("%04d-%02d-01T00:00:00%s"):format(start_year, start_month, timezone)
-  local time_max = ("%04d-%02d-01T00:00:00%s"):format(end_year, end_month, timezone)
+  local start_year = opts.start.year
+  local start_month = opts.start.month
+  local start_day = opts.start.day
+  local end_year = opts["end"].year
+  local end_month = opts["end"].month
+  local end_day = opts["end"].day
 
-  local key = ("%s_%s"):format(year, month)
-  if _cache_events[key] then
-    cb(_cache_events[key])
+  local time_min = ("%04d-%02d-%02dT00:00:00%s"):format(start_year, start_month, start_day, timezone)
+  local time_max = ("%04d-%02d-%02dT00:00:00%s"):format(end_year, end_month, end_day, timezone)
+
+  local start_key = ("%s_%s_%s"):format(start_year, start_month, start_day)
+  local end_key = ("%s_%s_%s"):format(end_year, end_month, end_day)
+  local events_key = ("%s_%s"):format(start_key, end_key)
+  if already_seen[events_key] then
+    cb(_cache_events)
     return
   end
+  -- in order to avoid duplicates on border days, if the whole date range hasn't been queried before, clean border days
+  do
+    local start_date = opts.start
+    local end_date = opts["end"]
+    local start_yday = os.date("*t", os.time(start_date --[[@as osdateparam]])).yday
+    local end_yday = os.date("*t", os.time(end_date--[[@as osdateparam]])).yday
+    for i = 0, end_yday - start_yday do
+      local date = os.date("*t", os.time { year = start_date.year, month = start_date.month, day = start_date.day + i })
+      local key = ("%s_%s_%s"):format(date.year, date.month, date.day)
+      if _cache_events[key] then _cache_events[key] = {} end
+    end
+  end
 
-  local all_calendar_events = {} ---@type CalendarEvents[]
-
+  local count = 0
   iter(calendar_list.items):each(
     ---@param calendar CalendarListEntry
     function(calendar)
@@ -775,21 +793,37 @@ function M.get_events(token_info, calendar_list, year, month, opts, cb)
             assert(events.error.status == "UNAUTHENTICATED", events.error.message)
             refresh_access_token(
               token_info.refresh_token,
-              function(refreshed_token_info) M.get_events(refreshed_token_info, calendar_list, year, month, opts, cb) end
+              function(refreshed_token_info) M.get_events(refreshed_token_info, calendar_list, opts, cb) end
             )
             return
           end
           ---@cast events +CalendarEvents
           ---@cast events -ApiErrorResponse
 
-          table.insert(all_calendar_events, events)
+          iter(events.items):each(
+            ---@param event Event
+            function(event)
+              local start_date = M.parse_date_or_datetime(event.start, {})
+              local end_date = M.parse_date_or_datetime(event["end"], { is_end = true })
 
-          if #all_calendar_events == #calendar_list.items then
-            _cache_events[key] = iter(all_calendar_events)
-              :map(function(calendar_event) return calendar_event.items end)
-              :flatten(1)
-              :totable()
-            cb(_cache_events[key])
+              local start_yday =
+                os.date("*t", os.time { year = start_date.y, month = start_date.m, day = start_date.d }).yday
+              local end_yday = os.date("*t", os.time { year = end_date.y, month = end_date.m, day = end_date.d }).yday
+              for i = 0, end_yday - start_yday do
+                local date =
+                  os.date("*t", os.time { year = start_date.y, month = start_date.m, day = start_date.d + i })
+                local key = ("%s_%s_%s"):format(date.year, date.month, date.day)
+                if not _cache_events[key] then _cache_events[key] = {} end
+                table.insert(_cache_events[key], event)
+              end
+            end
+          )
+
+          count = count + 1
+          if count == #calendar_list.items then
+            cb(_cache_events)
+            -- TODO: dedup multiple request like colors?
+            already_seen[events_key] = true
           end
         end)
       )
@@ -824,6 +858,19 @@ local function parse_date(date, opts)
     m = opts.is_end and tonumber(m) or tonumber(m),
     d = opts.is_end and tonumber(d) - 1 or tonumber(d), -- dates (without time) are end exclusive
   }
+end
+
+---@param date_or_date_time Date
+---@param opts {is_end: boolean}
+---@return {y: integer, m: integer, d: integer}
+function M.parse_date_or_datetime(date_or_date_time, opts)
+  if date_or_date_time.date then
+    return parse_date(date_or_date_time.date, opts)
+  elseif date_or_date_time.dateTime then
+    return parse_date_time(date_or_date_time.dateTime)
+  else
+    error(("Date %s has no date or datetime"):format(vim.inspect(date_or_date_time)))
+  end
 end
 
 ---@class CalendarView
@@ -1329,59 +1376,64 @@ function CalendarView:show(year, month, opts)
   if not vim.tbl_isempty(self.cal_bufs) then self.cal_bufs = {} end
   if not vim.tbl_isempty(self.cal_wins) then self.cal_wins = {} end
 
+  local first_day_month = os.date("*t", os.time { year = year, month = month, day = 1 }) --[[@as osdate]]
+
+  local w_in_m = self:w_in_m(year, month)
+
+  local first_date ---@type osdate
+  local last_date ---@type osdate
+
+  local x_first_day_month = first_day_month.wday - 1
+  if x_first_day_month <= 0 then x_first_day_month = x_first_day_month + 7 end
+  do
+    local i = 1
+    for y = 1, w_in_m do
+      for x = 1, self.d_in_w do
+        i = i + 1
+        local buf = api.nvim_create_buf(false, false)
+
+        if x == 1 then self.cal_bufs[y] = {} end
+
+        local date = os.date("*t", os.time { year = year, month = month, day = i - x_first_day_month }) --[[@as osdate]]
+        if x == 1 and y == 1 then
+          first_date = date
+        elseif y == w_in_m and x == self.d_in_w then
+          last_date = date
+        end
+
+        api.nvim_buf_set_name(buf, ("calendar://day_%04d_%02d_%02d"):format(date.year, date.month, date.day))
+        self.cal_bufs[y][x] = buf
+      end
+    end
+  end
+  local last_date_plus_one =
+    os.date("*t", os.time { year = last_date.year, month = last_date.month, day = last_date.day + 1 })
+
   M.get_token_info(function(token_info)
     M.get_calendar_list(token_info, function(calendar_list)
-      M.get_events(token_info, calendar_list, year, month, opts, function(events)
+      M.get_events(token_info, calendar_list, {
+        start = {
+          year = first_date.year --[[@as integer]],
+          month = first_date.month --[[@as integer]],
+          day = first_date.day --[[@as integer]],
+        },
+        ["end"] = {
+          year = last_date_plus_one.year --[[@as integer]],
+          month = last_date_plus_one.month --[[@as integer]],
+          day = last_date_plus_one.day --[[@as integer]],
+        },
+        refresh = opts and opts.refresh,
+      }, function(events_by_date)
         has_loaded = true
         if notification then
           notify.remove(notification)
           notification = nil
         end
 
-        local first_day_month = os.date("*t", os.time { year = year, month = month, day = 1 }) --[[@as osdate]]
-        local last_day_month = os.date("*t", os.time { year = year, month = month + 1, day = 0 })--[[@as osdate]]
-
-        ---@type table<string, Event[]>
-        local events_by_date = iter(events):fold(
-          {},
-          ---@param acc table<string, Event[]>
-          ---@param event Event
-          function(acc, event)
-            local start_date ---@type {y: integer, m: integer, d: integer}
-            if event.start.date then
-              start_date = parse_date(event.start.date, {})
-            elseif event.start.dateTime then
-              start_date = parse_date_time(event.start.dateTime)
-            end
-            local end_date ---@type {y: integer, m: integer, d: integer}
-            if event["end"].date then
-              end_date = parse_date(event["end"].date, { is_end = true })
-            elseif event["end"].dateTime then
-              end_date = parse_date_time(event["end"].dateTime)
-            end
-            -- this only works if the event started in a previous/next month
-            -- and continues into the current month. If the event started and
-            -- concluded in the previous/next month (and is being shown in the
-            -- current month because of something like a timezone issue), this
-            -- will incorrectly show the event as taking place in all the days
-            -- of the current month
-            local start_day = start_date.m == first_day_month.month and start_date.d or 1
-            local end_day = end_date.m == first_day_month.month and end_date.d or last_day_month.day
-            for i = start_day, end_day do
-              local key = ("%s_%s_%s"):format(year, month, i)
-              if not acc[key] then acc[key] = {} end
-              table.insert(acc[key], event)
-            end
-            return acc
-          end
-        )
-
         local factor = 1
         -- TODO: use max_[] to make last row/col longer if needed in order to use the full screen
         local max_width = math.floor(vim.o.columns * factor)
         local max_height = math.floor(vim.o.lines * factor)
-
-        local w_in_m = self:w_in_m(year, month)
 
         local width = math.floor(max_width / self.d_in_w)
         local height = math.floor(max_height / (w_in_m + 1))
@@ -1417,25 +1469,6 @@ function CalendarView:show(year, month, opts)
           vim.bo[buf].modifiable = false
 
           self.day_bufs[x] = buf
-        end
-
-        local x_first_day_month = first_day_month.wday - 1
-        if x_first_day_month <= 0 then x_first_day_month = x_first_day_month + 7 end
-        do
-          local i = 1
-          for y = 1, w_in_m do
-            for x = 1, self.d_in_w do
-              i = i + 1
-              local buf = api.nvim_create_buf(false, false)
-
-              if x == 1 then self.cal_bufs[y] = {} end
-
-              local date = os.date("*t", os.time { year = year, month = month, day = i - x_first_day_month }) --[[@as osdate]]
-
-              api.nvim_buf_set_name(buf, ("calendar://day_%04d_%02d_%02d"):format(date.year, date.month, date.day))
-              self.cal_bufs[y][x] = buf
-            end
-          end
         end
 
         self.month_win = api.nvim_open_win(self.month_buf, false, {
