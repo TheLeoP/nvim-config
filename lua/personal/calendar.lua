@@ -726,7 +726,7 @@ local already_seen = {} ---@type table<string, boolean>
 
 ---@param token_info TokenInfo
 ---@param calendar_list CalendarList
----@param opts {start: CalendarDate, end: CalendarDate, refresh: boolean?} start and end are exclusive TODO
+---@param opts {start: CalendarDate, end: CalendarDate, refresh: boolean?} start and end are exclusive
 ---@param cb fun(events: table<string, Event[]>)
 function M.get_events(token_info, calendar_list, opts, cb)
   if opts.refresh then
