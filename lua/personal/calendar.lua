@@ -1471,6 +1471,7 @@ function CalendarView:show(year, month, opts)
           self.day_bufs[x] = buf
         end
 
+        local zindex = 1 -- less than coq documentation window
         self.month_win = api.nvim_open_win(self.month_buf, false, {
           focusable = false,
           relative = "editor",
@@ -1479,6 +1480,7 @@ function CalendarView:show(year, month, opts)
           width = y_m_width,
           height = y_m_height,
           style = "minimal",
+          zindex = zindex,
         })
         vim.wo[self.month_win].winblend = 0
         self.year_win = api.nvim_open_win(self.year_buf, false, {
@@ -1489,6 +1491,7 @@ function CalendarView:show(year, month, opts)
           width = y_m_width,
           height = y_m_height,
           style = "minimal",
+          zindex = zindex,
         })
         vim.wo[self.year_win].winblend = 0
 
@@ -1503,6 +1506,7 @@ function CalendarView:show(year, month, opts)
             width = width,
             height = days_height,
             style = "minimal",
+            zindex = zindex,
           })
           vim.wo[win].winblend = 0
           self.day_wins[x] = win
@@ -1520,6 +1524,7 @@ function CalendarView:show(year, month, opts)
               width = width,
               height = height,
               style = "minimal",
+              zindex = zindex,
             })
             vim.wo[win].winhighlight = "" -- since filchars eob is ' ', this will make non-focused windows a different color
             vim.wo[win].winblend = 0
@@ -1953,9 +1958,19 @@ function M.add_coq_completion()
           ---@param calendar_list CalendarList
           function(calendar_list)
             local items = iter(calendar_list.items)
+              :filter(
+                ---@param calendar CalendarListEntry
+                function(calendar) return calendar.accessRole ~= "reader" end
+              )
               :map(
                 ---@param calendar CalendarListEntry
-                function(calendar) return { label = calendar.summary, insertText = calendar.summary } end
+                function(calendar)
+                  return {
+                    label = calendar.summary,
+                    documentation = calendar.description,
+                    kind = vim.lsp.protocol.CompletionItemKind.EnumMember,
+                  }
+                end
               )
               :totable()
             cb { isIncomplete = false, items = items }
