@@ -416,33 +416,44 @@ function M.calendar_list_show()
           vim.bo[buf].modifiable = true
         end,
       })
-      iter(ipairs(calendar_list.items)):each(
-        ---@param i integer
-        ---@param calendar CalendarListEntry
-        function(i, calendar)
-          local row = i - 1
-          local line = ("%s%s%s%s%s"):format(
-            calendar.summary,
-            sep,
-            calendar.description or "[No description]",
-            sep,
-            calendar.id
-          )
-          -- first line replaces empty line
-          -- all other lines are inserted at the end of the buf
-          api.nvim_buf_set_lines(buf, row, row == 0 and row + 1 or row, true, { line })
-          local bg = compute_hex_color_group(calendar.backgroundColor, "bg")
-          local fg = compute_hex_color_group(calendar.foregroundColor, "fg")
-          api.nvim_buf_set_extmark(buf, ns, row, 0, {
-            end_col = #calendar.summary,
-            hl_group = bg,
-          })
-          api.nvim_buf_set_extmark(buf, ns, row, 0, {
-            end_col = #calendar.summary,
-            hl_group = fg,
-          })
-        end
-      )
+      local highlighters = {
+        conceal_id = {
+          pattern = "^()/[^ ]+ ()",
+          group = "", -- group needs to not be `nil` to work
+          extmark_opts = {
+            conceal = "",
+          },
+        },
+        time = {
+          pattern = "[ :]()%d%d()",
+          group = "Number",
+        },
+        punctuation = {
+          pattern = { sep, ":" },
+          group = "Delimiter",
+        },
+      }
+      local lines = iter(calendar_list.items)
+        :map(
+          ---@param calendar CalendarListEntry
+          function(calendar)
+            local bg = compute_hex_color_group(calendar.backgroundColor, "bg")
+            local fg = compute_hex_color_group(calendar.foregroundColor, "fg")
+            highlighters[calendar.id .. "fg"] = { pattern = "%f[%w]()" .. calendar.summary .. "()%f[%W]", group = fg }
+            highlighters[calendar.id .. "bg"] = { pattern = "%f[%w]()" .. calendar.summary .. "()%f[%W]", group = bg }
+
+            if calendar.accessRole == "reader" then
+              highlighters[calendar.id .. "deprecated"] =
+                { pattern = "%f[%w]()" .. calendar.summary .. "()%f[%W]", group = "DiagnosticDeprecated" }
+            end
+
+            local line = ("/%s %s%s%s"):format(calendar.id, calendar.summary, sep, calendar.description or "")
+            return line
+          end
+        )
+        :totable()
+      api.nvim_buf_set_lines(buf, 0, -1, true, lines)
+      hl_enable(buf, { highlighters = highlighters })
 
       keymap.set("n", "<cr>", function()
         local line = api.nvim_get_current_line()
@@ -1568,6 +1579,7 @@ function CalendarView:show(year, month, opts)
               api.nvim_win_close(win, true)
               self:show(year, month, { refresh = true })
             end, { buffer = buf })
+            keymap.set("n", "<cr>", function() M.calendar_list_show() end, { buffer = buf })
             keymap.set("n", "<", function()
               api.nvim_win_close(win, true)
               local target_year = year
