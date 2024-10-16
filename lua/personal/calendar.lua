@@ -247,8 +247,6 @@ function M.get_token_info(cb)
             "--silent",
             -- TODO: is this needed?
             -- "--insecure",
-            -- TODO: is this needed?
-            -- "--no-buffer",
             token_url,
           }, { text = true }, function(result)
             assert(result.stderr == "", result.stderr)
