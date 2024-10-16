@@ -1967,7 +1967,7 @@ function M.add_coq_completion()
                 function(calendar)
                   return {
                     label = calendar.summary,
-                    documentation = calendar.description,
+                    documentation = calendar.description, -- TODO: maybe change this to `detail`?
                     kind = vim.lsp.protocol.CompletionItemKind.EnumMember,
                   }
                 end
