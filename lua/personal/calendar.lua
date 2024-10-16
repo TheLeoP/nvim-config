@@ -1965,8 +1965,6 @@ function M.add_coq_completion()
     end,
   }
 end
--- uncomment to debug
--- COQsources = {}
 M.add_coq_completion()
 
 M.CalendarView = CalendarView
