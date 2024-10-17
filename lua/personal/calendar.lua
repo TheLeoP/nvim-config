@@ -426,25 +426,29 @@ function M.calendar_list_show(opts)
           local lines = api.nvim_buf_get_lines(buf, 0, -1, true)
           local diffs = {} ---@type CalendarDiff[]
           iter(lines)
-            :map(function(line)
-              if line:match "^/[^ ]+" then -- existing entry
-                local id, tail = line:match "^/([^ ]+) (.*)" ---@type string, string
-                local summary, description = unpack(vim.split(tail, sep, { trimempty = true }))
-                return {
-                  summary = summary,
-                  description = description,
-                  id = id,
-                  is_new = false,
-                }
-              else
-                local summary, description = unpack(vim.split(line, sep, { trimempty = true }))
-                return {
-                  summary = summary,
-                  description = description,
-                  is_new = true,
-                }
+            :map(
+              ---@param line string
+              ---@return {summary:string, description:string, id: string?, is_new: boolean}
+              function(line)
+                if line:match "^/[^ ]+" then -- existing entry
+                  local id, tail = line:match "^/([^ ]+) (.*)" ---@type string, string
+                  local summary, description = unpack(vim.split(tail, sep, { trimempty = true }))
+                  return {
+                    summary = summary,
+                    description = description,
+                    id = id,
+                    is_new = false,
+                  }
+                else
+                  local summary, description = unpack(vim.split(line, sep, { trimempty = true }))
+                  return {
+                    summary = summary,
+                    description = description,
+                    is_new = true,
+                  }
+                end
               end
-            end)
+            )
             :each(
               ---@param calendar_info {summary:string, description:string, id: string?, is_new: boolean}
               function(calendar_info)
@@ -455,6 +459,7 @@ function M.calendar_list_show(opts)
                 if not is_new then
                   ---@cast id -nil
 
+                  assert(_cache_calendar_list)
                   local cached_calendar = iter(_cache_calendar_list.items):find(
                     ---@param calendar CalendarListEntry
                     function(calendar) return calendar.id == id end
@@ -1437,102 +1442,169 @@ function CalendarView:write(token_info, calendar_list, events_by_date, year, mon
       )
     or {}
 
-  local diffs = {} ---@type Diff[]
-  for _, line in ipairs(lines) do
-    if line:match "^/[^ ]+" then -- existing entry
-      local id, tail = line:match "^/([^ ]+) (.*)" ---@type string, string
-      local summary, start_time, end_time = unpack(vim.split(tail, sep, { trimempty = true }))
+  local diffs = {} ---@type EventDiff[]
+  iter(lines)
+    :map(
+      ---@param line string
+      ---@return {summary:string, start:Date, end:Date, id:string, is_new:boolean, calendar_summary: string?}
+      function(line)
+        if line:match "^/[^ ]+" then
+          local id, tail = line:match "^/([^ ]+) (.*)" ---@type string, string
+          local fields = vim.split(tail, sep, { trimempty = true })
+          if #fields == 1 then
+            local summary = unpack(fields)
+            assert(summary, ("The event with id `%s` has no summary"):format(id))
 
-      local cached_event = iter(day_events):find(
-        ---@param event Event
-        function(event) return event.id == id end
-      )
-      assert(cached_event, ("The event with id `%s` is not in cache. Maybe you modified it by acciddent"):format(id))
-      assert(summary, ("The event with id `%s` has no summary"):format(id))
+            local start_date = ("%04d-%02d-%02d"):format(buf_year, buf_month, buf_day)
+            local _end_date = os.date(
+              "*t",
+              os.time {
+                year = buf_year --[[@as integer]],
+                month = buf_month --[[@as integer]],
+                day = buf_day + 1,
+              }
+            )
+            local end_date = ("%04d-%02d-%02d"):format(_end_date.year, _end_date.month, _end_date.day)
+            return {
+              summary = summary,
+              start = {
+                date = start_date,
+              },
+              ["end"] = {
+                date = end_date,
+              },
+              id = id,
+              is_new = false,
+            }
+          elseif #fields == 3 then
+            local summary, start_time, end_time = unpack(fields)
+            assert(summary, ("The event with id `%s` has no summary"):format(id))
+            local start_date_time = ("%04d-%02d-%02dT%s%s"):format(buf_year, buf_month, buf_day, start_time, timezone)
+            local end_date_time = ("%04d-%02d-%02dT%s%s"):format(buf_year, buf_month, buf_day, end_time, timezone)
 
-      -- to keep track of the deleted events
-      day_events_by_id[cached_event.id] = nil
+            return {
+              summary = summary,
+              start = {
+                dateTime = start_date_time,
+              },
+              ["end"] = {
+                dateTime = end_date_time,
+              },
+              id = id,
+              is_new = false,
+            }
+          else
+            error(("The event with id %s doens't have enoght fields to be parsed"):format(id))
+          end
+        else
+          local fields = vim.split(line, sep, { trimempty = true })
+          if #fields == 2 then
+            local summary, calendar_summary = unpack(fields)
 
-      -- TODO: maybe clone event if id is the same but name is different from existing one and existing one is still in buffer (?)
-      -- maybe don't support cloning?
+            local start_date = ("%04d-%02d-%02d"):format(buf_year, buf_month, buf_day)
+            local _end_date = os.date(
+              "*t",
+              os.time {
+                year = buf_year --[[@as integer]],
+                month = buf_month --[[@as integer]],
+                day = buf_day + 1,
+              }
+            )
+            local end_date = ("%04d-%02d-%02d"):format(_end_date.year, _end_date.month, _end_date.day)
+            return {
+              summary = summary,
+              calendar_summary = calendar_summary,
+              start = {
+                date = start_date,
+              },
+              ["end"] = {
+                date = end_date,
+              },
+              is_new = true,
+            }
+          elseif #fields == 4 then
+            local summary, start_time, end_time, calendar_summary = unpack(fields)
 
-      local edit_diff = {}
-      if cached_event.summary ~= summary then edit_diff.summary = summary end
-      local start_date = ("%04d-%02d-%02d"):format(buf_year, buf_month, buf_day)
-      local end_date = ("%04d-%02d-%02d"):format(buf_year, buf_month, buf_day + 1)
-      local start_date_time = ("%04d-%02d-%02dT%s%s"):format(buf_year, buf_month, buf_day, start_time, timezone)
-      local end_date_time = ("%04d-%02d-%02dT%s%s"):format(buf_year, buf_month, buf_day, end_time, timezone)
-      if
-        (not start_time or not end_time)
-        and (start_date ~= cached_event.start.date or end_date ~= cached_event["end"].date)
-      then
-        edit_diff.start = {
-          date = start_date,
-        }
-        edit_diff["end"] = {
-          date = end_date,
-        }
-      elseif
-        start_time
-        and end_time
-        and (start_date_time ~= cached_event.start.dateTime or end_date_time ~= cached_event["end"].dateTime)
-      then
-        edit_diff.start = {
-          dateTime = start_date_time,
-        }
-        edit_diff["end"] = {
-          dateTime = end_date_time,
-        }
+            local start_date_time = ("%04d-%02d-%02dT%s%s"):format(buf_year, buf_month, buf_day, start_time, timezone)
+            local end_date_time = ("%04d-%02d-%02dT%s%s"):format(buf_year, buf_month, buf_day, end_time, timezone)
+            return {
+              summary = summary,
+              calendar_summary = calendar_summary,
+              start = {
+                dateTime = start_date_time,
+              },
+              ["end"] = {
+                dateTime = end_date_time,
+              },
+              is_new = true,
+            }
+          else
+            error "There are not enought fields to parse the new event"
+          end
+        end
       end
-      if not vim.tbl_isempty(edit_diff) then
-        edit_diff.cached_event = cached_event
-        edit_diff.type = "edit"
-        table.insert(diffs, edit_diff)
-      end
-    else -- new entry
-      local summary, start_time, end_time, calendar_summary = unpack(vim.split(line, sep, { trimempty = true }))
-      assert(summary ~= "", "The summary for a new event is empty")
+    )
+    :each(
+      ---@param event_info {summary:string, start:Date, end:Date, id:string, is_new:boolean, calendar_summary: string?}
+      function(event_info)
+        local is_new = event_info.is_new
+        local id = event_info.id
+        local summary = event_info.summary
+        local calendar_summary = event_info.calendar_summary
+        if not is_new then
+          ---@type Event
+          local cached_event = iter(day_events):find(
+            ---@param event Event
+            function(event) return event.id == id end
+          )
+          assert(
+            cached_event,
+            ("The event with id `%s` is not in cache. Maybe you modified it by acciddent"):format(id)
+          )
 
-      local start_date = ("%04d-%02d-%02d"):format(buf_year, buf_month, buf_day)
-      local end_date = ("%04d-%02d-%02d"):format(buf_year, buf_month, buf_day + 1)
-      local start_date_time = ("%04d-%02d-%02dT%s%s"):format(buf_year, buf_month, buf_day, start_time, timezone)
-      local end_date_time = ("%04d-%02d-%02dT%s%s"):format(buf_year, buf_month, buf_day, end_time, timezone)
+          -- to keep track of the deleted events
+          day_events_by_id[cached_event.id] = nil
 
-      if not start_time or not end_time then
-        calendar_summary = start_time -- line hast less fields
-        table.insert(diffs, {
-          type = "new",
-          summary = summary,
-          calendar_summary = calendar_summary,
-          start = {
-            date = start_date,
-          },
-          ["end"] = {
-            date = end_date,
-          },
-        })
-      else
-        table.insert(diffs, {
-          type = "new",
-          summary = summary,
-          calendar_summary = calendar_summary,
-          start = {
-            dateTime = start_date_time,
-          },
-          ["end"] = {
-            dateTime = end_date_time,
-          },
-        })
+          local edit_diff = {}
+          if cached_event.summary ~= summary then edit_diff.summary = summary end
+          if
+            (event_info.start.date and (event_info.start.date ~= cached_event.start.date))
+            or (event_info.start.dateTime and (event_info.start.dateTime ~= cached_event.start.dateTime))
+          then
+            edit_diff.start = event_info.start
+          end
+          if
+            (event_info["end"].date and (event_info["end"].date ~= cached_event["end"].date))
+            or (event_info["end"].dateTime and (event_info["end"].dateTime ~= cached_event["end"].dateTime))
+          then
+            edit_diff["end"] = event_info["end"]
+          end
+          if not vim.tbl_isempty(edit_diff) then
+            edit_diff.cached_event = cached_event
+            edit_diff.type = "edit"
+            table.insert(diffs, edit_diff)
+          end
+        else
+          table.insert(diffs, {
+            type = "new",
+            summary = summary,
+            calendar_summary = calendar_summary,
+            start = event_info.start,
+            ["end"] = event_info["end"],
+          })
+        end
       end
+    )
+  iter(day_events_by_id):each(
+    ---@param _ string
+    ---@param event Event
+    function(_, event)
+      table.insert(diffs, {
+        type = "delete",
+        cached_event = event,
+      })
     end
-  end
-
-  for _, event in pairs(day_events_by_id) do
-    table.insert(diffs, {
-      type = "delete",
-      cached_event = event,
-    })
-  end
+  )
 
   do
     local diff_num = #diffs
@@ -1544,53 +1616,56 @@ function CalendarView:write(token_info, calendar_list, events_by_date, year, mon
         self:show(year, month)
       end
     end
-    for _, diff in ipairs(diffs) do
-      if diff.type == "new" then
-        assert(diff.calendar_summary, ("Diff has no calendar_summary %s"):format(vim.inspect(diff)))
-        local calendar = iter(calendar_list.items):find(
-          function(calendar) return calendar.summary == diff.calendar_summary end
-        )
+    iter(diffs):each(
+      ---@param diff EventDiff
+      function(diff)
+        if diff.type == "new" then
+          assert(diff.calendar_summary, ("Diff has no calendar_summary %s"):format(vim.inspect(diff)))
+          local calendar = iter(calendar_list.items):find(
+            function(calendar) return calendar.summary == diff.calendar_summary end
+          )
 
-        M.create_event(token_info, calendar.id, diff, function(new_event)
-          table.insert(day_events, new_event)
+          M.create_event(token_info, calendar.id, diff, function(new_event)
+            table.insert(day_events, new_event)
 
-          reload_if_last_diff()
-        end)
-      elseif diff.type == "edit" then
-        local calendar = iter(calendar_list.items):find(
-          ---@param calendar CalendarListEntry
-          function(calendar) return calendar.id == diff.cached_event.organizer.email end
-        )
+            reload_if_last_diff()
+          end)
+        elseif diff.type == "edit" then
+          local calendar = iter(calendar_list.items):find(
+            ---@param calendar CalendarListEntry
+            function(calendar) return calendar.id == diff.cached_event.organizer.email end
+          )
 
-        M.edit_event(token_info, calendar.id, diff, function(edited_event)
-          local cached_event = diff.cached_event --[[@as table<unknown, unknown>]]
+          M.edit_event(token_info, calendar.id, diff, function(edited_event)
+            local cached_event = diff.cached_event --[[@as table<unknown, unknown>]]
 
-          -- can't only update some fields because google checks
-          -- things like the last update time to check if the
-          -- event has gone out-of-sync
-          for key, _ in pairs(cached_event) do
-            cached_event[key] = edited_event[key]
-          end
-
-          reload_if_last_diff()
-        end)
-      elseif diff.type == "delete" then
-        local calendar = iter(calendar_list.items):find(
-          ---@param calendar CalendarListEntry
-          function(calendar) return calendar.id == diff.cached_event.organizer.email end
-        )
-
-        M.delete_event(token_info, calendar.id, diff, function()
-          for _, events in pairs(_cache_events) do
-            for j, event in ipairs(events) do
-              if event.id == diff.cached_event.id then table.remove(events, j) end
+            -- can't only update some fields because google checks
+            -- things like the last update time to check if the
+            -- event has gone out-of-sync
+            for key, _ in pairs(cached_event) do
+              cached_event[key] = edited_event[key]
             end
-          end
 
-          reload_if_last_diff()
-        end)
+            reload_if_last_diff()
+          end)
+        elseif diff.type == "delete" then
+          local calendar = iter(calendar_list.items):find(
+            ---@param calendar CalendarListEntry
+            function(calendar) return calendar.id == diff.cached_event.organizer.email end
+          )
+
+          M.delete_event(token_info, calendar.id, diff, function()
+            for _, events in pairs(_cache_events) do
+              for j, event in ipairs(events) do
+                if event.id == diff.cached_event.id then table.remove(events, j) end
+              end
+            end
+
+            reload_if_last_diff()
+          end)
+        end
       end
-    end
+    )
   end
 
   vim.bo[buf].modified = false
@@ -2054,7 +2129,7 @@ function M.get_colors(token_info, cb)
   )
 end
 
----@class Diff
+---@class EventDiff
 ---@field type "new"|"edit"|"delete"
 ---@field summary string
 ---@field start Date?
@@ -2068,7 +2143,7 @@ end
 ---@field cached_calendar Calendar?
 
 ---@param token_info TokenInfo
----@param diff Diff
+---@param diff EventDiff
 ---@param cb fun(new_event: Event)
 function M.create_event(token_info, calendar_id, diff, cb)
   local data = vim.json.encode { start = diff.start, ["end"] = diff["end"], summary = diff.summary }
@@ -2114,7 +2189,7 @@ function M.create_event(token_info, calendar_id, diff, cb)
 end
 
 ---@param token_info TokenInfo
----@param diff Diff
+---@param diff EventDiff
 ---@param cb fun(edited_event: Event)
 function M.edit_event(token_info, calendar_id, diff, cb)
   local cached_event = vim.deepcopy(diff.cached_event) --[[@as Event]]
@@ -2169,7 +2244,7 @@ function M.edit_event(token_info, calendar_id, diff, cb)
 end
 
 ---@param token_info TokenInfo
----@param diff Diff
+---@param diff EventDiff
 ---@param cb fun()
 function M.delete_event(token_info, calendar_id, diff, cb)
   vim.system(
