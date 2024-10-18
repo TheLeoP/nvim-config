@@ -144,12 +144,12 @@ function M.open_app(name)
 end
 
 ---@class JoinNotifyOpts
----@field title string
+---@field title string?
 ---@field icon string?
 ---@field smallicon string?
----@field priority string?
+---@field priority -2|-1|0|1|2?
 ---@field vibration string?
----@field dismiss_on_touch string?
+---@field dismiss_on_touch boolean?
 ---@field image string?
 ---@field group string?
 ---@field sound string?
@@ -159,22 +159,19 @@ end
 
 ---@param opts JoinNotifyOpts
 function M.notify(opts)
-  local _additional_params = {
-    ("text=%s"):format(opts.text),
-  } ---@type string[]
-  if opts.title then table.insert(_additional_params, ("title=%s"):format(opts.title)) end
-  if opts.icon then table.insert(_additional_params, ("icon=%s"):format(opts.icon)) end
-  if opts.smallicon then table.insert(_additional_params, ("smallicon=%s"):format(opts.smallicon)) end
+  local _additional_params = {} ---@type string[]
+  if opts.text then table.insert(_additional_params, ("text=%s"):format(url_encode(opts.text))) end
+  if opts.title then table.insert(_additional_params, ("title=%s"):format(url_encode(opts.title))) end
+  if opts.icon then table.insert(_additional_params, ("icon=%s"):format(url_encode(opts.icon))) end
+  if opts.smallicon then table.insert(_additional_params, ("smallicon=%s"):format(url_encode(opts.smallicon))) end
   if opts.priority then table.insert(_additional_params, ("priority=%s"):format(opts.priority)) end
-  if opts.vibration then table.insert(_additional_params, ("vibration=%s"):format(opts.vibration)) end
-  if opts.dismiss_on_touch then
-    table.insert(_additional_params, ("dismissOnTouch=%s"):format(opts.dismiss_on_touch))
-  end
-  if opts.image then table.insert(_additional_params, ("image=%s"):format(opts.image)) end
-  if opts.group then table.insert(_additional_params, ("group=%s"):format(opts.group)) end
-  if opts.sound then table.insert(_additional_params, ("sound=%s"):format(opts.sound)) end
-  if opts.actions then table.insert(_additional_params, ("actions=%s"):format(opts.actions)) end
-  if opts.url then table.insert(_additional_params, ("url=%s"):format(opts.url)) end
+  if opts.vibration then table.insert(_additional_params, ("vibration=%s"):format(url_encode(opts.vibration))) end
+  if opts.dismiss_on_touch then table.insert(_additional_params, "dismissOnTouch=true") end
+  if opts.image then table.insert(_additional_params, ("image=%s"):format(url_encode(opts.image))) end
+  if opts.group then table.insert(_additional_params, ("group=%s"):format(url_encode(opts.group))) end
+  if opts.sound then table.insert(_additional_params, ("sound=%s"):format(url_encode(opts.sound))) end
+  if opts.actions then table.insert(_additional_params, ("actions=%s"):format(url_encode(opts.actions))) end
+  if opts.url then table.insert(_additional_params, ("url=%s"):format(url_encode(opts.url))) end
 
   local additional_params = table.concat(_additional_params, "&")
   local url = ("https://joinjoaomgcd.appspot.com/_ah/api/messaging/v1/sendPush?apikey=%s&deviceId=%s&%s"):format(
