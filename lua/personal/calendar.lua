@@ -2298,7 +2298,6 @@ function M.add_coq_completion()
     end,
   }
 end
-M.add_coq_completion()
 
 M.CalendarView = CalendarView
 
