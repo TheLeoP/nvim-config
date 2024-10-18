@@ -11,6 +11,7 @@ local hl_enable = require("mini.hipatterns").enable
 local notify = require "mini.notify"
 local fs_exists = require("personal.util.general").fs_exists
 local new_uid = require("personal.util.general").new_uid
+local url_encode = require("personal.util.general").url_encode
 
 local M = {}
 
@@ -23,35 +24,6 @@ data_path = vim.fs.normalize(data_path)
 
 local _timezone1, _timezone2 = tostring(os.date "%z"):match "([-+]%d%d)(%d%d)"
 local timezone = ("%s:%s"):format(_timezone1, _timezone2)
-
----@param c string
----@return string
-local char_to_hex = function(c) return string.format("%%%02X", string.byte(c)) end
-
----@param url string
----@return string|nil
-local function url_encode(url)
-  if url == nil then return end
-  url = url:gsub("\n", "\r\n")
-  -- maybe use this instead of line below (?)
-  -- url = url:gsub("([^%w _%%%-%.~])", char_to_hex)
-  url = url:gsub("([^%w ])", char_to_hex)
-  url = url:gsub(" ", "+")
-  return url
-end
-
----@param x string
----@return string
-local hex_to_char = function(x) return string.char(tonumber(x, 16)) end
-
----@param url string
----@return string|nil
-local urldecode = function(url)
-  if url == nil then return end
-  url = url:gsub("+", " ")
-  url = url:gsub("%%(%x%x)", hex_to_char)
-  return url
-end
 
 ---@param opts {on_ready: fun(), on_code: fun(code: string)}
 local function start_server(opts)
