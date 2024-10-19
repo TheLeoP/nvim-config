@@ -43,10 +43,16 @@ return {
         third_party = {
           enabled = true,
         },
+        third_party_inline = {
+          enabled = false,
+        },
         lsp = {
           weight_adjust = 1,
         },
         tree_sitter = {
+          enabled = false,
+        },
+        lsp_inline = {
           enabled = false,
         },
       },
