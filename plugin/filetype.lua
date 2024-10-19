@@ -6,5 +6,6 @@ vim.filetype.add {
   filename = {
     ["qwerty.txt"] = "kinesis",
     ["dvorak.txt"] = "kinesis",
+    [".envrc"] = "sh",
   },
 }
