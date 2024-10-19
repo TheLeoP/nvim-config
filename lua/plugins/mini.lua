@@ -180,12 +180,6 @@ return {
       window = { zindex = 100 }, -- show above nvim-treesitter-context
     }
 
-    for _, key in ipairs { "n", "N" } do
-      vim.keymap.set("n", key, function()
-        vim.cmd.normal(key)
-        map.refresh({}, { lines = false, scrollbar = false })
-      end)
-    end
     vim.keymap.set("n", "<cr>", function() map.toggle() end)
     vim.keymap.set("n", "<c-cr>", function() map.toggle_side() end)
   end,
