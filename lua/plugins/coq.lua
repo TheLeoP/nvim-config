@@ -47,7 +47,7 @@ return {
           enabled = false,
         },
         lsp = {
-          weight_adjust = 1,
+          always_on_top = {}, -- keep all LSP server responses on top
         },
         tree_sitter = {
           enabled = false,
