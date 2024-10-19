@@ -180,7 +180,7 @@ return {
       window = { zindex = 100 }, -- show above nvim-treesitter-context
     }
 
-    vim.keymap.set("n", "<cr>", function() map.toggle() end)
-    vim.keymap.set("n", "<c-cr>", function() map.toggle_side() end)
+    vim.keymap.set("n", "<Del>", function() map.toggle() end)
+    vim.keymap.set("n", "<C-Del>", function() map.toggle_side() end)
   end,
 }
