@@ -87,7 +87,10 @@ return {
     -- ConPTY (Windows) does not support querying for bg/fg colors (OSC 11, 12)
     -- https://github.com/microsoft/terminal/issues/3718
     if not vim.g.started_by_firenvim and vim.fn.has "win32" == 0 then mini_misc.setup_termbg_sync() end
-    require("mini.surround").setup {
+
+    local surround = require "mini.surround"
+    local ts_input = surround.gen_spec.input.treesitter
+    surround.setup {
       mappings = {
         add = "<leader>s",
         delete = "<leader>sd",
@@ -99,6 +102,41 @@ return {
       },
 
       n_lines = 100,
+
+      custom_surroundings = {
+        F = {
+          input = ts_input { outer = "@call.outer", inner = "@call.inner" },
+          output = function()
+            local fun_name = surround.user_input "Function name"
+            if fun_name == nil then return end
+            return { left = ("%s("):format(fun_name), right = ")" }
+          end,
+        },
+        f = {
+          input = ts_input { outer = "@function.outer", inner = "@function.inner" },
+          output = function()
+            local js_left = "() => {"
+            local js_right = "}"
+            local left = {
+              lua = " function() ",
+              javascript = js_left,
+              typescript = js_left,
+              javascriptreact = js_left,
+              typescriptreact = js_left,
+            }
+            local right = {
+              lua = " end ",
+              javascript = js_right,
+              typescript = js_right,
+              javascriptreact = js_right,
+              typescriptreact = js_right,
+            }
+            local ft = vim.bo.filetype
+            if not left[ft] or not right[ft] then return end
+            return { left = left[ft], right = right[ft] }
+          end,
+        },
+      },
     }
 
     require("mini.comment").setup {
