@@ -1,3 +1,6 @@
+local api = vim.api
+local iter = vim.iter
+
 return {
   "stevearc/oil.nvim",
   opts = {
@@ -37,6 +40,35 @@ return {
   config = function(_, opts)
     require("oil").setup(opts)
     vim.keymap.set("n", "-", "<cmd>Oil<cr>", { desc = "Open parent directory" })
+
+    local group = api.nvim_create_augroup("oil-remove-buffer", {})
+    api.nvim_create_autocmd("User", {
+      pattern = "OilActionsPost",
+      desc = "Remove buffer after file delete",
+      group = group,
+      ---@param opts _oil.autocmd_opts
+      callback = function(opts)
+        if opts.data.err then return end
+
+        iter(opts.data.actions):each(
+          ---@param action oil.Action
+          function(action)
+            if action.type ~= "delete" or action.entry_type ~= "file" then return end
+            local posix_to_os_path = require("oil.fs").posix_to_os_path
+
+            local _scheme, path = action.url:match "^(.*://)(.*)$"
+            path = posix_to_os_path(path)
+
+            local buf = vim.fn.bufnr(path)
+            if buf == -1 then
+              vim.notify(("There is no buf for path %s"):format(path), vim.log.levels.WARN)
+              return
+            end
+            vim.cmd.bwipeout { buf, bang = true }
+          end
+        )
+      end,
+    })
   end,
   dependencies = { "nvim-web-devicons" },
 }
