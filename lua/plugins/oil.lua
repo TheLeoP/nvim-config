@@ -60,10 +60,7 @@ return {
             path = posix_to_os_path(path)
 
             local buf = vim.fn.bufnr(path)
-            if buf == -1 then
-              vim.notify(("There is no buf for path %s"):format(path), vim.log.levels.WARN)
-              return
-            end
+            if buf == -1 then return end
             vim.cmd.bwipeout { buf, bang = true }
           end
         )
