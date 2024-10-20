@@ -1,3 +1,7 @@
+local api = vim.api
+local iter = vim.iter
+local keymap = vim.keymap
+
 return {
   "echasnovski/mini.nvim",
 
@@ -33,8 +37,8 @@ return {
         l = gen_ai_spec.line(),
         n = gen_ai_spec.number(),
         P = function()
-          local start_row, start_col = unpack(vim.api.nvim_buf_get_mark(0, "[")) --[[@as integer, integer]]
-          local end_row, end_col = unpack(vim.api.nvim_buf_get_mark(0, "]")) --[[@as integer, integer]]
+          local start_row, start_col = unpack(api.nvim_buf_get_mark(0, "[")) --[[@as integer, integer]]
+          local end_row, end_col = unpack(api.nvim_buf_get_mark(0, "]")) --[[@as integer, integer]]
           local vis_mode = vim.fn.getregtype '"'
           if #vis_mode > 1 then vis_mode = vis_mode:sub(1, 1) end
           local region = {
@@ -221,10 +225,70 @@ return {
       window = { zindex = 100 }, -- show above nvim-treesitter-context
     }
 
-    vim.keymap.set("n", "<Del>", function() map.toggle() end)
-    vim.keymap.set("n", "<C-Del>", function() map.toggle_side() end)
+    keymap.set("n", "<Del>", function() map.toggle() end)
+    keymap.set("n", "<C-Del>", function() map.toggle_side() end)
 
     local splitjoin = require "mini.splitjoin"
     splitjoin.setup()
+
+    local visits = require "mini.visits"
+    visits.setup()
+    ---@param select_global boolean
+    ---@param recency_weight number
+    ---@return fun()
+    local make_select_path = function(select_global, recency_weight)
+      local sort = visits.gen_sort.default { recency_weight = recency_weight }
+      local select_opts = { sort = sort }
+      return function()
+        local cwd = select_global and "" or vim.fn.getcwd()
+        visits.select_path(cwd, select_opts)
+      end
+    end
+    -- TODO: maybe add an fzf-lua picker
+    keymap.set("n", "<leader>vr", make_select_path(false, 1), { desc = "Select recent (cwd)" })
+    keymap.set("n", "<leader>vR", make_select_path(true, 1), { desc = "Select recent (all)" })
+    keymap.set("n", "<leader>vy", make_select_path(false, 0.5), { desc = "Select frecent (cwd)" })
+    keymap.set("n", "<leader>vY", make_select_path(true, 0.5), { desc = "Select frecent (all)" })
+    keymap.set("n", "<leader>vf", make_select_path(false, 0), { desc = "Select frequent (cwd)" })
+    keymap.set("n", "<leader>vF", make_select_path(true, 0), { desc = "Select frequent (all)" })
+
+    keymap.set("n", "<leader>vv", visits.add_label, { desc = "Add visit label" })
+    keymap.set("n", "<leader>vV", visits.remove_label, { desc = "Remove visit label" })
+    keymap.set("n", "<leader>vl", visits.select_label, { desc = "Select label (cwd)" })
+    keymap.set("n", "<leader>vL", function() visits.select_label("", "") end, { desc = "Select label (all)" })
+
+    ---@module "oil"
+
+    ---@class _oil.autocmd_opts: abolish.command_opts
+    ---@field data {actions: oil.Action[],err: string}
+
+    local group = api.nvim_create_augroup("mini.visits-oil-rename", {})
+    api.nvim_create_autocmd("User", {
+      pattern = "OilActionsPost",
+      desc = "Rename in mini.visits index from oil move",
+      group = group,
+      ---@param opts _oil.autocmd_opts
+      callback = function(opts)
+        if opts.data.err then return end
+
+        iter(opts.data.actions):each(
+          ---@param action oil.Action
+          function(action)
+            if action.type ~= "move" then return end
+            local posix_to_os_path = require("oil.fs").posix_to_os_path
+
+            local _src_scheme, src_path = action.src_url:match "^(.*://)(.*)$"
+            local _dest_scheme, dest_path = action.dest_url:match "^(.*://)(.*)$"
+            src_path = posix_to_os_path(src_path)
+            dest_path = posix_to_os_path(dest_path)
+
+            local cur_index = visits.get_index()
+            local ok, new_index = pcall(visits.rename_in_index, src_path, dest_path, cur_index)
+            if not ok then return end
+            visits.set_index(new_index)
+          end
+        )
+      end,
+    })
   end,
 }
