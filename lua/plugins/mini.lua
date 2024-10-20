@@ -70,6 +70,36 @@ return {
         line_left = "",
       },
     }
+
+    ---@param ... string|number|table|
+    ---@return string[]
+    local function inspect_objects(...)
+      local objects = {}
+      -- Not using `{...}` because it removes `nil` input
+      for i = 1, select("#", ...) do
+        local v = select(i, ...)
+        if type(v) == "table" then
+          table.insert(objects, vim.inspect(v))
+        else
+          table.insert(objects, tostring(v))
+        end
+      end
+
+      return vim.split(table.concat(objects, "\n"), "\n")
+    end
+
+    ---almost equal to default behaviour, but strings are written without quotes around them
+    ---@param lines string[]
+    ---@return string[]
+    local function eval_lua_lines(lines)
+      local lines_copy, n = vim.deepcopy(lines), #lines
+      lines_copy[n] = (lines_copy[n]:find "^%s*return%s+" == nil and "return " or "") .. lines_copy[n]
+
+      local str_to_eval = table.concat(lines_copy, "\n")
+
+      return inspect_objects(assert(loadstring(str_to_eval))())
+    end
+
     require("mini.operators").setup {
       sort = {
         prefix = "",
@@ -79,6 +109,18 @@ return {
       },
       exchange = {
         prefix = "<leader>x",
+      },
+      evaluate = {
+        ---@param content {lines: string[], submode: 'V'|'v'|'\22'}
+        func = function(content)
+          local lines, submode = content.lines, content.submode
+
+          -- In non-blockwise mode return the result of the last line
+          if submode ~= "\22" then return eval_lua_lines(lines) end
+
+          -- In blockwise selection evaluate and return each line separately
+          return vim.tbl_map(function(l) return eval_lua_lines({ l })[1] end, lines)
+        end,
       },
     }
     local mini_misc = require "mini.misc"
