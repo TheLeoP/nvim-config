@@ -223,5 +223,8 @@ return {
 
     vim.keymap.set("n", "<Del>", function() map.toggle() end)
     vim.keymap.set("n", "<C-Del>", function() map.toggle_side() end)
+
+    local splitjoin = require "mini.splitjoin"
+    splitjoin.setup()
   end,
 }
