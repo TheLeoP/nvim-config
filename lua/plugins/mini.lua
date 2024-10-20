@@ -83,10 +83,9 @@ return {
     }
     local mini_misc = require "mini.misc"
     mini_misc.setup()
-    -- The OSC codes break firenvim comunication
     -- ConPTY (Windows) does not support querying for bg/fg colors (OSC 11, 12)
     -- https://github.com/microsoft/terminal/issues/3718
-    if not vim.g.started_by_firenvim and vim.fn.has "win32" == 0 then mini_misc.setup_termbg_sync() end
+    if vim.fn.has "win32" == 0 then mini_misc.setup_termbg_sync() end
 
     local surround = require "mini.surround"
     local ts_input = surround.gen_spec.input.treesitter
