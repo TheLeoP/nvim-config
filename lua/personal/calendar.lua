@@ -118,10 +118,10 @@ local function refresh_access_token(refresh_token, cb)
         _cache_token_info = nil
         assert(vim.fn.delete(refresh_token_path) == 0, ("Couldn't delete file %s"):format(refresh_token_path))
 
-        M.get_token_info(function(token_info)
+        M.get_token_info(vim.schedule_wrap(function(token_info)
           is_refreshing_access_token = false
           api.nvim_exec_autocmds("User", { pattern = token_refreshed_pattern, data = { token_info = token_info } })
-        end)
+        end))
 
         return
       end
