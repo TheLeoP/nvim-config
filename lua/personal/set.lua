@@ -1,55 +1,59 @@
-vim.opt.number = true
-vim.opt.relativenumber = true
+local o = vim.o
+local opt = vim.opt
+local wo = vim.wo
 
-vim.opt.wrap = false
+opt.number = true
+opt.relativenumber = true
 
-vim.opt.spelllang = { "es", "en", "de" }
+opt.wrap = false
 
-vim.opt.swapfile = false
-vim.opt.undofile = true
+opt.spelllang = { "es", "en", "de" }
 
-vim.opt.clipboard = "unnamedplus"
+opt.swapfile = false
+opt.undofile = true
 
-vim.opt.hlsearch = true
+opt.clipboard = "unnamedplus"
 
-vim.opt.ignorecase = true
-vim.opt.smartcase = true
+opt.hlsearch = true
 
-vim.opt.expandtab = true
-vim.opt.shiftwidth = 4
+opt.ignorecase = true
+opt.smartcase = true
 
-vim.opt.scrolloff = 8
+opt.expandtab = true
+opt.shiftwidth = 4
 
-vim.opt.cmdheight = 2
+opt.scrolloff = 8
 
-vim.opt.showmode = false
+opt.cmdheight = 2
 
-vim.opt.signcolumn = "yes"
+opt.showmode = false
 
-vim.opt.updatetime = 300
-vim.opt.timeoutlen = 500
+opt.signcolumn = "yes"
 
-vim.opt.guifont = "CaskaydiaCove Nerd Font Mono:h12"
+opt.updatetime = 300
+opt.timeoutlen = 500
+
+opt.guifont = "CaskaydiaCove Nerd Font Mono:h12"
 
 if vim.fn.executable "rg" == 1 then
-  vim.opt.grepprg = "rg --vimgrep --hidden"
-  vim.opt.grepformat = "%f:%l:%c:%m"
+  opt.grepprg = "rg --vimgrep --hidden"
+  opt.grepformat = "%f:%l:%c:%m"
 end
 
-vim.opt.mouse = "a"
+opt.mouse = "a"
 
-vim.opt.splitbelow = true
-vim.opt.splitright = true
+opt.splitbelow = true
+opt.splitright = true
 
-vim.opt.laststatus = 3
+opt.laststatus = 3
 
-vim.opt.cursorline = true
+opt.cursorline = true
 
-vim.opt.diffopt:append { "vertical", "context:99" }
+opt.diffopt:append { "vertical", "context:99" }
 
-vim.opt.shortmess:append "sWcC"
+opt.shortmess:append "sWcC"
 
-vim.opt.breakindent = true
+opt.breakindent = true
 
 -- Disable health checks for these providers.
 vim.g.loaded_python3_provider = 0
@@ -58,15 +62,15 @@ vim.g.loaded_perl_provider = 0
 vim.g.loaded_node_provider = 0
 
 -- Folding.
-vim.o.foldcolumn = "1"
-vim.o.foldlevelstart = 99
-vim.o.foldmethod = "expr"
-vim.wo.foldtext = ""
-vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+o.foldcolumn = "1"
+o.foldlevelstart = 99
+o.foldmethod = "expr"
+wo.foldtext = ""
+wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 
 local arrows = require("personal.icons").arrows
 
-vim.opt.fillchars = {
+opt.fillchars = {
   eob = " ",
   fold = " ",
   foldclose = arrows.right,
@@ -75,12 +79,12 @@ vim.opt.fillchars = {
   msgsep = "─",
 }
 
-vim.o.exrc = true
+o.exrc = true
 
-vim.o.listchars = "tab:> ,extends:…,precedes:…,nbsp:␣"
-vim.o.list = true
+o.listchars = "tab:> ,extends:…,precedes:…,nbsp:␣"
+o.list = true
 
-vim.o.pumblend = 10
-vim.o.winblend = 10
+o.pumblend = 10
+o.winblend = 10
 
-vim.o.sessionoptions = "help,winsize,winpos"
+o.sessionoptions = "help,winsize,winpos"
