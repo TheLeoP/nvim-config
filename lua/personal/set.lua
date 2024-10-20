@@ -87,4 +87,4 @@ o.list = true
 o.pumblend = 10
 o.winblend = 10
 
-o.sessionoptions = "help,winsize,winpos"
+o.sessionoptions = "curdir,tabpages,help,globals,winsize,winpos"
