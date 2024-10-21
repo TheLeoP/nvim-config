@@ -1989,6 +1989,23 @@ function CalendarView:show(year, month, opts)
             }
           end
           if day_events then
+            table.sort(
+              day_events,
+              ---@param a Event
+              ---@param b Event
+              function(a, b)
+                if a.start.date and b.start.date then
+                  return true -- arbitrary, if they have the same date, order doesn't matter
+                elseif a.start.date and b.start.dateTime then
+                  return true -- all day events first
+                elseif a.start.dateTime and b.start.date then
+                  return false -- all day events first
+                elseif a.start.dateTime and b.start.dateTime then
+                  return a.start.dateTime < b.start.dateTime
+                end
+                error "This shouldn't happen "
+              end
+            )
             local events_text = iter(day_events)
               :map(function(event)
                 if not event.start.dateTime then return ("/%s %s"):format(event.id, event.summary) end
