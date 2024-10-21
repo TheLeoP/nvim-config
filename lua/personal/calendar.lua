@@ -2361,7 +2361,7 @@ function M.add_coq_completion()
 
       local recurrence_field = (fields[3] and fields[3]:match "^%d") and (fields[5] or "") or (fields[3] or "")
       local current_propertie = recurrence_field:match "(%w+):[^ ]*$"
-      local current_rule = recurrence_field:match "(%w+)=$"
+      local current_rule = recurrence_field:match "(%w+)=[^=; ]$"
 
       if sep_num == 1 or sep_num == 3 then
         M.get_token_info(function()
