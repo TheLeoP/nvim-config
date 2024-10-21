@@ -118,9 +118,13 @@ local function refresh_access_token(refresh_token, cb)
         _cache_token_info = nil
         assert(vim.fn.delete(refresh_token_path) == 0, ("Couldn't delete file %s"):format(refresh_token_path))
 
-        M.get_token_info(vim.schedule_wrap(function(token_info)
+        M.get_token_info(vim.schedule_wrap(function()
+          assert(_cache_token_info, "There is no _cache_token_info")
           is_refreshing_access_token = false
-          api.nvim_exec_autocmds("User", { pattern = token_refreshed_pattern, data = { token_info = token_info } })
+          api.nvim_exec_autocmds(
+            "User",
+            { pattern = token_refreshed_pattern, data = { token_info = _cache_token_info } }
+          )
         end))
 
         return
@@ -172,10 +176,10 @@ local full_auth_url = ("%s?client_id=%s&redirect_uri=%s&scope=%s&response_type=c
 ---@field scope string
 ---@field token_type string
 
----@param cb fun(token_info: TokenInfo)
+---@param cb fun()
 function M.get_token_info(cb)
   if _cache_token_info then
-    cb(_cache_token_info)
+    cb()
     return
   end
 
@@ -197,7 +201,7 @@ function M.get_token_info(cb)
         ---@cast token_info -string
 
         _cache_token_info = token_info
-        cb(token_info)
+        cb()
         return
       end
 
@@ -233,7 +237,7 @@ function M.get_token_info(cb)
             file:close()
 
             _cache_token_info = token_info
-            cb(token_info)
+            cb()
           end)
         end,
       }
@@ -353,8 +357,9 @@ end
 local sep = " | "
 ---@param opts? {refresh:boolean}
 function M.calendar_list_show(opts)
-  M.get_token_info(function(token_info)
-    M.get_calendar_list(token_info, opts, function(calendar_list)
+  M.get_token_info(function()
+    assert(_cache_token_info, "There is no _cache_token_info")
+    M.get_calendar_list(_cache_token_info, opts, function(calendar_list)
       local buf = api.nvim_create_buf(false, false)
       api.nvim_buf_set_name(buf, "calendar://calendar_list")
       api.nvim_create_autocmd("BufLeave", {
@@ -462,7 +467,7 @@ function M.calendar_list_show(opts)
             )
 
           iter(calendars_by_id):each(
-            function(id, calendar) table.insert(diffs, { type = "delete", cached_calendar = calendar }) end
+            function(_id, calendar) table.insert(diffs, { type = "delete", cached_calendar = calendar }) end
           )
 
           local diff_num = #diffs
@@ -479,14 +484,14 @@ function M.calendar_list_show(opts)
             function(diff)
               if diff.type == "new" then
                 assert(diff.summary, ("Diff has no summary %s"):format(vim.inspect(diff)))
-                M.create_calendar(token_info, diff, function(new_calendar)
+                M.create_calendar(_cache_token_info, diff, function(new_calendar)
                   assert(_cache_calendar_list)
                   table.insert(_cache_calendar_list.items, new_calendar)
 
                   reload_if_last_diff()
                 end)
               elseif diff.type == "edit" then
-                M.edit_calendar(token_info, diff, function(edited_calendar)
+                M.edit_calendar(_cache_token_info, diff, function(edited_calendar)
                   local cached_calendar = diff.cached_calendar --[[@as table<unknown, unknown>]]
 
                   -- can't only update some fields because google checks
@@ -499,7 +504,7 @@ function M.calendar_list_show(opts)
                   reload_if_last_diff()
                 end)
               elseif diff.type == "delete" then
-                M.delete_calendar(token_info, diff, function()
+                M.delete_calendar(_cache_token_info, diff, function()
                   assert(_cache_calendar_list)
                   for j, calendar in ipairs(_cache_calendar_list.items) do
                     if calendar.id == diff.cached_calendar.id then table.remove(_cache_calendar_list.items, j) end
@@ -767,8 +772,9 @@ end
 
 ---@param id string
 function M.calendar_show(id)
-  M.get_token_info(function(token_info)
-    M.get_calendar(token_info, id, function(calendar)
+  M.get_token_info(function()
+    assert(_cache_token_info, "There is no _cache_token_info")
+    M.get_calendar(_cache_token_info, id, function(calendar)
       local buf = api.nvim_create_buf(false, false)
       api.nvim_create_autocmd("BufLeave", {
         buffer = buf,
@@ -1715,9 +1721,10 @@ function CalendarView:show(year, month, opts)
   local last_date_plus_one =
     os.date("*t", os.time { year = last_date.year, month = last_date.month, day = last_date.day + 1 })
 
-  M.get_token_info(function(token_info)
-    M.get_calendar_list(token_info, {}, function(calendar_list)
-      M.get_events(token_info, calendar_list, {
+  M.get_token_info(function()
+    assert(_cache_token_info, "There is no _cache_token_info")
+    M.get_calendar_list(_cache_token_info, {}, function(calendar_list)
+      M.get_events(_cache_token_info, calendar_list, {
         start = {
           year = first_date.year --[[@as integer]],
           month = first_date.month --[[@as integer]],
@@ -1930,7 +1937,7 @@ function CalendarView:show(year, month, opts)
 
             api.nvim_create_autocmd("BufWriteCmd", {
               buffer = buf,
-              callback = function() self:write(token_info, calendar_list, events_by_date, year, month, win, buf) end,
+              callback = function() self:write(_cache_token_info, calendar_list, events_by_date, year, month, win, buf) end,
             })
           end
         end
@@ -2269,9 +2276,10 @@ function M.add_coq_completion()
       if args.line:match "^/[^ ]+ " then return cb() end
       -- TODO: check that line matches the (to be defined) format for where the
       -- calendar name should go
-      M.get_token_info(function(token_info)
+      M.get_token_info(function()
+        assert(_cache_token_info, "There is no _cache_token_info")
         M.get_calendar_list(
-          token_info,
+          _cache_token_info,
           {},
           ---@param calendar_list CalendarList
           function(calendar_list)
