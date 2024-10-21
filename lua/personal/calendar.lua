@@ -1569,9 +1569,11 @@ function CalendarView:write(token_info, calendar_list, events_by_date, year, mon
               calendar_summary = calendar_summary,
               start = {
                 dateTime = start_date_time,
+                timeZone = text_timezone,
               },
               ["end"] = {
                 dateTime = end_date_time,
+                timeZone = text_timezone,
               },
               recurrence = recurrence,
               is_new = true,
