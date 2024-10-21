@@ -974,13 +974,14 @@ local already_seen = {} ---@type table<string, boolean>
 
 ---@param token_info TokenInfo
 ---@param calendar_list CalendarList
----@param opts {start: CalendarDate, end: CalendarDate, refresh: boolean?} start and end are exclusive
+---@param opts {start: CalendarDate, end: CalendarDate, refresh: boolean?, should_query_single_events: boolean?} start and end are exclusive
 ---@param cb fun(events: table<string, Event[]>)
 function M.get_events(token_info, calendar_list, opts, cb)
   if opts.refresh then
     _cache_events = {}
     already_seen = {}
   end
+  if opts.should_query_single_events == nil then opts.should_query_single_events = true end
 
   local start_year = opts.start.year
   local start_month = opts.start.month
@@ -1024,10 +1025,11 @@ function M.get_events(token_info, calendar_list, opts, cb)
           "--silent",
           "--header",
           ("Authorization: Bearer %s"):format(token_info.access_token),
-          ("https://www.googleapis.com/calendar/v3/calendars/%s/events?timeMin=%s&timeMax=%s&singleEvents=true"):format(
+          ("https://www.googleapis.com/calendar/v3/calendars/%s/events?timeMin=%s&timeMax=%s&singleEvents=%s"):format(
             url_encode(calendar.id),
             url_encode(time_min),
-            url_encode(time_max)
+            url_encode(time_max),
+            opts.should_query_single_events
           ),
         },
         { text = true },
@@ -1712,7 +1714,7 @@ end
 
 ---@param year integer
 ---@param month integer
----@param opts? {refresh: boolean}
+---@param opts? {refresh: boolean, should_query_single_events: boolean?}
 function CalendarView:show(year, month, opts)
   local has_loaded = false
   local notification ---@type number|nil
@@ -1738,6 +1740,7 @@ function CalendarView:show(year, month, opts)
           notify.update(notification, { msg = loading[count], hl = "DiagnosticOk" })
         else
           timer:stop()
+          -- TODO: check if has already closed because of error (?
           timer:close()
         end
       end)
@@ -1796,7 +1799,9 @@ function CalendarView:show(year, month, opts)
           day = last_date_plus_one.day --[[@as integer]],
         },
         refresh = opts and opts.refresh,
+        should_query_single_events = opts and opts.should_query_single_events,
       }, function(events_by_date)
+        -- aux = events_by_date
         has_loaded = true
         if notification then
           notify.remove(notification)
@@ -1937,9 +1942,13 @@ function CalendarView:show(year, month, opts)
             local buf = self.cal_bufs[y][x]
             local win = self.cal_wins[y][x]
 
-            keymap.set("n", "<c-l>", function()
+            keymap.set("n", "<F5>", function()
               api.nvim_win_close(win, true)
               self:show(year, month, { refresh = true })
+            end, { buffer = buf })
+            keymap.set("n", "<F4>", function()
+              api.nvim_win_close(win, true)
+              self:show(year, month, { refresh = true, should_query_single_events = false })
             end, { buffer = buf })
             keymap.set("n", "<cr>", function() M.calendar_list_show() end, { buffer = buf })
             keymap.set("n", "<", function()
@@ -2025,7 +2034,7 @@ function CalendarView:show(year, month, opts)
               group = "Number",
             },
             punctuation = {
-              pattern = { sep, ":" },
+              pattern = { sep, ":", ";", "=" },
               group = "Delimiter",
             },
           }
@@ -2054,7 +2063,7 @@ function CalendarView:show(year, month, opts)
               ---@param b Event
               function(a, b)
                 if a.start.date and b.start.date then
-                  return true -- arbitrary, if they have the same date, order doesn't matter
+                  return a.start.date < b.start.date
                 elseif a.start.date and b.start.dateTime then
                   return true -- all day events first
                 elseif a.start.dateTime and b.start.date then
@@ -2062,15 +2071,18 @@ function CalendarView:show(year, month, opts)
                 elseif a.start.dateTime and b.start.dateTime then
                   return a.start.dateTime < b.start.dateTime
                 end
-                error "This shouldn't happen "
+                error "This shouldn't happen"
               end
             )
             local events_text = iter(day_events)
               :map(function(event)
-                if not event.start.dateTime then return ("/%s %s"):format(event.id, event.summary) end
+                local is_recurrent = event.recurrence and not vim.tbl_isempty(event.recurrence)
+                local recurrence = is_recurrent and ("%s%s"):format(sep, table.concat(event.recurrence, " ")) or ""
+
+                if not event.start.dateTime then return ("/%s %s%s"):format(event.id, event.summary, recurrence) end
                 local start_date_time = parse_date_time(event.start.dateTime)
                 local end_date_time = parse_date_time(event["end"].dateTime)
-                return ("/%s %s%s%02d:%02d:%02d%s%02d:%02d:%02d"):format(
+                return ("/%s %s%s%02d:%02d:%02d%s%02d:%02d:%02d%s"):format(
                   event.id,
                   event.summary,
                   sep,
@@ -2080,7 +2092,8 @@ function CalendarView:show(year, month, opts)
                   sep,
                   end_date_time.h,
                   end_date_time.min,
-                  end_date_time.s
+                  end_date_time.s,
+                  recurrence
                 )
               end)
               :totable()
