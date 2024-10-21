@@ -1003,6 +1003,7 @@ function M.get_events(token_info, calendar_list, opts, cb)
     local end_date = opts["end"]
     local start_yday = os.date("*t", os.time(start_date --[[@as osdateparam]])).yday
     local end_yday = os.date("*t", os.time(end_date--[[@as osdateparam]])).yday
+    if end_yday < start_yday then end_yday = end_yday + 365 end
     for i = 0, end_yday - start_yday do
       local date = os.date("*t", os.time { year = start_date.year, month = start_date.month, day = start_date.day + i })
       local key = ("%s_%s_%s"):format(date.year, date.month, date.day)
