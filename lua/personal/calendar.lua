@@ -191,66 +191,62 @@ function M.get_token_info()
 
   if _cache_token_info then return end
 
-  fs_exists(
-    refresh_token_path,
-    vim.schedule_wrap(function(exists, err)
-      if exists == nil and err then
-        vim.notify(err, vim.log.levels.ERROR)
-        return
-      end
-      if exists then
-        local file = io.open(refresh_token_path, "r")
-        assert(file)
-        local content = file:read "*a"
-        file:close()
+  local exists, err = fs_exists(refresh_token_path)
+  if exists == nil and err then
+    vim.notify(err, vim.log.levels.ERROR)
+    return
+  end
+  if exists then
+    local file = io.open(refresh_token_path, "r")
+    assert(file)
+    local content = file:read "*a"
+    file:close()
 
-        local ok, token_info = pcall(vim.json.decode, content) ---@type boolean, string|TokenInfo
+    local ok, token_info = pcall(vim.json.decode, content) ---@type boolean, string|TokenInfo
+    assert(ok, token_info)
+    ---@cast token_info -string
+
+    _cache_token_info = token_info
+    coroutine.resume(co)
+    return
+  end
+
+  start_server {
+    on_ready = function() vim.ui.open(full_auth_url) end,
+    on_code = function(code)
+      local params = ("client_id=%s&client_secret=%s&code=%s&grant_type=authorization_code&redirect_uri=%s"):format(
+        client_id,
+        client_secret,
+        code,
+        redirect_uri
+      )
+
+      vim.system({
+        "curl",
+        "--data",
+        params,
+        "--http1.1",
+        "--silent",
+        -- TODO: is this needed?
+        -- "--insecure",
+        token_url,
+      }, { text = true }, function(result)
+        assert(result.stderr == "", result.stderr)
+
+        local ok, token_info = pcall(vim.json.decode, result.stdout) ---@type boolean, string|TokenInfo
         assert(ok, token_info)
         ---@cast token_info -string
 
+        local file = io.open(refresh_token_path, "w")
+        assert(file)
+        file:write(result.stdout)
+        file:close()
+
         _cache_token_info = token_info
         coroutine.resume(co)
-        return
-      end
-
-      start_server {
-        on_ready = function() vim.ui.open(full_auth_url) end,
-        on_code = function(code)
-          local params = ("client_id=%s&client_secret=%s&code=%s&grant_type=authorization_code&redirect_uri=%s"):format(
-            client_id,
-            client_secret,
-            code,
-            redirect_uri
-          )
-
-          vim.system({
-            "curl",
-            "--data",
-            params,
-            "--http1.1",
-            "--silent",
-            -- TODO: is this needed?
-            -- "--insecure",
-            token_url,
-          }, { text = true }, function(result)
-            assert(result.stderr == "", result.stderr)
-
-            local ok, token_info = pcall(vim.json.decode, result.stdout) ---@type boolean, string|TokenInfo
-            assert(ok, token_info)
-            ---@cast token_info -string
-
-            local file = io.open(refresh_token_path, "w")
-            assert(file)
-            file:write(result.stdout)
-            file:close()
-
-            _cache_token_info = token_info
-            coroutine.resume(co)
-          end)
-        end,
-      }
-    end)
-  )
+      end)
+    end,
+  }
   coroutine.yield()
 end
 

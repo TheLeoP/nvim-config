@@ -55,21 +55,24 @@ function M.str_multibyte_sub(str, i, j)
   return aux
 end
 
+---@async
 ---@param path string
----@param cb fun(exists: boolean|nil, err: string|nil)
-function M.fs_exists(path, cb)
+---@return boolean|nil exists, string|nil err
+function M.fs_exists(path)
+  local co = coroutine.running()
   uv.fs_stat(path, function(err)
     if not err then
-      cb(true)
+      coroutine.resume(co, true)
       return
     end
 
     if not err:match "^ENOENT:" then
-      cb(nil, err)
+      coroutine.resume(co, nil, err)
       return
     end
-    cb(false)
+    coroutine.resume(co, false)
   end)
+  return coroutine.yield()
 end
 
 ---@param map coq_sources

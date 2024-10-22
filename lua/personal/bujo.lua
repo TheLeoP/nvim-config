@@ -8,16 +8,14 @@ local data_path = ("%s/%s"):format(vim.fn.stdpath "data", "/bujo")
 data_path = vim.fs.normalize(data_path)
 local default_width = 30
 
-fs_exists(
-  data_path,
-  vim.schedule_wrap(function(exists, err)
-    if exists == nil and err then
-      vim.notify(err, vim.log.levels.ERROR)
-      return
-    end
-    if not exists then vim.fn.mkdir(data_path) end
-  end)
-)
+coroutine.wrap(function()
+  local exists, err = fs_exists(data_path)
+  if exists == nil and err then
+    vim.notify(err, vim.log.levels.ERROR)
+    return
+  end
+  if not exists then vim.fn.mkdir(data_path) end
+end)()
 
 ---@param cb fun(is: boolean)
 local function is_git_repo(cb)
