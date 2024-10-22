@@ -79,17 +79,21 @@ local refresh_token_path = ("%s/refresh_token.json"):format(data_path)
 local _cache_token_info ---@type TokenInfo|nil
 local is_refreshing_access_token = false
 
+---@async
 ---@param refresh_token string
----@param cb fun(token_info: TokenInfo)
-local function refresh_access_token(refresh_token, cb)
+---@return TokenInfo
+local function refresh_access_token(refresh_token)
+  local co = coroutine.running()
+  assert(co, "The function must run inside a coroutine")
+
   local token_refreshed_pattern = "CalendarAccessTokenRefreshed"
   api.nvim_create_autocmd("User", {
     pattern = token_refreshed_pattern,
     ---@param opts {data:{token_info: TokenInfo}}
-    callback = function(opts) cb(opts.data.token_info) end,
+    callback = function(opts) coroutine.resume(co, opts.data.token_info) end,
     once = true,
   })
-  if is_refreshing_access_token then return end
+  if is_refreshing_access_token then return coroutine.yield() end
   is_refreshing_access_token = true
 
   local params = ("client_id=%s&client_secret=%s&grant_type=refresh_token&refresh_token=%s"):format(
@@ -120,14 +124,15 @@ local function refresh_access_token(refresh_token, cb)
         _cache_token_info = nil
         assert(vim.fn.delete(refresh_token_path) == 0, ("Couldn't delete file %s"):format(refresh_token_path))
 
-        M.get_token_info(vim.schedule_wrap(function()
+        coroutine.wrap(function()
+          M.get_token_info()
           assert(_cache_token_info, "There is no _cache_token_info")
           is_refreshing_access_token = false
           api.nvim_exec_autocmds(
             "User",
             { pattern = token_refreshed_pattern, data = { token_info = _cache_token_info } }
           )
-        end))
+        end)()
 
         return
       end
@@ -150,6 +155,7 @@ local function refresh_access_token(refresh_token, cb)
       api.nvim_exec_autocmds("User", { pattern = token_refreshed_pattern, data = { token_info = _cache_token_info } })
     end)
   )
+  return coroutine.yield()
 end
 
 local scope = "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/tasks"
@@ -178,12 +184,12 @@ local full_auth_url = ("%s?client_id=%s&redirect_uri=%s&scope=%s&response_type=c
 ---@field scope string
 ---@field token_type string
 
----@param cb fun()
-function M.get_token_info(cb)
-  if _cache_token_info then
-    cb()
-    return
-  end
+---@async
+function M.get_token_info()
+  local co = coroutine.running()
+  assert(co, "The function must run inside a coroutine")
+
+  if _cache_token_info then return end
 
   fs_exists(
     refresh_token_path,
@@ -203,7 +209,7 @@ function M.get_token_info(cb)
         ---@cast token_info -string
 
         _cache_token_info = token_info
-        cb()
+        coroutine.resume(co)
         return
       end
 
@@ -239,12 +245,13 @@ function M.get_token_info(cb)
             file:close()
 
             _cache_token_info = token_info
-            cb()
+            coroutine.resume(co)
           end)
         end,
       }
     end)
   )
+  coroutine.yield()
 end
 
 ---@class DefaultReminder
@@ -311,16 +318,17 @@ end
 
 local _cache_calendar_list ---@type CalendarList|nil
 
+---@async
 ---@param token_info TokenInfo
 ---@param opts? {refresh:true}
----@param cb fun(calendar_list: CalendarList)
-function M.get_calendar_list(token_info, opts, cb)
+---@return CalendarList
+function M.get_calendar_list(token_info, opts)
+  local co = coroutine.running()
+  assert(co, "The function must run inside a coroutine")
+
   if opts and opts.refresh then _cache_calendar_list = nil end
 
-  if _cache_calendar_list then
-    cb(_cache_calendar_list)
-    return
-  end
+  if _cache_calendar_list then return _cache_calendar_list end
 
   vim.system(
     {
@@ -341,243 +349,250 @@ function M.get_calendar_list(token_info, opts, cb)
       if calendar_list.error then
         ---@cast calendar_list -CalendarList
         assert(calendar_list.error.status == "UNAUTHENTICATED", calendar_list.error.message)
-        refresh_access_token(
-          token_info.refresh_token,
-          function(refreshed_token_info) M.get_calendar_list(refreshed_token_info, {}, cb) end
-        )
+        coroutine.wrap(function()
+          local refreshed_token_info = refresh_access_token(token_info.refresh_token)
+          local new_calendar_list = M.get_calendar_list(refreshed_token_info, {})
+          coroutine.resume(co, new_calendar_list)
+        end)()
+
         return
       end
       ---@cast calendar_list +CalendarList
       ---@cast calendar_list -ApiErrorResponse
 
       _cache_calendar_list = calendar_list
-      cb(calendar_list)
+      coroutine.resume(co, calendar_list)
     end)
   )
+  return coroutine.yield()
 end
 
 local sep = " | "
 ---@param opts? {refresh:boolean}
 function M.calendar_list_show(opts)
-  M.get_token_info(function()
+  coroutine.wrap(function()
+    M.get_token_info() -- TODO: maybe make this return again and make every function maybe return new token info
     assert(_cache_token_info, "There is no _cache_token_info")
-    M.get_calendar_list(_cache_token_info, opts, function(calendar_list)
-      local buf = api.nvim_create_buf(false, false)
-      api.nvim_buf_set_name(buf, "calendar://calendar_list")
-      api.nvim_create_autocmd("BufLeave", {
-        buffer = buf,
-        callback = function() api.nvim_buf_delete(buf, { force = true }) end,
-        once = true,
-      })
+    local calendar_list = M.get_calendar_list(_cache_token_info, opts)
 
-      local factor = 0.85
-      local width = math.floor(vim.o.columns * factor)
-      local height = math.floor(vim.o.lines * factor)
-      local col = (vim.o.columns - width) / 2
-      local row = (vim.o.lines - height) / 2
-      local win = api.nvim_open_win(buf, true, {
-        relative = "editor",
-        row = row,
-        col = col,
-        width = width,
-        height = height,
-        title = " Calendar list ",
-        border = "single",
-        style = "minimal",
-      })
+    local buf = api.nvim_create_buf(false, false)
+    api.nvim_buf_set_name(buf, "calendar://calendar_list")
+    api.nvim_create_autocmd("BufLeave", {
+      buffer = buf,
+      callback = function() api.nvim_buf_delete(buf, { force = true }) end,
+      once = true,
+    })
 
-      api.nvim_create_autocmd("BufWriteCmd", {
-        buffer = buf,
-        callback = function()
-          vim.bo[buf].modifiable = false
+    local factor = 0.85
+    local width = math.floor(vim.o.columns * factor)
+    local height = math.floor(vim.o.lines * factor)
+    local col = (vim.o.columns - width) / 2
+    local row = (vim.o.lines - height) / 2
+    local win = api.nvim_open_win(buf, true, {
+      relative = "editor",
+      row = row,
+      col = col,
+      width = width,
+      height = height,
+      title = " Calendar list ",
+      border = "single",
+      style = "minimal",
+    })
 
-          ---@type table<string, CalendarListEntry>
-          local calendars_by_id = iter(calendar_list.items):fold(
-            {},
-            ---@param acc table<string, CalendarListEntry>
-            ---@param calendar CalendarListEntry
-            function(acc, calendar)
-              acc[calendar.id] = calendar
-              return acc
-            end
-          )
+    api.nvim_create_autocmd("BufWriteCmd", {
+      buffer = buf,
+      callback = function()
+        vim.bo[buf].modifiable = false
 
-          local lines = api.nvim_buf_get_lines(buf, 0, -1, true)
-          local diffs = {} ---@type CalendarDiff[]
-          iter(lines)
-            :map(
-              ---@param line string
-              ---@return {summary:string, description:string, id: string?, is_new: boolean}
-              function(line)
-                if line:match "^/[^ ]+" then -- existing entry
-                  local id, tail = line:match "^/([^ ]+) (.*)" ---@type string, string
-                  local summary, description = unpack(vim.split(tail, sep, { trimempty = true }))
-                  return {
-                    summary = summary,
-                    description = description,
-                    id = id,
-                    is_new = false,
-                  }
-                else
-                  local summary, description = unpack(vim.split(line, sep, { trimempty = true }))
-                  return {
-                    summary = summary,
-                    description = description,
-                    is_new = true,
-                  }
-                end
-              end
-            )
-            :each(
-              ---@param calendar_info {summary:string, description:string, id: string?, is_new: boolean}
-              function(calendar_info)
-                local is_new = calendar_info.is_new
-                local summary = calendar_info.summary
-                local id = calendar_info.id
-
-                if not is_new then
-                  ---@cast id -nil
-
-                  assert(_cache_calendar_list)
-                  local cached_calendar = iter(_cache_calendar_list.items):find(
-                    ---@param calendar CalendarListEntry
-                    function(calendar) return calendar.id == id end
-                  )
-                  assert(
-                    cached_calendar,
-                    ("The calendar with id `%s` is not in cache. Maybe you modified it by acciddent"):format(id)
-                  )
-                  assert(summary, ("The calendar with id `%s` has no summary"):format(id))
-                  calendars_by_id[id] = nil
-
-                  local edit_diff = {}
-                  if summary ~= cached_calendar.summary then edit_diff.summary = summary end
-                  if not vim.tbl_isempty(edit_diff) then
-                    edit_diff.cached_calendar = cached_calendar
-                    edit_diff.type = "edit"
-                    table.insert(diffs, edit_diff)
-                  end
-                else
-                  -- TODO: support adding an already existing calendar https://developers.google.com/calendar/api/v3/reference/calendarList/insert
-                  assert(summary ~= "", "The summary for a new calendar is empty")
-                  table.insert(diffs, {
-                    type = "new",
-                    summary = summary,
-                  })
-                end
-              end
-            )
-
-          iter(calendars_by_id):each(
-            function(_id, calendar) table.insert(diffs, { type = "delete", cached_calendar = calendar }) end
-          )
-
-          local diff_num = #diffs
-          local i = 0
-          local reload_if_last_diff = function()
-            i = i + 1
-            if i == diff_num then
-              api.nvim_win_close(win, true)
-              M.calendar_list_show()
-            end
-          end
-          iter(diffs):each(
-            ---@param diff CalendarDiff
-            function(diff)
-              if diff.type == "new" then
-                assert(diff.summary, ("Diff has no summary %s"):format(vim.inspect(diff)))
-                M.create_calendar(_cache_token_info, diff, function(new_calendar)
-                  assert(_cache_calendar_list)
-                  table.insert(_cache_calendar_list.items, new_calendar)
-
-                  reload_if_last_diff()
-                end)
-              elseif diff.type == "edit" then
-                M.edit_calendar(_cache_token_info, diff, function(edited_calendar)
-                  local cached_calendar = diff.cached_calendar --[[@as table<unknown, unknown>]]
-
-                  -- can't only update some fields because google checks
-                  -- things like the last update time to check if the
-                  -- calendar has gone out-of-sync
-                  for key, _ in pairs(edited_calendar) do
-                    cached_calendar[key] = edited_calendar[key]
-                  end
-
-                  reload_if_last_diff()
-                end)
-              elseif diff.type == "delete" then
-                M.delete_calendar(_cache_token_info, diff, function()
-                  assert(_cache_calendar_list)
-                  for j, calendar in ipairs(_cache_calendar_list.items) do
-                    if calendar.id == diff.cached_calendar.id then table.remove(_cache_calendar_list.items, j) end
-                  end
-
-                  reload_if_last_diff()
-                end)
-              end
-            end
-          )
-
-          vim.bo[buf].modified = false
-          vim.bo[buf].modifiable = true
-        end,
-      })
-      local highlighters = {
-        conceal_id = {
-          pattern = "^()/[^ ]+ ()",
-          group = "", -- group needs to not be `nil` to work
-          extmark_opts = {
-            conceal = "",
-          },
-        },
-        time = {
-          pattern = "[ :]()%d%d()",
-          group = "Number",
-        },
-        punctuation = {
-          pattern = { sep, ":" },
-          group = "Delimiter",
-        },
-      }
-      local lines = iter(calendar_list.items)
-        :map(
+        ---@type table<string, CalendarListEntry>
+        local calendars_by_id = iter(calendar_list.items):fold(
+          {},
+          ---@param acc table<string, CalendarListEntry>
           ---@param calendar CalendarListEntry
-          function(calendar)
-            if calendar.foregroundColor then
-              local fg = compute_hex_color_group(calendar.foregroundColor, "fg")
-              highlighters[calendar.id .. "fg"] = { pattern = "%f[%w]()" .. calendar.summary .. "()%f[%W]", group = fg }
-            end
-            if calendar.backgroundColor then
-              local bg = compute_hex_color_group(calendar.backgroundColor, "bg")
-              highlighters[calendar.id .. "bg"] = { pattern = "%f[%w]()" .. calendar.summary .. "()%f[%W]", group = bg }
-            end
-
-            if calendar.accessRole == "reader" then
-              highlighters[calendar.id .. "deprecated"] =
-                { pattern = "%f[%w]()" .. calendar.summary .. "()%f[%W]", group = "DiagnosticDeprecated" }
-            end
-
-            local line = ("/%s %s%s%s"):format(calendar.id, calendar.summary, sep, calendar.description or "")
-            return line
+          function(acc, calendar)
+            acc[calendar.id] = calendar
+            return acc
           end
         )
-        :totable()
-      api.nvim_buf_set_lines(buf, 0, -1, true, lines)
-      hl_enable(buf, { highlighters = highlighters })
 
-      keymap.set("n", "<cr>", function()
-        local line = api.nvim_get_current_line()
-        local id = line:match "^/([^ ]+) " ---@type string, string
+        local lines = api.nvim_buf_get_lines(buf, 0, -1, true)
+        local diffs = {} ---@type CalendarDiff[]
+        iter(lines)
+          :map(
+            ---@param line string
+            ---@return {summary:string, description:string, id: string?, is_new: boolean}
+            function(line)
+              if line:match "^/[^ ]+" then -- existing entry
+                local id, tail = line:match "^/([^ ]+) (.*)" ---@type string, string
+                local summary, description = unpack(vim.split(tail, sep, { trimempty = true }))
+                return {
+                  summary = summary,
+                  description = description,
+                  id = id,
+                  is_new = false,
+                }
+              else
+                local summary, description = unpack(vim.split(line, sep, { trimempty = true }))
+                return {
+                  summary = summary,
+                  description = description,
+                  is_new = true,
+                }
+              end
+            end
+          )
+          :each(
+            ---@param calendar_info {summary:string, description:string, id: string?, is_new: boolean}
+            function(calendar_info)
+              local is_new = calendar_info.is_new
+              local summary = calendar_info.summary
+              local id = calendar_info.id
 
-        api.nvim_win_close(0, true)
-        M.calendar_show(id)
-      end, { buffer = buf })
-      keymap.set("n", "<c-l>", function()
-        api.nvim_win_close(win, true)
-        M.calendar_list_show { refresh = true }
-      end, { buffer = buf })
-    end)
-  end)
+              if not is_new then
+                ---@cast id -nil
+
+                assert(_cache_calendar_list)
+                local cached_calendar = iter(_cache_calendar_list.items):find(
+                  ---@param calendar CalendarListEntry
+                  function(calendar) return calendar.id == id end
+                )
+                assert(
+                  cached_calendar,
+                  ("The calendar with id `%s` is not in cache. Maybe you modified it by acciddent"):format(id)
+                )
+                assert(summary, ("The calendar with id `%s` has no summary"):format(id))
+                calendars_by_id[id] = nil
+
+                local edit_diff = {}
+                if summary ~= cached_calendar.summary then edit_diff.summary = summary end
+                if not vim.tbl_isempty(edit_diff) then
+                  edit_diff.cached_calendar = cached_calendar
+                  edit_diff.type = "edit"
+                  table.insert(diffs, edit_diff)
+                end
+              else
+                -- TODO: support adding an already existing calendar https://developers.google.com/calendar/api/v3/reference/calendarList/insert
+                assert(summary ~= "", "The summary for a new calendar is empty")
+                table.insert(diffs, {
+                  type = "new",
+                  summary = summary,
+                })
+              end
+            end
+          )
+
+        iter(calendars_by_id):each(
+          function(_id, calendar) table.insert(diffs, { type = "delete", cached_calendar = calendar }) end
+        )
+
+        local diff_num = #diffs
+        local i = 0
+        local reload_if_last_diff = function()
+          i = i + 1
+          if i == diff_num then
+            api.nvim_win_close(win, true)
+            M.calendar_list_show()
+          end
+        end
+        iter(diffs):each(
+          ---@param diff CalendarDiff
+          function(diff)
+            if diff.type == "new" then
+              assert(diff.summary, ("Diff has no summary %s"):format(vim.inspect(diff)))
+              coroutine.wrap(function()
+                local new_calendar = M.create_calendar(_cache_token_info, diff)
+                assert(_cache_calendar_list)
+                table.insert(_cache_calendar_list.items, new_calendar)
+
+                reload_if_last_diff()
+              end)()
+            elseif diff.type == "edit" then
+              coroutine.wrap(function()
+                local edited_calendar = M.edit_calendar(_cache_token_info, diff)
+                local cached_calendar = diff.cached_calendar --[[@as table<unknown, unknown>]]
+
+                -- can't only update some fields because google checks
+                -- things like the last update time to check if the
+                -- calendar has gone out-of-sync
+                for key, _ in pairs(edited_calendar) do
+                  cached_calendar[key] = edited_calendar[key]
+                end
+
+                reload_if_last_diff()
+              end)()
+            elseif diff.type == "delete" then
+              coroutine.wrap(function()
+                M.delete_calendar(_cache_token_info, diff)
+                assert(_cache_calendar_list)
+                for j, calendar in ipairs(_cache_calendar_list.items) do
+                  if calendar.id == diff.cached_calendar.id then table.remove(_cache_calendar_list.items, j) end
+                end
+
+                reload_if_last_diff()
+              end)()
+            end
+          end
+        )
+
+        vim.bo[buf].modified = false
+        vim.bo[buf].modifiable = true
+      end,
+    })
+    local highlighters = {
+      conceal_id = {
+        pattern = "^()/[^ ]+ ()",
+        group = "", -- group needs to not be `nil` to work
+        extmark_opts = {
+          conceal = "",
+        },
+      },
+      time = {
+        pattern = "[ :]()%d%d()",
+        group = "Number",
+      },
+      punctuation = {
+        pattern = { sep, ":" },
+        group = "Delimiter",
+      },
+    }
+    local lines = iter(calendar_list.items)
+      :map(
+        ---@param calendar CalendarListEntry
+        function(calendar)
+          if calendar.foregroundColor then
+            local fg = compute_hex_color_group(calendar.foregroundColor, "fg")
+            highlighters[calendar.id .. "fg"] = { pattern = "%f[%w]()" .. calendar.summary .. "()%f[%W]", group = fg }
+          end
+          if calendar.backgroundColor then
+            local bg = compute_hex_color_group(calendar.backgroundColor, "bg")
+            highlighters[calendar.id .. "bg"] = { pattern = "%f[%w]()" .. calendar.summary .. "()%f[%W]", group = bg }
+          end
+
+          if calendar.accessRole == "reader" then
+            highlighters[calendar.id .. "deprecated"] =
+              { pattern = "%f[%w]()" .. calendar.summary .. "()%f[%W]", group = "DiagnosticDeprecated" }
+          end
+
+          local line = ("/%s %s%s%s"):format(calendar.id, calendar.summary, sep, calendar.description or "")
+          return line
+        end
+      )
+      :totable()
+    api.nvim_buf_set_lines(buf, 0, -1, true, lines)
+    hl_enable(buf, { highlighters = highlighters })
+
+    keymap.set("n", "<cr>", function()
+      local line = api.nvim_get_current_line()
+      local id = line:match "^/([^ ]+) " ---@type string, string
+
+      api.nvim_win_close(0, true)
+      M.calendar_show(id)
+    end, { buffer = buf })
+    keymap.set("n", "<c-l>", function()
+      api.nvim_win_close(win, true)
+      M.calendar_list_show { refresh = true }
+    end, { buffer = buf })
+  end)()
 end
 
 ---@class Calendar
@@ -592,14 +607,15 @@ end
 
 local _cache_calendar = {} ---@type table<string, Calendar>
 
+---@async
 ---@param token_info TokenInfo
 ---@param id string
----@param cb fun(calendar: Calendar)
-function M.get_calendar(token_info, id, cb)
-  if _cache_calendar[id] then
-    cb(_cache_calendar[id])
-    return
-  end
+---@return Calendar
+function M.get_calendar(token_info, id)
+  local co = coroutine.running()
+  assert(co, "The function must run inside a coroutine")
+
+  if _cache_calendar[id] then return _cache_calendar[id] end
 
   vim.system(
     {
@@ -620,25 +636,31 @@ function M.get_calendar(token_info, id, cb)
       if calendar.error then
         ---@cast calendar -Calendar
         assert(calendar.error.status == "UNAUTHENTICATED", calendar.error.message)
-        refresh_access_token(
-          token_info.refresh_token,
-          function(refreshed_token_info) M.get_calendar(refreshed_token_info, id, cb) end
-        )
+        coroutine.wrap(function()
+          local refreshed_token_info = refresh_access_token(token_info.refresh_token)
+          local new_calendar = M.get_calendar(refreshed_token_info, id)
+          coroutine.resume(co, new_calendar)
+        end)()
         return
       end
       ---@cast calendar +Calendar
       ---@cast calendar -ApiErrorResponse
 
       _cache_calendar[id] = calendar
-      cb(calendar)
+      coroutine.resume(co, calendar)
     end)
   )
+  return coroutine.yield()
 end
 
+---@async
 ---@param token_info TokenInfo
 ---@param diff CalendarDiff
----@param cb fun(new_calendar: Calendar)
-function M.create_calendar(token_info, diff, cb)
+---@return Calendar
+function M.create_calendar(token_info, diff)
+  local co = coroutine.running()
+  assert(co, "The function must run inside a coroutine")
+
   local data = vim.json.encode { summary = diff.summary }
   local tmp_name = os.tmpname()
   local tmp_file = io.open(tmp_name, "w")
@@ -667,24 +689,30 @@ function M.create_calendar(token_info, diff, cb)
       if new_calendar.error then
         ---@cast new_calendar -Calendar
         assert(new_calendar.error.status == "UNAUTHENTICATED", new_calendar.error.message)
-        refresh_access_token(
-          token_info.refresh_token,
-          function(refreshed_token_info) M.create_calendar(refreshed_token_info, diff, cb) end
-        )
+        coroutine.wrap(function(refreshed_token_info)
+          refresh_access_token(token_info.refresh_token)
+          local new_new_calendar = M.create_calendar(refreshed_token_info, diff)
+          coroutine.resume(co, new_new_calendar)
+        end)()
         return
       end
       ---@cast new_calendar +Calendar
       ---@cast new_calendar -ApiErrorResponse
 
-      cb(new_calendar)
+      coroutine.resume(co, new_calendar)
     end)
   )
+  return coroutine.yield()
 end
 
+---@async
 ---@param token_info TokenInfo
 ---@param diff CalendarDiff
----@param cb fun(new_calendar: Calendar)
-function M.edit_calendar(token_info, diff, cb)
+---@return Calendar
+function M.edit_calendar(token_info, diff)
+  local co = coroutine.running()
+  assert(co, "The function must run inside a coroutine")
+
   local cached_calendar = vim.deepcopy(diff.cached_calendar)
   if diff.summary then cached_calendar.summary = diff.summary end
   local data = vim.json.encode(cached_calendar)
@@ -717,24 +745,29 @@ function M.edit_calendar(token_info, diff, cb)
       if edited_calendar.error then
         ---@cast edited_calendar -Calendar
         assert(edited_calendar.error.status == "UNAUTHENTICATED", edited_calendar.error.message)
-        refresh_access_token(
-          token_info.refresh_token,
-          function(refreshed_token_info) M.edit_calendar(refreshed_token_info, diff, cb) end
-        )
+        coroutine.wrap(function()
+          local refreshed_token_info = refresh_access_token(token_info.refresh_token)
+          local new_edited_calendar = M.edit_calendar(refreshed_token_info, diff)
+          coroutine.resume(co, new_edited_calendar)
+        end)()
         return
       end
       ---@cast edited_calendar +Calendar
       ---@cast edited_calendar -ApiErrorResponse
 
-      cb(edited_calendar)
+      coroutine.resume(co, edited_calendar)
     end)
   )
+  return coroutine.yield()
 end
 
+---@async
 ---@param token_info TokenInfo
 ---@param diff CalendarDiff
----@param cb fun()
-function M.delete_calendar(token_info, diff, cb)
+function M.delete_calendar(token_info, diff)
+  local co = coroutine.running()
+  assert(co, "The function must run inside a coroutine")
+
   vim.system(
     {
       "curl",
@@ -751,7 +784,7 @@ function M.delete_calendar(token_info, diff, cb)
       assert(result.stderr == "", result.stderr)
 
       if result.stdout == "" then
-        cb()
+        coroutine.resume(co)
         return
       end
 
@@ -762,53 +795,57 @@ function M.delete_calendar(token_info, diff, cb)
       if response.error then
         ---@cast response -Event
         assert(response.error.status == "UNAUTHENTICATED", response.error.message)
-        refresh_access_token(
-          token_info.refresh_token,
-          function(refreshed_token_info) M.delete_calendar(refreshed_token_info, diff, cb) end
-        )
+        coroutine.wrap(function()
+          local refreshed_token_info = refresh_access_token(token_info.refresh_token)
+          M.delete_calendar(refreshed_token_info, diff)
+          coroutine.resume(co)
+        end)()
         return
       end
     end)
   )
+  coroutine.yield()
 end
 
 ---@param id string
 function M.calendar_show(id)
-  M.get_token_info(function()
+  coroutine.wrap(function()
+    M.get_token_info()
     assert(_cache_token_info, "There is no _cache_token_info")
-    M.get_calendar(_cache_token_info, id, function(calendar)
-      local buf = api.nvim_create_buf(false, false)
-      api.nvim_create_autocmd("BufLeave", {
-        buffer = buf,
-        callback = function() api.nvim_buf_delete(buf, { force = true }) end,
-        once = true,
-      })
-      local calendar_string = vim.json.encode(calendar)
-      api.nvim_buf_set_lines(buf, 0, 0, true, vim.split(calendar_string, "\n"))
-      api.nvim_buf_call(buf, function() vim.cmd.set "filetype=json" end)
 
-      -- TODO: modify to put cursor on top of current calendar (?)
-      keymap.set("n", "-", function()
-        api.nvim_win_close(0, true)
-        M.calendar_list_show()
-      end, { buffer = buf })
+    local calendar = M.get_calendar(_cache_token_info, id)
+    local buf = api.nvim_create_buf(false, false)
 
-      local width = math.floor(vim.o.columns * 0.85)
-      local height = math.floor(vim.o.lines * 0.85)
-      local col = (vim.o.columns - width) / 2
-      local row = (vim.o.lines - height) / 2
-      api.nvim_open_win(buf, true, {
-        relative = "editor",
-        row = row,
-        col = col,
-        width = width,
-        height = height,
-        title = " Calendar ",
-        border = "single",
-        style = "minimal",
-      })
-    end)
-  end)
+    api.nvim_create_autocmd("BufLeave", {
+      buffer = buf,
+      callback = function() api.nvim_buf_delete(buf, { force = true }) end,
+      once = true,
+    })
+    local calendar_string = vim.json.encode(calendar)
+    api.nvim_buf_set_lines(buf, 0, 0, true, vim.split(calendar_string, "\n"))
+    api.nvim_buf_call(buf, function() vim.cmd.set "filetype=json" end)
+
+    -- TODO: modify to put cursor on top of current calendar (?)
+    keymap.set("n", "-", function()
+      api.nvim_win_close(0, true)
+      M.calendar_list_show()
+    end, { buffer = buf })
+
+    local width = math.floor(vim.o.columns * 0.85)
+    local height = math.floor(vim.o.lines * 0.85)
+    local col = (vim.o.columns - width) / 2
+    local row = (vim.o.lines - height) / 2
+    api.nvim_open_win(buf, true, {
+      relative = "editor",
+      row = row,
+      col = col,
+      width = width,
+      height = height,
+      title = " Calendar ",
+      border = "single",
+      style = "minimal",
+    })
+  end)()
 end
 
 ---@class User
@@ -972,11 +1009,15 @@ local already_seen = {} ---@type table<string, boolean>
 ---@field month integer
 ---@field day integer
 
+---@async
 ---@param token_info TokenInfo
 ---@param calendar_list CalendarList
 ---@param opts {start: CalendarDate, end: CalendarDate, refresh: boolean?, should_query_single_events: boolean?} start and end are exclusive
----@param cb fun(events: table<string, Event[]>)
-function M.get_events(token_info, calendar_list, opts, cb)
+---@return table<string, Event[]>
+function M.get_events(token_info, calendar_list, opts)
+  local co = coroutine.running()
+  assert(co, "The function must run inside a coroutine")
+
   if opts.refresh then
     _cache_events = {}
     already_seen = {}
@@ -996,10 +1037,8 @@ function M.get_events(token_info, calendar_list, opts, cb)
   local start_key = ("%s_%s_%s"):format(start_year, start_month, start_day)
   local end_key = ("%s_%s_%s"):format(end_year, end_month, end_day)
   local events_key = ("%s_%s"):format(start_key, end_key)
-  if already_seen[events_key] then
-    cb(_cache_events)
-    return
-  end
+  if already_seen[events_key] then return _cache_events end
+
   -- in order to avoid duplicates on border days, if the whole date range hasn't been queried before, clean border days
   do
     local start_date = opts.start
@@ -1042,10 +1081,11 @@ function M.get_events(token_info, calendar_list, opts, cb)
           if events.error then
             ---@cast events -CalendarEvents
             assert(events.error.status == "UNAUTHENTICATED", events.error.message)
-            refresh_access_token(
-              token_info.refresh_token,
-              function(refreshed_token_info) M.get_events(refreshed_token_info, calendar_list, opts, cb) end
-            )
+            coroutine.wrap(function()
+              local refreshed_token_info = refresh_access_token(token_info.refresh_token)
+              local new_events = M.get_events(refreshed_token_info, calendar_list, opts)
+              coroutine.resume(co, new_events)
+            end)()
             return
           end
           ---@cast events +CalendarEvents
@@ -1072,14 +1112,15 @@ function M.get_events(token_info, calendar_list, opts, cb)
 
           count = count + 1
           if count == #calendar_list.items then
-            cb(_cache_events)
-            -- TODO: dedup multiple request like colors?
             already_seen[events_key] = true
+            -- TODO: dedup multiple request like colors?
+            coroutine.resume(co, _cache_events)
           end
         end)
       )
     end
   )
+  return coroutine.yield()
 end
 
 ---@param date_time string
@@ -1667,18 +1708,20 @@ function CalendarView:write(token_info, calendar_list, events_by_date, year, mon
             function(calendar) return calendar.summary == diff.calendar_summary end
           )
 
-          M.create_event(token_info, calendar.id, diff, function(new_event)
+          coroutine.wrap(function()
+            local new_event = M.create_event(token_info, calendar.id, diff)
             table.insert(day_events, new_event)
 
             reload_if_last_diff()
-          end)
+          end)()
         elseif diff.type == "edit" then
           local calendar = iter(calendar_list.items):find(
             ---@param calendar CalendarListEntry
             function(calendar) return calendar.id == diff.cached_event.organizer.email end
           )
 
-          M.edit_event(token_info, calendar.id, diff, function(edited_event)
+          coroutine.wrap(function()
+            local edited_event = M.edit_event(token_info, calendar.id, diff)
             local cached_event = diff.cached_event --[[@as table<unknown, unknown>]]
 
             -- can't only update some fields because google checks
@@ -1689,14 +1732,15 @@ function CalendarView:write(token_info, calendar_list, events_by_date, year, mon
             end
 
             reload_if_last_diff()
-          end)
+          end)()
         elseif diff.type == "delete" then
           local calendar = iter(calendar_list.items):find(
             ---@param calendar CalendarListEntry
             function(calendar) return calendar.id == diff.cached_event.organizer.email end
           )
 
-          M.delete_event(token_info, calendar.id, diff, function()
+          coroutine.wrap(function()
+            M.delete_event(token_info, calendar.id, diff)
             for _, events in pairs(_cache_events) do
               for j, event in ipairs(events) do
                 if event.id == diff.cached_event.id then table.remove(events, j) end
@@ -1704,7 +1748,7 @@ function CalendarView:write(token_info, calendar_list, events_by_date, year, mon
             end
 
             reload_if_last_diff()
-          end)
+          end)()
         end
       end
     )
@@ -1786,351 +1830,351 @@ function CalendarView:show(year, month, opts)
   local last_date_plus_one =
     os.date("*t", os.time { year = last_date.year, month = last_date.month, day = last_date.day + 1 })
 
-  M.get_token_info(function()
+  coroutine.wrap(function()
+    M.get_token_info()
     assert(_cache_token_info, "There is no _cache_token_info")
-    M.get_calendar_list(_cache_token_info, {}, function(calendar_list)
-      M.get_events(_cache_token_info, calendar_list, {
-        start = {
-          year = first_date.year --[[@as integer]],
-          month = first_date.month --[[@as integer]],
-          day = first_date.day --[[@as integer]],
-        },
-        ["end"] = {
-          year = last_date_plus_one.year --[[@as integer]],
-          month = last_date_plus_one.month --[[@as integer]],
-          day = last_date_plus_one.day --[[@as integer]],
-        },
-        refresh = opts and opts.refresh,
-        should_query_single_events = opts and opts.should_query_single_events,
-      }, function(events_by_date)
-        -- aux = events_by_date
-        has_loaded = true
-        if notification then
-          notify.remove(notification)
-          notification = nil
-        end
+    local calendar_list = M.get_calendar_list(_cache_token_info, {})
 
-        local factor = 1
-        -- TODO: use max_[] to make last row/col longer if needed in order to use the full screen
-        local max_width = math.floor(vim.o.columns * factor)
-        local max_height = math.floor(vim.o.lines * factor)
+    local events_by_date = M.get_events(_cache_token_info, calendar_list, {
+      start = {
+        year = first_date.year --[[@as integer]],
+        month = first_date.month --[[@as integer]],
+        day = first_date.day --[[@as integer]],
+      },
+      ["end"] = {
+        year = last_date_plus_one.year --[[@as integer]],
+        month = last_date_plus_one.month --[[@as integer]],
+        day = last_date_plus_one.day --[[@as integer]],
+      },
+      refresh = opts and opts.refresh,
+      should_query_single_events = opts and opts.should_query_single_events,
+    })
+    -- aux = events_by_date
+    has_loaded = true
+    if notification then
+      notify.remove(notification)
+      notification = nil
+    end
 
-        local width = math.floor(max_width / self.d_in_w)
-        local height = math.floor(max_height / (w_in_m + 1))
+    local factor = 1
+    -- TODO: use max_[] to make last row/col longer if needed in order to use the full screen
+    local max_width = math.floor(vim.o.columns * factor)
+    local max_height = math.floor(vim.o.lines * factor)
 
-        local col = (vim.o.columns - max_width) / 2
-        local row = (vim.o.lines - max_height) / 2
+    local width = math.floor(max_width / self.d_in_w)
+    local height = math.floor(max_height / (w_in_m + 1))
 
-        local days_row_offset = height - 1
-        local days_height = 1
+    local col = (vim.o.columns - max_width) / 2
+    local row = (vim.o.lines - max_height) / 2
 
-        local y_m_height = height - days_height
-        local y_m_width = math.floor(max_width / 2)
+    local days_row_offset = height - 1
+    local days_height = 1
 
-        self.month_buf = api.nvim_create_buf(false, false)
-        api.nvim_buf_set_lines(self.month_buf, 0, -1, true, self:month(month, y_m_height))
-        vim.bo[self.month_buf].modified = false
-        vim.bo[self.month_buf].modifiable = false
+    local y_m_height = height - days_height
+    local y_m_width = math.floor(max_width / 2)
 
-        self.year_buf = api.nvim_create_buf(false, false)
-        api.nvim_buf_set_lines(self.year_buf, 0, -1, true, self:year(year, y_m_height))
-        vim.bo[self.year_buf].modified = false
-        vim.bo[self.year_buf].modifiable = false
+    self.month_buf = api.nvim_create_buf(false, false)
+    api.nvim_buf_set_lines(self.month_buf, 0, -1, true, self:month(month, y_m_height))
+    vim.bo[self.month_buf].modified = false
+    vim.bo[self.month_buf].modifiable = false
 
-        for x = 1, self.d_in_w do
-          local buf = api.nvim_create_buf(false, false)
+    self.year_buf = api.nvim_create_buf(false, false)
+    api.nvim_buf_set_lines(self.year_buf, 0, -1, true, self:year(year, y_m_height))
+    vim.bo[self.year_buf].modified = false
+    vim.bo[self.year_buf].modifiable = false
 
-          local w_day = x + 1
-          if w_day >= 8 then w_day = w_day - 7 end
-          local day_name = self.days[w_day]
-          api.nvim_buf_set_lines(buf, 0, -1, true, { day_name })
-          hl_enable(buf, { highlighters = { day = { pattern = day_name, group = "TODO" } } })
-          vim.bo[buf].modified = false
-          vim.bo[buf].modifiable = false
+    for x = 1, self.d_in_w do
+      local buf = api.nvim_create_buf(false, false)
 
-          self.day_bufs[x] = buf
-        end
+      local w_day = x + 1
+      if w_day >= 8 then w_day = w_day - 7 end
+      local day_name = self.days[w_day]
+      api.nvim_buf_set_lines(buf, 0, -1, true, { day_name })
+      hl_enable(buf, { highlighters = { day = { pattern = day_name, group = "TODO" } } })
+      vim.bo[buf].modified = false
+      vim.bo[buf].modifiable = false
 
-        local zindex = 1 -- less than coq documentation window
-        self.month_win = api.nvim_open_win(self.month_buf, false, {
-          focusable = false,
+      self.day_bufs[x] = buf
+    end
+
+    local zindex = 1 -- less than coq documentation window
+    self.month_win = api.nvim_open_win(self.month_buf, false, {
+      focusable = false,
+      relative = "editor",
+      col = col,
+      row = row,
+      width = y_m_width,
+      height = y_m_height,
+      style = "minimal",
+      zindex = zindex,
+    })
+    vim.wo[self.month_win].winblend = 0
+    self.year_win = api.nvim_open_win(self.year_buf, false, {
+      focusable = false,
+      relative = "editor",
+      col = col + y_m_width,
+      row = row,
+      width = y_m_width,
+      height = y_m_height,
+      style = "minimal",
+      zindex = zindex,
+    })
+    vim.wo[self.year_win].winblend = 0
+
+    for x = 1, self.d_in_w do
+      local col_offset = (x - 1) * width
+      local buf = self.day_bufs[x]
+      local win = api.nvim_open_win(buf, false, {
+        focusable = false,
+        relative = "editor",
+        col = col + col_offset,
+        row = row + days_row_offset,
+        width = width,
+        height = days_height,
+        style = "minimal",
+        zindex = zindex,
+      })
+      vim.wo[win].winblend = 0
+      self.day_wins[x] = win
+    end
+
+    for y = 1, w_in_m do
+      local row_offset = y * height
+      for x = 1, self.d_in_w do
+        local col_offset = (x - 1) * width
+        local buf = self.cal_bufs[y][x]
+        local win = api.nvim_open_win(buf, false, {
           relative = "editor",
-          col = col,
-          row = row,
-          width = y_m_width,
-          height = y_m_height,
+          col = col + col_offset,
+          row = row + row_offset,
+          width = width,
+          height = height,
           style = "minimal",
           zindex = zindex,
         })
-        vim.wo[self.month_win].winblend = 0
-        self.year_win = api.nvim_open_win(self.year_buf, false, {
-          focusable = false,
-          relative = "editor",
-          col = col + y_m_width,
-          row = row,
-          width = y_m_width,
-          height = y_m_height,
-          style = "minimal",
-          zindex = zindex,
-        })
-        vim.wo[self.year_win].winblend = 0
+        vim.wo[win].winhighlight = "" -- since filchars eob is ' ', this will make non-focused windows a different color
+        vim.wo[win].winblend = 0
+        vim.wo[win].conceallevel = 3
+        vim.wo[win].concealcursor = "nvic"
+        if x == 1 then self.cal_wins[y] = {} end
+        self.cal_wins[y][x] = win
+      end
+    end
 
-        for x = 1, self.d_in_w do
-          local col_offset = (x - 1) * width
-          local buf = self.day_bufs[x]
-          local win = api.nvim_open_win(buf, false, {
-            focusable = false,
-            relative = "editor",
-            col = col + col_offset,
-            row = row + days_row_offset,
-            width = width,
-            height = days_height,
-            style = "minimal",
-            zindex = zindex,
-          })
-          vim.wo[win].winblend = 0
-          self.day_wins[x] = win
-        end
+    local all_bufs = iter(self.cal_bufs):flatten(1):totable()
+    vim.list_extend(all_bufs, self.day_bufs)
+    table.insert(all_bufs, self.month_buf)
+    table.insert(all_bufs, self.year_buf)
+    local all_wins = iter(self.cal_wins):flatten(1):totable()
+    vim.list_extend(all_wins, self.day_wins)
+    table.insert(all_wins, self.month_win)
+    table.insert(all_wins, self.year_win)
 
-        for y = 1, w_in_m do
-          local row_offset = y * height
-          for x = 1, self.d_in_w do
-            local col_offset = (x - 1) * width
-            local buf = self.cal_bufs[y][x]
-            local win = api.nvim_open_win(buf, false, {
-              relative = "editor",
-              col = col + col_offset,
-              row = row + row_offset,
-              width = width,
-              height = height,
-              style = "minimal",
-              zindex = zindex,
-            })
-            vim.wo[win].winhighlight = "" -- since filchars eob is ' ', this will make non-focused windows a different color
-            vim.wo[win].winblend = 0
-            vim.wo[win].conceallevel = 3
-            vim.wo[win].concealcursor = "nvic"
-            if x == 1 then self.cal_wins[y] = {} end
-            self.cal_wins[y][x] = win
+    api.nvim_create_autocmd("WinClosed", {
+      pattern = iter(all_wins):map(function(win) return tostring(win) end):totable(),
+      callback = function()
+        iter(all_bufs):each(function(buf)
+          if api.nvim_buf_is_valid(buf) and api.nvim_buf_is_loaded(buf) then
+            api.nvim_buf_delete(buf, { force = true })
           end
-        end
-
-        local all_bufs = iter(self.cal_bufs):flatten(1):totable()
-        vim.list_extend(all_bufs, self.day_bufs)
-        table.insert(all_bufs, self.month_buf)
-        table.insert(all_bufs, self.year_buf)
-        local all_wins = iter(self.cal_wins):flatten(1):totable()
-        vim.list_extend(all_wins, self.day_wins)
-        table.insert(all_wins, self.month_win)
-        table.insert(all_wins, self.year_win)
-
-        api.nvim_create_autocmd("WinClosed", {
-          pattern = iter(all_wins):map(function(win) return tostring(win) end):totable(),
-          callback = function()
-            iter(all_bufs):each(function(buf)
-              if api.nvim_buf_is_valid(buf) and api.nvim_buf_is_loaded(buf) then
-                api.nvim_buf_delete(buf, { force = true })
-              end
-            end)
-            iter(all_wins):each(function(win)
-              if api.nvim_win_is_valid(win) then api.nvim_win_close(win, true) end
-            end)
-          end,
-          once = true,
-        })
-
-        for y = 1, w_in_m do
-          for x = 1, self.d_in_w do
-            local buf = self.cal_bufs[y][x]
-            local win = self.cal_wins[y][x]
-
-            keymap.set("n", "<F5>", function()
-              api.nvim_win_close(win, true)
-              self:show(year, month, { refresh = true })
-            end, { buffer = buf })
-            keymap.set("n", "<F4>", function()
-              api.nvim_win_close(win, true)
-              self:show(year, month, { refresh = true, should_query_single_events = false })
-            end, { buffer = buf })
-            keymap.set("n", "<cr>", function() M.calendar_list_show() end, { buffer = buf })
-            keymap.set("n", "<", function()
-              api.nvim_win_close(win, true)
-              local target_year = year
-              local target_month = month - 1
-              if target_month == 0 then
-                target_month = 12
-                target_year = target_year - 1
-              end
-              self:show(target_year, target_month)
-            end, { buffer = buf })
-            keymap.set("n", ">", function()
-              api.nvim_win_close(win, true)
-              local target_month = month + 1
-              local target_year = year
-              if target_month == 13 then
-                target_month = 1
-                target_year = target_year + 1
-              end
-              self:show(target_year, target_month)
-            end, { buffer = buf })
-
-            -- TODO: somehow support count for movement keymaps
-            local win_l ---@type integer
-            if x - 1 >= 1 then
-              win_l = self.cal_wins[y][x - 1]
-            else
-              win_l = self.cal_wins[y][self.d_in_w]
-            end
-            keymap.set("n", "<left>", function() api.nvim_set_current_win(win_l) end, { buffer = buf })
-            local win_r ---@type integer
-            if x + 1 <= self.d_in_w then
-              win_r = self.cal_wins[y][x + 1]
-            else
-              win_r = self.cal_wins[y][1]
-            end
-            keymap.set("n", "<right>", function() api.nvim_set_current_win(win_r) end, { buffer = buf })
-            local win_u ---@type integer
-            if y - 1 >= 1 then
-              win_u = self.cal_wins[y - 1][x]
-            else
-              win_u = self.cal_wins[w_in_m][x]
-            end
-            keymap.set("n", "<up>", function() api.nvim_set_current_win(win_u) end, { buffer = buf })
-            local win_d ---@type integer
-            if y + 1 <= w_in_m then
-              win_d = self.cal_wins[y + 1][x]
-            else
-              win_d = self.cal_wins[1][x]
-            end
-            keymap.set("n", "<down>", function() api.nvim_set_current_win(win_d) end, { buffer = buf })
-
-            if y == 1 and x == 1 then api.nvim_set_current_win(win) end
-
-            api.nvim_create_autocmd("BufWriteCmd", {
-              buffer = buf,
-              callback = function() self:write(_cache_token_info, calendar_list, events_by_date, year, month, win, buf) end,
-            })
-          end
-        end
-
-        iter(self.cal_bufs):flatten(1):each(function(cal_buf)
-          local buf_name = api.nvim_buf_get_name(cal_buf)
-          local buf_year, buf_month, buf_day = buf_name:match "^calendar://day_(%d%d%d%d)_(%d%d)_(%d%d)"
-          buf_year, buf_month, buf_day = tonumber(buf_year), tonumber(buf_month), tonumber(buf_day)
-
-          local day_num = ("%s"):format(buf_day)
-          local lines = { day_num }
-
-          local key = ("%s_%s_%s"):format(buf_year, buf_month, buf_day)
-          local day_events = events_by_date[key]
-          local highlighters = {
-            conceal_id = {
-              pattern = "^()/[^ ]+ ()",
-              group = "", -- group needs to not be `nil` to work
-              extmark_opts = {
-                conceal = "",
-              },
-            },
-            time = {
-              pattern = "[ :]()%d%d()",
-              group = "Number",
-            },
-            punctuation = {
-              pattern = { sep, ":", ";", "=" },
-              group = "Delimiter",
-            },
-          }
-
-          local today = os.date "*t"
-          if today.day == buf_day and today.month == buf_month and today.year == buf_year then
-            highlighters.day = {
-              pattern = "^%d+",
-              group = "DiffText",
-            }
-          elseif buf_month == month then
-            highlighters.day = {
-              pattern = "^%d+",
-              group = "DiffAdd",
-            }
-          else
-            highlighters.day = {
-              pattern = "^%d+",
-              group = "Comment",
-            }
-          end
-          if day_events then
-            table.sort(
-              day_events,
-              ---@param a Event
-              ---@param b Event
-              function(a, b)
-                if a.start.date and b.start.date then
-                  return a.start.date < b.start.date
-                elseif a.start.date and b.start.dateTime then
-                  return true -- all day events first
-                elseif a.start.dateTime and b.start.date then
-                  return false -- all day events first
-                elseif a.start.dateTime and b.start.dateTime then
-                  return a.start.dateTime < b.start.dateTime
-                end
-                error "This shouldn't happen"
-              end
-            )
-            local events_text = iter(day_events)
-              :map(function(event)
-                local is_recurrent = event.recurrence and not vim.tbl_isempty(event.recurrence)
-                local recurrence = is_recurrent and ("%s%s"):format(sep, table.concat(event.recurrence, " ")) or ""
-
-                if not event.start.dateTime then return ("/%s %s%s"):format(event.id, event.summary, recurrence) end
-                local start_date_time = parse_date_time(event.start.dateTime)
-                local end_date_time = parse_date_time(event["end"].dateTime)
-                return ("/%s %s%s%02d:%02d:%02d%s%02d:%02d:%02d%s"):format(
-                  event.id,
-                  event.summary,
-                  sep,
-                  start_date_time.h,
-                  start_date_time.min,
-                  start_date_time.s,
-                  sep,
-                  end_date_time.h,
-                  end_date_time.min,
-                  end_date_time.s,
-                  recurrence
-                )
-              end)
-              :totable()
-            iter(day_events):each(
-              ---@param event Event
-              function(event)
-                ---@type CalendarListEntry
-                local calendar = iter(calendar_list.items):find(
-                  ---@param calendar CalendarListEntry
-                  function(calendar) return calendar.id == event.organizer.email end
-                )
-
-                if not calendar or not event.summary then return end
-                if calendar.foregroundColor then
-                  local fg = compute_hex_color_group(calendar.foregroundColor, "fg")
-                  highlighters[event.id .. "fg"] = { pattern = "%f[%w]()" .. event.summary .. "()%f[%W]", group = fg }
-                end
-                if calendar.backgroundColor then
-                  local bg = compute_hex_color_group(calendar.backgroundColor, "bg")
-                  highlighters[event.id .. "bg"] = { pattern = "%f[%w]()" .. event.summary .. "()%f[%W]", group = bg }
-                end
-              end
-            )
-
-            vim.list_extend(lines, events_text)
-          end
-          -- TODO: add support for event.colorId using `get_colors` (currently I don't have any events with custom colors, so it's no neccesary)
-          hl_enable(cal_buf, { highlighters = highlighters })
-
-          api.nvim_buf_set_lines(cal_buf, 0, -1, true, lines)
-          vim.bo[cal_buf].modified = false
         end)
-      end)
+        iter(all_wins):each(function(win)
+          if api.nvim_win_is_valid(win) then api.nvim_win_close(win, true) end
+        end)
+      end,
+      once = true,
+    })
+
+    for y = 1, w_in_m do
+      for x = 1, self.d_in_w do
+        local buf = self.cal_bufs[y][x]
+        local win = self.cal_wins[y][x]
+
+        keymap.set("n", "<F5>", function()
+          api.nvim_win_close(win, true)
+          self:show(year, month, { refresh = true })
+        end, { buffer = buf })
+        keymap.set("n", "<F4>", function()
+          api.nvim_win_close(win, true)
+          self:show(year, month, { refresh = true, should_query_single_events = false })
+        end, { buffer = buf })
+        keymap.set("n", "<cr>", function() M.calendar_list_show() end, { buffer = buf })
+        keymap.set("n", "<", function()
+          api.nvim_win_close(win, true)
+          local target_year = year
+          local target_month = month - 1
+          if target_month == 0 then
+            target_month = 12
+            target_year = target_year - 1
+          end
+          self:show(target_year, target_month)
+        end, { buffer = buf })
+        keymap.set("n", ">", function()
+          api.nvim_win_close(win, true)
+          local target_month = month + 1
+          local target_year = year
+          if target_month == 13 then
+            target_month = 1
+            target_year = target_year + 1
+          end
+          self:show(target_year, target_month)
+        end, { buffer = buf })
+
+        -- TODO: somehow support count for movement keymaps
+        local win_l ---@type integer
+        if x - 1 >= 1 then
+          win_l = self.cal_wins[y][x - 1]
+        else
+          win_l = self.cal_wins[y][self.d_in_w]
+        end
+        keymap.set("n", "<left>", function() api.nvim_set_current_win(win_l) end, { buffer = buf })
+        local win_r ---@type integer
+        if x + 1 <= self.d_in_w then
+          win_r = self.cal_wins[y][x + 1]
+        else
+          win_r = self.cal_wins[y][1]
+        end
+        keymap.set("n", "<right>", function() api.nvim_set_current_win(win_r) end, { buffer = buf })
+        local win_u ---@type integer
+        if y - 1 >= 1 then
+          win_u = self.cal_wins[y - 1][x]
+        else
+          win_u = self.cal_wins[w_in_m][x]
+        end
+        keymap.set("n", "<up>", function() api.nvim_set_current_win(win_u) end, { buffer = buf })
+        local win_d ---@type integer
+        if y + 1 <= w_in_m then
+          win_d = self.cal_wins[y + 1][x]
+        else
+          win_d = self.cal_wins[1][x]
+        end
+        keymap.set("n", "<down>", function() api.nvim_set_current_win(win_d) end, { buffer = buf })
+
+        if y == 1 and x == 1 then api.nvim_set_current_win(win) end
+
+        api.nvim_create_autocmd("BufWriteCmd", {
+          buffer = buf,
+          callback = function() self:write(_cache_token_info, calendar_list, events_by_date, year, month, win, buf) end,
+        })
+      end
+    end
+
+    iter(self.cal_bufs):flatten(1):each(function(cal_buf)
+      local buf_name = api.nvim_buf_get_name(cal_buf)
+      local buf_year, buf_month, buf_day = buf_name:match "^calendar://day_(%d%d%d%d)_(%d%d)_(%d%d)"
+      buf_year, buf_month, buf_day = tonumber(buf_year), tonumber(buf_month), tonumber(buf_day)
+
+      local day_num = ("%s"):format(buf_day)
+      local lines = { day_num }
+
+      local key = ("%s_%s_%s"):format(buf_year, buf_month, buf_day)
+      local day_events = events_by_date[key]
+      local highlighters = {
+        conceal_id = {
+          pattern = "^()/[^ ]+ ()",
+          group = "", -- group needs to not be `nil` to work
+          extmark_opts = {
+            conceal = "",
+          },
+        },
+        time = {
+          pattern = "[ :]()%d%d()",
+          group = "Number",
+        },
+        punctuation = {
+          pattern = { sep, ":", ";", "=" },
+          group = "Delimiter",
+        },
+      }
+
+      local today = os.date "*t"
+      if today.day == buf_day and today.month == buf_month and today.year == buf_year then
+        highlighters.day = {
+          pattern = "^%d+",
+          group = "DiffText",
+        }
+      elseif buf_month == month then
+        highlighters.day = {
+          pattern = "^%d+",
+          group = "DiffAdd",
+        }
+      else
+        highlighters.day = {
+          pattern = "^%d+",
+          group = "Comment",
+        }
+      end
+      if day_events then
+        table.sort(
+          day_events,
+          ---@param a Event
+          ---@param b Event
+          function(a, b)
+            if a.start.date and b.start.date then
+              return a.start.date < b.start.date
+            elseif a.start.date and b.start.dateTime then
+              return true -- all day events first
+            elseif a.start.dateTime and b.start.date then
+              return false -- all day events first
+            elseif a.start.dateTime and b.start.dateTime then
+              return a.start.dateTime < b.start.dateTime
+            end
+            error "This shouldn't happen"
+          end
+        )
+        local events_text = iter(day_events)
+          :map(function(event)
+            local is_recurrent = event.recurrence and not vim.tbl_isempty(event.recurrence)
+            local recurrence = is_recurrent and ("%s%s"):format(sep, table.concat(event.recurrence, " ")) or ""
+
+            if not event.start.dateTime then return ("/%s %s%s"):format(event.id, event.summary, recurrence) end
+            local start_date_time = parse_date_time(event.start.dateTime)
+            local end_date_time = parse_date_time(event["end"].dateTime)
+            return ("/%s %s%s%02d:%02d:%02d%s%02d:%02d:%02d%s"):format(
+              event.id,
+              event.summary,
+              sep,
+              start_date_time.h,
+              start_date_time.min,
+              start_date_time.s,
+              sep,
+              end_date_time.h,
+              end_date_time.min,
+              end_date_time.s,
+              recurrence
+            )
+          end)
+          :totable()
+        iter(day_events):each(
+          ---@param event Event
+          function(event)
+            ---@type CalendarListEntry
+            local calendar = iter(calendar_list.items):find(
+              ---@param calendar CalendarListEntry
+              function(calendar) return calendar.id == event.organizer.email end
+            )
+
+            if not calendar or not event.summary then return end
+            if calendar.foregroundColor then
+              local fg = compute_hex_color_group(calendar.foregroundColor, "fg")
+              highlighters[event.id .. "fg"] = { pattern = "%f[%w]()" .. event.summary .. "()%f[%W]", group = fg }
+            end
+            if calendar.backgroundColor then
+              local bg = compute_hex_color_group(calendar.backgroundColor, "bg")
+              highlighters[event.id .. "bg"] = { pattern = "%f[%w]()" .. event.summary .. "()%f[%W]", group = bg }
+            end
+          end
+        )
+
+        vim.list_extend(lines, events_text)
+      end
+      -- TODO: add support for event.colorId using `get_colors` (currently I don't have any events with custom colors, so it's no neccesary)
+      hl_enable(cal_buf, { highlighters = highlighters })
+
+      api.nvim_buf_set_lines(cal_buf, 0, -1, true, lines)
+      vim.bo[cal_buf].modified = false
     end)
-  end)
+  end)()
 end
 
 ---@class Color
@@ -2147,22 +2191,23 @@ local _cache_colors ---@type Colors
 -- TODO: do this for al get functions?
 local is_getting_colors = false
 
+---@async
 ---@param token_info TokenInfo
----@param cb fun(events: Colors)
-function M.get_colors(token_info, cb)
-  if _cache_colors then
-    cb(_cache_colors)
-    return
-  end
+---@return Colors
+function M.get_colors(token_info)
+  local co = coroutine.running()
+  assert(co, "The function must run inside a coroutine")
+
+  if _cache_colors then return _cache_colors end
 
   local colors_received_pattern = "CalendarColorsReceived"
   api.nvim_create_autocmd("User", {
     pattern = colors_received_pattern,
     ---@param opts {data:{colors: Colors}}
-    callback = function(opts) cb(opts.data.colors) end,
+    callback = function(opts) coroutine.resume(co, opts.data.colors) end,
     once = true,
   })
-  if is_getting_colors then return end
+  if is_getting_colors then return coroutine.yield() end
   is_getting_colors = true
 
   vim.system(
@@ -2184,10 +2229,12 @@ function M.get_colors(token_info, cb)
       if colors.error then
         ---@cast colors -Colors
         assert(colors.error.status == "UNAUTHENTICATED", colors.error.message)
-        refresh_access_token(
-          token_info.refresh_token,
-          function(refreshed_token_info) M.get_colors(refreshed_token_info, cb) end
-        )
+        coroutine.wrap(function()
+          local refreshed_token_info = refresh_access_token(token_info.refresh_token)
+          local new_colors = M.get_colors(refreshed_token_info)
+          coroutine.resume(co, new_colors)
+        end)()
+
         return
       end
       ---@cast colors +Colors
@@ -2198,6 +2245,7 @@ function M.get_colors(token_info, cb)
       api.nvim_exec_autocmds("User", { pattern = colors_received_pattern, data = { colors = _cache_colors } })
     end)
   )
+  return coroutine.yield()
 end
 
 ---@class EventDiff
@@ -2214,10 +2262,14 @@ end
 ---@field summary string?
 ---@field cached_calendar Calendar?
 
+---@async
 ---@param token_info TokenInfo
 ---@param diff EventDiff
----@param cb fun(new_event: Event)
-function M.create_event(token_info, calendar_id, diff, cb)
+---@return Event
+function M.create_event(token_info, calendar_id, diff)
+  local co = coroutine.running()
+  assert(co, "The function must run inside a coroutine")
+
   local data =
     vim.json.encode { start = diff.start, ["end"] = diff["end"], summary = diff.summary, recurrence = diff.recurrence }
   local tmp_name = os.tmpname()
@@ -2247,24 +2299,30 @@ function M.create_event(token_info, calendar_id, diff, cb)
       if new_event.error then
         ---@cast new_event -Event
         assert(new_event.error.status == "UNAUTHENTICATED", new_event.error.message)
-        refresh_access_token(
-          token_info.refresh_token,
-          function(refreshed_token_info) M.create_event(refreshed_token_info, calendar_id, diff, cb) end
-        )
+        coroutine.wrap(function()
+          local refreshed_token_info = refresh_access_token(token_info.refresh_token)
+          local new_new_event = M.create_event(refreshed_token_info, calendar_id, diff)
+          coroutine.resume(co, new_new_event)
+        end)()
         return
       end
       ---@cast new_event +Event
       ---@cast new_event -ApiErrorResponse
 
-      cb(new_event)
+      coroutine.resume(co, new_event)
     end)
   )
+  return coroutine.yield()
 end
 
+---@async
 ---@param token_info TokenInfo
 ---@param diff EventDiff
----@param cb fun(edited_event: Event)
-function M.edit_event(token_info, calendar_id, diff, cb)
+---@return Event
+function M.edit_event(token_info, calendar_id, diff)
+  local co = coroutine.running()
+  assert(co, "The function must run inside a coroutine")
+
   local cached_event = vim.deepcopy(diff.cached_event) --[[@as Event]]
   if diff.summary then cached_event.summary = diff.summary end
   if diff.start then cached_event.start = diff.start end
@@ -2302,24 +2360,30 @@ function M.edit_event(token_info, calendar_id, diff, cb)
       if edited_event.error then
         ---@cast edited_event -Event
         assert(edited_event.error.status == "UNAUTHENTICATED", edited_event.error.message)
-        refresh_access_token(
-          token_info.refresh_token,
-          function(refreshed_token_info) M.edit_event(refreshed_token_info, calendar_id, diff, cb) end
-        )
+        coroutine.wrap(function()
+          local refreshed_token_info = refresh_access_token(token_info.refresh_token)
+          local new_edited_event = M.edit_event(refreshed_token_info, calendar_id, diff)
+          coroutine.resume(co, new_edited_event)
+        end)()
         return
       end
       ---@cast edited_event +Event
       ---@cast edited_event -ApiErrorResponse
 
-      cb(edited_event)
+      coroutine.resume(co, edited_event)
     end)
   )
+  return coroutine.yield()
 end
 
+---@async
 ---@param token_info TokenInfo
+---@param calendar_id string
 ---@param diff EventDiff
----@param cb fun()
-function M.delete_event(token_info, calendar_id, diff, cb)
+function M.delete_event(token_info, calendar_id, diff)
+  local co = coroutine.running()
+  assert(co, "The function must run inside a coroutine")
+
   vim.system(
     {
       "curl",
@@ -2339,7 +2403,7 @@ function M.delete_event(token_info, calendar_id, diff, cb)
       assert(result.stderr == "", result.stderr)
 
       if result.stdout == "" then
-        cb()
+        coroutine.resume(co)
         return
       end
 
@@ -2350,14 +2414,16 @@ function M.delete_event(token_info, calendar_id, diff, cb)
       if response.error then
         ---@cast response -Event
         assert(response.error.status == "UNAUTHENTICATED", response.error.message)
-        refresh_access_token(
-          token_info.refresh_token,
-          function(refreshed_token_info) M.delete_event(refreshed_token_info, calendar_id, diff, cb) end
-        )
+        coroutine.wrap(function()
+          local refreshed_token_info = refresh_access_token(token_info.refresh_token)
+          M.delete_event(refreshed_token_info, calendar_id, diff)
+          coroutine.resume(co)
+        end)()
         return
       end
     end)
   )
+  coroutine.yield()
 end
 
 function M.add_coq_completion()
@@ -2379,33 +2445,29 @@ function M.add_coq_completion()
       local current_rule = recurrence_field:match "(%w+)=[^=; ]$"
 
       if sep_num == 1 or sep_num == 3 then
-        M.get_token_info(function()
+        coroutine.wrap(function()
+          M.get_token_info()
           assert(_cache_token_info, "There is no _cache_token_info")
-          M.get_calendar_list(
-            _cache_token_info,
-            {},
-            ---@param calendar_list CalendarList
-            function(calendar_list)
-              local items = iter(calendar_list.items)
-                :filter(
-                  ---@param calendar CalendarListEntry
-                  function(calendar) return calendar.accessRole ~= "reader" end
-                )
-                :map(
-                  ---@param calendar CalendarListEntry
-                  function(calendar)
-                    return {
-                      label = calendar.summary,
-                      documentation = calendar.description, -- TODO: maybe change this to `detail`?
-                      kind = vim.lsp.protocol.CompletionItemKind.EnumMember,
-                    }
-                  end
-                )
-                :totable()
-              cb { isIncomplete = false, items = items }
-            end
-          )
-        end)
+          local calendar_list = M.get_calendar_list(_cache_token_info, {})
+
+          local items = iter(calendar_list.items)
+            :filter(
+              ---@param calendar CalendarListEntry
+              function(calendar) return calendar.accessRole ~= "reader" end
+            )
+            :map(
+              ---@param calendar CalendarListEntry
+              function(calendar)
+                return {
+                  label = calendar.summary,
+                  documentation = calendar.description, -- TODO: maybe change this to `detail`?
+                  kind = vim.lsp.protocol.CompletionItemKind.EnumMember,
+                }
+              end
+            )
+            :totable()
+          cb { isIncomplete = false, items = items }
+        end)()
       elseif (sep_num == 2 or sep_num == 4) and not current_propertie then
         local properties = {} ---@type string[]
         if not recurrence_field:match "RRULE" then table.insert(properties, "RRULE") end
