@@ -588,7 +588,7 @@ function M.calendar_list_show(opts)
       api.nvim_win_close(0, true)
       M.calendar_show(id)
     end, { buffer = buf })
-    keymap.set("n", "<c-l>", function()
+    keymap.set("n", "<F5>", function()
       api.nvim_win_close(win, true)
       M.calendar_list_show { refresh = true }
     end, { buffer = buf })
