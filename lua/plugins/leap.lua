@@ -8,6 +8,7 @@ return {
       leap.opts.special_keys.prev_target = "<up>"
       leap.opts.special_keys.prev_group = "<up>"
       leap.opts.special_keys.next_target = "<down>"
+      leap.opts.special_keys.next_group = "<down>"
       require("leap.user").set_repeat_keys("<down>", "<up>")
 
       vim.keymap.set({ "n" }, "s", function() leap.leap {} end)
