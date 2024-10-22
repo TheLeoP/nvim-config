@@ -4,6 +4,8 @@ return {
     update_events = { "TextChanged", "TextChangedI" },
     store_selection_keys = "<c-k>",
     enable_autosnippets = true,
+    region_check_events = { "InsertEnter" },
+    delete_check_events = { "InsertLeave" },
   },
   config = function(_, opts)
     local ls = require "luasnip"
