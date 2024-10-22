@@ -1785,9 +1785,8 @@ function CalendarView:show(year, month, opts)
         if notification then
           notify.update(notification, { msg = loading[count], hl = "DiagnosticOk" })
         else
-          timer:stop()
-          -- TODO: check if has already closed because of error (?
-          timer:close()
+          if timer:is_active() then timer:stop() end
+          if not timer:is_closing() then timer:close() end
         end
       end)
     )
