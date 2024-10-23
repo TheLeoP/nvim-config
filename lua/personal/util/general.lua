@@ -1,5 +1,6 @@
 local api = vim.api
 local uv = vim.uv
+local auv = require "personal.auv"
 
 local M = {}
 
@@ -59,20 +60,11 @@ end
 ---@param path string
 ---@return boolean|nil exists, string|nil err
 function M.fs_exists(path)
-  local co = coroutine.running()
-  uv.fs_stat(path, function(err)
-    if not err then
-      coroutine.resume(co, true)
-      return
-    end
+  local err = auv.fs_stat(path)
+  if not err then return true end
 
-    if not err:match "^ENOENT:" then
-      coroutine.resume(co, nil, err)
-      return
-    end
-    coroutine.resume(co, false)
-  end)
-  return coroutine.yield()
+  if not err:match "^ENOENT:" then return nil, err end
+  return false
 end
 
 ---@param map coq_sources

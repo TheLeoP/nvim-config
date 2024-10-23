@@ -12,6 +12,7 @@ local notify = require "mini.notify"
 local fs_exists = require("personal.util.general").fs_exists
 local new_uid = require("personal.util.general").new_uid
 local url_encode = require("personal.util.general").url_encode
+local auv = require "personal.auv"
 
 local M = {}
 
@@ -125,13 +126,10 @@ local function refresh_access_token(refresh_token)
         assert(vim.fn.delete(refresh_token_path) == 0, ("Couldn't delete file %s"):format(refresh_token_path))
 
         coroutine.wrap(function()
-          M.get_token_info()
-          assert(_cache_token_info, "There is no _cache_token_info")
+          local token_info = M.get_token_info()
+          assert(token_info, "There is no token_info")
           is_refreshing_access_token = false
-          api.nvim_exec_autocmds(
-            "User",
-            { pattern = token_refreshed_pattern, data = { token_info = _cache_token_info } }
-          )
+          api.nvim_exec_autocmds("User", { pattern = token_refreshed_pattern, data = { token_info = token_info } })
         end)()
 
         return
@@ -184,12 +182,14 @@ local full_auth_url = ("%s?client_id=%s&redirect_uri=%s&scope=%s&response_type=c
 ---@field scope string
 ---@field token_type string
 
+---Reads from file if exists and asks for a token if not. May return an invalid/revoked token
 ---@async
+---@return TokenInfo|nil
 function M.get_token_info()
   local co = coroutine.running()
   assert(co, "The function must run inside a coroutine")
 
-  if _cache_token_info then return end
+  if _cache_token_info then return _cache_token_info end
 
   local exists, err = fs_exists(refresh_token_path)
   if exists == nil and err then
@@ -197,18 +197,27 @@ function M.get_token_info()
     return
   end
   if exists then
-    local file = io.open(refresh_token_path, "r")
-    assert(file)
-    local content = file:read "*a"
-    file:close()
+    local fd
+    err, fd = auv.fs_open(refresh_token_path, "r", 292) ---444
+    if err then return vim.notify(err, vim.log.levels.ERROR) end
+    ---@cast fd -nil
+    local stat
+    err, stat = auv.fs_fstat(fd)
+    if err then return vim.notify(err, vim.log.level.ERROR) end
+    ---@cast stat -nil
+    local content ---@type string|nil
+    err, content = auv.fs_read(fd, stat.size, 0)
+    if err then return vim.notify(err, vim.log.level.ERROR) end
+    ---@cast content -nil
+    err = auv.fs_close(fd)
+    if err then return vim.notify(err, vim.log.level.ERROR) end
 
     local ok, token_info = pcall(vim.json.decode, content) ---@type boolean, string|TokenInfo
     assert(ok, token_info)
     ---@cast token_info -string
 
     _cache_token_info = token_info
-    coroutine.resume(co)
-    return
+    return token_info
   end
 
   start_server {
@@ -243,11 +252,11 @@ function M.get_token_info()
         file:close()
 
         _cache_token_info = token_info
-        coroutine.resume(co)
+        coroutine.resume(co, token_info)
       end)
     end,
   }
-  coroutine.yield()
+  return coroutine.yield()
 end
 
 ---@class DefaultReminder
@@ -317,7 +326,7 @@ local _cache_calendar_list ---@type CalendarList|nil
 ---@async
 ---@param token_info TokenInfo
 ---@param opts? {refresh:true}
----@return CalendarList
+---@return CalendarList, TokenInfo|nil
 function M.get_calendar_list(token_info, opts)
   local co = coroutine.running()
   assert(co, "The function must run inside a coroutine")
@@ -348,7 +357,7 @@ function M.get_calendar_list(token_info, opts)
         coroutine.wrap(function()
           local refreshed_token_info = refresh_access_token(token_info.refresh_token)
           local new_calendar_list = M.get_calendar_list(refreshed_token_info, {})
-          coroutine.resume(co, new_calendar_list)
+          coroutine.resume(co, new_calendar_list, refreshed_token_info)
         end)()
 
         return
@@ -357,7 +366,7 @@ function M.get_calendar_list(token_info, opts)
       ---@cast calendar_list -ApiErrorResponse
 
       _cache_calendar_list = calendar_list
-      coroutine.resume(co, calendar_list)
+      coroutine.resume(co, calendar_list, nil)
     end)
   )
   return coroutine.yield()
@@ -367,9 +376,9 @@ local sep = " | "
 ---@param opts? {refresh:boolean}
 function M.calendar_list_show(opts)
   coroutine.wrap(function()
-    M.get_token_info() -- TODO: maybe make this return again and make every function maybe return new token info
-    assert(_cache_token_info, "There is no _cache_token_info")
-    local calendar_list = M.get_calendar_list(_cache_token_info, opts)
+    local token_info = M.get_token_info()
+    assert(token_info, "There is no token_info")
+    local calendar_list = M.get_calendar_list(token_info, opts)
 
     local buf = api.nvim_create_buf(false, false)
     api.nvim_buf_set_name(buf, "calendar://calendar_list")
@@ -496,7 +505,9 @@ function M.calendar_list_show(opts)
             if diff.type == "new" then
               assert(diff.summary, ("Diff has no summary %s"):format(vim.inspect(diff)))
               coroutine.wrap(function()
-                local new_calendar = M.create_calendar(_cache_token_info, diff)
+                token_info = M.get_token_info()
+                assert(token_info, "There is no token_info")
+                local new_calendar = M.create_calendar(token_info, diff)
                 assert(_cache_calendar_list)
                 table.insert(_cache_calendar_list.items, new_calendar)
 
@@ -504,7 +515,9 @@ function M.calendar_list_show(opts)
               end)()
             elseif diff.type == "edit" then
               coroutine.wrap(function()
-                local edited_calendar = M.edit_calendar(_cache_token_info, diff)
+                token_info = M.get_token_info()
+                assert(token_info, "There is no token_info")
+                local edited_calendar = M.edit_calendar(token_info, diff)
                 local cached_calendar = diff.cached_calendar --[[@as table<unknown, unknown>]]
 
                 -- can't only update some fields because google checks
@@ -518,7 +531,9 @@ function M.calendar_list_show(opts)
               end)()
             elseif diff.type == "delete" then
               coroutine.wrap(function()
-                M.delete_calendar(_cache_token_info, diff)
+                token_info = M.get_token_info()
+                assert(token_info, "There is no token_info")
+                M.delete_calendar(token_info, diff)
                 assert(_cache_calendar_list)
                 for j, calendar in ipairs(_cache_calendar_list.items) do
                   if calendar.id == diff.cached_calendar.id then table.remove(_cache_calendar_list.items, j) end
@@ -806,10 +821,10 @@ end
 ---@param id string
 function M.calendar_show(id)
   coroutine.wrap(function()
-    M.get_token_info()
-    assert(_cache_token_info, "There is no _cache_token_info")
+    local token_info = M.get_token_info()
+    assert(token_info, "There is no token_info")
 
-    local calendar = M.get_calendar(_cache_token_info, id)
+    local calendar = M.get_calendar(token_info, id)
     local buf = api.nvim_create_buf(false, false)
 
     api.nvim_create_autocmd("BufLeave", {
@@ -1009,7 +1024,7 @@ local already_seen = {} ---@type table<string, boolean>
 ---@param token_info TokenInfo
 ---@param calendar_list CalendarList
 ---@param opts {start: CalendarDate, end: CalendarDate, refresh: boolean?, should_query_single_events: boolean?} start and end are exclusive
----@return table<string, Event[]>
+---@return table<string, Event[]>, TokenInfo|nil
 function M.get_events(token_info, calendar_list, opts)
   local co = coroutine.running()
   assert(co, "The function must run inside a coroutine")
@@ -1080,7 +1095,7 @@ function M.get_events(token_info, calendar_list, opts)
             coroutine.wrap(function()
               local refreshed_token_info = refresh_access_token(token_info.refresh_token)
               local new_events = M.get_events(refreshed_token_info, calendar_list, opts)
-              coroutine.resume(co, new_events)
+              coroutine.resume(co, new_events, refreshed_token_info)
             end)()
             return
           end
@@ -1110,7 +1125,7 @@ function M.get_events(token_info, calendar_list, opts)
           if count == #calendar_list.items then
             already_seen[events_key] = true
             -- TODO: dedup multiple request like colors?
-            coroutine.resume(co, _cache_events)
+            coroutine.resume(co, _cache_events, nil)
           end
         end)
       )
@@ -1826,11 +1841,12 @@ function CalendarView:show(year, month, opts)
     os.date("*t", os.time { year = last_date.year, month = last_date.month, day = last_date.day + 1 })
 
   coroutine.wrap(function()
-    M.get_token_info()
-    assert(_cache_token_info, "There is no _cache_token_info")
-    local calendar_list = M.get_calendar_list(_cache_token_info, {})
+    local token_info = M.get_token_info()
+    assert(token_info, "There is no token_info")
+    local calendar_list, maybe_new_token_info = M.get_calendar_list(token_info, {})
+    token_info = maybe_new_token_info or token_info
 
-    local events_by_date = M.get_events(_cache_token_info, calendar_list, {
+    local events_by_date = M.get_events(token_info, calendar_list, {
       start = {
         year = first_date.year --[[@as integer]],
         month = first_date.month --[[@as integer]],
@@ -2049,7 +2065,11 @@ function CalendarView:show(year, month, opts)
 
         api.nvim_create_autocmd("BufWriteCmd", {
           buffer = buf,
-          callback = function() self:write(_cache_token_info, calendar_list, events_by_date, year, month, win, buf) end,
+          callback = function()
+            token_info = M.get_token_info()
+            assert(token_info, "There is no token_info")
+            self:write(token_info, calendar_list, events_by_date, year, month, win, buf)
+          end,
         })
       end
     end
@@ -2441,9 +2461,9 @@ function M.add_coq_completion()
 
       if sep_num == 1 or sep_num == 3 then
         coroutine.wrap(function()
-          M.get_token_info()
-          assert(_cache_token_info, "There is no _cache_token_info")
-          local calendar_list = M.get_calendar_list(_cache_token_info, {})
+          local token_info = M.get_token_info()
+          assert(token_info, "There is no token_info")
+          local calendar_list = M.get_calendar_list(token_info, {})
 
           local items = iter(calendar_list.items)
             :filter(
