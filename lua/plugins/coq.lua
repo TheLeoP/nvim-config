@@ -43,16 +43,10 @@ return {
         third_party = {
           enabled = true,
         },
-        third_party_inline = {
-          enabled = false,
-        },
         lsp = {
           always_on_top = {}, -- keep all LSP server responses on top
         },
         tree_sitter = {
-          enabled = false,
-        },
-        lsp_inline = {
           enabled = false,
         },
       },
