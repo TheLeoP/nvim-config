@@ -66,17 +66,13 @@ local function get_path(cb)
     repo_name(function(name)
       if name == nil then return end
       local todo_path = ("%s/%s"):format(data_path, name)
-      fs_exists(
-        todo_path,
-        vim.schedule_wrap(function(exists, err)
-          if exists == nil and err then
-            vim.notify(err, vim.log.levels.ERROR)
-            return
-          end
-          if not exists then vim.fn.mkdir(todo_path) end
-          cb(("%s/todo.md"):format(todo_path))
-        end)
-      )
+      coroutine.wrap(function()
+        local exists, err = fs_exists(todo_path)
+        if err then return vim.notify(err, vim.log.levels.ERROR) end
+        if exists == nil then return end
+        if not exists then vim.fn.mkdir(todo_path) end
+        cb(("%s/todo.md"):format(todo_path))
+      end)()
     end)
   end)
 end
