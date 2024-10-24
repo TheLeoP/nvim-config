@@ -1491,9 +1491,6 @@ end
 function CalendarView:write(token_info, calendar_list, events_by_date, year, month, win, buf)
   vim.bo[buf].modifiable = false
 
-  -- First line is always the number of date, don't parse it
-  local lines = api.nvim_buf_get_lines(buf, 1, -1, true)
-
   local buf_name = api.nvim_buf_get_name(buf)
   local buf_year, buf_month, buf_day = buf_name:match "^calendar://day_(%d%d%d%d)_(%d%d)_(%d%d)"
   buf_year, buf_month, buf_day = tonumber(buf_year), tonumber(buf_month), tonumber(buf_day)
@@ -1513,18 +1510,23 @@ function CalendarView:write(token_info, calendar_list, events_by_date, year, mon
       )
     or {}
 
+  -- First line is always the number of date, don't parse it
+  local lines = api.nvim_buf_get_lines(buf, 1, -1, true)
+
+  local should_abort = false
   local diffs = {} ---@type EventDiff[]
   iter(lines)
     :map(
       ---@param line string
       ---@return EventInfo
       function(line)
+        if should_abort then return end
+
         if line:match "^/[^ ]+" then
           local id, tail = line:match "^/([^ ]+) (.*)" ---@type string, string
           local fields = vim.split(tail, sep, { trimempty = true })
           if #fields == 1 then
             local summary = unpack(fields)
-            assert(summary, ("The event with id `%s` has no summary"):format(id))
 
             local start_date = ("%04d-%02d-%02d"):format(buf_year, buf_month, buf_day)
             local _end_date = os.date(
@@ -1549,7 +1551,6 @@ function CalendarView:write(token_info, calendar_list, events_by_date, year, mon
             }
           elseif #fields == 3 then
             local summary, start_time, end_time = unpack(fields)
-            assert(summary, ("The event with id `%s` has no summary"):format(id))
             local start_date_time = ("%04d-%02d-%02dT%s%s"):format(buf_year, buf_month, buf_day, start_time, timezone)
             local end_date_time = ("%04d-%02d-%02dT%s%s"):format(buf_year, buf_month, buf_day, end_time, timezone)
 
@@ -1565,7 +1566,11 @@ function CalendarView:write(token_info, calendar_list, events_by_date, year, mon
               is_new = false,
             }
           else
-            error(("The event with id %s doens't have enoght fields to be parsed"):format(id))
+            should_abort = true
+            vim.notify(
+              ("The event with id %s doens't have enoght fields to be parsed"):format(id),
+              vim.log.levels.ERROR
+            )
           end
         else
           local fields = vim.split(line, sep, { trimempty = true })
@@ -1658,7 +1663,8 @@ function CalendarView:write(token_info, calendar_list, events_by_date, year, mon
               is_new = true,
             }
           else
-            error "There are not enought fields to parse the new event"
+            should_abort = true
+            vim.notify(("There are not enought fields to parse the new event %s"):format(line), vim.log.levels.ERROR)
           end
         end
       end
@@ -1666,6 +1672,8 @@ function CalendarView:write(token_info, calendar_list, events_by_date, year, mon
     :each(
       ---@param event_info EventInfo
       function(event_info)
+        if should_abort then return end
+
         local is_new = event_info.is_new
         local id = event_info.id
         local summary = event_info.summary
@@ -1677,10 +1685,14 @@ function CalendarView:write(token_info, calendar_list, events_by_date, year, mon
             ---@param event Event
             function(event) return event.id == id end
           )
-          assert(
-            cached_event,
-            ("The event with id `%s` is not in cache. Maybe you modified it by acciddent"):format(id)
-          )
+          if not cached_event then
+            should_abort = true
+            vim.notify(
+              ("The event with id `%s` is not in cache. Maybe you modified it by acciddent"):format(id),
+              vim.log.levels.ERROR
+            )
+            return
+          end
 
           -- to keep track of the deleted events
           day_events_by_id[cached_event.id] = nil
@@ -1716,6 +1728,7 @@ function CalendarView:write(token_info, calendar_list, events_by_date, year, mon
         end
       end
     )
+  if should_abort then goto unlock end
   iter(day_events_by_id):each(
     ---@param _ string
     ---@param event Event
@@ -1741,7 +1754,6 @@ function CalendarView:write(token_info, calendar_list, events_by_date, year, mon
       ---@param diff EventDiff
       function(diff)
         if diff.type == "new" then
-          assert(diff.calendar_summary, ("Diff has no calendar_summary %s"):format(vim.inspect(diff)))
           local calendar = iter(calendar_list.items):find(
             function(calendar) return calendar.summary == diff.calendar_summary end
           )
@@ -1792,6 +1804,7 @@ function CalendarView:write(token_info, calendar_list, events_by_date, year, mon
     )
   end
 
+  ::unlock::
   vim.bo[buf].modified = false
   vim.bo[buf].modifiable = true
 end
