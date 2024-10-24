@@ -2093,9 +2093,11 @@ function CalendarView:show(year, month, opts)
         api.nvim_create_autocmd("BufWriteCmd", {
           buffer = buf,
           callback = function()
-            token_info = M.get_token_info()
-            assert(token_info, "There is no token_info")
-            self:write(token_info, calendar_list, events_by_date, year, month, win, buf)
+            coroutine.wrap(function()
+              token_info = M.get_token_info()
+              assert(token_info, "There is no token_info")
+              self:write(token_info, calendar_list, events_by_date, year, month, win, buf)
+            end)()
           end,
         })
       end
