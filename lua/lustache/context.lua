@@ -1,57 +1,65 @@
-local string_find, string_split, tostring, type = string.find, string.split, tostring, type
+---@alias lustache.ScopedRender fun(template: string): string
 
-local context = {}
-context.__index = context
+---@alias lustache.Value string|string[]|fun(context: lustache.Context): string|fun(text:string, render: lustache.ScopedRender): string|
 
-function context:clear_cache() self.cache = {} end
+---@alias lustache.View table<string, lustache.Value>
 
-function context:push(view) return self:new(view, self) end
+---@alias lustache.Partial table<string, string> name -> text
 
-function context:lookup(name)
-  local value = self.cache[name]
+---@class lustache.Context
+---@field cache table<string, lustache.Value|lustache.View>
+---@field view lustache.View
+---@field parent lustache.Context
+local Context = {}
+Context.__index = Context
 
-  if not value then
-    if name == "." then
-      value = self.view
-    else
-      local context = self
+function Context:clear_cache() self.cache = {} end
 
-      while context do
-        if string_find(name, ".") > 0 then
-          local names = string_split(name, ".")
-          local i = 0
+---@return lustache.Context
+function Context:push(view) return self:new(view, self) end
 
-          value = context.view
+---@param name string
+---@return lustache.Value|lustache.View
+function Context:lookup(name)
+  local value = self.cache[name] ---@type lustache.Value|lustache.View
+  if value then return value end
 
-          if (type(value)) == "number" then value = tostring(value) end
+  if name == "." then
+    self.cache[name] = self.view
+    return self.view
+  end
 
-          while value and i < #names do
-            i = i + 1
-            value = value[names[i]]
-          end
-        else
-          value = context.view[name]
-        end
-
-        if value then break end
-
-        context = context.parent
+  local context = self
+  while context do
+    if name:find "%." > 0 then
+      local current = context.view ---@type lustache.Value|lustache.View
+      for current_name in vim.gsplit(name, "%.") do
+        current = current[current_name]
       end
+      value = current
+    else
+      value = context.view[name]
     end
 
-    self.cache[name] = value
+    if value then break end
+    context = context.parent
   end
+
+  self.cache[name] = value
 
   return value
 end
 
-function context:new(view, parent)
+---@param view lustache.View
+---@param parent lustache.Context|nil
+---@return lustache.Context
+function Context:new(view, parent)
   local out = {
     view = view,
     parent = parent,
     cache = {},
   }
-  return setmetatable(out, context)
+  return setmetatable(out, Context)
 end
 
-return context
+return Context

@@ -1,14 +1,7 @@
 local Scanner = require "lustache.scanner"
 local Context = require "lustache.context"
 
-local error, ipairs, pairs, setmetatable, tostring, type = error, ipairs, pairs, setmetatable, tostring, type
-local math_floor, math_max, string_find, string_gsub, string_split, string_sub, table_concat, table_insert, table_remove =
-  math.floor, math.max, string.find, string.gsub, string.split, string.sub, table.concat, table.insert, table.remove
-
 local patterns = {
-  white = "%s*",
-  space = "%s+",
-  nonSpace = "%S",
   eq = "%s*=",
   curly = "%s*}",
   tag = "[#\\^/>{&=!?]",
@@ -29,65 +22,65 @@ local block_tags = {
   ["?"] = true,
 }
 
-local function is_array(array)
-  if type(array) ~= "table" then return false end
-  local max, n = 0, 0
-  for k, _ in pairs(array) do
-    if not (type(k) == "number" and k > 0 and math_floor(k) == k) then return false end
-    max = math_max(max, k)
-    n = n + 1
-  end
-  return n == max
-end
+---Low-level function that compiles the given `tokens` into a
+---function that accepts two arguments: a Context and a
+---Renderer.
+---@param tokens lustache.Token[]
+---@param original_template string
+---@return lustache.CompiledRenderer
+local function compile_tokens(tokens, original_template)
+  local subs = {} ---@type lustache.CompiledRenderer[]
 
--- Low-level function that compiles the given `tokens` into a
--- function that accepts two arguments: a Context and a
--- Renderer.
-
-local function compile_tokens(tokens, originalTemplate)
-  local subs = {}
-
+  ---@param i integer
+  ---@param tokens lustache.Token[]
+  ---@return lustache.CompiledRenderer
   local function subrender(i, tokens)
     if not subs[i] then
-      local fn = compile_tokens(tokens, originalTemplate)
+      local fn = compile_tokens(tokens, original_template)
       subs[i] = function(ctx, rnd) return fn(ctx, rnd) end
     end
     return subs[i]
   end
 
+  ---@param ctx lustache.Context
+  ---@param rnd lustache.Renderer
+  ---@return string
   local function render(ctx, rnd)
-    local buf = {}
-    local token, section
+    local buf = {} ---@type string[]
     for i, token in ipairs(tokens) do
       local t = token.type
       buf[#buf + 1] = t == "?" and rnd:_conditional(token, ctx, subrender(i, token.tokens))
-        or t == "#" and rnd:_section(token, ctx, subrender(i, token.tokens), originalTemplate)
+        or t == "#" and rnd:_section(token, ctx, subrender(i, token.tokens), original_template)
         or t == "^" and rnd:_inverted(token.value, ctx, subrender(i, token.tokens))
-        or t == ">" and rnd:_partial(token.value, ctx, originalTemplate)
+        or t == ">" and rnd:_partial(token.value, ctx, original_template)
         or (t == "{" or t == "&") and rnd:_name(token.value, ctx, false)
         or t == "name" and rnd:_name(token.value, ctx, true)
         or t == "text" and token.value
         or ""
     end
-    return table_concat(buf)
+    return table.concat(buf)
   end
   return render
 end
 
+---@param tags lustache.Tags
+---@return lustache.Tags
 local function escape_tags(tags)
   return {
-    string_gsub(tags[1], "%%", "%%%%") .. "%s*",
-    "%s*" .. string_gsub(tags[2], "%%", "%%%%"),
+    vim.pesc(tags[1]) .. "%s*",
+    "%s*" .. vim.pesc(tags[2]),
   }
 end
 
+---@param tokens lustache.Token[]
+---@return lustache.Token[]
 local function nest_tokens(tokens)
-  local tree = {}
+  local tree = {} ---@type lustache.Token[]
   local collector = tree
-  local sections = {}
-  local token, section
+  local sections = {} ---@type lustache.Token[]
+  local section ---@type lustache.Token
 
-  for i, token in ipairs(tokens) do
+  for _, token in ipairs(tokens) do
     if block_tags[token.type] then
       token.tokens = {}
       sections[#sections + 1] = token
@@ -97,11 +90,11 @@ local function nest_tokens(tokens)
       if #sections == 0 then error("Unopened section: " .. token.value) end
 
       -- Make sure there are no open sections when we're done
-      section = table_remove(sections, #sections)
+      section = table.remove(sections, #sections)
 
       if not section.value == token.value then error("Unclosed section: " .. section.value) end
 
-      section.closingTagIndex = token.startIndex
+      section.closing_tag_index = token.start_index
 
       if #sections > 0 then
         collector = sections[#sections].tokens
@@ -113,66 +106,95 @@ local function nest_tokens(tokens)
     end
   end
 
-  section = table_remove(sections, #sections)
+  section = table.remove(sections, #sections)
 
   if section then error("Unclosed section: " .. section.value) end
 
   return tree
 end
 
--- Combines the values of consecutive text tokens in the given `tokens` array
--- to a single token.
+---Combines the values of consecutive text tokens in the given `tokens` array
+---to a single token.
+---@param tokens lustache.Token[]
+---@return lustache.Token
 local function squash_tokens(tokens)
-  local out, txt = {}, {}
-  local txtStartIndex, txtEndIndex
+  local out, txt = {}, {} ---@type lustache.Token[], string[]
+  local txt_start_index, txt_end_index ---@type integer, integer
   for _, v in ipairs(tokens) do
     if v.type == "text" then
-      if #txt == 0 then txtStartIndex = v.startIndex end
+      if #txt == 0 then txt_start_index = v.start_index end
       txt[#txt + 1] = v.value
-      txtEndIndex = v.endIndex
+      txt_end_index = v.end_index
     else
       if #txt > 0 then
-        out[#out + 1] = { type = "text", value = table_concat(txt), startIndex = txtStartIndex, endIndex = txtEndIndex }
+        out[#out + 1] =
+          { type = "text", value = table.concat(txt), start_index = txt_start_index, end_index = txt_end_index }
         txt = {}
       end
       out[#out + 1] = v
     end
   end
   if #txt > 0 then
-    out[#out + 1] = { type = "text", value = table_concat(txt), startIndex = txtStartIndex, endIndex = txtEndIndex }
+    out[#out + 1] =
+      { type = "text", value = table.concat(txt), start_index = txt_start_index, end_index = txt_end_index }
   end
   return out
 end
 
+---@param view lustache.View|nil
+---@return lustache.Context|nil
 local function make_context(view)
   if not view then return view end
   return getmetatable(view) == Context and view or Context:new(view)
 end
 
-local renderer = {}
+---@alias lustache.CompiledRenderer fun(context: lustache.Context, renderer: lustache.Renderer): string
 
-function renderer:clear_cache()
+---@alias lustache.PublicCompiledRenderer fun(context: lustache.Context): string
+
+---@alias lustache.Tags {[1]: string, [2]: string}
+
+---@class lustache.Renderer
+---@field tags lustache.Tags
+---@field cache table<string, lustache.PublicCompiledRenderer>
+---@field partial_cache table<string, lustache.PublicCompiledRenderer>
+local Renderer = {}
+
+function Renderer:clear_cache()
   self.cache = {}
   self.partial_cache = {}
 end
 
-function renderer:compile(tokens, tags, originalTemplate)
+---@class lustache.Token
+---@field type "text"| "name" | "[#\\^/>{&=!?]"
+---@field value string|nil
+---@field end_index integer
+---@field start_index integer
+---@field closing_tag_index integer|nil
+---@field tokens lustache.Token[]|nil
+
+---@param tokens lustache.Token[]|string
+---@param tags lustache.Tags|nil
+---@param original_template string
+---@return lustache.PublicCompiledRenderer
+function Renderer:compile(tokens, tags, original_template)
   tags = tags or self.tags
   if type(tokens) == "string" then tokens = self:parse(tokens, tags) end
+  ---@cast tokens -string
 
-  local fn = compile_tokens(tokens, originalTemplate)
+  local fn = compile_tokens(tokens, original_template)
 
   return function(view) return fn(make_context(view), self) end
 end
 
-function renderer:render(template, view, partials)
+---@param template string
+---@param view lustache.View
+---@param partials lustache.Partial|nil
+---@return string
+function Renderer:render(template, view, partials)
   if type(self) == "string" then error "Call mustache:render, not mustache.render!" end
 
-  if partials then
-    -- remember partial table
-    -- used for runtime lookup & compile later on
-    self.partials = partials
-  end
+  if partials then self.partials = partials end
 
   if not template then return "" end
 
@@ -186,7 +208,11 @@ function renderer:render(template, view, partials)
   return fn(view)
 end
 
-function renderer:_conditional(token, context, callback)
+---@param token lustache.Token
+---@param context lustache.Context
+---@param callback lustache.CompiledRenderer
+---@return string
+function Renderer:_conditional(token, context, callback)
   local value = context:lookup(token.value)
 
   if value then return callback(context, self) end
@@ -194,14 +220,19 @@ function renderer:_conditional(token, context, callback)
   return ""
 end
 
-function renderer:_section(token, context, callback, originalTemplate)
+---@param token lustache.Token
+---@param context lustache.Context
+---@param callback lustache.CompiledRenderer
+---@param original_template string
+---@return string
+function Renderer:_section(token, context, callback, original_template)
   local value = context:lookup(token.value)
 
   if type(value) == "table" then
-    if is_array(value) then
+    if vim.islist(value) then
       local buffer = ""
 
-      for i, v in ipairs(value) do
+      for _, v in ipairs(value) do
         buffer = buffer .. callback(context:push(v), self)
       end
 
@@ -210,8 +241,10 @@ function renderer:_section(token, context, callback, originalTemplate)
 
     return callback(context:push(value), self)
   elseif type(value) == "function" then
-    local section_text = string_sub(originalTemplate, token.endIndex + 1, token.closingTagIndex - 1)
+    ---@cast value fun(text:string, render: lustache.ScopedRender): string
+    local section_text = original_template:sub(token.end_index + 1, token.closing_tag_index - 1)
 
+    ---@type lustache.ScopedRender
     local scoped_render = function(template) return self:render(template, context) end
 
     return value(section_text, scoped_render) or ""
@@ -222,21 +255,28 @@ function renderer:_section(token, context, callback, originalTemplate)
   return ""
 end
 
-function renderer:_inverted(name, context, callback)
+---@param name string
+---@param context lustache.Context
+---@param callback lustache.CompiledRenderer
+---@return string
+function Renderer:_inverted(name, context, callback)
   local value = context:lookup(name)
 
   -- From the spec: inverted sections may render text once based on the
   -- inverse value of the key. That is, they will be rendered if the key
   -- doesn't exist, is false, or is an empty list.
 
-  if value == nil or value == false or (type(value) == "table" and is_array(value) and #value == 0) then
+  if value == nil or value == false or (type(value) == "table" and vim.islist(value) and #value == 0) then
     return callback(context, self)
   end
 
   return ""
 end
 
-function renderer:_partial(name, context, originalTemplate)
+---@param name string
+---@param context lustache.Context
+---@return string
+function Renderer:_partial(name, context)
   local fn = self.partial_cache[name]
 
   -- check if partial cache exists
@@ -248,10 +288,14 @@ function renderer:_partial(name, context, originalTemplate)
     fn = self:compile(partial, nil, partial)
     self.partial_cache[name] = fn
   end
-  return fn and fn(context, self) or ""
+  return fn and fn(context) or ""
 end
 
-function renderer:_name(name, context, escape)
+---@param name string
+---@param context lustache.Context
+---@param escape boolean
+---@return string
+function Renderer:_name(name, context, escape)
   local value = context:lookup(name)
 
   if type(value) == "function" then value = value(context.view) end
@@ -259,21 +303,24 @@ function renderer:_name(name, context, escape)
   local str = value == nil and "" or value
   str = tostring(str)
 
-  if escape then return string_gsub(str, "[&<>\"'/]", function(s) return html_escape_characters[s] end) end
+  if escape then return (str:gsub("[&<>\"'/]", function(s) return html_escape_characters[s] end)) end
 
   return str
 end
 
--- Breaks up the given `template` string into a tree of token objects. If
--- `tags` is given here it must be an array with two string values: the
--- opening and closing tags used in the template (e.g. ["<%", "%>"]). Of
--- course, the default is to use mustaches (i.e. Mustache.tags).
-function renderer:parse(template, tags)
+---Breaks up the given `template` string into a tree of token objects. If
+---`tags` is given here it must be an array with two string values: the
+---opening and closing tags used in the template (e.g. ["<%", "%>"]). Of
+---course, the default is to use mustaches (i.e. Mustache.tags).
+---@param template string
+---@param tags lustache.Tags|nil
+---@return lustache.Token[]|string
+function Renderer:parse(template, tags)
   tags = tags or self.tags
   local tag_patterns = escape_tags(tags)
   local scanner = Scanner:new(template)
-  local tokens = {} -- token buffer
-  local spaces = {} -- indices of whitespace tokens on the current line
+  local tokens = {} ---@type lustache.Token[] token buffer
+  local spaces = {} ---@type integer[] indices of whitespace tokens on the current line
   local has_tag = false -- is there a {{tag} on the current line?
   local non_space = false -- is there a non-space char on the current line?
 
@@ -282,7 +329,7 @@ function renderer:parse(template, tags)
   local function strip_space()
     if has_tag and not non_space then
       while #spaces > 0 do
-        table_remove(tokens, table_remove(spaces))
+        table.remove(tokens, table.remove(spaces))
       end
     else
       spaces = {}
@@ -291,7 +338,7 @@ function renderer:parse(template, tags)
     non_space = false
   end
 
-  local type, value, chr
+  local type, value, chr ---@type string|nil, string|nil, string|nil
 
   while not scanner:eos() do
     local start = scanner.pos
@@ -300,15 +347,15 @@ function renderer:parse(template, tags)
 
     if value then
       for i = 1, #value do
-        chr = string_sub(value, i, i)
+        chr = value:sub(i, i)
 
-        if string_find(chr, "%s+") then
+        if chr:match "%s" then
           spaces[#spaces + 1] = #tokens + 1
         else
           non_space = true
         end
 
-        tokens[#tokens + 1] = { type = "text", value = chr, startIndex = start, endIndex = start }
+        tokens[#tokens + 1] = { type = "text", value = chr, start_index = start, end_index = start }
         start = start + 1
         if chr == "\n" then strip_space() end
       end
@@ -319,7 +366,7 @@ function renderer:parse(template, tags)
     has_tag = true
     type = scanner:scan(patterns.tag) or "name"
 
-    scanner:scan(patterns.white)
+    scanner:scan "%s*"
 
     if type == "=" then
       value = scanner:scan_until(patterns.eq)
@@ -335,16 +382,16 @@ function renderer:parse(template, tags)
     end
 
     if not scanner:scan(tag_patterns[2]) then
-      error("Unclosed tag " .. value .. " of type " .. type .. " at position " .. scanner.pos)
+      error(("Unclosed tag %s of type %s at position %s"):format(value, type, scanner.pos))
     end
 
-    tokens[#tokens + 1] = { type = type, value = value, startIndex = start, endIndex = scanner.pos - 1 }
+    tokens[#tokens + 1] = { type = type, value = value, start_index = start, end_index = scanner.pos - 1 }
     if type == "name" or type == "{" or type == "&" then
-      non_space = true --> what does this do?
+      non_space = true --> what does this do? This stops the parser from trimming spaces inside of name and non HTML-escaped tags
     end
 
     if type == "=" then
-      tags = string_split(value, patterns.space)
+      tags = vim.split(value, "%s")
       tag_patterns = escape_tags(tags)
     end
   end
@@ -352,7 +399,7 @@ function renderer:parse(template, tags)
   return nest_tokens(squash_tokens(tokens))
 end
 
-function renderer:new()
+function Renderer:new()
   local out = {
     cache = {},
     partial_cache = {},
@@ -361,4 +408,4 @@ function renderer:new()
   return setmetatable(out, { __index = self })
 end
 
-return renderer
+return Renderer
