@@ -31,7 +31,8 @@ function Context:lookup(name)
 
   local context = self
   while context do
-    if name:find "%." > 0 then
+    local dot_pos = name:find "%."
+    if dot_pos and dot_pos > 0 then
       local current = context.view ---@type lustache.Value|lustache.View
       for current_name in vim.gsplit(name, "%.") do
         current = current[current_name]

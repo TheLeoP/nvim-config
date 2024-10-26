@@ -87,12 +87,12 @@ local function nest_tokens(tokens)
       collector[#collector + 1] = token
       collector = token.tokens
     elseif token.type == "/" then
-      if #sections == 0 then error("Unopened section: " .. token.value) end
+      if #sections == 0 then error(("Unopened section: %s"):format(token.value)) end
 
       -- Make sure there are no open sections when we're done
       section = table.remove(sections, #sections)
 
-      if not section.value == token.value then error("Unclosed section: " .. section.value) end
+      if not section.value == token.value then error(("Unclosed section: %s"):format(section.value)) end
 
       section.closing_tag_index = token.start_index
 
@@ -108,7 +108,7 @@ local function nest_tokens(tokens)
 
   section = table.remove(sections, #sections)
 
-  if section then error("Unclosed section: " .. section.value) end
+  if section then error(("Unclosed section: "):format(section.value)) end
 
   return tree
 end
@@ -230,13 +230,13 @@ function Renderer:_section(token, context, callback, original_template)
 
   if type(value) == "table" then
     if vim.islist(value) then
-      local buffer = ""
+      local buffer = {} ---@type string[]
 
       for _, v in ipairs(value) do
-        buffer = buffer .. callback(context:push(v), self)
+        buffer[#buffer + 1] = buffer .. callback(context:push(v), self)
       end
 
-      return buffer
+      return table.concat(buffer)
     end
 
     return callback(context:push(value), self)
