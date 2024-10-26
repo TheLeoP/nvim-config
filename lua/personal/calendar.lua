@@ -2040,13 +2040,29 @@ function CalendarView:show(year, month, opts)
       for x = 1, self.d_in_w do
         local buf = self.cal_bufs[y][x]
         local win = self.cal_wins[y][x]
+        local buf_name = api.nvim_buf_get_name(buf)
+        local buf_year, buf_month, buf_day = buf_name:match "^calendar://day_(%d%d%d%d)_(%d%d)_(%d%d)"
+        buf_year, buf_month, buf_day = tonumber(buf_year), tonumber(buf_month), tonumber(buf_day)
+        local key = ("%s_%s_%s"):format(buf_year, buf_month, buf_day)
+        local day_events = events_by_date[key]
 
         keymap.set("n", "<F5>", function()
           api.nvim_win_close(win, true)
           self:show(year, month, { refresh = true })
         end, { buffer = buf })
         keymap.set("n", "<Del>", function() M.calendar_list_show() end, { buffer = buf })
-        keymap.set("n", "<cr>", function() M.event_show(start, end_, {}) end, { buffer = buf })
+        keymap.set(
+          "n",
+          "<c-cr>",
+          function() M.event_show(token_info, calendar_list, day_events, { recurring = true }) end,
+          { buffer = buf }
+        )
+        keymap.set(
+          "n",
+          "<cr>",
+          function() M.event_show(token_info, calendar_list, day_events, {}) end,
+          { buffer = buf }
+        )
         keymap.set("n", "<", function()
           api.nvim_win_close(win, true)
           local target_year = year
@@ -2784,9 +2800,10 @@ end
 ---@async
 ---@param buf integer
 ---@param win integer
----@param month_start CalendarDate
----@param month_end CalendarDate
-local function event_write(buf, win, month_start, month_end)
+---@param calendar_list CalendarList
+---@param day_events Event[]
+---@param opts {refresh: boolean?, recurring: boolean?}
+local function event_write(buf, win, token_info, calendar_list, day_events, opts)
   local lines = api.nvim_buf_get_lines(buf, 0, -1, true)
 
   local id = api.nvim_buf_get_name(buf):match "^calendar://event_(.*)"
@@ -2794,8 +2811,6 @@ local function event_write(buf, win, month_start, month_end)
   local calendar_id = cached_event.creator.email
 
   if #lines == 1 and lines[1] == "" then
-    local token_info = M.get_token_info()
-    assert(token_info, "There is no token_info")
     M.delete_event(token_info, calendar_id, { type = "delete", cached_event = cached_event })
     api.nvim_win_close(win, true)
     return
@@ -2836,9 +2851,6 @@ local function event_write(buf, win, month_start, month_end)
   local description ---@type string|nil
   if lines[5] then description = table.concat(vim.list_slice(lines, 6), "\n") end
 
-  local token_info = M.get_token_info()
-  assert(token_info, "There is no token_info")
-
   local new_event = M.edit_event(token_info, calendar_id, {
     type = "edit",
     cached_event = cached_event,
@@ -2852,41 +2864,30 @@ local function event_write(buf, win, month_start, month_end)
   _cache_event[id] = new_event
 
   api.nvim_win_close(win, true)
-  M.event_show(month_start, month_end, {})
+  M.event_show(token_info, calendar_list, day_events, opts)
 end
 
----@param start CalendarDate
----@param end_ CalendarDate
----@param opts {refresh: boolean?}
-function M.event_show(start, end_, opts)
+---@param calendar_list CalendarList
+---@param day_events Event[]
+---@param opts {refresh: boolean?, recurring: boolean?}
+function M.event_show(token_info, calendar_list, day_events, opts)
   coroutine.wrap(function()
     local line = api.nvim_get_current_line()
     if not line:match "^/[^ ]+" then return end
 
-    local token_info = M.get_token_info()
-    assert(token_info, "There is no token_info")
-    local calendar_list, maybe_new_token_info = M.get_calendar_list(token_info, {})
-    token_info = maybe_new_token_info or token_info
-    local events_by_date = M.get_events(token_info, calendar_list, {
-      start = start,
-      ["end"] = end_,
-    })
-
     local event_id = line:match "^/([^ ]+)" ---@type string
-    local events = iter(events_by_date)
-      :map(
-        ---@param _k string
-        ---@param events Event[]
-        function(_k, events) return events end
-      )
-      :totable()
+    local events = day_events
+
     ---@type Event
-    local event = iter(events):flatten(1):find(
+    local event = iter(events):find(
       ---@param event Event
       function(event) return event.id == event_id end
     )
     assert(event, ("There is no event with id %s"):format(event_id))
-    if not event.recurringEventId then return end
+    if not event.recurringEventId and opts.recurring then
+      vim.notify(("Event %s has no recurringEventId"):format(event.summary))
+      return
+    end
 
     ---@type Calendar
     local calendar = iter(calendar_list.items):find(
@@ -2895,7 +2896,8 @@ function M.event_show(start, end_, opts)
     )
     assert(calendar, ("There is no calendar for event %s"):format(event_id))
 
-    local recurring_event = M.get_event(token_info, calendar.id, event.recurringEventId, opts)
+    local consulted_id = opts.recurring and event.recurringEventId or event.id
+    local recurring_event = M.get_event(token_info, calendar.id, consulted_id, opts)
 
     local is_recurrent = recurring_event.recurrence and not vim.tbl_isempty(recurring_event.recurrence)
     local recurrence = is_recurrent and table.concat(recurring_event.recurrence, " ") or ""
@@ -2910,7 +2912,7 @@ function M.event_show(start, end_, opts)
     )
 
     local buf = api.nvim_create_buf(false, false)
-    api.nvim_buf_set_name(buf, ("calendar://event_%s"):format(event.recurringEventId)) -- TODO: always use recurringEventId?
+    api.nvim_buf_set_name(buf, ("calendar://event_%s"):format(consulted_id))
     api.nvim_create_autocmd("BufLeave", {
       buffer = buf,
       callback = function() api.nvim_buf_delete(buf, { force = true }) end,
@@ -2965,12 +2967,12 @@ function M.event_show(start, end_, opts)
     api.nvim_create_autocmd("BufWriteCmd", {
       buffer = buf,
       callback = function()
-        coroutine.wrap(function() event_write(buf, win, start, end_) end)()
+        coroutine.wrap(function() event_write(buf, win, token_info, calendar_list, day_events, opts) end)()
       end,
     })
     keymap.set("n", "<F5>", function()
       api.nvim_win_close(win, true)
-      M.event_show(start, end_, { refresh = true })
+      M.event_show(token_info, calendar_list, day_events, { refresh = true, recurring = opts.recurring })
     end, { buffer = buf })
   end)()
 end
