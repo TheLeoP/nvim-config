@@ -320,3 +320,37 @@ ls.add_snippets("markdown", {
     )
   ),
 }, { key = "personal md" })
+
+ls.add_snippets("c", {
+  s(
+    { trig = "for ", snippetType = "autosnippet", condition = conds.line_begin },
+    fmta(
+      [[
+for (<init>;<condition>;<step>)
+{
+    <inside>
+}
+]],
+      {
+        inside = i(4),
+        init = i(1, "int i = 0"),
+        condition = i(2, "i < 5"),
+        step = i(3, "i++"),
+      }
+    )
+  ),
+  s(
+    { trig = "if ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
+    fmta(
+      [[
+if (<condition>) {
+    <inside>
+}
+]],
+      {
+        inside = i(2),
+        condition = i(1, "true"),
+      }
+    )
+  ),
+}, { key = "personal cs" })
