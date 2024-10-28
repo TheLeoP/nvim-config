@@ -1721,6 +1721,11 @@ function CalendarView:write(token_info, calendar_list, events_by_date, year, mon
             table.insert(diffs, edit_diff)
           end
         else
+          if not calendar_summary then
+            should_abort = true
+            vim.notify(("The event `%s` has no calendar."):format(summary), vim.log.levels.ERROR)
+            return
+          end
           table.insert(diffs, {
             type = "new",
             summary = summary,
