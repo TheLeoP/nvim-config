@@ -149,7 +149,7 @@ function M.omnisharp_lsp_definitions()
 
     local definitions = definitions_to_locations(result.Definitions, client)
     if #definitions == 1 then
-      vim.lsp.util.jump_to_location(definitions[1], client.offset_encoding)
+      vim.lsp.util.show_document(definitions[1], client.offset_encoding, { focus = true })
     elseif #definitions > 1 then
       local items = vim.lsp.util.locations_to_items(definitions, client.offset_encoding)
       quickfix_run({ winopts = { title = " LSP definitions " } }, "quickfix", items)
@@ -212,7 +212,7 @@ function M.omnisharp_lsp_references()
 
     local references = qf_to_locations(result.QuickFixes, client)
     if #references == 1 then
-      vim.lsp.util.jump_to_location(references[1], client.offset_encoding)
+      vim.lsp.util.show_document(references[1], client.offset_encoding, { focus = true })
     elseif #references > 1 then
       local items = vim.lsp.util.locations_to_items(references, client.offset_encoding)
       quickfix_run({ winopts = { title = " LSP references " } }, "quickfix", items)
@@ -239,7 +239,7 @@ function M.omnisharp_lsp_implementations()
 
     local implementations = qf_to_locations(result.QuickFixes, client)
     if #implementations == 1 then
-      vim.lsp.util.jump_to_location(implementations[1], client.offset_encoding)
+      vim.lsp.util.show_document(implementations[1], client.offset_encoding, { focus = true })
     elseif #implementations > 1 then
       local items = vim.lsp.util.locations_to_items(implementations, client.offset_encoding)
       quickfix_run({ winopts = { title = " LSP implementations " } }, "quickfix", items)
