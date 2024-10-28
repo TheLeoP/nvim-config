@@ -233,25 +233,16 @@ return {
 
     local visits = require "mini.visits"
     visits.setup()
-    ---@param select_global boolean
-    ---@param recency_weight number
-    ---@return fun()
-    local make_select_path = function(select_global, recency_weight)
-      local sort = visits.gen_sort.default { recency_weight = recency_weight }
-      local select_opts = { sort = sort }
-      return function()
-        local cwd = select_global and "" or vim.fn.getcwd()
-        visits.select_path(cwd, select_opts)
-      end
-    end
-    -- TODO: maybe add an fzf-lua picker
-    keymap.set("n", "<leader>vr", make_select_path(false, 1), { desc = "Select recent (cwd)" })
-    keymap.set("n", "<leader>vR", make_select_path(true, 1), { desc = "Select recent (all)" })
-    keymap.set("n", "<leader>vy", make_select_path(false, 0.5), { desc = "Select frecent (cwd)" })
-    keymap.set("n", "<leader>vY", make_select_path(true, 0.5), { desc = "Select frecent (all)" })
-    keymap.set("n", "<leader>vf", make_select_path(false, 0), { desc = "Select frequent (cwd)" })
-    keymap.set("n", "<leader>vF", make_select_path(true, 0), { desc = "Select frequent (all)" })
+    local fzf_visits = require("personal.fzf-lua").mini_visit
 
+    keymap.set("n", "<leader>vr", fzf_visits.recent_cwd, { desc = "Select recent (cwd)" })
+    keymap.set("n", "<leader>vR", fzf_visits.recent_all, { desc = "Select recent (all)" })
+    keymap.set("n", "<leader>vy", fzf_visits.frecent_cwd, { desc = "Select frecent (cwd)" })
+    keymap.set("n", "<leader>vY", fzf_visits.frecent_all, { desc = "Select frecent (all)" })
+    keymap.set("n", "<leader>vf", fzf_visits.frequent_cwd, { desc = "Select frequent (cwd)" })
+    keymap.set("n", "<leader>vF", fzf_visits.frequent_all, { desc = "Select frequent (all)" })
+
+    -- TODO: fzf-lua pickers for labels
     keymap.set("n", "<leader>vv", visits.add_label, { desc = "Add visit label" })
     keymap.set("n", "<leader>vV", visits.remove_label, { desc = "Remove visit label" })
     keymap.set("n", "<leader>vl", visits.select_label, { desc = "Select label (cwd)" })

@@ -53,14 +53,10 @@ local quickfix_run = function(opts, cfg, items)
   local contents = function(cb)
     for _, x in ipairs(results) do
       x = require("fzf-lua.make_entry").file(x, opts)
-      if x then
-        cb(x, function(err)
-          if err then return end
-          -- close the pipe to fzf, this
-          -- removes the loading indicator in fzf
-          cb(nil)
-        end)
-      end
+      if x then cb(x, function(err)
+        if err then return end
+        cb(nil)
+      end) end
     end
     cb(nil)
   end
@@ -248,5 +244,40 @@ function M.omnisharp_lsp_implementations()
     end
   end)
 end
+
+---@param list_global boolean
+---@param recency_weight number
+---@param opts table
+local list_paths = function(list_global, recency_weight, opts)
+  local visits = require "mini.visits"
+
+  local sort = visits.gen_sort.default { recency_weight = recency_weight }
+  local list_opts = { sort = sort }
+  local cwd = list_global and "" or vim.fn.getcwd()
+  local paths = visits.list_paths(cwd, list_opts) ---@type string[]
+
+  opts.previewer = "builtin"
+  require("fzf-lua.devicons").load()
+  require("fzf-lua").fzf_exec(function(cb)
+    for _, x in ipairs(paths) do
+      local make_entry = require "fzf-lua.make_entry"
+      x = make_entry.file(x, { cwd = cwd, file_icons = true, color_icons = true })
+      if x then cb(x, function(err)
+        if err then return end
+        cb(nil)
+      end) end
+    end
+    cb(nil)
+  end, opts)
+end
+
+M.mini_visit = {
+  recent_cwd = function() list_paths(false, 1, { winopts = { title = "Select recent (cwd)" } }) end,
+  recent_all = function() list_paths(true, 1, { winopts = { title = "Select recent (all)" } }) end,
+  frecent_cwd = function() list_paths(false, 0.5, { winopts = { title = "Select frecent (cwd)" } }) end,
+  frecent_all = function() list_paths(true, 0.5, { winopts = { title = "Select frecent (all)" } }) end,
+  frequent_cwd = function() list_paths(false, 0, { winopts = { title = "Select frequent (cwd)" } }) end,
+  frequent_all = function() list_paths(true, 0, { winopts = { title = "Select frequent (all)" } }) end,
+}
 
 return M
