@@ -2822,6 +2822,7 @@ local function event_write(buf, win, token_info, calendar_list, day_events, opts
 
   local summary = lines[1]:match "^summary: (.*)"
   local recurrence = vim.split(lines[2]:match "^recurrence: (.*)", " ")
+  if #recurrence == 1 and recurrence[1] == "" then recurrence = nil end
   local duration = vim.split(lines[3]:match "^duration: (.*)", sep)
 
   local start = {} ---@type Date
