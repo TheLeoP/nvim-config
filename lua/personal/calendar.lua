@@ -2756,10 +2756,9 @@ local _cache_event = {} ---@type table<string, Event> recurringEventId -> Event
 function M.get_event(token_info, calendar_id, id, opts)
   local co = coroutine.running()
   assert(co, "The function must run inside a coroutine")
+  if opts.refresh then _cache_event = {} end
 
   if _cache_event[id] then return _cache_event[id] end
-
-  if opts.refresh then _cache_event = {} end
 
   vim.system(
     {
