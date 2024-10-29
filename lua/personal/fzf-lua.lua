@@ -256,8 +256,7 @@ local list_paths = function(list_global, recency_weight, opts)
   local cwd = list_global and "" or vim.fn.getcwd()
   local paths = visits.list_paths(cwd, list_opts) ---@type string[]
 
-  opts.previewer = "builtin"
-  require("fzf-lua.devicons").load()
+  opts = require("fzf-lua.config").normalize_opts(opts, "files")
   require("fzf-lua").fzf_exec(function(cb)
     for _, x in ipairs(paths) do
       local make_entry = require "fzf-lua.make_entry"
