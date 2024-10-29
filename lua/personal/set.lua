@@ -2,58 +2,58 @@ local o = vim.o
 local opt = vim.opt
 local wo = vim.wo
 
-opt.number = true
-opt.relativenumber = true
+o.number = true
+o.relativenumber = true
 
-opt.wrap = false
+o.wrap = false
 
-opt.spelllang = { "es", "en", "de" }
+o.spelllang = "es,en,de"
 
-opt.swapfile = false
-opt.undofile = true
+o.swapfile = false
+o.undofile = true
 
-opt.clipboard = "unnamedplus"
+o.clipboard = "unnamedplus"
 
-opt.hlsearch = true
+o.hlsearch = true
 
-opt.ignorecase = true
-opt.smartcase = true
+o.ignorecase = true
+o.smartcase = true
 
-opt.expandtab = true
-opt.shiftwidth = 4
+o.expandtab = true
+o.shiftwidth = 4
 
-opt.scrolloff = 8
+o.scrolloff = 8
 
-opt.cmdheight = 2
+o.cmdheight = 2
 
-opt.showmode = false
+o.showmode = false
 
-opt.signcolumn = "yes"
+o.signcolumn = "yes"
 
-opt.updatetime = 300
-opt.timeoutlen = 500
+o.updatetime = 300
+o.timeoutlen = 500
 
-opt.guifont = "CaskaydiaCove Nerd Font Mono:h12"
+o.guifont = "CaskaydiaCove Nerd Font Mono:h12"
 
 if vim.fn.executable "rg" == 1 then
-  opt.grepprg = "rg --vimgrep --hidden"
-  opt.grepformat = "%f:%l:%c:%m"
+  o.grepprg = "rg --vimgrep --hidden"
+  o.grepformat = "%f:%l:%c:%m"
 end
 
-opt.mouse = "a"
+o.mouse = "a"
 
-opt.splitbelow = true
-opt.splitright = true
+o.splitbelow = true
+o.splitright = true
 
-opt.laststatus = 3
+o.laststatus = 3
 
-opt.cursorline = true
+o.cursorline = true
 
 opt.diffopt:append { "vertical", "context:99" }
 
 opt.shortmess:append "sWcC"
 
-opt.breakindent = true
+o.breakindent = true
 
 -- Disable health checks for these providers.
 vim.g.loaded_python3_provider = 0

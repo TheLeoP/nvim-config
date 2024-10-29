@@ -1,3 +1,5 @@
+local keymap = vim.keymap
+
 ---@class coq_args
 ---@field pos {[1]: integer, [2]:integer}
 ---@field line string
@@ -18,8 +20,10 @@ return {
   "ms-jpq/coq_nvim",
   branch = "coq",
   init = function()
-    vim.opt.completeopt = { "menuone", "noselect", "noinsert" }
-    vim.opt.showmode = false
+    vim.o.completeopt = "menuone,noselect,noinsert"
+    vim.o.showmode = false
+    -- this is set automatically by coq, but if I `nvim +Cal`, the buffers are created before the option is set. So, I set it here
+    vim.o.completefunc = "v:lua.COQ.Omnifunc"
 
     vim.g.coq_settings = {
       auto_start = "shut-up",
@@ -76,7 +80,7 @@ return {
     }
   end,
   config = function()
-    vim.keymap.set("i", "<BS>", function()
+    keymap.set("i", "<BS>", function()
       if vim.fn.pumvisible() == 1 then
         return "<C-e><BS>"
       else
@@ -84,7 +88,7 @@ return {
       end
     end, { expr = true, silent = true })
 
-    vim.keymap.set("i", "<CR>", function()
+    keymap.set("i", "<CR>", function()
       if vim.fn.pumvisible() == 1 then
         if vim.fn.complete_info().selected == -1 then
           return "<C-e><CR>"
@@ -96,7 +100,7 @@ return {
       end
     end, { expr = true, silent = true })
 
-    vim.keymap.set("i", "<Tab>", function()
+    keymap.set("i", "<Tab>", function()
       if vim.fn.pumvisible() == 1 then
         return "<down>"
       else
@@ -104,7 +108,7 @@ return {
       end
     end, { expr = true, silent = true })
 
-    vim.keymap.set("i", "<s-tab>", function()
+    keymap.set("i", "<s-tab>", function()
       if vim.fn.pumvisible() == 1 then
         return "<up>"
       else
