@@ -2223,7 +2223,7 @@ function CalendarView:show(year, month, opts)
         iter(day_events):each(
           ---@param event Event
           function(event)
-            local pattern = "^/[^ ]+ ()" .. event.summary .. "()"
+            local pattern = "^/[^ ]+ ()" .. vim.pesc(event.summary) .. "()"
 
             if event.attendees then
               ---@type Attendee|nil
