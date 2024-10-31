@@ -13,7 +13,7 @@ local M = {}
 ---@field userAuthError boolean
 
 ---@param text string
-function M.set_clipboard_and_paste(text)
+function M.clipboard(text)
   local url = ("https://joinjoaomgcd.appspot.com/_ah/api/messaging/v1/sendPush?apikey=%s&deviceId=%s&clipboard=%s"):format(
     url_encode(api_key),
     url_encode(device_id),
@@ -40,7 +40,7 @@ end
 ---@param buf integer
 function M.write_buffer(buf)
   local lines = api.nvim_buf_get_lines(buf, 0, -1, true)
-  M.set_clipboard_and_paste(table.concat(lines, "\n"))
+  M.clipboard(table.concat(lines, "\n"))
 end
 
 ---@param cellphone_number string
