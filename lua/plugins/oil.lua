@@ -35,6 +35,10 @@ return {
     },
     view_options = {
       show_hidden = true,
+      is_always_hidden = function(name, _buf) return name == ".." end,
+      sort = {
+        { "name", "asc" },
+      },
     },
   },
   config = function(_, opts)
