@@ -247,16 +247,18 @@ end
 
 ---@param list_global boolean
 ---@param recency_weight number
----@param opts table
-local list_paths = function(list_global, recency_weight, opts)
+---@param opts {fzf:table|nil, mini:table|nil}
+local select_path = function(list_global, recency_weight, opts)
   local visits = require "mini.visits"
+  local fzf_opts = opts.fzf or {}
+  local mini_opts = opts.mini
 
   local sort = visits.gen_sort.default { recency_weight = recency_weight }
-  local list_opts = { sort = sort }
+  mini_opts.sort = sort
   local cwd = list_global and "" or vim.fn.getcwd()
-  local paths = visits.list_paths(cwd, list_opts) ---@type string[]
+  local paths = visits.list_paths(cwd, mini_opts) ---@type string[]
 
-  opts = require("fzf-lua.config").normalize_opts(opts, "files")
+  fzf_opts = require("fzf-lua.config").normalize_opts(fzf_opts, "files")
   require("fzf-lua").fzf_exec(function(cb)
     for _, x in ipairs(paths) do
       local make_entry = require "fzf-lua.make_entry"
@@ -267,16 +269,40 @@ local list_paths = function(list_global, recency_weight, opts)
       end) end
     end
     cb(nil)
-  end, opts)
+  end, fzf_opts)
+end
+
+---@param path string|nil
+---@param cwd string|nil
+---@param opts table|nil
+local select_label = function(path, cwd, opts)
+  local visits = require "mini.visits"
+  local items = visits.list_labels(path, cwd, opts)
+  opts = opts or {}
+  local on_choice = function(label)
+    if label == nil then return end
+
+    -- Select among subset of paths with chosen label
+    local filter_cur = opts.filter or visits.gen_filter.default()
+    local new_opts = vim.deepcopy(opts)
+    new_opts.filter = function(path_data)
+      return filter_cur(path_data) and type(path_data.labels) == "table" and path_data.labels[label]
+    end
+    select_path(path == "", 1, { mini = new_opts })
+  end
+
+  vim.ui.select(items, { prompt = "Visited labels" }, on_choice)
 end
 
 M.mini_visit = {
-  recent_cwd = function() list_paths(false, 1, { winopts = { title = "Select recent (cwd)" } }) end,
-  recent_all = function() list_paths(true, 1, { winopts = { title = "Select recent (all)" } }) end,
-  frecent_cwd = function() list_paths(false, 0.5, { winopts = { title = "Select frecent (cwd)" } }) end,
-  frecent_all = function() list_paths(true, 0.5, { winopts = { title = "Select frecent (all)" } }) end,
-  frequent_cwd = function() list_paths(false, 0, { winopts = { title = "Select frequent (cwd)" } }) end,
-  frequent_all = function() list_paths(true, 0, { winopts = { title = "Select frequent (all)" } }) end,
+  recent_cwd = function() select_path(false, 1, { winopts = { title = "Select recent (cwd)" } }) end,
+  recent_all = function() select_path(true, 1, { winopts = { title = "Select recent (all)" } }) end,
+  frecent_cwd = function() select_path(false, 0.5, { winopts = { title = "Select frecent (cwd)" } }) end,
+  frecent_all = function() select_path(true, 0.5, { winopts = { title = "Select frecent (all)" } }) end,
+  frequent_cwd = function() select_path(false, 0, { winopts = { title = "Select frequent (cwd)" } }) end,
+  frequent_all = function() select_path(true, 0, { winopts = { title = "Select frequent (all)" } }) end,
+  select_label_cwd = select_label,
+  select_label_all = function() select_label("", "") end,
 }
 
 return M

@@ -245,8 +245,8 @@ return {
     -- TODO: fzf-lua pickers for labels
     keymap.set("n", "<leader>vv", visits.add_label, { desc = "Add visit label" })
     keymap.set("n", "<leader>vV", visits.remove_label, { desc = "Remove visit label" })
-    keymap.set("n", "<leader>vl", visits.select_label, { desc = "Select label (cwd)" })
-    keymap.set("n", "<leader>vL", function() visits.select_label("", "") end, { desc = "Select label (all)" })
+    keymap.set("n", "<leader>vl", fzf_visits.select_label_cwd, { desc = "Select label (cwd)" })
+    keymap.set("n", "<leader>vL", fzf_visits.select_label_all, { desc = "Select label (all)" })
 
     ---@module "oil"
 
