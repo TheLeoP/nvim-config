@@ -1,7 +1,5 @@
 -- based on https://github.com/itchyny/calendar.vim
 
--- TODO: maybe change asserts to vim.notify errors (?)
--- TODO: maybe show notifications (maybe using mini.notify(to show progress)) while loading/waiting for responses (?)
 local uv = vim.uv
 local api = vim.api
 local keymap = vim.keymap
@@ -2297,7 +2295,6 @@ end
 ---@field event table<string, Color>
 
 local _cache_colors ---@type Colors
--- TODO: do this for al get functions?
 local is_getting_colors = false
 
 ---@async
@@ -2590,7 +2587,7 @@ function M.add_coq_completion()
               function(calendar)
                 return {
                   label = calendar.summary,
-                  documentation = calendar.description, -- TODO: maybe change this to `detail`?
+                  documentation = calendar.description,
                   kind = vim.lsp.protocol.CompletionItemKind.EnumMember,
                 }
               end
@@ -2743,7 +2740,6 @@ function M.add_coq_completion()
   }
 end
 
--- TODO: remove this cache? I don't think having two caches is a great idea.
 -- Maybe use this only for recurring events?
 local _cache_event = {} ---@type table<string, Event> recurringEventId -> Event
 
