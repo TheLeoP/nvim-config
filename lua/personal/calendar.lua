@@ -991,7 +991,7 @@ end
 ---@field summary string
 ---@field description string
 ---@field location string
----@field colorId string
+---@field colorId string?
 ---@field creator User
 ---@field organizer User
 ---@field start Date
@@ -2122,11 +2122,7 @@ function CalendarView:show(year, month, opts)
         api.nvim_create_autocmd("BufWriteCmd", {
           buffer = buf,
           callback = function()
-            coroutine.wrap(function()
-              token_info = M.get_token_info()
-              assert(token_info, "There is no token_info")
-              self:write(token_info, calendar_list, events_by_date, year, month, win, buf)
-            end)()
+            coroutine.wrap(function() self:write(token_info, calendar_list, events_by_date, year, month, win, buf) end)()
           end,
         })
       end
@@ -2245,8 +2241,11 @@ function CalendarView:show(year, month, opts)
 
             if not calendar or not event.summary then return end
 
-            local calendar_fg = calendar.foregroundColor
-            local calendar_bg = calendar.backgroundColor
+            local colors = M.get_colors(token_info)
+            local current_color = event.colorId and colors.event[event.colorId] or nil ---@type Color?
+
+            local calendar_fg = current_color and current_color.foreground or calendar.foregroundColor
+            local calendar_bg = current_color and current_color.background or calendar.backgroundColor
             if event.creator.email ~= event.organizer.email then
               calendar_fg, calendar_bg = calendar_bg, calendar_fg
             end
@@ -2285,7 +2284,7 @@ function CalendarView:show(year, month, opts)
 end
 
 ---@class Color
----@field background string,
+---@field background string
 ---@field foreground string
 
 ---@class Colors
