@@ -6,7 +6,7 @@ return {
   opts = {
     input = {
       insert_only = false,
-      start_in_insert = true,
+      start_mode = "insert",
       border = "single",
       win_options = {
         winblend = 0,
@@ -15,7 +15,7 @@ return {
         if opts.prompt == "cmd: " then -- I use this to run shell commands
           return {
             insert_only = false,
-            start_in_insert = true,
+            start_mode = "insert",
             border = "single",
             relative = "editor",
             prefer_width = 0.90,
