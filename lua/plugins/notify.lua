@@ -1,6 +1,12 @@
 return {
   "rcarriga/nvim-notify",
-  init = function()
+  ---@module "notify"
+  ---@type notify.Config
+  ---@diagnostic disable-next-line: missing-fields
+  opts = {
+    timeout = 300,
+  },
+  config = function(_, opts)
     vim.o.termguicolors = true
     vim.notify = require "notify"
   end,
