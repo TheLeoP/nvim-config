@@ -1,6 +1,8 @@
 local api = vim.api
 local iter = vim.iter
 
+local should_show_detail = false
+
 return {
   "stevearc/oil.nvim",
   opts = {
@@ -13,6 +15,8 @@ return {
     watch_for_changes = true,
     keymaps = {
       ["<C-l>"] = {
+        mode = "n",
+        desc = "Refresh and dismiss notifications",
         callback = function()
           require("oil.actions").refresh.callback()
           vim.cmd.nohlsearch()
@@ -20,14 +24,31 @@ return {
           require("notify").dismiss { silent = true, pending = true }
           vim.cmd.normal { "\12", bang = true } -- ctrl-l
         end,
-        mode = "n",
-        desc = "Refresh and dismiss notifications",
       },
       ["<leader>cd"] = { "actions.cd", opts = { scope = "tab", silent = true } },
       ["gt"] = "actions.toggle_trash",
-      ["g_"] = "actions.open_cwd",
+      ["gd"] = {
+        mode = "n",
+        desc = "Toggle file detail view",
+        callback = function()
+          local set_columns = require("oil").set_columns
+
+          should_show_detail = not should_show_detail
+          if should_show_detail then
+            set_columns {
+              "icon",
+              "permissions",
+              { "size", highlight = "Comment" },
+              { "mtime", format = "%Y-%m-%d %T", highlight = "Special" },
+            }
+          else
+            set_columns { "icon" }
+          end
+        end,
+      },
+      ["<bs>"] = "actions.open_cwd",
       ["<leader>y"] = "actions.copy_entry_path",
-      ["<leader>:"] = "actions.open_cmdline",
+      ["<leader>."] = "actions.open_cmdline",
       ["g\\"] = false,
       ["`"] = false,
       ["~"] = false,
