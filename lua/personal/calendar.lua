@@ -91,7 +91,7 @@ local function refresh_access_token(refresh_token)
     ---@param opts {data:{token_info: TokenInfo}}
     callback = function(opts)
       local ok, err = coroutine.resume(co, opts.data.token_info)
-      if not ok then vim.notify(err, vim.log.levels.ERROR) end
+      if not ok then vim.notify(debug.traceback(co, err), vim.log.levels.ERROR) end
     end,
     once = true,
   })
@@ -258,7 +258,7 @@ function M.get_token_info()
 
         _cache_token_info = token_info
         ok, err = coroutine.resume(co, token_info)
-        if not ok then vim.notify(err, vim.log.levels.ERROR) end
+        if not ok then vim.notify(debug.traceback(co, err), vim.log.levels.ERROR) end
       end)
     end,
   }
@@ -365,7 +365,7 @@ function M.get_calendar_list(token_info, opts)
           local new_calendar_list = M.get_calendar_list(refreshed_token_info, {})
           local err
           ok, err = coroutine.resume(co, new_calendar_list, refreshed_token_info)
-          if not ok then vim.notify(err, vim.log.levels.ERROR) end
+          if not ok then vim.notify(debug.traceback(co, err), vim.log.levels.ERROR) end
         end)()
 
         return
@@ -376,7 +376,7 @@ function M.get_calendar_list(token_info, opts)
       _cache_calendar_list = calendar_list
       local err
       ok, err = coroutine.resume(co, calendar_list, nil)
-      if not ok then vim.notify(err, vim.log.levels.ERROR) end
+      if not ok then vim.notify(debug.traceback(co, err), vim.log.levels.ERROR) end
     end)
   )
   return coroutine.yield()
@@ -662,7 +662,7 @@ function M.get_calendar(token_info, id)
           local new_calendar = M.get_calendar(refreshed_token_info, id)
           local err
           ok, err = coroutine.resume(co, new_calendar)
-          if not ok then vim.notify(err, vim.log.levels.ERROR) end
+          if not ok then vim.notify(debug.traceback(co, err), vim.log.levels.ERROR) end
         end)()
         return
       end
@@ -672,7 +672,7 @@ function M.get_calendar(token_info, id)
       _cache_calendar[id] = calendar
       local err
       ok, err = coroutine.resume(co, calendar)
-      if not ok then vim.notify(err, vim.log.levels.ERROR) end
+      if not ok then vim.notify(debug.traceback(co, err), vim.log.levels.ERROR) end
     end)
   )
   return coroutine.yield()
@@ -719,7 +719,7 @@ function M.create_calendar(token_info, diff)
           local new_new_calendar = M.create_calendar(refreshed_token_info, diff)
           local err
           ok, err = coroutine.resume(co, new_new_calendar)
-          if not ok then vim.notify(err, vim.log.levels.ERROR) end
+          if not ok then vim.notify(debug.traceback(co, err), vim.log.levels.ERROR) end
         end)()
         return
       end
@@ -728,7 +728,7 @@ function M.create_calendar(token_info, diff)
 
       local err
       ok, err = coroutine.resume(co, new_calendar)
-      if not ok then vim.notify(err, vim.log.levels.ERROR) end
+      if not ok then vim.notify(debug.traceback(co, err), vim.log.levels.ERROR) end
     end)
   )
   return coroutine.yield()
@@ -779,7 +779,7 @@ function M.edit_calendar(token_info, diff)
           local new_edited_calendar = M.edit_calendar(refreshed_token_info, diff)
           local err
           ok, err = coroutine.resume(co, new_edited_calendar)
-          if not ok then vim.notify(err, vim.log.levels.ERROR) end
+          if not ok then vim.notify(debug.traceback(co, err), vim.log.levels.ERROR) end
         end)()
         return
       end
@@ -788,7 +788,7 @@ function M.edit_calendar(token_info, diff)
 
       local err
       ok, err = coroutine.resume(co, edited_calendar)
-      if not ok then vim.notify(err, vim.log.levels.ERROR) end
+      if not ok then vim.notify(debug.traceback(co, err), vim.log.levels.ERROR) end
     end)
   )
   return coroutine.yield()
@@ -818,7 +818,7 @@ function M.delete_calendar(token_info, diff)
 
       if result.stdout == "" then
         local ok, err = coroutine.resume(co)
-        if not ok then vim.notify(err, vim.log.levels.ERROR) end
+        if not ok then vim.notify(debug.traceback(co, err), vim.log.levels.ERROR) end
         return
       end
 
@@ -834,7 +834,7 @@ function M.delete_calendar(token_info, diff)
           M.delete_calendar(refreshed_token_info, diff)
           local err
           ok, err = coroutine.resume(co)
-          if not ok then vim.notify(err, vim.log.levels.ERROR) end
+          if not ok then vim.notify(debug.traceback(co, err), vim.log.levels.ERROR) end
         end)()
         return
       end
@@ -1122,7 +1122,7 @@ function M.get_events(token_info, calendar_list, opts)
               local new_events = M.get_events(refreshed_token_info, calendar_list, opts)
               local err
               ok, err = coroutine.resume(co, new_events, refreshed_token_info)
-              if not ok then vim.notify(err, vim.log.levels.ERROR) end
+              if not ok then vim.notify(debug.traceback(co, err), vim.log.levels.ERROR) end
             end)()
             return
           end
@@ -1154,7 +1154,7 @@ function M.get_events(token_info, calendar_list, opts)
             -- TODO: dedup multiple request like colors?
             local err
             ok, err = coroutine.resume(co, _cache_events, nil)
-            if not ok then vim.notify(err, vim.log.levels.ERROR) end
+            if not ok then vim.notify(debug.traceback(co, err), vim.log.levels.ERROR) end
           end
         end)
       )
@@ -2311,7 +2311,7 @@ function M.get_colors(token_info)
     ---@param opts {data:{colors: Colors}}
     callback = function(opts)
       local ok, err = coroutine.resume(co, opts.data.colors)
-      if not ok then vim.notify(err, vim.log.levels.ERROR) end
+      if not ok then vim.notify(debug.traceback(co, err), vim.log.levels.ERROR) end
     end,
     once = true,
   })
@@ -2342,7 +2342,7 @@ function M.get_colors(token_info)
           local new_colors = M.get_colors(refreshed_token_info)
           local err
           ok, err = coroutine.resume(co, new_colors)
-          if not ok then vim.notify(err, vim.log.levels.ERROR) end
+          if not ok then vim.notify(debug.traceback(co, err), vim.log.levels.ERROR) end
         end)()
 
         return
@@ -2416,7 +2416,7 @@ function M.create_event(token_info, calendar_id, diff)
           local new_new_event = M.create_event(refreshed_token_info, calendar_id, diff)
           local err
           ok, err = coroutine.resume(co, new_new_event)
-          if not ok then vim.notify(err, vim.log.levels.ERROR) end
+          if not ok then vim.notify(debug.traceback(co, err), vim.log.levels.ERROR) end
         end)()
         return
       end
@@ -2425,7 +2425,7 @@ function M.create_event(token_info, calendar_id, diff)
 
       local err
       ok, err = coroutine.resume(co, new_event)
-      if not ok then vim.notify(err, vim.log.levels.ERROR) end
+      if not ok then vim.notify(debug.traceback(co, err), vim.log.levels.ERROR) end
     end)
   )
   return coroutine.yield()
@@ -2484,7 +2484,7 @@ function M.edit_event(token_info, calendar_id, diff)
           local new_edited_event = M.edit_event(refreshed_token_info, calendar_id, diff)
           local err
           ok, err = coroutine.resume(co, new_edited_event)
-          if not ok then vim.notify(err, vim.log.levels.ERROR) end
+          if not ok then vim.notify(debug.traceback(co, err), vim.log.levels.ERROR) end
         end)()
         return
       end
@@ -2493,7 +2493,7 @@ function M.edit_event(token_info, calendar_id, diff)
 
       local err
       ok, err = coroutine.resume(co, edited_event)
-      if not ok then vim.notify(err, vim.log.levels.ERROR) end
+      if not ok then vim.notify(debug.traceback(co, err), vim.log.levels.ERROR) end
     end)
   )
   return coroutine.yield()
@@ -2527,7 +2527,7 @@ function M.delete_event(token_info, calendar_id, diff)
 
       if result.stdout == "" then
         local ok, err = coroutine.resume(co)
-        if not ok then vim.notify(err, vim.log.levels.ERROR) end
+        if not ok then vim.notify(debug.traceback(co, err), vim.log.levels.ERROR) end
         return
       end
 
@@ -2543,7 +2543,7 @@ function M.delete_event(token_info, calendar_id, diff)
           M.delete_event(refreshed_token_info, calendar_id, diff)
           local err
           ok, err = coroutine.resume(co)
-          if not ok then vim.notify(err, vim.log.levels.ERROR) end
+          if not ok then vim.notify(debug.traceback(co, err), vim.log.levels.ERROR) end
         end)()
         return
       end
@@ -2780,7 +2780,7 @@ function M.get_event(token_info, calendar_id, id, opts)
           _cache_event[id] = new_event
           local err
           ok, err = coroutine.resume(co, new_event, refreshed_token_info)
-          if not ok then vim.notify(err, vim.log.levels.ERROR) end
+          if not ok then vim.notify(debug.traceback(co, err), vim.log.levels.ERROR) end
         end)()
         return
       end
@@ -2790,7 +2790,7 @@ function M.get_event(token_info, calendar_id, id, opts)
       _cache_event[id] = event
       local err
       ok, err = coroutine.resume(co, event, nil)
-      if not ok then vim.notify(err, vim.log.levels.ERROR) end
+      if not ok then vim.notify(debug.traceback(co, err), vim.log.levels.ERROR) end
     end)
   )
   return coroutine.yield()
