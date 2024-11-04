@@ -2158,7 +2158,15 @@ function CalendarView:show(year, month, opts)
       if today.day == buf_day and today.month == buf_month and today.year == buf_year then
         highlighters.day = {
           pattern = "^%d+",
-          group = "DiffText",
+          group = "",
+          extmark_opts = function(buf, match, data)
+            return {
+              end_row = data.line,
+              end_col = 0,
+              hl_group = "DiffText",
+              hl_eol = true,
+            }
+          end,
         }
       elseif buf_month == month then
         highlighters.day = {
