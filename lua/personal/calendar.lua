@@ -2039,6 +2039,7 @@ function CalendarView:show(year, month, opts)
       once = true,
     })
 
+    local today = os.date "*t"
     for y = 1, w_in_m do
       for x = 1, self.d_in_w do
         local buf = self.cal_bufs[y][x]
@@ -2117,8 +2118,6 @@ function CalendarView:show(year, month, opts)
         end
         keymap.set("n", "<down>", function() api.nvim_set_current_win(win_d) end, { buffer = buf })
 
-        if y == 1 and x == 1 then api.nvim_set_current_win(win) end
-
         api.nvim_create_autocmd("BufWriteCmd", {
           buffer = buf,
           callback = function()
@@ -2156,7 +2155,6 @@ function CalendarView:show(year, month, opts)
         },
       }
 
-      local today = os.date "*t"
       if today.day == buf_day and today.month == buf_month and today.year == buf_year then
         highlighters.day = {
           pattern = "^%d+",
@@ -2274,11 +2272,21 @@ function CalendarView:show(year, month, opts)
 
         vim.list_extend(lines, events_text)
       end
-      -- TODO: add support for event.colorId using `get_colors` (currently I don't have any events with custom colors, so it's no neccesary)
-      hl_enable(cal_buf, { highlighters = highlighters })
+      vim.b[cal_buf].minihipatterns_config = { highlighters = highlighters }
+      hl_enable(cal_buf)
 
       api.nvim_buf_set_lines(cal_buf, 0, -1, true, lines)
       vim.bo[cal_buf].modified = false
+
+      -- this has to be done after enabling highlighting to avoid default
+      -- global config to interfere
+      if today.day == buf_day and today.month == buf_month and today.year == buf_year then
+        local win = vim.fn.bufwinid(cal_buf)
+        api.nvim_set_current_win(win)
+      elseif (today.month ~= month or today.year ~= year) and cal_buf == self.cal_bufs[1][1] then
+        local win = vim.fn.bufwinid(cal_buf)
+        api.nvim_set_current_win(win)
+      end
     end)
   end)()
 end
