@@ -11,8 +11,8 @@ return {
     picker_config = {
       use_emojis = true,
     },
-    -- NOTE: requires both read:project and project scopes
-    default_to_projects_v2 = true,
+    -- NOTE: using true shows a msg on startup since https://github.com/pwntester/octo.nvim/pull/667
+    default_to_projects_v2 = false,
   },
   config = function(_, opts)
     require("octo").setup(opts)
