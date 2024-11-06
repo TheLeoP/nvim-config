@@ -305,6 +305,17 @@ function <name>(<args>) {
       { name = i(1), args = i(2), inside = i(3) }
     )
   ),
+  s(
+    { trig = "while ", snippetType = "autosnippet", condition = not_in_string },
+    fmta(
+      [[
+while (<condition>) {
+  <inside>
+}
+]],
+      { condition = i(1), inside = i(2) }
+    )
+  ),
 }, { key = "personal js" })
 
 ls.add_snippets("markdown", {
