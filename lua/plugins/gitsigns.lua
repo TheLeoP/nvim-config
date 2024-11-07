@@ -35,7 +35,6 @@ return {
       vim.keymap.set("n", "<leader>tb", gs.toggle_current_line_blame)
       vim.keymap.set("n", "<leader>hd", gs.diffthis)
       vim.keymap.set("n", "<leader>hD", function() gs.diffthis "~" end)
-      vim.keymap.set("n", "<leader>td", gs.toggle_deleted)
 
       -- Text object
       vim.keymap.set({ "o", "x" }, "ih", ":<C-U>Gitsigns select_hunk<CR>")
