@@ -6,7 +6,7 @@ return {
     local pulse = require "pulse"
     pulse.setup(opts)
     pulse.add("break", {
-      interval = 20,
+      interval = 60,
       cb = function()
         local normal_hl = vim.api.nvim_get_hl(0, { name = "Normal" })
         vim.notify("Toma un descanso, LPM >>>>>>>>>>>>>>>>>>>>>:c", vim.log.levels.ERROR, { title = "Descanso" })
