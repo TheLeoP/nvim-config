@@ -1,6 +1,5 @@
 {
   "LuaSnip": { "branch": "master", "commit": "2737edc9e674e537dc0a97e3405658d57d2d31ed" },
-  "bigfile.nvim": { "branch": "main", "commit": "33eb067e3d7029ac77e081cfe7c45361887a311a" },
   "busted": { "branch": "main", "commit": "5ed85d0e016a5eb5eca097aa52905eedf1b180f1" },
   "ccc.nvim": { "branch": "main", "commit": "7c639042583c7bdc7ce2e37e5a0e0aa6d0659c6a" },
   "conform.nvim": { "branch": "master", "commit": "d28ccf945374edd9f1c34a82f6c22261dbd8ab98" },
@@ -63,6 +62,7 @@
   "quicker.nvim": { "branch": "master", "commit": "11f9eb0c803bb9ced8c6043805de89c62bd04515" },
   "render-markdown.nvim": { "branch": "main", "commit": "901838c63d644e27ed4b591fa5c5d587cad9e102" },
   "schemastore.nvim": { "branch": "main", "commit": "22ce6adf3c866a8c3d0c55956c4b8feeb4f10c32" },
+  "snacks.nvim": { "branch": "main", "commit": "636a17fd66ebf1df36ded3ed8c4335f7392af56d" },
   "ssr.nvim": { "branch": "main", "commit": "7c95cfa5836508f08ae833a4b31d2ed265560f64" },
   "suda.vim": { "branch": "master", "commit": "b97fab52f9cdeabe2bbb5eb98d82356899f30829" },
   "twilight.nvim": { "branch": "main", "commit": "1584c0b0a979b71fd86b18d302ba84e9aba85b1b" },
