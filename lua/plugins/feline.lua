@@ -1,3 +1,7 @@
+local api = vim.api
+local fs = vim.fs
+local uv = vim.uv
+
 local function file_provider()
   local status = vim.bo.readonly and "🔒" or vim.bo.modified and "●" or ""
 
@@ -11,12 +15,12 @@ local function file_provider()
       full_path = full_path:sub(2)
     end
   end
-  full_path = vim.fs.normalize(full_path)
+  full_path = fs.normalize(full_path)
 
   local relative_path = vim.fn.fnamemodify(full_path, ":.")
-  relative_path = vim.fs.normalize(relative_path)
-  local cwd = vim.uv.cwd() --[[@as string]]
-  cwd = vim.fs.normalize(cwd)
+  relative_path = fs.normalize(relative_path)
+  local cwd = uv.cwd() --[[@as string]]
+  cwd = fs.normalize(cwd)
   local is_win = vim.fn.has "win32" == 1
   if relative_path == cwd or (is_win and relative_path:lower() == cwd:lower()) then relative_path = "." end
 
@@ -52,9 +56,9 @@ local function navic_provider(_, opts)
   local navic = require "nvim-navic"
   local str_multibyte_sub = require("personal.util.general").str_multibyte_sub
 
-  local win_size = vim.api.nvim_win_get_width(0)
+  local win_size = api.nvim_win_get_width(0)
   local location = navic.get_location(opts)
-  local location_size = vim.api.nvim_strwidth(location)
+  local location_size = api.nvim_strwidth(location)
   local extra = #vim.fn.expand("%:t", false) + 4 -- 4 because ???
   if win_size < location_size + extra then
     local start = location_size + extra - win_size + 4 -- 4 because of "... "
@@ -71,12 +75,13 @@ return {
   config = function()
     local navic = require "nvim-navic"
     local vi_mode = require "feline.providers.vi_mode"
+    local feline = require "feline"
 
     local custom_providers = {
       file = file_provider,
       protocol = protocol_provider,
       icon = icon_provider,
-      cwd = function() return vim.fs.normalize(vim.uv.cwd() or "") end,
+      cwd = function() return fs.normalize(uv.cwd() or "") end,
       navic = navic_provider,
       git_branch_ = git_branch_provider,
     }
@@ -136,7 +141,7 @@ return {
 
     table.insert(left, {
       provider = "cwd",
-      enabled = function() return vim.uv.cwd() ~= nil end,
+      enabled = function() return uv.cwd() ~= nil end,
       left_sep = " ",
       right_sep = {
         str = " | ",
@@ -232,29 +237,56 @@ return {
     }
 
     local gruvbox = {
-      fg = "#fbf1c7",
-      bg = "#32302f",
-      black = "#1B1B1B",
-      skyblue = "#83a598",
-      cyan = "#83a597",
-      green = "#98971a",
-      oceanblue = "#458588",
-      magenta = "#fb4934",
-      orange = "#d65d0e",
-      red = "#cc241d",
-      violet = "#b16287",
-      white = "#f9f5d7",
-      yellow = "#d79921",
+      dark = {
+        fg = "#fbf1c7", -- GruboxFg0
+        bg = "#32302f",
+        black = "#1B1B1B",
+        skyblue = "#83a598", -- GruvboxBlue
+        cyan = "#83a598", -- GruvboxBlue
+        green = "#98971a", -- NvimTreeExecFile
+        oceanblue = "#458588", -- NvimTreeFolderIcon
+        magenta = "#fb4934", -- GruvboxRed
+        orange = "#d65d0e",
+        red = "#cc241d", -- NvimTreeGitDeleted
+        violet = "#b16286", -- NvimTreeGitRenamed
+        white = "#f9f5d7",
+        yellow = "#d79921", -- NvimTreeGitDirty
+      },
+      -- TODO: update to equivalent light color themes
+      light = {
+        fg = "#282828",
+        bg = "#f1e9c0",
+        black = "#1B1B1B",
+        skyblue = "#076678",
+        cyan = "#076678",
+        green = "#98971a",
+        oceanblue = "#458588",
+        magenta = "#9d0006",
+        orange = "#d65d0e",
+        red = "#cc241d",
+        violet = "#b16286",
+        white = "#f9f5d7",
+        yellow = "#d79921",
+      },
     }
+    local previous_bg = vim.o.background
 
-    require("feline").setup {
+    api.nvim_create_autocmd("Colorscheme", {
+      callback = function()
+        if vim.o.background == previous_bg then return end
+        previous_bg = vim.o.background
+        feline.use_theme(gruvbox[vim.o.background])
+      end,
+    })
+
+    feline.setup {
       components = statusline_components,
       custom_providers = custom_providers,
-      theme = gruvbox,
+      theme = gruvbox.dark,
       force_inactive = {},
     }
 
-    require("feline").winbar.setup {
+    feline.winbar.setup {
       components = winbar_components,
       custom_providers = custom_providers,
     }
