@@ -1166,6 +1166,20 @@ end
 ---@param date_time string
 ---@return {y: integer, m: integer, d: integer, h: integer, min: integer, s: integer, offset: string}
 local function parse_date_time(date_time)
+  if date_time:match "Z$" then
+    local offset = 0
+    local y, m, d, h, min, s = date_time:match "(%d%d%d%d)-(%d%d)-(%d%d)T(%d%d):(%d%d):(%d%d)Z"
+    return {
+      y = tonumber(y),
+      m = tonumber(m),
+      d = tonumber(d),
+      h = tonumber(h),
+      min = tonumber(min),
+      s = tonumber(s),
+      offset = offset,
+    }
+  end
+
   ---@type string, string, string, string, string, string, string, string
   local y, m, d, h, min, s, offset = date_time:match "(%d%d%d%d)-(%d%d)-(%d%d)T(%d%d):(%d%d):(%d%d)([-+]%d%d:%d%d)"
   return {
