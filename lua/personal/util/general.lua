@@ -1,5 +1,4 @@
 local api = vim.api
-local uv = vim.uv
 local auv = require "personal.auv"
 
 local M = {}
