@@ -2,8 +2,15 @@ return {
   "ellisonleao/gruvbox.nvim",
   priority = 1000,
   config = function()
+    -- TODO: this overrides only take into account dark mode
     require("gruvbox").setup {
       overrides = {
+        Search = { fg = "#282828", bg = "#fabd2f", reverse = false },
+        IncSearch = { fg = "#282828", bg = "#fe8019", reverse = false },
+        StatusLine = { fg = "#ebdbb2", bg = "#504945", reverse = false },
+        StatusLineNC = { fg = "#a89984", bg = "#3c3836", reverse = false },
+        Error = { bold = true, bg = "#fb4934", reverse = false },
+
         DiagnosticHint = { link = "GruvboxFg2" },
         DiagnosticSignHint = { link = "GruvboxFg2" },
         DiagnosticFloatingHint = { link = "GruvboxFg2" },
