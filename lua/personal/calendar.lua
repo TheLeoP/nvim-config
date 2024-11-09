@@ -1786,7 +1786,7 @@ function CalendarView:write(token_info, calendar_list, events_by_date, year, mon
             reload_if_last_diff()
           end)()
         elseif diff.type == "edit" then
-          local calendar_id = diff.cached_event.creator.email
+          local calendar_id = diff.cached_event.organizer.email
 
           coroutine.wrap(function()
             local edited_event = M.edit_event(token_info, calendar_id, diff)
@@ -1802,7 +1802,7 @@ function CalendarView:write(token_info, calendar_list, events_by_date, year, mon
             reload_if_last_diff()
           end)()
         elseif diff.type == "delete" then
-          local calendar_id = diff.cached_event.creator.email
+          local calendar_id = diff.cached_event.organizer.email
 
           coroutine.wrap(function()
             M.delete_event(token_info, calendar_id, diff)
@@ -2245,7 +2245,7 @@ function CalendarView:show(year, month, opts)
                 ---@param attendee Attendee
                 function(attendee)
                   -- TODO: is this true for all events?
-                  return attendee.email == event.creator.email
+                  return attendee.email == event.organizer.email
                 end
               )
               if attendee and attendee.responseStatus == "declined" then
@@ -2256,7 +2256,7 @@ function CalendarView:show(year, month, opts)
             ---@type CalendarListEntry|nil
             local calendar = iter(calendar_list.items):find(
               ---@param calendar CalendarListEntry
-              function(calendar) return calendar.id == event.creator.email end
+              function(calendar) return calendar.id == event.organizer.email end
             )
 
             if not calendar or not event.summary then return end
@@ -2266,7 +2266,7 @@ function CalendarView:show(year, month, opts)
 
             local calendar_fg = current_color and current_color.foreground or calendar.foregroundColor
             local calendar_bg = current_color and current_color.background or calendar.backgroundColor
-            if event.creator.email ~= event.organizer.email then
+            if event.organizer.email ~= event.organizer.email then
               calendar_fg, calendar_bg = calendar_bg, calendar_fg
             end
             if calendar_fg then
@@ -2837,7 +2837,7 @@ local function event_write(buf, win, token_info, calendar_list, day_events, opts
 
   local id = api.nvim_buf_get_name(buf):match "^calendar://event_(.*)"
   local cached_event = _cache_event[id]
-  local calendar_id = cached_event.creator.email
+  local calendar_id = cached_event.organizer.email
 
   if #lines == 1 and lines[1] == "" then
     M.delete_event(token_info, calendar_id, { type = "delete", cached_event = cached_event })
@@ -2922,7 +2922,7 @@ function M.event_show(token_info, calendar_list, day_events, opts)
     ---@type Calendar
     local calendar = iter(calendar_list.items):find(
       ---@param calendar CalendarListEntry
-      function(calendar) return calendar.id == event.creator.email end
+      function(calendar) return calendar.id == event.organizer.email end
     )
     assert(calendar, ("There is no calendar for event %s"):format(event_id))
 
