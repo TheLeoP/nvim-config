@@ -21,8 +21,12 @@ local client_secret = vim.env.GOOGLE_CALENDAR_CLIENT_SECRET ---@type string
 local data_path = ("%s/%s"):format(vim.fn.stdpath "data", "/calendar")
 data_path = vim.fs.normalize(data_path)
 
-local _timezone1, _timezone2 = tostring(os.date "%z"):match "([-+]%d%d)(%d%d)"
-local timezone = ("%s:%s"):format(_timezone1, _timezone2)
+---@type string, string, string
+local timezone_sign, timezone_offset_hours_s, timezone_offset_minutes_s =
+  tostring(os.date "%z"):match "([-+])(%d%d)(%d%d)"
+local timezone = ("%s%s:%s"):format(timezone_sign, timezone_offset_hours_s, timezone_offset_minutes_s)
+local timezone_offset_hours = (timezone_sign == "-" and -1 or 1) * tonumber(timezone_offset_hours_s)
+local timezone_offset_minutes = (timezone_sign == "-" and -1 or 1) * tonumber(timezone_offset_minutes_s)
 -- TODO: hardcoded timezone
 local text_timezone = "America/Guayaquil"
 
@@ -1164,32 +1168,40 @@ function M.get_events(token_info, calendar_list, opts)
 end
 
 ---@param date_time string
----@return {y: integer, m: integer, d: integer, h: integer, min: integer, s: integer, offset: string}
+---@return {y: integer, m: integer, d: integer, h: integer, min: integer, s: integer}
 local function parse_date_time(date_time)
   if date_time:match "Z$" then
-    local offset = 0
     local y, m, d, h, min, s = date_time:match "(%d%d%d%d)-(%d%d)-(%d%d)T(%d%d):(%d%d):(%d%d)Z"
+    -- here, timestamp offset is 0 because of Z
+    local local_offset = (timezone_offset_hours * 60 * 60) + (timezone_offset_minutes * 60)
+    local day_time =
+      os.date("*t", os.time { year = y, month = m, day = d, hour = h, min = min, sec = s } + local_offset)
     return {
-      y = tonumber(y),
-      m = tonumber(m),
-      d = tonumber(d),
-      h = tonumber(h),
-      min = tonumber(min),
-      s = tonumber(s),
-      offset = offset,
+      y = day_time.year,
+      m = day_time.month,
+      d = day_time.day,
+      h = day_time.hour,
+      min = day_time.min,
+      s = day_time.sec,
     }
   end
 
-  ---@type string, string, string, string, string, string, string, string
-  local y, m, d, h, min, s, offset = date_time:match "(%d%d%d%d)-(%d%d)-(%d%d)T(%d%d):(%d%d):(%d%d)([-+]%d%d:%d%d)"
+  ---@type string, string, string, string, string, string, string, string, string, string
+  local y, m, d, h, min, s, offset_sign, offset_hours_s, offset_minutes_s =
+    date_time:match "(%d%d%d%d)-(%d%d)-(%d%d)T(%d%d):(%d%d):(%d%d)([-+])(%d%d):(%d%d)"
+  local offset_hours = (offset_sign == "-" and -1 or 1) * tonumber(offset_hours_s)
+  offset_hours = offset_hours - timezone_offset_hours
+  local offset_minutes = (offset_sign == "-" and -1 or 1) * tonumber(offset_minutes_s)
+  offset_minutes = offset_minutes - timezone_offset_minutes
+  local local_offset = (offset_hours * 60 * 60) + (offset_minutes * 60)
+  local day_time = os.date("*t", os.time { year = y, month = m, day = d, hour = h, min = min, sec = s } + local_offset)
   return {
-    y = tonumber(y),
-    m = tonumber(m),
-    d = tonumber(d),
-    h = tonumber(h),
-    min = tonumber(min),
-    s = tonumber(s),
-    offset = offset,
+    y = day_time.year,
+    m = day_time.month,
+    d = day_time.day,
+    h = day_time.hour,
+    min = day_time.min,
+    s = day_time.sec,
   }
 end
 
