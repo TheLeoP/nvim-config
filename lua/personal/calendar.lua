@@ -2218,7 +2218,15 @@ function CalendarView:show(year, month, opts)
             elseif a.start.dateTime and b.start.date then
               return false -- all day events first
             elseif a.start.dateTime and b.start.dateTime then
-              return a.start.dateTime < b.start.dateTime
+              local _a = parse_date_time(a.start.dateTime)
+              local _b = parse_date_time(b.start.dateTime)
+              if _a.h ~= _b.h then
+                return _a.h < _b.h
+              elseif _a.h == _b.h and _a.min ~= _b.min then
+                return _a.min < _b.min
+              else
+                return _a.s < _b.s
+              end
             end
             error "This shouldn't happen"
           end
