@@ -86,7 +86,8 @@ return {
 
             local buf = vim.fn.bufnr(path)
             if buf == -1 then return end
-            vim.cmd.bwipeout { buf, bang = true }
+
+            api.nvim_buf_delete(buf, { force = true })
           end
         )
       end,
