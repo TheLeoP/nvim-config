@@ -2273,11 +2273,16 @@ function CalendarView:show(year, month, opts)
               end
             end
 
+            -- fallback to default calendar if creator ~= organizer
             ---@type CalendarListEntry|nil
             local calendar = iter(calendar_list.items):find(
               ---@param calendar CalendarListEntry
               function(calendar) return calendar.id == event.organizer.email end
             )
+              or iter(calendar_list.items):find(
+                ---@param calendar CalendarListEntry
+                function(calendar) return calendar.id == event.creator.email end
+              )
 
             if not calendar or not event.summary then return end
 
@@ -2286,7 +2291,10 @@ function CalendarView:show(year, month, opts)
 
             local calendar_fg = current_color and current_color.foreground or calendar.foregroundColor
             local calendar_bg = current_color and current_color.background or calendar.backgroundColor
-            if event.organizer.email ~= event.organizer.email then
+            if
+              event.organizer.email ~= event.creator.email
+              and not calendar.id:match "family%d+@group%.calendar%.google%.com"
+            then
               calendar_fg, calendar_bg = calendar_bg, calendar_fg
             end
             if calendar_fg then
