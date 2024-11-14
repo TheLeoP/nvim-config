@@ -2952,6 +2952,10 @@ function M.event_show(token_info, calendar_list, day_events, opts)
       ---@param calendar CalendarListEntry
       function(calendar) return calendar.id == event.organizer.email end
     )
+      or iter(calendar_list.items):find(
+        ---@param calendar CalendarListEntry
+        function(calendar) return calendar.id == event.creator.email end
+      )
     assert(calendar, ("There is no calendar for event %s"):format(event_id))
 
     local consulted_id = opts.recurring and event.recurringEventId or event.id
