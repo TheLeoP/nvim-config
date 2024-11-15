@@ -7,11 +7,5 @@ return {
     bigfile = {
       enabled = true,
     },
-    statuscolumn = {
-      enabled = false,
-    },
-    words = {
-      enabled = false,
-    },
   },
 }
