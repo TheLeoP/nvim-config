@@ -52,10 +52,10 @@ return {
       mappings = {
         goto_left = "g{",
         goto_right = "g}",
-        around_next = "",
-        inside_next = "",
-        around_last = "",
-        inside_last = "",
+        around_next = "ae",
+        inside_next = "ie",
+        around_last = "at",
+        inside_last = "at",
       },
     }
 
