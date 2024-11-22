@@ -1628,6 +1628,11 @@ function CalendarView:write(token_info, calendar_list, events_by_date, year, mon
             }
           elseif #fields == 3 then
             local summary, calendar_summary, recurrence_fields = unpack(fields)
+            if calendar_summary:match "%d%d:%d%d:%d%d" or recurrence_fields:match "%d%d:%d%d:%d%d" then
+              should_abort = true
+              vim.notify(("The event `%s` has no calendar."):format(summary), vim.log.levels.ERROR)
+              return
+            end
 
             local recurrence = vim.split(recurrence_fields, " ")
 
