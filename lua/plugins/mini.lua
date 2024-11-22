@@ -33,9 +33,9 @@ return {
 
         B = gen_ai_spec.buffer(),
         d = gen_ai_spec.diagnostic(),
-        i = gen_ai_spec.indent(),
-        l = gen_ai_spec.line(),
-        n = gen_ai_spec.number(),
+        e = gen_ai_spec.indent(),
+        i = gen_ai_spec.line(),
+        u = gen_ai_spec.number(),
         P = function()
           local start_row, start_col = unpack(api.nvim_buf_get_mark(0, "[")) --[[@as integer, integer]]
           local end_row, end_col = unpack(api.nvim_buf_get_mark(0, "]")) --[[@as integer, integer]]
@@ -52,10 +52,6 @@ return {
       mappings = {
         goto_left = "g{",
         goto_right = "g}",
-        around_next = "ae",
-        inside_next = "ie",
-        around_last = "at",
-        inside_last = "at",
       },
     }
 
