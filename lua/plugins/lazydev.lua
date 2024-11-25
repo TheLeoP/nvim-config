@@ -3,7 +3,7 @@ return {
   opts = {
     cmp = false,
     library = {
-      { path = "luvit-meta/library", words = { "vim%.uv" } },
+      { path = "${3rd}/luv/library", words = { "vim%.uv" } },
       { path = "busted/library", words = { "it%(", "describe%(" } },
       { path = "wezterm-types", mods = { "wezterm" } },
     },
@@ -17,7 +17,6 @@ return {
     end,
   },
   dependencies = {
-    "Bilal2453/luvit-meta",
     "justinsgithub/wezterm-types",
     "LuaCATS/busted",
   },
