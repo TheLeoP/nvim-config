@@ -251,7 +251,7 @@ end
 local select_path = function(list_global, recency_weight, opts)
   local visits = require "mini.visits"
   local fzf_opts = opts.fzf or {}
-  local mini_opts = opts.mini
+  local mini_opts = opts.mini or {}
 
   local sort = visits.gen_sort.default { recency_weight = recency_weight }
   mini_opts.sort = sort
