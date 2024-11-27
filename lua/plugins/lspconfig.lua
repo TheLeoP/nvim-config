@@ -87,7 +87,6 @@ return {
       "html",
       "cssls",
       "lemminx",
-      "groovyls",
       "phpactor",
       "prismals",
       "cmake",
@@ -136,26 +135,6 @@ return {
       },
     }
 
-    -- vue
-
-    local function on_new_config(new_config, _)
-      if
-        new_config.init_options
-        and new_config.init_options.typescript
-        and new_config.init_options.typescript.tsdk == ""
-      then
-        ---@type string
-        new_config.init_options.typescript.tsdk = config.mason_root
-          .. "typescript-language-server/node_modules/typescript/lib"
-      end
-    end
-
-    lspconfig.volar.setup {
-      capabilities = config.capabilities,
-      on_new_config = on_new_config,
-      filetypes = { "vue" },
-    }
-
     -- go
     lspconfig.gopls.setup {
       capabilities = config.capabilities,
@@ -175,6 +154,17 @@ return {
           validate = {
             enable = true,
           },
+        },
+      },
+    }
+
+    -- groovy
+    lspconfig.groovyls.setup {
+      cmd = { "groovy-language-server" },
+      capabilities = config.capabilities,
+      settings = {
+        groovy = {
+          classpath = vim.split(vim.fn.glob(vim.env.HOME .. "/.gradle/caches/modules-2/files-2.1/**/*.jar"), "\n"),
         },
       },
     }
