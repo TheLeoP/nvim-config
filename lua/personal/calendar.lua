@@ -227,8 +227,12 @@ function M.get_token_info()
     return token_info
   end
 
+  vim.notify "You need to give Calendar access to your google account"
   start_server {
-    on_ready = function() vim.ui.open(full_auth_url) end,
+    on_ready = function()
+      vim.ui.open(full_auth_url)
+      vim.notify "A webpage asking for access to your google accoutn has been opened"
+    end,
     on_code = function(code)
       local params = ("client_id=%s&client_secret=%s&code=%s&grant_type=authorization_code&redirect_uri=%s"):format(
         client_id,
@@ -1985,6 +1989,7 @@ function CalendarView:show(year, month, opts)
       local buf = self.day_bufs[x]
       local win = api.nvim_open_win(buf, false, {
         focusable = false,
+
         relative = "editor",
         col = col + col_offset,
         row = row + days_row_offset,
