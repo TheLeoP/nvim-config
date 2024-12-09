@@ -1,5 +1,6 @@
 return {
   "MeanderingProgrammer/render-markdown.nvim",
+  ---@type render.md.UserConfig
   opts = {
     file_types = { "markdown", "rmd" },
     code = {
@@ -14,4 +15,8 @@ return {
     },
     render_modes = { "n", "i" },
   },
+  config = function(_, opts)
+    require("render-markdown").setup(opts)
+    require("render-markdown.integ.coq").setup()
+  end,
 }
