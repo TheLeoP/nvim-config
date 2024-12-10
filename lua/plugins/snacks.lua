@@ -8,4 +8,15 @@ return {
       enabled = true,
     },
   },
+  config = function(_, opts)
+    require("snacks").setup(opts)
+
+    vim.api.nvim_create_user_command("Dim", function()
+      if Snacks.dim.enabled then
+        Snacks.dim.disable()
+      else
+        Snacks.dim.enable()
+      end
+    end, {})
+  end,
 }
