@@ -228,7 +228,18 @@ return {
     splitjoin.setup()
 
     local visits = require "mini.visits"
-    visits.setup()
+    visits.setup {
+      list = {
+
+        ---@param data {path:string, count:number, latest: number, labels: table<string, true>}
+        filter = function(data)
+          local custom_schema = data.path:match "[^:]://."
+          if custom_schema and custom_schema ~= "file" then return false end
+          if data.path:match ".git/COMMIT_EDITMSG$" then return false end
+          return true
+        end,
+      },
+    }
     local fzf_visits = require("personal.fzf-lua").mini_visit
 
     keymap.set("n", "<leader>vr", fzf_visits.recent_cwd, { desc = "Select recent (cwd)" })
