@@ -13,7 +13,7 @@ return {
     bullet = {
       enabled = false,
     },
-    render_modes = { "n", "i" },
+    render_modes = { "n", "i", "ic", "ix" },
   },
   config = function(_, opts)
     require("render-markdown").setup(opts)
