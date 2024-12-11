@@ -43,15 +43,27 @@ return {
     vim.keymap.set(
       "n",
       "<leader>fi",
-      function() fzf.files { prompt = "< Nvim config >", cwd = vim.fn.stdpath "config" } end,
+      function() fzf.files { prompt = "< Fd nvim config >", cwd = vim.fn.stdpath "config" } end,
       { desc = "Fuzzy search files in nvim config" }
+    )
+    vim.keymap.set(
+      "n",
+      "<leader>fI",
+      function() fzf.live_grep { prompt = "< Rg nvim config >", cwd = vim.fn.stdpath "config" } end,
+      { desc = "Rg in nvim config" }
     )
 
     vim.keymap.set(
       "n",
-      "<leader>fI",
-      function() fzf.live_grep { prompt = "< Rg nvim_config >", cwd = vim.fn.stdpath "config" } end,
-      { desc = "Rg in nvim config" }
+      "<leader>fl",
+      function() fzf.files { prompt = "< Fd plugins >", cwd = vim.fn.stdpath "data" .. "/lazy" } end,
+      { desc = "Fuzzy search files in plugins dir" }
+    )
+    vim.keymap.set(
+      "n",
+      "<leader>fL",
+      function() fzf.live_grep { prompt = "< Rg plugins >", cwd = vim.fn.stdpath "data" .. "/lazy" } end,
+      { desc = "Rg in plugins dir" }
     )
 
     vim.keymap.set("n", "<leader>fp", require("personal.fzf-lua").projects, { desc = "Find projects" })
