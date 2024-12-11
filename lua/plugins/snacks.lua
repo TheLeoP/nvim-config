@@ -11,8 +11,6 @@ return {
   config = function(_, opts)
     require("snacks").setup(opts)
 
-    Snacks.scroll.enable()
-
     vim.api.nvim_create_user_command("Dim", function()
       if Snacks.dim.enabled then
         Snacks.dim.disable()
