@@ -1,7 +1,6 @@
 return {
   "linguini1/pulse.nvim",
   opts = {},
-  cond = not vim.g.started_by_firenvim,
   config = function(_, opts)
     local pulse = require "pulse"
     pulse.setup(opts)
