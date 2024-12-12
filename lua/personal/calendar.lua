@@ -1972,6 +1972,7 @@ function CalendarView:show(year, month, opts)
       zindex = zindex,
     })
     vim.wo[self.month_win].winblend = 0
+    vim.wo[self.month_win].wrap = false
     self.year_win = api.nvim_open_win(self.year_buf, false, {
       focusable = false,
       relative = "editor",
@@ -1983,6 +1984,7 @@ function CalendarView:show(year, month, opts)
       zindex = zindex,
     })
     vim.wo[self.year_win].winblend = 0
+    vim.wo[self.year_win].wrap = false
 
     for x = 1, self.d_in_w do
       local col_offset = (x - 1) * width
@@ -1999,6 +2001,7 @@ function CalendarView:show(year, month, opts)
         zindex = zindex,
       })
       vim.wo[win].winblend = 0
+      vim.wo[win].wrap = false
       self.day_wins[x] = win
     end
 
@@ -2020,6 +2023,7 @@ function CalendarView:show(year, month, opts)
         vim.wo[win].winblend = 0
         vim.wo[win].conceallevel = 3
         vim.wo[win].concealcursor = "nvic"
+        vim.wo[win].wrap = false
         if x == 1 then self.cal_wins[y] = {} end
         self.cal_wins[y][x] = win
       end
