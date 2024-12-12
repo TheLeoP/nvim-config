@@ -87,3 +87,5 @@ o.pumblend = 10
 o.winblend = 10
 
 o.sessionoptions = "curdir,tabpages,help,globals,winsize,winpos"
+
+o.linebreak = true
