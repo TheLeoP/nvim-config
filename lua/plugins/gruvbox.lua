@@ -9,7 +9,7 @@ return {
         IncSearch = { fg = "#282828", bg = "#fe8019", reverse = false },
         StatusLine = { fg = "#ebdbb2", bg = "#504945", reverse = false },
         StatusLineNC = { fg = "#a89984", bg = "#3c3836", reverse = false },
-        Error = { bold = true, bg = "#fb4934", reverse = false },
+        Error = { bold = true, fg = "#fb4934", bg = "#282828", reverse = false },
 
         DiagnosticHint = { link = "GruvboxFg2" },
         DiagnosticSignHint = { link = "GruvboxFg2" },
