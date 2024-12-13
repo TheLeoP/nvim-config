@@ -11,12 +11,12 @@ return {
   config = function(_, opts)
     require("snacks").setup(opts)
 
-    vim.api.nvim_create_user_command("Dim", function()
+    vim.keymap.set("n", "<leader>tm", function()
       if Snacks.dim.enabled then
         Snacks.dim.disable()
       else
         Snacks.dim.enable()
       end
-    end, {})
+    end)
   end,
 }
