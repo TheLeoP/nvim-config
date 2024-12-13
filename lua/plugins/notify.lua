@@ -11,8 +11,10 @@ return {
     require("notify").setup(opts)
     vim.keymap.set("n", "<c-l>", function()
       vim.cmd.nohlsearch()
-      vim.cmd.diffupdate()
-      require("notify").dismiss { silent = true, pending = true }
+      if vim.fn.getcmdwintype() == "" then
+        vim.cmd.diffupdate()
+        require("notify").dismiss { silent = true, pending = true }
+      end
       vim.cmd.normal { "\12", bang = true } --[[ ctrl-l]]
     end)
 
