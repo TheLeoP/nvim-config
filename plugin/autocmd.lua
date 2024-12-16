@@ -1,3 +1,5 @@
+local uv = vim.uv
+
 vim.api.nvim_create_autocmd("TextYankPost", {
   group = vim.api.nvim_create_augroup("HighlightOnYank", { clear = true }),
   desc = "Highlights yanked area",
@@ -26,5 +28,43 @@ vim.api.nvim_create_autocmd("TermOpen", {
   callback = function()
     vim.opt_local.foldmethod = "manual"
     vim.opt_local.foldenable = false
+  end,
+})
+
+vim.api.nvim_create_autocmd("BufNewFile", {
+  group = vim.api.nvim_create_augroup("templates", { clear = true }),
+  desc = "Load template file",
+  callback = function(args)
+    local luasnip = require "luasnip"
+
+    local config = vim.fn.stdpath "config"
+
+    local fname = vim.fn.fnamemodify(args.file, ":t")
+    local ext = vim.fn.fnamemodify(args.file, ":e")
+    local candidates = { fname, ext }
+    for _, candidate in ipairs(candidates) do
+      local tpl = table.concat { config, "/templates/", candidate, ".tpl" }
+      if not uv.fs_stat(tpl) then goto continue end
+
+      vim.cmd("0r " .. tpl)
+      do
+        return
+      end
+
+      ::continue::
+    end
+    for _, candidate in ipairs(candidates) do
+      local stpl = table.concat { config, "/templates/", candidate, ".stpl" }
+      local f = io.open(stpl, "r")
+      if not f then goto continue end
+
+      local content = f:read "*a"
+      luasnip.lsp_expand(content)
+      do
+        return
+      end
+
+      ::continue::
+    end
   end,
 })
