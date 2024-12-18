@@ -53,9 +53,10 @@ nnoremap <silent> <leader>e <cmd>lua vim.diagnostic.open_float()<cr>
 " permitir salir del modo terminal con <c-[>
 tnoremap  <c-\><c-n>
 
-" w and q
+" easier on hands
 nnoremap <silent> <leader>w <cmd>w<cr>
 nnoremap <silent> <leader>q <cmd>q<cr>
+nnoremap <bs>. :
 
 " permite ejecutar un comando seleccionado visualmente en la última consola
 " abierta
