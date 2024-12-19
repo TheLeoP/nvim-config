@@ -1113,24 +1113,31 @@ function M.get_events(token_info, calendar_list, opts)
           ---@cast events +CalendarEvents
           ---@cast events -ApiErrorResponse
 
-          iter(events.items):each(
-            ---@param event Event
-            function(event)
-              local start_date = M.parse_date_or_datetime(event.start, {})
-              local end_date = M.parse_date_or_datetime(event["end"], { is_end = true })
+          iter(events.items)
+            :filter(
+              --- Gadgets are deprecated and only used to send birthday
+              --- metadata, this may result in duplicated birthday events
+              ---@param event Event
+              function(event) return not event.gadget end
+            )
+            :each(
+              ---@param event Event
+              function(event)
+                local start_date = M.parse_date_or_datetime(event.start, {})
+                local end_date = M.parse_date_or_datetime(event["end"], { is_end = true })
 
-              local start_yday =
-                os.date("*t", os.time { year = start_date.y, month = start_date.m, day = start_date.d }).yday
-              local end_yday = os.date("*t", os.time { year = end_date.y, month = end_date.m, day = end_date.d }).yday
-              for i = 0, end_yday - start_yday do
-                local date =
-                  os.date("*t", os.time { year = start_date.y, month = start_date.m, day = start_date.d + i })
-                local key = ("%s_%s_%s"):format(date.year, date.month, date.day)
-                if not _cache_events[key] then _cache_events[key] = {} end
-                table.insert(_cache_events[key], event)
+                local start_yday =
+                  os.date("*t", os.time { year = start_date.y, month = start_date.m, day = start_date.d }).yday
+                local end_yday = os.date("*t", os.time { year = end_date.y, month = end_date.m, day = end_date.d }).yday
+                for i = 0, end_yday - start_yday do
+                  local date =
+                    os.date("*t", os.time { year = start_date.y, month = start_date.m, day = start_date.d + i })
+                  local key = ("%s_%s_%s"):format(date.year, date.month, date.day)
+                  if not _cache_events[key] then _cache_events[key] = {} end
+                  table.insert(_cache_events[key], event)
+                end
               end
-            end
-          )
+            )
 
           count = count + 1
           if count == #calendar_list.items then
