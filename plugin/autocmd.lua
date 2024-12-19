@@ -23,11 +23,13 @@ vim.api.nvim_create_autocmd("Filetype", {
 
 vim.api.nvim_create_autocmd("TermOpen", {
   group = vim.api.nvim_create_augroup("Terminal", { clear = true }),
-  -- Related https://github.com/neovim/neovim/issues/20726
-  desc = "Disable fold inside terminal",
-  callback = function()
+  desc = "Terminal related settings",
+  callback = function(args)
+    -- NOTE: disable fold inside terminal https://github.com/neovim/neovim/issues/20726
     vim.opt_local.foldmethod = "manual"
     vim.opt_local.foldenable = false
+
+    vim.keymap.set("t", "<c-c><c-c>", "<c-\\><c-n>", { buffer = args.buf })
   end,
 })
 

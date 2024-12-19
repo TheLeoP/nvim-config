@@ -50,13 +50,11 @@ nnoremap <silent> [e <cmd>lua vim.diagnostic.goto_prev({ severity = vim.diagnost
 nnoremap <silent> <leader>e <cmd>lua vim.diagnostic.open_float()<cr>
 " [d and ]d are now default mappings for navigating diagnostics
 
-" permitir salir del modo terminal con <c-[>
-tnoremap  <c-\><c-n>
-
 " easier on hands
 nnoremap <silent> <leader>w <cmd>w<cr>
 nnoremap <silent> <leader>q <cmd>q<cr>
 nnoremap <bs>. :
+noremap <c-c> <esc>
 
 " permite ejecutar un comando seleccionado visualmente en la última consola
 " abierta

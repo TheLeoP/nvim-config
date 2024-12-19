@@ -27,6 +27,12 @@ return {
         return search_query, glob_args
       end,
     },
+    keymap = {
+      fzf = {
+        true, -- inherit from defaults
+        ["ctrl-c"] = "abort",
+      },
+    },
   },
   config = function(_, opts)
     local fzf = require "fzf-lua"
