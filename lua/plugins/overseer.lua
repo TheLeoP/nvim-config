@@ -53,8 +53,9 @@ end
 return {
   {
     "stevearc/overseer.nvim",
+    ---@type overseer.Config
     opts = {
-      strategy = "jobstart",
+      strategy = "terminal",
       dap = true,
       task_list = {
         default_detail = 2,
