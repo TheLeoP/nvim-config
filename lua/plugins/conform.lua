@@ -7,6 +7,7 @@ local slow_format_filetypes = {} ---@type table<string, true>
 
 return {
   "stevearc/conform.nvim",
+  ---@type conform.setupOpts
   opts = {
     formatters_by_ft = {
       ["markdown.mdx"] = { "prettierd" },
@@ -42,6 +43,7 @@ return {
       return {
         timeout_ms = 500,
         lsp_format = vim.list_contains(format_options.excluded_ft, vim.bo[bufnr].filetype) and "never" or "fallback",
+        undojoin = true,
       },
         on_format
     end,
@@ -52,6 +54,7 @@ return {
 
       return {
         lsp_format = vim.list_contains(format_options.excluded_ft, vim.bo[bufnr].filetype) and "never" or "fallback",
+        undojoin = true,
       }
     end,
   },
