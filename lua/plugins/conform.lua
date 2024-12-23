@@ -43,7 +43,6 @@ return {
       return {
         timeout_ms = 500,
         lsp_format = vim.list_contains(format_options.excluded_ft, vim.bo[bufnr].filetype) and "never" or "fallback",
-        undojoin = true,
       },
         on_format
     end,
@@ -54,7 +53,6 @@ return {
 
       return {
         lsp_format = vim.list_contains(format_options.excluded_ft, vim.bo[bufnr].filetype) and "never" or "fallback",
-        undojoin = true,
       }
     end,
   },
