@@ -125,7 +125,7 @@ return {
         args = function()
           local args = vim.fn.input {
             prompt = "Args: ",
-            default = "--clean -u ~/minimal.lua",
+            default = "--clean",
             completion = "file",
           }
           return vim.split(args, " ", { trimempty = true })
