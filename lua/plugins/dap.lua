@@ -134,7 +134,11 @@ return {
         externalConsole = true,
       }, {
         __call = function(config)
-          vim.fn.system "CMAKE_BUILD_TYPE=RelWithDebInfo make"
+          local out = vim.system({ "make", "CMAKE_BUILD_TYPE=RelWithDebInfo" }):wait()
+          if out.stderr ~= "" then
+            vim.notify(out.stderr, vim.log.levels.ERROR)
+            return
+          end
 
           local key = "the-leo-p"
 
