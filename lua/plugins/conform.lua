@@ -1,7 +1,4 @@
-local format_options = {
-  autoformat = true,
-  excluded_ft = {}, ---@type string[]
-}
+local format_options = require'personal.format'.format_options
 
 local slow_format_filetypes = {} ---@type table<string, true>
 
