@@ -10,6 +10,7 @@ return {
     highlight = {
       load_buffers = false,
     },
+    trim_leading_whitespace = "all",
     keys = {
       {
         "<Right>",
