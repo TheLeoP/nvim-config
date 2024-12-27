@@ -362,7 +362,7 @@ while (<condition>) {
 
 ls.add_snippets("markdown", {
   s(
-    "code",
+    "c",
     fmta(
       [[
 ```<lang>
@@ -372,6 +372,12 @@ ls.add_snippets("markdown", {
       { lang = i(1), inside = i(2) }
     )
   ),
+  s("b", fmta("**<inside>**", { inside = i(1) })),
+  s("i", fmta("*<inside>*", { inside = i(1) })),
+  s("bi", fmta("***<inside>***", { inside = i(1) })),
+  s("s", fmta("~~<inside>~~", { inside = i(1) })),
+  s("img", fmta("![<name>](<url>)", { name = i(1), url = i(2) })),
+  s("link", fmta("[<name>](<url>)", { name = i(1), url = i(2) })),
 }, { key = "personal md" })
 
 ls.add_snippets("c", {
