@@ -1225,6 +1225,7 @@ end
 ---@field day_wins table<integer, integer> day_wins[x] = win 1-based
 ---@field cal_bufs table<integer, table<integer, integer>> cal_bufs[y][x] = buf 1-based
 ---@field cal_wins table<integer, table<integer, integer>> cal_wins[y][x] = win 1-based
+---@field current_win {[1]: integer, [2]: integer} [y][x] coordinates of current window
 local CalendarView = {}
 CalendarView.__index = CalendarView
 CalendarView.d_in_w = 7
@@ -1442,6 +1443,14 @@ function CalendarView.new()
   self.cal_bufs = {}
   self.cal_wins = {}
   return setmetatable(self, CalendarView)
+end
+
+---@param y integer
+---@param x integer
+function CalendarView:set_current_win(y, x)
+  local win = self.cal_wins[y][x]
+  api.nvim_set_current_win(win)
+  self.current_win = { y, x }
 end
 
 function CalendarView:w_in_m(year, month)
@@ -2110,34 +2119,34 @@ function CalendarView:show(year, month, opts)
         end, { buffer = buf })
 
         -- TODO: somehow support count for movement keymaps
-        local win_l ---@type integer
+        local x_l ---@type integer
         if x - 1 >= 1 then
-          win_l = self.cal_wins[y][x - 1]
+          x_l = x - 1
         else
-          win_l = self.cal_wins[y][self.d_in_w]
+          x_l = self.d_in_w
         end
-        keymap.set("n", "<left>", function() api.nvim_set_current_win(win_l) end, { buffer = buf })
-        local win_r ---@type integer
+        keymap.set("n", "<left>", function() self:set_current_win(y, x_l) end, { buffer = buf })
+        local x_r ---@type integer
         if x + 1 <= self.d_in_w then
-          win_r = self.cal_wins[y][x + 1]
+          x_r = x + 1
         else
-          win_r = self.cal_wins[y][1]
+          x_r = 1
         end
-        keymap.set("n", "<right>", function() api.nvim_set_current_win(win_r) end, { buffer = buf })
-        local win_u ---@type integer
+        keymap.set("n", "<right>", function() self:set_current_win(y, x_r) end, { buffer = buf })
+        local y_u ---@type integer
         if y - 1 >= 1 then
-          win_u = self.cal_wins[y - 1][x]
+          y_u = y - 1
         else
-          win_u = self.cal_wins[w_in_m][x]
+          y_u = w_in_m
         end
-        keymap.set("n", "<up>", function() api.nvim_set_current_win(win_u) end, { buffer = buf })
-        local win_d ---@type integer
+        keymap.set("n", "<up>", function() self:set_current_win(y_u, x) end, { buffer = buf })
+        local y_d ---@type integer
         if y + 1 <= w_in_m then
-          win_d = self.cal_wins[y + 1][x]
+          y_d = y + 1
         else
-          win_d = self.cal_wins[1][x]
+          y_d = 1
         end
-        keymap.set("n", "<down>", function() api.nvim_set_current_win(win_d) end, { buffer = buf })
+        keymap.set("n", "<down>", function() self:set_current_win(y_d, x) end, { buffer = buf })
 
         api.nvim_create_autocmd("BufWriteCmd", {
           buffer = buf,
@@ -2325,12 +2334,27 @@ function CalendarView:show(year, month, opts)
 
       -- this has to be done after enabling highlighting to avoid default
       -- global config to interfere
-      if today.day == buf_day and today.month == buf_month and today.year == buf_year then
-        local win = vim.fn.bufwinid(cal_buf)
-        api.nvim_set_current_win(win)
-      elseif (today.month ~= month or today.year ~= year) and cal_buf == self.cal_bufs[1][1] then
-        local win = vim.fn.bufwinid(cal_buf)
-        api.nvim_set_current_win(win)
+      if self.current_win and cal_buf == self.cal_bufs[1][1] then
+        local y, x = unpack(self.current_win)
+        self:set_current_win(y, x)
+      elseif not self.current_win and today.day == buf_day and today.month == buf_month and today.year == buf_year then
+        local x, y ---@type integer?, integer?
+        for j, bufs in ipairs(self.cal_bufs) do
+          for i, buf in ipairs(bufs) do
+            if cal_buf == buf then
+              x, y = i, j
+            end
+          end
+        end
+        assert(y)
+        assert(x)
+        self:set_current_win(y, x)
+      elseif
+        not self.current_win
+        and (today.month ~= month or today.year ~= year)
+        and cal_buf == self.cal_bufs[1][1]
+      then
+        self:set_current_win(1, 1)
       end
     end)
   end)()
