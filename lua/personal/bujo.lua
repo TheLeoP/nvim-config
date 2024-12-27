@@ -22,19 +22,23 @@ end)()
 ---@return boolean is
 local function is_git_repo()
   local co = coroutine.running()
-  vim.system({ "git", "rev-parse", "--is-inside-work-tree" }, { text = true }, function(result)
-    if result.stderr ~= "" then
-      co_resume(co, false)
-      return
-    end
+  vim.system(
+    { "git", "rev-parse", "--is-inside-work-tree" },
+    { text = true },
+    vim.schedule_wrap(function(result)
+      if result.stderr ~= "" then
+        co_resume(co, false)
+        return
+      end
 
-    local out = vim.split(result.stdout, "\n")[1]
-    if out ~= "true" then
-      co_resume(co, false)
-      return
-    end
-    co_resume(co, true)
-  end)
+      local out = vim.split(result.stdout, "\n")[1]
+      if out ~= "true" then
+        co_resume(co, false)
+        return
+      end
+      co_resume(co, true)
+    end)
+  )
   return coroutine.yield()
 end
 
@@ -43,23 +47,27 @@ end
 local function repo_name()
   local co = coroutine.running()
 
-  vim.system({ "git", "rev-parse", "--show-toplevel" }, { text = true }, function(result)
-    if result.stderr ~= "" then
-      vim.notify(result.stderr, vim.log.levels.ERROR)
-      co_resume(co)
-      return
-    end
+  vim.system(
+    { "git", "rev-parse", "--show-toplevel" },
+    { text = true },
+    vim.schedule_wrap(function(result)
+      if result.stderr ~= "" then
+        vim.notify(result.stderr, vim.log.levels.ERROR)
+        co_resume(co)
+        return
+      end
 
-    if result.stderr ~= "" then
-      vim.notify(result.stderr, vim.log.levels.ERROR)
-      co_resume(co)
-      return
-    end
-    local out = vim.split(result.stdout, "\n")[1]
-    local segments = vim.split(out, "/")
-    local name = segments[#segments]
-    co_resume(co, name)
-  end)
+      if result.stderr ~= "" then
+        vim.notify(result.stderr, vim.log.levels.ERROR)
+        co_resume(co)
+        return
+      end
+      local out = vim.split(result.stdout, "\n")[1]
+      local segments = vim.split(out, "/")
+      local name = segments[#segments]
+      co_resume(co, name)
+    end)
+  )
   return coroutine.yield()
 end
 
