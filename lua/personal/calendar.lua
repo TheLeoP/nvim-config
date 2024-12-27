@@ -2357,6 +2357,15 @@ function CalendarView:show(year, month, opts)
         self:set_current_win(1, 1)
       end
     end)
+
+    api.nvim_create_autocmd("VimResized", {
+      group = api.nvim_create_augroup("calendar-resized", {}),
+      -- for some reason, this needs to be scheduled or else only the current window will be closed
+      callback = vim.schedule_wrap(function()
+        api.nvim_win_close(0, true)
+        self:show(year, month, opts)
+      end),
+    })
   end)()
 end
 
