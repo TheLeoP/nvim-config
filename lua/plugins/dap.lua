@@ -134,7 +134,9 @@ return {
         externalConsole = true,
       }, {
         __call = function(config)
+          vim.notify "Building Neovim"
           local out = vim.system({ "make", "CMAKE_BUILD_TYPE=RelWithDebInfo" }):wait()
+          vim.notify "Done building"
           if out.stderr ~= "" then
             vim.notify(out.stderr, vim.log.levels.ERROR)
             return
@@ -178,9 +180,8 @@ return {
                 type = "cppdbg",
                 request = "attach",
                 processId = pid,
-                -- ⬇️ Change paths as needed
-                program = os.getenv "HOME" .. "/neovim/build/bin/nvim",
-                cwd = os.getenv "HOME" .. "/neovim/",
+                program = vim.env.HOME .. "/neovim/build/bin/nvim",
+                cwd = vim.env.HOME .. "/neovim/",
                 externalConsole = false,
               }
             end
