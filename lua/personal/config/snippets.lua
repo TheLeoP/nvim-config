@@ -244,7 +244,6 @@ end
       }
     )
   ),
-
   s(
     { trig = "while ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
     fmta(
@@ -254,6 +253,37 @@ while <condition> do
 end
   ]],
       { condition = i(1), inside = i(2) }
+    )
+  ),
+  s(
+    { trig = "repeat ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
+    fmta(
+      [[
+repeat 
+  <inside>
+until <condition>
+  ]],
+      { condition = i(1), inside = i(2) }
+    )
+  ),
+  s(
+    { trig = "local ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
+    fmta(
+      [[
+local <lhs> = <rhs>
+  ]],
+      { lhs = i(1), rhs = i(2) }
+    )
+  ),
+  s(
+    { trig = "do ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
+    fmta(
+      [[
+do
+  <inside>
+end
+  ]],
+      { inside = i(1) }
     )
   ),
 }, { key = "personal lua" })
