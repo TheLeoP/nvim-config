@@ -41,7 +41,7 @@ vim.keymap.set("n", "\08", function()
   end
   vim.api.nvim_set_current_line(replacement)
 end, { buffer = true })
-vim.keymap.set("n", "<c-cr>", function()
+vim.keymap.set({ "n", "i" }, "<c-cr>", function()
   local row, col = unpack(vim.api.nvim_win_get_cursor(0)) --[[@as integer, integer]]
   vim.api.nvim_buf_set_lines(0, row, row, true, { "- [ ] " })
   vim.api.nvim_win_set_cursor(0, { row + 1, col })
