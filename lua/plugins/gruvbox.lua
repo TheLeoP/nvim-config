@@ -68,7 +68,7 @@ return {
         comments = true,
         operators = false,
         folds = false,
-        emphasis = false,
+        emphasis = true,
       },
       inverse = true,
     }
