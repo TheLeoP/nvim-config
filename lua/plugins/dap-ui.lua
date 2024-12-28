@@ -30,16 +30,6 @@ return {
         position = "right",
         size = 50,
       },
-      {
-        elements = {
-          {
-            id = "repl",
-            size = 1,
-          },
-        },
-        position = "bottom",
-        size = 10,
-      },
     },
   },
   dependencies = {

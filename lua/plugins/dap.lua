@@ -49,17 +49,18 @@ end
 return {
   "mfussenegger/nvim-dap",
   config = function()
-    vim.fn.sign_define("DapBreakpoint", { text = "⦿", texthl = "Error", linehl = "", numhl = "" })
     local dap = require "dap"
+    local dapui = require "dapui"
+    vim.fn.sign_define("DapBreakpoint", { text = "⦿", texthl = "Error", linehl = "", numhl = "" })
+
     dap.defaults.fallback.external_terminal = {
       command = "/usr/bin/wezterm",
       args = { "start", "--" },
     }
-    local dapui = require "dapui"
 
     vim.keymap.set("n", "<leader>dh", function() require("dap.ui.widgets").hover() end)
     vim.keymap.set("n", "<leader>dc", function() dap.continue() end)
-    vim.keymap.set("n", "<leader>dr", function() dapui.toggle { layout = 2 } end)
+    vim.keymap.set("n", "<leader>dr", function() dap.repl.toggle() end)
     vim.keymap.set("n", "<leader>de", function()
       dap.terminate()
       dapui.close()
