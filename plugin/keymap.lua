@@ -66,3 +66,5 @@ keymap.set("n", "<leader>tw", function()
   vim.wo.wrap = not vim.wo.wrap
   vim.notify(("Wrap is %s for current window"):format(vim.wo.wrap and "on" or "off"))
 end)
+
+keymap.set("n", "<leader>tu", "<cmd>UndotreeToggle<cr>")
