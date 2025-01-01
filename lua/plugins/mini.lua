@@ -221,8 +221,8 @@ return {
       window = { zindex = 100 }, -- show above nvim-treesitter-context
     }
 
-    keymap.set("n", "<Del>", function() map.toggle() end)
-    keymap.set("n", "<C-Del>", function() map.toggle_side() end)
+    keymap.set("n", "<leader>tm", function() map.toggle() end)
+    keymap.set("n", "<leader>tM", function() map.toggle_side() end)
 
     local splitjoin = require "mini.splitjoin"
     splitjoin.setup()
