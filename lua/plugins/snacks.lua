@@ -8,15 +8,5 @@ return {
       enabled = true,
     },
   },
-  config = function(_, opts)
-    require("snacks").setup(opts)
-
-    vim.keymap.set("n", "<leader>tm", function()
-      if Snacks.dim.enabled then
-        Snacks.dim.disable()
-      else
-        Snacks.dim.enable()
-      end
-    end)
-  end,
+  config = function(_, opts) require("snacks").setup(opts) end,
 }
