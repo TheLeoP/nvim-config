@@ -1,4 +1,5 @@
 local arrows = require("personal.icons").arrows
+local keymap = vim.keymap
 
 return {
   "rcarriga/nvim-dap-ui",
@@ -32,6 +33,12 @@ return {
       },
     },
   },
+  config = function(_, opts)
+    local dapui = require "dapui"
+    dapui.setup(opts)
+
+    keymap.set("n", "<leader>ta", dapui.toggle)
+  end,
   dependencies = {
     "nvim-dap",
     "nvim-nio",
