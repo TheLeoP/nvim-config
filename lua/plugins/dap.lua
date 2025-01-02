@@ -60,7 +60,8 @@ return {
 
     vim.keymap.set("n", "<leader>dh", function() require("dap.ui.widgets").hover() end)
     vim.keymap.set("n", "<leader>dc", function() dap.continue() end)
-    vim.keymap.set("n", "<leader>dr", function() dap.repl.toggle() end)
+    -- workwround for focusing the repl when openning
+    vim.keymap.set("n", "<leader>dr", function() dap.repl.toggle({ height = 5 }, "aboveleft split | wincmd w") end)
     vim.keymap.set("n", "<leader>de", function()
       dap.terminate()
       dapui.close()
