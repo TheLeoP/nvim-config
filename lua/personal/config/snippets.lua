@@ -412,4 +412,31 @@ if (<condition>) {
       }
     )
   ),
+  s(
+    { trig = "} else ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
+    fmta(
+      [[
+} else {
+  <inside>
+}
+]],
+      {
+        inside = i(1),
+      }
+    )
+  ),
+  s(
+    { trig = "} elseif ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
+    fmta(
+      [[
+} else if (<condition>) {
+  <inside>
+}
+]],
+      {
+        condition = i(1),
+        inside = i(2),
+      }
+    )
+  ),
 }, { key = "personal cs" })
