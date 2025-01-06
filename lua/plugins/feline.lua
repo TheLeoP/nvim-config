@@ -112,7 +112,7 @@ return {
         local cwd = uv.cwd()
         if not cwd then return "" end
         cwd = fs.normalize(cwd)
-        return (" %s"):format(cwd)
+        return cwd
       end,
       navic = navic_provider,
       git_branch_ = git_branch_provider,
