@@ -3,6 +3,7 @@ return {
   ---@module "which-key"
   ---@type wk.Opts
   opts = {
+    triggers = { "<auto>", mode = "n" },
     delay = 500,
     spec = {
       { "<leader>a", group = "ref[a]ctor" },
