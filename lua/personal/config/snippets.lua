@@ -286,6 +286,22 @@ end
       { inside = i(1) }
     )
   ),
+  s(
+    { trig = "re" },
+    fmta(
+      [[
+local <name> = require("<module>")
+  ]],
+      {
+        module = i(1),
+        name = f(function(args)
+          local text = args[1][1]
+          if not text then return "" end
+          return text:match "%.?([^%.]*)$"
+        end, { 1 }),
+      }
+    )
+  ),
 }, { key = "personal lua" })
 
 ls.filetype_extend("typescript", { "javascript" })
