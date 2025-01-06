@@ -601,6 +601,7 @@ function M.calendar_list_show(opts)
       )
       :totable()
     api.nvim_buf_set_lines(buf, 0, -1, true, lines)
+    M.undo_clear(buf)
     hl_enable(buf, { highlighters = highlighters })
 
     keymap.set("n", "<cr>", function()
@@ -845,7 +846,8 @@ function M.calendar_show(id)
     })
     local calendar_string = vim.json.encode(calendar)
     api.nvim_buf_set_lines(buf, 0, 0, true, vim.split(calendar_string, "\n"))
-    api.nvim_buf_call(buf, function() vim.cmd.set "filetype=json" end)
+    M.undo_clear(buf)
+    vim.bo[buf].filetype = "json"
 
     -- TODO: modify to put cursor on top of current calendar (?)
     keymap.set("n", "-", function()
@@ -1947,11 +1949,13 @@ function CalendarView:show(year, month, opts)
 
     self.month_buf = api.nvim_create_buf(false, false)
     api.nvim_buf_set_lines(self.month_buf, 0, -1, true, self:month(month, y_m_height))
+    M.undo_clear(self.month_buf)
     vim.bo[self.month_buf].modified = false
     vim.bo[self.month_buf].modifiable = false
 
     self.year_buf = api.nvim_create_buf(false, false)
     api.nvim_buf_set_lines(self.year_buf, 0, -1, true, self:year(year, y_m_height))
+    M.undo_clear(self.year_buf)
     vim.bo[self.year_buf].modified = false
     vim.bo[self.year_buf].modifiable = false
 
@@ -1962,6 +1966,7 @@ function CalendarView:show(year, month, opts)
       if w_day >= 8 then w_day = w_day - 7 end
       local day_name = self.days[w_day]
       api.nvim_buf_set_lines(buf, 0, -1, true, { day_name })
+      M.undo_clear(buf)
       hl_enable(buf, { highlighters = { day = { pattern = day_name, group = "TODO" } } })
       vim.bo[buf].modified = false
       vim.bo[buf].modifiable = false
@@ -2323,6 +2328,7 @@ function CalendarView:show(year, month, opts)
       hl_enable(cal_buf)
 
       api.nvim_buf_set_lines(cal_buf, 0, -1, true, lines)
+      M.undo_clear(cal_buf)
       vim.bo[cal_buf].modified = false
 
       -- this has to be done after enabling highlighting to avoid default
@@ -3011,6 +3017,7 @@ function M.event_show(token_info, calendar_list, day_events, opts)
       "description:",
     }, lines)
     api.nvim_buf_set_lines(buf, 0, -1, true, lines)
+    M.undo_clear(buf)
 
     local factor = 0.85
     local width = math.floor(vim.o.columns * factor)
@@ -3038,6 +3045,14 @@ function M.event_show(token_info, calendar_list, day_events, opts)
       M.event_show(token_info, calendar_list, day_events, { refresh = true, recurring = opts.recurring })
     end, { buffer = buf })
   end)()
+end
+
+---@param buf integer
+function M.undo_clear(buf)
+  local saved_undolevels = api.nvim_get_option_value("undolevels", { buf = buf })
+  api.nvim_set_option_value("undolevels", -1, { buf = buf })
+  api.nvim_buf_set_lines(buf, 0, 0, true, {}) -- make an empy change to remove old undos. See `:h clear-undo`
+  api.nvim_set_option_value("undolevels", saved_undolevels, { buf = buf })
 end
 
 M.CalendarView = CalendarView
