@@ -46,6 +46,7 @@ o.splitbelow = true
 o.splitright = true
 
 o.laststatus = 3
+o.ruler = false -- laststatus overrides ruler, but it's still on by default, which stops <c-g> from showing the cursor location
 
 o.cursorline = true
 
