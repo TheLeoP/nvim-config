@@ -48,8 +48,9 @@ local function icon_provider()
       fg = fg,
       bg = "bg",
     },
+    always_visible = true,
   }
-  return " ", icon
+  return "", icon
 end
 
 local function navic_provider(_, opts)
