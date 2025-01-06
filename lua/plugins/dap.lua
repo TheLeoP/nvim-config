@@ -1,3 +1,5 @@
+local keymap = vim.keymap
+
 local dotnet_last_project ---@type string?
 local function dotnet_build_project()
   local default_path = dotnet_last_project and dotnet_last_project or vim.fn.getcwd() .. "/"
@@ -58,16 +60,21 @@ return {
       args = { "start", "--" },
     }
 
-    vim.keymap.set("n", "<leader>dh", function() require("dap.ui.widgets").hover() end)
-    vim.keymap.set("n", "<leader>dc", function() dap.continue() end)
+    keymap.set("n", "<leader>dh", function() require("dap.ui.widgets").hover() end, { desc = "Debug hover" })
+    keymap.set("n", "<leader>dc", function() dap.continue() end, { desc = "Debug continue" })
     -- workwround for focusing the repl when openning
-    vim.keymap.set("n", "<leader>dr", function() dap.repl.toggle({ height = 5 }, "aboveleft split | wincmd w") end)
-    vim.keymap.set("n", "<leader>de", function()
+    keymap.set(
+      "n",
+      "<leader>dr",
+      function() dap.repl.toggle({ height = 5 }, "aboveleft split | wincmd w") end,
+      { desc = "Debug toggle REPL" }
+    )
+    keymap.set("n", "<leader>de", function()
       dap.terminate()
       dapui.close()
-    end)
-    vim.keymap.set("n", "<leader>db", function() dap.toggle_breakpoint() end)
-    vim.keymap.set("n", "<leader>dB", function()
+    end, { desc = "Debug end" })
+    keymap.set("n", "<leader>db", function() dap.toggle_breakpoint() end, { desc = "Debug toggle breakpoint" })
+    keymap.set("n", "<leader>dB", function()
       vim.ui.input(
         { prompt = "Breakpoint condition: " },
         ---@param input string|nil
@@ -75,13 +82,13 @@ return {
           if input then dap.set_breakpoint(input) end
         end
       )
-    end)
-    vim.keymap.set("n", "<leader>dq", function() dap.list_breakpoints(true) end)
-    vim.keymap.set("n", "<leader>dv", function() dap.step_over() end)
-    vim.keymap.set("n", "<leader>dsi", function() dap.step_into() end)
-    vim.keymap.set("n", "<leader>dso", function() dap.step_out() end)
-    vim.keymap.set("n", "<leader>dsb", function() dap.step_back() end)
-    vim.keymap.set("n", "<leader>dtc", function() dap.run_to_cursor() end)
+    end, { desc = "Debug toggle condition breakpoint" })
+    keymap.set("n", "<leader>dq", function() dap.list_breakpoints(true) end, { desc = "Debug breakpoints to qf" })
+    keymap.set("n", "<leader>dv", function() dap.step_over() end, { desc = "Debug step over" })
+    keymap.set("n", "<leader>dsi", function() dap.step_into() end, { desc = "Debuf step into" })
+    keymap.set("n", "<leader>dso", function() dap.step_out() end, { desc = "Debug step out" })
+    keymap.set("n", "<leader>dsb", function() dap.step_back() end, { desc = "Debug step back" })
+    keymap.set("n", "<leader>dtc", function() dap.run_to_cursor() end, { desc = "Debug to cursor" })
 
     dap.listeners.after.event_initialized["dapui_config"] = function() dapui.open {} end
     dap.listeners.before.event_terminated["dapui_config"] = function() dapui.close {} end

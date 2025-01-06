@@ -21,6 +21,6 @@ return {
   config = function(_, opts)
     require("ssr").setup(opts)
 
-    vim.keymap.set({ "n", "x" }, "<leader>l", function() require("ssr").open() end)
+    vim.keymap.set({ "n", "x" }, "<leader>l", function() require("ssr").open() end, { desc = "Open SSR" })
   end,
 }

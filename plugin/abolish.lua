@@ -21,6 +21,11 @@ vim.keymap.set("n", "cr", function()
   local motion = require("personal.abolish").operator_func()
   if not motion then return end
   return motion .. "iw"
-end, { expr = true })
+end, { expr = true, desc = "Coerce iw" })
 
-vim.keymap.set({ "v", "n" }, "<leader>cr", require("personal.abolish").operator_func, { expr = true })
+vim.keymap.set(
+  { "v", "n" },
+  "<leader>cr",
+  require("personal.abolish").operator_func,
+  { expr = true, desc = "Coerce operator" }
+)
