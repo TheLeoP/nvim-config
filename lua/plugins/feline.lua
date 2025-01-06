@@ -57,15 +57,15 @@ local function navic_provider(_, opts)
   local navic = require "nvim-navic"
   local str_multibyte_sub = require("personal.util.general").str_multibyte_sub
 
-  local win_size = api.nvim_win_get_width(0)
+  local width = api.nvim_win_get_width(0)
   local location = navic.get_location(opts)
-  local location_size = api.nvim_strwidth(location)
-  local extra = #vim.fn.expand("%:t", false) + 4 -- 4 because ???
-  if win_size < location_size + extra then
-    local start = location_size + extra - win_size + 4 -- 4 because of "... "
-    return (" ... %s"):format(str_multibyte_sub(location, start))
+  local location_width = api.nvim_strwidth(location)
+  local extra_width = #vim.fn.expand("%:t", false) + 4 -- 4 because ???
+  if width < location_width + extra_width then
+    local start = location_width + extra_width - width + 3 -- 3 because of " … "
+    return (" … %s"):format(str_multibyte_sub(location, start))
   else
-    return location
+    return (" %s"):format(location)
   end
 end
 
