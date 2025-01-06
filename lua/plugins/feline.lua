@@ -33,7 +33,7 @@ end
 local function protocol_provider()
   local full_path = vim.fn.expand("%:p", false)
   local protocol = full_path:match "^([^:]+):[/\\][/\\]"
-  return protocol
+  return (" %s"):format(protocol)
 end
 
 local function icon_provider()
@@ -62,13 +62,39 @@ local function navic_provider(_, opts)
   local extra = #vim.fn.expand("%:t", false) + 4 -- 4 because ???
   if win_size < location_size + extra then
     local start = location_size + extra - win_size + 4 -- 4 because of "... "
-    return ("... %s"):format(str_multibyte_sub(location, start))
+    return (" ... %s"):format(str_multibyte_sub(location, start))
   else
     return location
   end
 end
 
-local function git_branch_provider() return vim.b.gitsigns_head or vim.g.gitsigns_head end
+local function git_branch_provider()
+  local head = vim.b.gitsigns_head or vim.g.gitsigns_head
+  return (" %s "):format(head)
+end
+
+local CTRL_S = vim.keycode "<C-S>"
+local CTRL_V = vim.keycode "<C-V>"
+
+local modes = setmetatable({
+  ["n"] = " N ",
+  ["v"] = " V ",
+  ["V"] = " V-L ",
+  [CTRL_V] = " V-B ",
+  ["s"] = " S ",
+  ["S"] = " S-L ",
+  [CTRL_S] = " S-B ",
+  ["i"] = " I ",
+  ["R"] = " R ",
+  ["c"] = " C ",
+  ["r"] = " P ",
+  ["!"] = " Sh ",
+  ["t"] = " T ",
+}, {
+  __index = function() return " ? " end,
+})
+
+local function mode() return modes[vim.api.nvim_get_mode().mode] end
 
 return {
   "freddiehaddad/feline.nvim",
@@ -81,9 +107,16 @@ return {
       file = file_provider,
       protocol = protocol_provider,
       icon = icon_provider,
-      cwd = function() return fs.normalize(uv.cwd() or "") end,
+      cwd = function()
+        local cwd = uv.cwd()
+        if not cwd then return "" end
+        cwd = fs.normalize(cwd)
+        return (" %s"):format(cwd)
+      end,
       navic = navic_provider,
       git_branch_ = git_branch_provider,
+      mode = mode,
+      filetype = function() return (" %s "):format(vim.bo.filetype) end,
     }
 
     local statusline_components = {
@@ -97,10 +130,8 @@ return {
 
     table.insert(left, {
       provider = {
-        name = "vi_mode",
-        opts = {
-          show_mode_name = true,
-        },
+        name = "mode",
+        opts = {},
       },
       hl = function()
         return {
@@ -108,24 +139,6 @@ return {
           bg = vi_mode.get_mode_color(), ---@type string
           fg = "bg",
           style = "bold",
-        }
-      end,
-      left_sep = function()
-        return {
-          str = " ",
-          hl = {
-            bg = vi_mode.get_mode_color(), ---@type string
-          },
-          always_visible = true,
-        }
-      end,
-      right_sep = function()
-        return {
-          str = " ",
-          hl = {
-            bg = vi_mode.get_mode_color(), ---@type string
-          },
-          always_visible = true,
         }
       end,
     })
@@ -136,13 +149,11 @@ return {
       hl = {
         fg = "lightblue",
       },
-      left_sep = " ",
     })
 
     table.insert(left, {
       provider = "cwd",
       enabled = function() return uv.cwd() ~= nil end,
-      left_sep = " ",
       right_sep = {
         str = " | ",
         hl = {
@@ -161,8 +172,6 @@ return {
       provider = {
         name = "icon",
       },
-      left_sep = " ",
-      right_sep = " ",
     })
     table.insert(left, {
       provider = {
@@ -175,27 +184,13 @@ return {
       hl = {
         fg = "lightblue",
       },
-      left_sep = " ",
-      right_sep = " ",
     })
 
     table.insert(right, {
-      provider = "file_type",
+      provider = "filetype",
       hl = {
         fg = "bg",
         bg = "green",
-      },
-      left_sep = {
-        str = " ",
-        hl = {
-          bg = "green",
-        },
-      },
-      right_sep = {
-        str = " ",
-        hl = {
-          bg = "green",
-        },
       },
     })
 
@@ -213,7 +208,6 @@ return {
           {
             provider = "navic",
             enabled = navic.is_available,
-            left_sep = " ",
           },
         },
       },
@@ -230,7 +224,6 @@ return {
           {
             provider = "navic",
             enabled = navic.is_available,
-            left_sep = " ",
           },
         },
       },
