@@ -38,21 +38,14 @@ end
 ---@return string the substring
 function M.str_multibyte_sub(str, i, j)
   local length = vim.str_utfindex(str) --[[@as integer]]
-  if i < 0 then
-    --- @type integer
-    i = i + length + 1
-  end
-  if j and j < 0 then
-    --- @type integer
-    j = j + length + 1
-  end
+  if i < 0 then i = i + length + 1 end
+  if j and j < 0 then j = j + length + 1 end
   local u = (i > 0) and i or 1
   local v = (j and j <= length) and j or length
   if u > v then return "" end
   local s = vim.str_byteindex(str, u - 1)
   local e = vim.str_byteindex(str, v)
-  local aux = str:sub(s + 1, e)
-  return aux
+  return str:sub(s + 1, e)
 end
 
 ---@async
