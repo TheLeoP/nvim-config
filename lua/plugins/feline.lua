@@ -30,7 +30,7 @@ local function file_provider()
     relative_path = "/" .. relative_path
   end
 
-  local str = ("%s %s"):format(relative_path, status)
+  local str = ("%s %s "):format(relative_path, status)
   local str_width = api.nvim_strwidth(str)
   local max_width = 50 + 3 -- 3 because of " … "
   if str_width > max_width then
