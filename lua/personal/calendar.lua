@@ -2334,7 +2334,11 @@ function CalendarView:show(year, month, opts)
       -- this has to be done after enabling highlighting to avoid default
       -- global config to interfere
       if self.current_win and cal_buf == self.cal_bufs[1][1] then
-        local y, x = unpack(self.current_win)
+        local y, x = unpack(self.current_win) ---@type integer, integer
+        if not self.cal_wins[y] or not self.cal_wins[y][x] then
+          self:set_current_win(1, 1)
+          return
+        end
         self:set_current_win(y, x)
       elseif not self.current_win and today.day == buf_day and today.month == buf_month and today.year == buf_year then
         local x, y ---@type integer?, integer?
