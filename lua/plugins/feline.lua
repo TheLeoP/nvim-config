@@ -71,7 +71,7 @@ end
 
 local function git_branch_provider()
   local head = vim.b.gitsigns_head or vim.g.gitsigns_head
-  return (" %s "):format(head)
+  return (" %s"):format(head)
 end
 
 local CTRL_S = vim.keycode "<C-S>"
@@ -112,7 +112,7 @@ return {
         local cwd = uv.cwd()
         if not cwd then return "" end
         cwd = fs.normalize(cwd)
-        return cwd
+        return (" %s"):format(cwd)
       end,
       navic = navic_provider,
       git_branch_ = git_branch_provider,
