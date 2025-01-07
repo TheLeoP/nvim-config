@@ -20,14 +20,14 @@ return {
         else
           gs.nav_hunk "prev"
         end
-      end, { buffer = bufnr, desc = "Jump to next hunk/change" })
+      end, { buffer = bufnr, desc = "Next hunk/change" })
       keymap.set("n", "]c", function()
         if vim.wo.diff then
           vim.cmd.normal { "]c", bang = true }
         else
           gs.nav_hunk "next"
         end
-      end, { buffer = bufnr, desc = "Jump to previous hunk/change" })
+      end, { buffer = bufnr, desc = "Previous hunk/change" })
 
       -- Actions
       keymap.set({ "n", "x" }, "<leader>hs", gs.stage_hunk, { desc = "Stage hunk" })
