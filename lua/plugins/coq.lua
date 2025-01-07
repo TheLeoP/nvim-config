@@ -30,8 +30,10 @@ return {
       auto_start = "shut-up",
       keymap = {
         recommended = false,
-        jump_to_mark = "<m-,>",
+        jump_to_mark = "<c-,>",
         bigger_preview = "",
+        -- TODO: see if I can contribute an opfunc to do this with `.` to coq
+        ["repeat"] = "<c-.>",
       },
       clients = {
         snippets = {
