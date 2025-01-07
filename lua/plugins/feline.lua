@@ -3,6 +3,8 @@ local fs = vim.fs
 local uv = vim.uv
 
 local function file_provider()
+  local str_multibyte_sub = require("personal.util.general").str_multibyte_sub
+
   local status = vim.bo.readonly and "🔒" or vim.bo.modified and "●" or ""
 
   local full_path = vim.fn.expand("%:p", false)
@@ -27,7 +29,15 @@ local function file_provider()
   if (not is_win and relative_path:sub(1, 1) ~= "/") or (is_win and not relative_path:match "^%u:/") then
     relative_path = "/" .. relative_path
   end
-  return ("%s %s"):format(relative_path, status)
+
+  local str = ("%s %s"):format(relative_path, status)
+  local str_width = api.nvim_strwidth(str)
+  local max_width = 50 + 3 -- 3 because of " … "
+  if str_width > max_width then
+    local start = str_width - max_width
+    return (" … %s"):format(str_multibyte_sub(str, start))
+  end
+  return str
 end
 
 local function protocol_provider()
@@ -64,9 +74,8 @@ local function navic_provider(_, opts)
   if width < location_width + extra_width then
     local start = location_width + extra_width - width + 3 -- 3 because of " … "
     return (" … %s"):format(str_multibyte_sub(location, start))
-  else
-    return (" %s"):format(location)
   end
+  return (" %s"):format(location)
 end
 
 local function git_branch_provider()
@@ -110,8 +119,18 @@ return {
       icon = icon_provider,
       cwd = function()
         local cwd = uv.cwd()
+        local str_multibyte_sub = require("personal.util.general").str_multibyte_sub
+
         if not cwd then return "" end
         cwd = fs.normalize(cwd)
+
+        local cwd_width = api.nvim_strwidth(cwd)
+        local max_width = 40 + 3 -- 3 because of " … "
+        if cwd_width > max_width then
+          local start = cwd_width - max_width
+          return (" … %s"):format(str_multibyte_sub(cwd, start))
+        end
+
         return (" %s"):format(cwd)
       end,
       navic = navic_provider,
@@ -156,7 +175,7 @@ return {
       provider = "cwd",
       enabled = function() return uv.cwd() ~= nil end,
       right_sep = {
-        str = " | ",
+        str = " |",
         hl = {
           fg = "white",
           bg = "bg",
