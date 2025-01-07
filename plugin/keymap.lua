@@ -69,15 +69,21 @@ end)
 
 keymap.set("n", "<leader>tu", "<cmd>UndotreeToggle<cr>")
 
-vim.keymap.set(
+keymap.set(
   "n",
   "]e",
   function() vim.diagnostic.goto_next { severity = vim.diagnostic.severity.ERROR } end,
   { desc = "Next error" }
 )
-vim.keymap.set(
+keymap.set(
   "n",
   "[e",
   function() vim.diagnostic.goto_prev { severity = vim.diagnostic.severity.ERROR } end,
   { desc = "Prev error" }
 )
+
+-- : operator
+vim.keymap.set("n", "<leader>.", function()
+  vim.o.operatorfunc = "v:lua.require'personal.op'.dot"
+  return "g@"
+end, { expr = true })
