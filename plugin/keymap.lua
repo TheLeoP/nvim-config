@@ -68,3 +68,16 @@ keymap.set("n", "<leader>tw", function()
 end)
 
 keymap.set("n", "<leader>tu", "<cmd>UndotreeToggle<cr>")
+
+vim.keymap.set(
+  "n",
+  "]e",
+  function() vim.diagnostic.goto_next { severity = vim.diagnostic.severity.ERROR } end,
+  { desc = "Next error" }
+)
+vim.keymap.set(
+  "n",
+  "[e",
+  function() vim.diagnostic.goto_prev { severity = vim.diagnostic.severity.ERROR } end,
+  { desc = "Prev error" }
+)
