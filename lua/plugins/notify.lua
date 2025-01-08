@@ -5,6 +5,7 @@ return {
   ---@diagnostic disable-next-line: missing-fields
   opts = {
     timeout = 300,
+    background_colour = "#282828",
   },
   config = function(_, opts)
     vim.o.termguicolors = true
