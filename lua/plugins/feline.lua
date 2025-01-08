@@ -32,7 +32,7 @@ local function file_provider()
 
   local str = ("%s %s "):format(relative_path, status)
   local str_width = api.nvim_strwidth(str)
-  local max_width = 50
+  local max_width = vim.o.columns * 0.4
   if str_width > max_width then
     -- 2 because of " … "
     -- 1 because of 1 based index
@@ -127,7 +127,7 @@ return {
         cwd = fs.normalize(cwd)
 
         local cwd_width = api.nvim_strwidth(cwd)
-        local max_width = 40
+        local max_width = vim.o.columns * 0.32
         if cwd_width > max_width then
           -- 2 because of " … "
           -- 1 because of 1 based index
