@@ -32,10 +32,12 @@ local function file_provider()
 
   local str = ("%s %s "):format(relative_path, status)
   local str_width = api.nvim_strwidth(str)
-  local max_width = 50 + 3 -- 3 because of " … "
+  local max_width = 50
   if str_width > max_width then
-    local start = str_width - max_width
-    return (" … %s"):format(str_multibyte_sub(str, start))
+    -- 2 because of " … "
+    -- 1 because of 1 based index
+    local start = str_width + 2 + 1 - max_width
+    return (" …%s"):format(str_multibyte_sub(str, start))
   end
   return str
 end
@@ -125,10 +127,12 @@ return {
         cwd = fs.normalize(cwd)
 
         local cwd_width = api.nvim_strwidth(cwd)
-        local max_width = 40 + 3 -- 3 because of " … "
+        local max_width = 40
         if cwd_width > max_width then
-          local start = cwd_width - max_width
-          return (" … %s"):format(str_multibyte_sub(cwd, start))
+          -- 2 because of " … "
+          -- 1 because of 1 based index
+          local start = cwd_width + 2 + 1 - max_width
+          return (" …%s"):format(str_multibyte_sub(cwd, start))
         end
 
         return (" %s"):format(cwd)
