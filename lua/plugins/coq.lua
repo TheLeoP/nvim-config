@@ -71,12 +71,6 @@ return {
           helo = false,
         },
       },
-      match = {
-        unifying_chars = {
-          "-",
-          "_",
-        },
-      },
       limits = {
         completion_manual_timeout = 1.0,
       },
