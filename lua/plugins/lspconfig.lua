@@ -171,5 +171,8 @@ return {
         },
       },
     }
+
+    -- emmet
+    lspconfig.emmet_language_server.setup {}
   end,
 }
