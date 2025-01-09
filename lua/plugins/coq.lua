@@ -83,34 +83,6 @@ return {
     }
   end,
   config = function()
-    -- TODO: see if I can contribute an opfunc to do this to coq
-    -- HACK: this allows `.` to repeat the last coq edit
-    local should_create_autocmd = true
-    api.nvim_create_autocmd("CompleteDone", {
-      group = api.nvim_create_augroup("coq-dot-repeat", {}),
-      callback = function()
-        if vim.tbl_isempty(vim.v.completed_item) then return end
-
-        -- only create one autocmd for InserLeave  at a time even if there are
-        -- multiple completions
-        if not should_create_autocmd then return end
-        should_create_autocmd = false
-
-        api.nvim_create_autocmd("InsertLeave", {
-          -- schedule so `g@l` overrides `i` as the last action performed
-          callback = vim.schedule_wrap(function()
-            vim.o.operatorfunc = "v:lua.require'personal.op'.noop"
-            -- use `l` as noop textobject
-            vim.cmd.normal { "g@l", bang = true }
-            -- next `.` will execute `g@` which will call coq_repeat
-            vim.o.operatorfunc = "v:lua.require'personal.op'.coq_repeat"
-            should_create_autocmd = true
-          end),
-          once = true,
-        })
-      end,
-    })
-
     keymap.set("i", "<BS>", function()
       if vim.fn.pumvisible() == 1 then
         return "<C-e><BS>"
