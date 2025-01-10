@@ -11,6 +11,7 @@ function M.co_resume(co, ...)
   if not ok then vim.notify(debug.traceback(co, err), vim.log.levels.ERROR) end
 end
 
+---@async
 ---@param path string
 ---@param flags string|integer
 ---@param mode integer
@@ -21,6 +22,7 @@ function M.fs_open(path, flags, mode)
   return coroutine.yield()
 end
 
+---@async
 ---@param fd integer
 ---@param size integer
 ---@param offset integer|nil
@@ -31,6 +33,7 @@ function M.fs_read(fd, size, offset)
   return coroutine.yield()
 end
 
+---@async
 ---@param path string
 ---@return nil|string err, table|nil stat
 function M.fs_stat(path)
@@ -39,6 +42,7 @@ function M.fs_stat(path)
   return coroutine.yield()
 end
 
+---@async
 ---@param fd integer
 ---@return nil|string err, table|nil stat
 function M.fs_fstat(fd)
@@ -47,6 +51,7 @@ function M.fs_fstat(fd)
   return coroutine.yield()
 end
 
+---@async
 ---@param fd integer
 ---@return nil|string err, table|nil stat
 function M.fs_close(fd)
