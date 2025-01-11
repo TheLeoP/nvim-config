@@ -89,7 +89,7 @@ return {
       "lemminx",
       "phpactor",
       "prismals",
-      "cmake",
+      -- "cmake",
       "marksman",
       "dockerls",
       "docker_compose_language_service",
