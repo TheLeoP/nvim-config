@@ -29,3 +29,7 @@
   - cargo
     - [rustup](https://rustup.rs/)
   - Java (open JDK)
+
+## Notes
+
+If using wezterm and artifacts are encountered while scrolling, [install the correct terminfo to fix them](https://github.com/wez/wezterm/issues/5750)
