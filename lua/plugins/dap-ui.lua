@@ -41,6 +41,6 @@ return {
   end,
   dependencies = {
     "nvim-dap",
-    "nvim-nio",
+    "nvim-neotest/nvim-nio",
   },
 }
