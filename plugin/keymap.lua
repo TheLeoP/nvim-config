@@ -83,7 +83,7 @@ keymap.set(
 )
 
 -- : operator
-vim.keymap.set("n", "<leader>.", function()
+vim.keymap.set({ "n", "x" }, "<leader>.", function()
   vim.o.operatorfunc = "v:lua.require'personal.op'.dot"
   return "g@"
 end, { expr = true })
