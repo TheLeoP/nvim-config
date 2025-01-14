@@ -22,8 +22,6 @@ return {
       rg_glob_fn = function(query, opts)
         ---@type string, string
         local search_query, glob_args = query:match(("(.*)%s(.*)"):format(opts.glob_separator))
-        -- UNCOMMENT TO DEBUG PRINT INTO FZF
-        -- if glob_args then io.write(("q: %s -> flags: %s, query: %s\n"):format(query, glob_args, search_query)) end
         return search_query, glob_args
       end,
     },
