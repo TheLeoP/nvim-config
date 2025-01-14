@@ -21,6 +21,14 @@ local client_secret = vim.env.GOOGLE_CALENDAR_CLIENT_SECRET ---@type string
 
 local data_path = ("%s/%s"):format(vim.fn.stdpath "data", "/calendar")
 data_path = vim.fs.normalize(data_path)
+coroutine.wrap(function()
+  local exists, err = fs_exists(data_path)
+  if exists == nil and err then
+    vim.notify(err, vim.log.levels.ERROR)
+    return
+  end
+  if not exists then vim.fn.mkdir(data_path) end
+end)()
 
 ---@type string, string, string
 local timezone_sign, timezone_offset_hours_s, timezone_offset_minutes_s =
