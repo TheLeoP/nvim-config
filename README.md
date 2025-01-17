@@ -29,6 +29,9 @@
   - cargo
     - [rustup](https://rustup.rs/)
   - Java (open JDK)
+- typescript-tools.nvim
+  - Typescript `npm i -g typescript` (in particular `tsserver`)
+  - The version of `tsserver` included with `ts_ls` on mason.nvim is outdated
 
 ## Notes
 
