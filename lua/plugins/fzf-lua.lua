@@ -77,7 +77,7 @@ return {
   dependencies = {
     {
       "junegunn/fzf",
-      build = function() vim.fn["fzf#install"]() end,
+      build = ":call fzf#install()",
       init = function()
         local separator = vim.fn.has "win32" == 1 and ";" or ":"
         local fzf_path = vim.fn.stdpath "data" .. "/lazy/fzf/bin"
