@@ -84,6 +84,7 @@ return {
         fzf_path = vim.fs.normalize(fzf_path)
         vim.env.PATH = vim.env.PATH .. separator .. fzf_path
       end,
+      config = function() vim.api.nvim_del_user_command "FZF" end,
     },
   },
 }
