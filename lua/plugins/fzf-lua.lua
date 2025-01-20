@@ -87,13 +87,12 @@ return {
       "junegunn/fzf",
       build = ":call fzf#install()",
       init = function()
-        vim.g.loaded_fzf = 1
-
         local separator = vim.fn.has "win32" == 1 and ";" or ":"
         local fzf_path = vim.fn.stdpath "data" .. "/lazy/fzf/bin"
         fzf_path = vim.fs.normalize(fzf_path)
         vim.env.PATH = vim.env.PATH .. separator .. fzf_path
       end,
+      config = function() vim.api.nvim_del_user_command "FZF" end,
     },
   },
 }
