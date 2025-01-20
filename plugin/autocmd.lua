@@ -70,3 +70,24 @@ vim.api.nvim_create_autocmd("BufNewFile", {
     end
   end,
 })
+
+-- show cursor line only in active window
+local cursorline_active_window_augroup = vim.api.nvim_create_augroup("cursorline-active-window", { clear = true })
+vim.api.nvim_create_autocmd({ "InsertLeave", "WinEnter" }, {
+  group = cursorline_active_window_augroup,
+  callback = function()
+    if vim.w.auto_cursorline then
+      vim.wo.cursorline = true
+      vim.w.auto_cursorline = nil
+    end
+  end,
+})
+vim.api.nvim_create_autocmd({ "InsertEnter", "WinLeave" }, {
+  group = cursorline_active_window_augroup,
+  callback = function()
+    if vim.wo.cursorline then
+      vim.w.auto_cursorline = true
+      vim.wo.cursorline = false
+    end
+  end,
+})
