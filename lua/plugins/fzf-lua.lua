@@ -33,6 +33,13 @@ return {
         ["ctrl-c"] = "abort",
       },
     },
+    actions = {
+      files = {
+        ["ctrl-o"] = { fn = require("fzf-lua.actions").toggle_ignore, reuse = true, header = false },
+        ["ctrl-h"] = { fn = require("fzf-lua.actions").toggle_hidden, reuse = true, header = false },
+        ["ctrl-f"] = { fn = require("fzf-lua.actions").toggle_follow, reuse = true, header = false },
+      },
+    },
   },
   config = function(_, opts)
     local fzf = require "fzf-lua"
