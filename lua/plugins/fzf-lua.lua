@@ -88,6 +88,8 @@ return {
     keymap.set("n", "<leader>fgC", fzf.git_commits)
     keymap.set("n", "<leader>fgs", fzf.git_stash)
     keymap.set("n", "<leader>fg<cr>", fzf.git_status)
+
+    keymap.set("n", "<leader>fdb", fzf.dap_breakpoints)
   end,
   dependencies = {
     {
