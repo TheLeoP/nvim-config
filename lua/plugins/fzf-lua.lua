@@ -28,6 +28,10 @@ return {
       end,
     },
     keymap = {
+      builtin = {
+        true, -- inherit from defaults
+        ["<Esc>"] = "hide",
+      },
       fzf = {
         true, -- inherit from defaults
         ["ctrl-c"] = "abort",
@@ -35,6 +39,7 @@ return {
     },
     actions = {
       files = {
+        true, -- inherit from defaults
         ["ctrl-o"] = { fn = require("fzf-lua.actions").toggle_ignore, reuse = true, header = false },
         ["ctrl-h"] = { fn = require("fzf-lua.actions").toggle_hidden, reuse = true, header = false },
         ["ctrl-f"] = { fn = require("fzf-lua.actions").toggle_follow, reuse = true, header = false },
