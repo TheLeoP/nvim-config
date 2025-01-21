@@ -37,17 +37,6 @@ return {
       end,
     }
 
-    -- c#
-    lspconfig.omnisharp.setup {
-      cmd = { "dotnet", config.mason_root .. "omnisharp/libexec/OmniSharp.dll" },
-      capabilities = config.capabilities,
-      settings = {
-        FormattingOptions = {
-          OrganizeImports = true,
-        },
-      },
-    }
-
     -- angular
     lspconfig.angularls.setup {
       capabilities = config.capabilities,
