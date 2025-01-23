@@ -113,8 +113,6 @@ end
 vim.diagnostic.config {
   virtual_text = {
     prefix = "",
-    ---@param diagnostic Diagnostic
-    ---@return string
     format = function(diagnostic)
       local icon = diagnostic_icons[vim.diagnostic.severity[diagnostic.severity]] --[[@as string]]
       local message = vim.split(diagnostic.message, "\n")[1]
@@ -124,10 +122,8 @@ vim.diagnostic.config {
   float = {
     source = "if_many",
     -- Show severity icons as prefixes.
-    ---@param diagnostic Diagnostic
-    ---@return string, string
     prefix = function(diagnostic)
-      local level = vim.diagnostic.severity[diagnostic.severity] --[[@as string]]
+      local level = vim.diagnostic.severity[diagnostic.severity]
       local prefix = string.format(" %s ", diagnostic_icons[level])
       return prefix, "Diagnostic" .. level:gsub("^%l", string.upper)
     end,
@@ -138,6 +134,7 @@ vim.diagnostic.config {
 
 -- Override the virtual text diagnostic handler so that the most severe diagnostic is shown first.
 local show_handler = vim.diagnostic.handlers.virtual_text.show
+---@cast show_handler -nil
 local hide_handler = vim.diagnostic.handlers.virtual_text.hide
 vim.diagnostic.handlers.virtual_text = {
   show = function(ns, bufnr, diagnostics, opts)
