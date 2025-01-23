@@ -1,4 +1,6 @@
 local methods = vim.lsp.protocol.Methods
+local api = vim.api
+local keymap = vim.keymap
 
 local M = {}
 
@@ -18,84 +20,106 @@ M.capabilities.textDocument.foldingRange = {
   lineFoldingOnly = true,
 }
 
-local lsp_group = vim.api.nvim_create_augroup("LSP", { clear = true })
+local lsp_group = api.nvim_create_augroup("LSP", { clear = true })
 
-vim.api.nvim_create_autocmd("LspAttach", {
-  group = lsp_group,
-  ---@param args {buf:integer, data:{client_id:integer}}}
-  callback = function(args)
-    local bufnr = args.buf
-    local client = vim.lsp.get_client_by_id(args.data.client_id)
-    if not client then return end
+---@param client vim.lsp.Client
+---@param buf integer
+local function on_attach(client, buf)
+  if client.supports_method(methods.textDocument_documentSymbol) then require("nvim-navic").attach(client, buf) end
 
-    if client.supports_method(methods.textDocument_documentSymbol) then require("nvim-navic").attach(client, bufnr) end
-
-    vim.keymap.set(
+  if client.supports_method(methods.textDocument_definition) then
+    keymap.set(
       "n",
       "gd",
       function() require("fzf-lua").lsp_definitions { jump_to_single_result = true } end,
-      { buffer = bufnr, desc = "Go to definition" }
+      { buffer = buf, desc = "Go to definition" }
     )
-    vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { buffer = bufnr, desc = "Go to declaration" })
-    vim.keymap.set(
-      "n",
-      "gr",
-      function() require("fzf-lua").lsp_references { jump_to_single_result = true } end,
-      { buffer = bufnr, desc = "Go to reference" }
-    )
-    vim.keymap.set(
-      "n",
-      "gi",
-      function() require("fzf-lua").lsp_implementations { jump_to_single_result = true } end,
-      { buffer = bufnr, desc = "Go to implementation" }
-    )
-    vim.keymap.set("i", "<c-s>", vim.lsp.buf.signature_help, { buffer = bufnr, desc = "Signature help" })
-    vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { buffer = bufnr, desc = "Rename" })
+  end
+  keymap.set("n", "gD", vim.lsp.buf.declaration, { buffer = buf, desc = "Go to declaration" })
+  keymap.set(
+    "n",
+    "grr",
+    function() require("fzf-lua").lsp_references { jump_to_single_result = true } end,
+    { buffer = buf, desc = "Go to reference" }
+  )
+  keymap.set(
+    "n",
+    "gy",
+    function() require("fzf-lua").lsp_typedefs { jump_to_single_result = true } end,
+    { buffer = buf, desc = "Go to reference" }
+  )
+  keymap.set(
+    "n",
+    "gi",
+    function() require("fzf-lua").lsp_implementations { jump_to_single_result = true } end,
+    { buffer = buf, desc = "Go to implementation" }
+  )
+  if client.supports_method(methods.textDocument_signatureHelp) then
+    keymap.set("i", "<c-s>", function()
+      if vim.fn.pumvisible() == 1 then api.nvim_feedkeys(vim.keycode "<c-e>", "n", false) end
+      vim.lsp.buf.signature_help()
+    end, { buffer = buf, desc = "Signature help" })
+  end
+  keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { buffer = buf, desc = "Rename" })
 
-    vim.keymap.set({ "n", "x" }, "<leader>ca", vim.lsp.buf.code_action, { buffer = bufnr, desc = "Code actions" })
-    vim.keymap.set(
-      "n",
-      "<leader>fds",
-      require("fzf-lua").lsp_document_symbols,
-      { buffer = bufnr, desc = "Find document symbols" }
-    )
-    vim.keymap.set(
-      "n",
-      "<leader>fws",
-      require("fzf-lua").lsp_workspace_symbols,
-      { buffer = bufnr, desc = "Find workspace symbols" }
-    )
-    vim.keymap.set(
-      "n",
-      "<leader>fki",
-      require("fzf-lua").lsp_incoming_calls,
-      { buffer = bufnr, desc = "Find incoming calls" }
-    )
-    vim.keymap.set(
-      "n",
-      "<leader>fko",
-      require("fzf-lua").lsp_outgoing_calls,
-      { buffer = bufnr, desc = "Find outgoing calls" }
-    )
+  -- TODO: Remove on 0.11. It'll be a default
+  keymap.set({ "n", "x" }, "gra", vim.lsp.buf.code_action, { buffer = buf, desc = "Code actions" })
+  keymap.set(
+    "n",
+    "<leader>fds",
+    require("fzf-lua").lsp_document_symbols,
+    { buffer = buf, desc = "Find document symbols" }
+  )
+  keymap.set(
+    "n",
+    "<leader>fws",
+    require("fzf-lua").lsp_workspace_symbols,
+    { buffer = buf, desc = "Find workspace symbols" }
+  )
+  keymap.set("n", "<leader>fki", require("fzf-lua").lsp_incoming_calls, { buffer = buf, desc = "Find incoming calls" })
+  keymap.set("n", "<leader>fko", require("fzf-lua").lsp_outgoing_calls, { buffer = buf, desc = "Find outgoing calls" })
 
-    -- TODO: registering keymaps in this way may override older kemaps if a new client is attached that does not support inlay hints/codelens
+  if client.supports_method(methods.textDocument_inlayHint) then
     local inlay_hint = vim.lsp.inlay_hint
-    vim.keymap.set("n", "<leader>ti", function()
-      if client.supports_method(methods.textDocument_inlayHint) then inlay_hint.enable(not inlay_hint.is_enabled()) end
-    end, { buffer = bufnr })
+    keymap.set("n", "<leader>ti", function() inlay_hint.enable(not inlay_hint.is_enabled()) end, { buffer = buf })
+  end
 
-    vim.keymap.set({ "n", "v" }, "<leader>cc", vim.lsp.codelens.run, { desc = "Run codelens" })
-    vim.keymap.set("n", "<leader>cC", vim.lsp.codelens.refresh, { desc = "Refresh & display codelens" })
+  keymap.set({ "n", "x" }, "<leader>cc", vim.lsp.codelens.run, { desc = "Run codelens" })
+  keymap.set("n", "<leader>cC", vim.lsp.codelens.refresh, { desc = "Refresh & display codelens" })
 
-    -- TODO: disabled until https://github.com/neovim/neovim/pull/22115 is merged
-    -- vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
-    --   buffer = bufnr,
-    --   callback = function()
-    --     if client.supports_method(methods.textDocument_codeLens) then vim.lsp.codelens.refresh { bufnr = bufnr } end
-    --   end,
-    -- })
+  -- TODO: disabled until https://github.com/neovim/neovim/pull/22115 is merged
+  -- api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
+  --   buffer = bufnr,
+  --   callback = function()
+  --     if client.supports_method(methods.textDocument_codeLens) then vim.lsp.codelens.refresh { bufnr = bufnr } end
+  --   end,
+  -- })
+end
+
+api.nvim_create_autocmd("LspAttach", {
+  group = lsp_group,
+  ---@param args {buf:integer, data:{client_id:integer}}
+  callback = function(args)
+    local buf = args.buf
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    if not client then return end
+
+    on_attach(client, buf)
   end,
 })
+
+-- Update mappings when registering dynamic capabilities.
+local register_capability = vim.lsp.handlers[methods.client_registerCapability]
+vim.lsp.handlers[methods.client_registerCapability] = function(err, res, ctx)
+  local return_value = register_capability(err, res, ctx)
+
+  local client = vim.lsp.get_client_by_id(ctx.client_id)
+  if not client then return end
+
+  on_attach(client, api.nvim_get_current_buf())
+
+  return return_value
+end
 
 local diagnostic_icons = {
   ERROR = "",
@@ -145,11 +169,11 @@ vim.diagnostic.handlers.virtual_text = {
 }
 
 -- TODO: update on 0.11 since vim.lsp.with will be deprecated
-vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
+vim.lsp.handlers[methods.textDocument_hover] = vim.lsp.with(vim.lsp.handlers.hover, {
   max_height = math.floor(vim.o.lines * 0.5),
   max_width = math.floor(vim.o.columns * 0.4),
 })
-vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, {
+vim.lsp.handlers[methods.textDocument_signatureHelp] = vim.lsp.with(vim.lsp.handlers.signature_help, {
   max_height = math.floor(vim.o.lines * 0.5),
   max_width = math.floor(vim.o.columns * 0.4),
 })
