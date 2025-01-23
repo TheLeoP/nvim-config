@@ -81,7 +81,12 @@ local function on_attach(client, buf)
 
   if client.supports_method(methods.textDocument_inlayHint) then
     local inlay_hint = vim.lsp.inlay_hint
-    keymap.set("n", "<leader>ti", function() inlay_hint.enable(not inlay_hint.is_enabled()) end, { buffer = buf })
+    keymap.set(
+      "n",
+      "<leader>ti",
+      function() inlay_hint.enable(not inlay_hint.is_enabled()) end,
+      { buffer = buf, desc = "Toggle inlay hints" }
+    )
   end
 
   keymap.set({ "n", "x" }, "<leader>cc", vim.lsp.codelens.run, { desc = "Run codelens" })

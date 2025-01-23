@@ -26,6 +26,6 @@ return {
     vim.keymap.set("n", "<leader>tt", function()
       lint_options.enabled = not lint_options.enabled
       vim.notify(("Linting is %s"):format(lint_options.enabled and "enabled" or "disabled"))
-    end)
+    end, { desc = "Toggle lint" })
   end,
 }

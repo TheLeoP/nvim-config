@@ -1,4 +1,4 @@
-local format_options = require'personal.format'.format_options
+local format_options = require("personal.format").format_options
 
 local slow_format_filetypes = {} ---@type table<string, true>
 
@@ -60,6 +60,6 @@ return {
     vim.keymap.set("n", "<leader>tf", function()
       format_options.autoformat = not format_options.autoformat
       vim.notify(("Autoformat is %s"):format(format_options.autoformat and "on" or "off"))
-    end)
+    end, { desc = "Toggle autoformat" })
   end,
 }
