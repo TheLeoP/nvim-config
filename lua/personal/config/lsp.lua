@@ -87,7 +87,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
     vim.keymap.set({ "n", "v" }, "<leader>cc", vim.lsp.codelens.run, { desc = "Run codelens" })
     vim.keymap.set("n", "<leader>cC", vim.lsp.codelens.refresh, { desc = "Refresh & display codelens" })
 
-    -- TODO: diabled until https://github.com/neovim/neovim/pull/22115 is merged
+    -- TODO: disabled until https://github.com/neovim/neovim/pull/22115 is merged
     -- vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
     --   buffer = bufnr,
     --   callback = function()
