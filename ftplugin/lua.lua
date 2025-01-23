@@ -1,3 +1,5 @@
+---@module "mini.ai"
+
 vim.b.minisurround_config = {
   custom_surroundings = {
     s = {
