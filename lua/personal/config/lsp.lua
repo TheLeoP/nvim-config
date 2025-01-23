@@ -144,4 +144,14 @@ vim.diagnostic.handlers.virtual_text = {
   hide = hide_handler,
 }
 
+-- TODO: update on 0.11 since vim.lsp.with will be deprecated
+vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
+  max_height = math.floor(vim.o.lines * 0.5),
+  max_width = math.floor(vim.o.columns * 0.4),
+})
+vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, {
+  max_height = math.floor(vim.o.lines * 0.5),
+  max_width = math.floor(vim.o.columns * 0.4),
+})
+
 return M
