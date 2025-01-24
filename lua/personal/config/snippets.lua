@@ -267,15 +267,6 @@ until <condition>
     )
   ),
   s(
-    { trig = "local ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
-    fmta(
-      [[
-local <lhs> = <rhs>
-  ]],
-      { lhs = i(1), rhs = i(2) }
-    )
-  ),
-  s(
     { trig = "do ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
     fmta(
       [[
