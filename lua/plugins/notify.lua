@@ -16,6 +16,9 @@ return {
         vim.cmd.diffupdate()
         require("notify").dismiss { silent = true, pending = true }
       end
+
+      require("personal.util.general").clear_system_notifications()
+
       vim.cmd.normal { "\12", bang = true } --[[ ctrl-l]]
     end)
 

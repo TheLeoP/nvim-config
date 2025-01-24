@@ -1,5 +1,6 @@
 local api = vim.api
 local auv = require "personal.auv"
+local debounce = require("personal.dedup").debounce
 
 local M = {}
 
@@ -99,5 +100,14 @@ function M.url_decode(url)
   url = url:gsub("%%(%x%x)", hex_to_char)
   return url
 end
+
+M.clear_system_notifications = debounce(function()
+  -- TODO: windows support
+  if vim.fn.has "win32" ~= 1 then
+    vim.system({ "dunstctl", "close-all" }, nil, function(out)
+      if out.stderr ~= "" then vim.notify(out.stderr, vim.log.levels.ERROR) end
+    end)
+  end
+end, 50)
 
 return M
