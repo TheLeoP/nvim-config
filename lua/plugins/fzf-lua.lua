@@ -45,6 +45,23 @@ return {
         ["ctrl-f"] = { fn = require("fzf-lua.actions").toggle_follow, reuse = true, header = false },
       },
     },
+    zoxide = {
+      actions = {
+        ---@param selected string[]
+        ---@param opts table
+        enter = function(selected, opts)
+          require("fzf-lua.actions").cd(selected, opts)
+
+          -- copied from inside of the `cd` action
+          local cwd = selected[1]:match "[^\t]+$" or selected[1]
+          if opts.cwd then cwd = opts.cwd .. cwd end
+          local git_root = opts.git_root and require("fzf-lua.path").git_root({ cwd = cwd }, true) or nil
+          cwd = git_root or cwd
+
+          vim.cmd.edit(cwd)
+        end,
+      },
+    },
   },
   config = function(_, opts)
     local fzf = require "fzf-lua"
