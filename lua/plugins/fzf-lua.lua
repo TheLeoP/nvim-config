@@ -50,6 +50,7 @@ return {
     local fzf = require "fzf-lua"
     fzf.setup(opts)
 
+    keymap.set("n", "<leader>fe", fzf.zoxide)
     keymap.set("n", "<leader>ff", fzf.files)
     keymap.set("n", "<leader>fb", fzf.buffers)
     keymap.set("n", "<leader>fh", fzf.help_tags)
