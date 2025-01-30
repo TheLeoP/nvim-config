@@ -44,13 +44,13 @@ local function on_attach(client, buf)
   )
   keymap.set(
     "n",
-    "gy",
+    "grt",
     function() require("fzf-lua").lsp_typedefs { jump_to_single_result = true } end,
     { buffer = buf, desc = "Go to reference" }
   )
   keymap.set(
     "n",
-    "gi",
+    "gri",
     function() require("fzf-lua").lsp_implementations { jump_to_single_result = true } end,
     { buffer = buf, desc = "Go to implementation" }
   )
@@ -60,16 +60,11 @@ local function on_attach(client, buf)
       vim.lsp.buf.signature_help()
     end, { buffer = buf, desc = "Signature help" })
   end
-  keymap.set("n", "<leader>rn", vim.lsp.buf.rename, { buffer = buf, desc = "Rename" })
 
   -- TODO: Remove on 0.11. It'll be a default
   keymap.set({ "n", "x" }, "gra", vim.lsp.buf.code_action, { buffer = buf, desc = "Code actions" })
-  keymap.set(
-    "n",
-    "<leader>fds",
-    require("fzf-lua").lsp_document_symbols,
-    { buffer = buf, desc = "Find document symbols" }
-  )
+  keymap.set("n", "grn", vim.lsp.buf.rename, { buffer = buf, desc = "Rename" })
+  keymap.set("n", "gO", require("fzf-lua").lsp_document_symbols, { buffer = buf, desc = "Find document symbols" })
   keymap.set(
     "n",
     "<leader>fws",
