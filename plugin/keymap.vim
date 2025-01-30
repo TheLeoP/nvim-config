@@ -70,6 +70,3 @@ inoremap <c-a> <c-k>
 
 nnoremap <c-w>n <cmd>vertical new<cr>
 nnoremap <c-w><c-n> <cmd>vertical new<cr>
-
-nnoremap <left> g;
-nnoremap <right> g,

@@ -7,11 +7,6 @@ return {
     config = function()
       local leap = require "leap"
       leap.opts.equivalence_classes = { " \t\r\n", "([{", ")]}", "'\"`" }
-      leap.opts.special_keys.prev_target = "<up>"
-      leap.opts.special_keys.prev_group = "<up>"
-      leap.opts.special_keys.next_target = "<down>"
-      leap.opts.special_keys.next_group = "<down>"
-      require("leap.user").set_repeat_keys("<down>", "<up>")
 
       keymap.set({ "n" }, "s", function() leap.leap {} end, { desc = "leap" })
       keymap.set(

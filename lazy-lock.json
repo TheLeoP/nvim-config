@@ -59,6 +59,7 @@
   "snacks.nvim": { "branch": "main", "commit": "6effbcdff110c16f49c2cef5d211db86f6db5820" },
   "ssr.nvim": { "branch": "main", "commit": "7c95cfa5836508f08ae833a4b31d2ed265560f64" },
   "suda.vim": { "branch": "master", "commit": "9adda7d195222d4e2854efb2a88005a120296c47" },
+  "treewalker.nvim": { "branch": "main", "commit": "da50eacff9b482593ad09bd83835339558ac1dac" },
   "typescript-tools.nvim": { "branch": "master", "commit": "35e397ce467bedbbbb5bfcd0aa79727b59a08d4a" },
   "undotree": { "branch": "master", "commit": "2556c6800b210b2096b55b66e74b4cc1d9ebbe4f" },
   "vim-asterisk": { "branch": "master", "commit": "77e97061d6691637a034258cc415d98670698459" },
