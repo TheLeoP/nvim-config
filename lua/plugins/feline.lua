@@ -121,7 +121,7 @@ local modes = setmetatable({
 local function mode() return modes[vim.api.nvim_get_mode().mode] end
 
 return {
-  "theleop/feline.nvim",
+  "famiu/feline.nvim",
   config = function()
     local navic = require "nvim-navic"
     local vi_mode = require "feline.providers.vi_mode"

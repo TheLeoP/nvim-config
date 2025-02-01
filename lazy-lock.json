@@ -6,7 +6,7 @@
   "coq_nvim": { "branch": "coq", "commit": "6237214d63624cd253d6e904f95476747d873cc1" },
   "diffview.nvim": { "branch": "main", "commit": "4516612fe98ff56ae0415a259ff6361a89419b0a" },
   "dressing.nvim": { "branch": "master", "commit": "56ef6a969a4990d938c5fed40c370f65e125fc97" },
-  "feline.nvim": { "branch": "main", "commit": "8184e3765d2a604b73c059f7eeab73212575fb0e" },
+  "feline.nvim": { "branch": "master", "commit": "3587f57480b88e8009df7b36dc84e9c7ff8f2c49" },
   "fzf": { "branch": "master", "commit": "b7795a3deaa4339cebddd267fe68b39aff5380cc" },
   "fzf-lua": { "branch": "main", "commit": "aaf7604bca38890cb487b29738f8cb02586bc818" },
   "gitsigns.nvim": { "branch": "main", "commit": "9b36d497495436c135659902054ee637e0ba6021" },
