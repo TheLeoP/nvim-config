@@ -86,7 +86,7 @@ local function git_branch_provider()
   local head = (" %s"):format(vim.b.gitsigns_head or vim.g.gitsigns_head)
 
   local head_width = api.nvim_strwidth(head)
-  local max_width = vim.o.columns * 0.1
+  local max_width = vim.o.columns * 0.12
   if head_width > max_width then
     -- 2 because of " …"
     -- 1 because of 1 based index
