@@ -34,7 +34,7 @@ local function file_provider()
   local str_width = api.nvim_strwidth(str)
   local max_width = vim.o.columns * 0.4
   if str_width > max_width then
-    -- 2 because of " … "
+    -- 2 because of " …"
     -- 1 because of 1 based index
     local start = str_width + 2 + 1 - max_width
     return (" …%s"):format(str_multibyte_sub(str, start))
@@ -81,8 +81,20 @@ local function navic_provider(_, opts)
 end
 
 local function git_branch_provider()
-  local head = vim.b.gitsigns_head or vim.g.gitsigns_head
-  return (" %s"):format(head)
+  local str_multibyte_sub = require("personal.util.general").str_multibyte_sub
+
+  local head = (" %s"):format(vim.b.gitsigns_head or vim.g.gitsigns_head)
+
+  local head_width = api.nvim_strwidth(head)
+  local max_width = vim.o.columns * 0.1
+  if head_width > max_width then
+    -- 2 because of " …"
+    -- 1 because of 1 based index
+    local start = head_width + 2 + 1 - max_width
+    return (" …%s"):format(str_multibyte_sub(head, start))
+  end
+
+  return head
 end
 
 local CTRL_S = vim.keycode "<C-S>"
@@ -129,7 +141,7 @@ return {
         local cwd_width = api.nvim_strwidth(cwd)
         local max_width = vim.o.columns * 0.32
         if cwd_width > max_width then
-          -- 2 because of " … "
+          -- 2 because of " …"
           -- 1 because of 1 based index
           local start = cwd_width + 2 + 1 - max_width
           return (" …%s"):format(str_multibyte_sub(cwd, start))
