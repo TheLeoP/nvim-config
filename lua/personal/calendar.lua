@@ -27,7 +27,10 @@ coroutine.wrap(function()
     vim.notify(err, vim.log.levels.ERROR)
     return
   end
-  if not exists then vim.fn.mkdir(data_path) end
+  if not exists then
+    auv.schedule()
+    vim.fn.mkdir(data_path)
+  end
 end)()
 
 ---@type string, string, string
@@ -1981,6 +1984,7 @@ function CalendarView:show(year, month, opts)
     end
 
     self.month_buf = api.nvim_create_buf(false, false)
+
     api.nvim_buf_set_lines(self.month_buf, 0, -1, true, self:month(month, y_m_height))
     M.undo_clear(self.month_buf)
     vim.bo[self.month_buf].modified = false

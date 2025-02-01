@@ -1,6 +1,7 @@
 -- ported from https://github.com/vuciv/vim-bujo
 
 local fs_exists = require("personal.util.general").fs_exists
+local auv = require "personal.auv"
 local co_resume = require("personal.auv").co_resume
 
 local M = {}
@@ -15,7 +16,10 @@ coroutine.wrap(function()
     vim.notify(err, vim.log.levels.ERROR)
     return
   end
-  if not exists then vim.fn.mkdir(data_path) end
+  if not exists then
+    auv.schedule()
+    vim.fn.mkdir(data_path)
+  end
 end)()
 
 ---@async
@@ -80,7 +84,10 @@ local function get_path()
   local exists, err = fs_exists(todo_path)
   if err then return vim.notify(err, vim.log.levels.ERROR) end
   if exists == nil then return end
-  if not exists then vim.fn.mkdir(todo_path) end
+  if not exists then
+    auv.schedule()
+    vim.fn.mkdir(todo_path)
+  end
   return ("%s/todo.md"):format(todo_path)
 end
 
