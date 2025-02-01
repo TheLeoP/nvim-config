@@ -26,7 +26,9 @@ function M.setup()
     api.nvim_feedkeys("t", "n", false)
 
     local row, col = unpack(api.nvim_win_get_cursor(0))
-    local word = api.nvim_buf_get_text(0, row - 1, col - 4, row - 1, col, {})
+    local start_col = math.max(col - 4, 0)
+    local end_col = col
+    local word = api.nvim_buf_get_text(0, row - 1, start_col, row - 1, end_col, {})[1]
     -- `awai` because this gets called before the `t` is added to the buffer
     if word ~= "awai" then return end
 
