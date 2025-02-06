@@ -59,10 +59,21 @@ end
 
 ---@async
 ---@param fd integer
----@return nil|string err, table|nil stat
+---@return nil|string err, boolean|nil success
 function M.fs_close(fd)
   local co = coroutine.running()
   uv.fs_close(fd, function(err, success) M.co_resume(co, err, success) end)
+  return coroutine.yield()
+end
+
+---@async
+---@param fd integer
+---@param data string
+---@param offset integer|nil
+---@return nil|string err, integer|nil bytes
+function M.fs_write(fd, data, offset)
+  local co = coroutine.running()
+  uv.fs_write(fd, data, offset, function(err, bytes) M.co_resume(co, err, bytes) end)
   return coroutine.yield()
 end
 
