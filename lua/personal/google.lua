@@ -157,7 +157,8 @@ function M.refresh_access_token(refresh_token)
   return coroutine.yield()
 end
 
-local scope = "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/tasks"
+local scope =
+  "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/tasks https://www.googleapis.com/auth/drive"
 scope = assert(url_encode(scope))
 local redirect_uri = "http://localhost:8080"
 redirect_uri = assert(url_encode(redirect_uri))
