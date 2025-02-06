@@ -18,10 +18,8 @@ local api = vim.api
 local new_uid = require("personal.util.general").new_uid
 
 return {
-  -- HACK: use my own fork of coq_nvim until a response on
-  -- https://github.com/ms-jpq/coq_nvim/pull/681 is given
-  "TheLeoP/coq_nvim",
-  branch = "fix_assert",
+  "ms-jpq/coq_nvim",
+  branch = "coq",
   init = function()
     vim.cmd [[set wildchar=<right>]]
     vim.o.completeopt = "menuone,noselect,noinsert"
