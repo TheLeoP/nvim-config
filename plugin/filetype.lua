@@ -2,6 +2,7 @@ vim.filetype.add {
   extension = {
     props = "xml",
     http = "http",
+    turing = "markdown",
   },
   filename = {
     ["qwerty.txt"] = "kinesis",
