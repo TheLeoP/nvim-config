@@ -767,6 +767,7 @@ end
 ---@field focusTimeProperties FocusTimeProperties
 ---@field attachments Attachment[]
 ---@field eventType string
+---@field _calendar_id string Added to make it easier to get event information after grouping events from all calendars
 
 ---@class CalendarEvents
 ---@field kind "calendar#events"
@@ -874,6 +875,8 @@ function M.get_events(token_info, calendar_list, opts)
           iter(events.items):each(
             ---@param event Event
             function(event)
+              event._calendar_id = calendar.id
+
               local start_date = M.parse_date_or_datetime(event.start, {})
               local end_date = M.parse_date_or_datetime(event["end"], { is_end = true })
 
@@ -2779,12 +2782,8 @@ function M.event_show(token_info, calendar_list, day_events, opts)
     ---@type Calendar
     local calendar = iter(calendar_list.items):find(
       ---@param calendar CalendarListEntry
-      function(calendar) return calendar.id == event.organizer.email end
+      function(calendar) return calendar.id == event._calendar_id end
     )
-      or iter(calendar_list.items):find(
-        ---@param calendar CalendarListEntry
-        function(calendar) return calendar.id == event.creator.email end
-      )
     assert(calendar, ("There is no calendar for event %s"):format(event_id))
 
     local consulted_id = opts.recurring and event.recurringEventId or event.id
