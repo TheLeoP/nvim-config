@@ -5,6 +5,8 @@ local refresh_access_token = google.refresh_access_token
 local get_token_info = google.get_token_info
 local fs = vim.fs
 
+local token_prefix = "turing-"
+
 ---@class FileResponse
 ---@field id string
 ---@field kind "drive#file"
@@ -77,7 +79,7 @@ Content-Type: image/png
       assert(response.error.status == "UNAUTHENTICATED", response.error.message)
       coroutine.wrap(function()
         auv.schedule()
-        local refreshed_token_info = refresh_access_token(token_info.refresh_token)
+        local refreshed_token_info = refresh_access_token(token_info.refresh_token, token_prefix)
         local file_response = upload_screenshot(refreshed_token_info, image_name, name)
         co_resume(co, file_response)
       end)()
@@ -121,7 +123,7 @@ local ok = w:start(path, {}, function(err, filename, events)
     if type ~= "created" or not fullpath:find "%.png$" or already_seen[fullpath] then return end
     already_seen[fullpath] = true
 
-    local token_info = get_token_info()
+    local token_info = get_token_info(token_prefix)
     assert(token_info, "There is no token_info")
     auv.schedule()
     local file_response = upload_screenshot(token_info, fullpath)

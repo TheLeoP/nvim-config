@@ -11,7 +11,7 @@ local api_key = vim.env.GOOGLE_CALENDAR_API_KEY ---@type string
 local client_id = vim.env.GOOGLE_CALENDAR_CLIENT_ID ---@type string
 local client_secret = vim.env.GOOGLE_CALENDAR_CLIENT_SECRET ---@type string
 
-local data_path = ("%s/%s"):format(vim.fn.stdpath "data", "/calendar")
+local data_path = ("%s/%s"):format(vim.fn.stdpath "data", "/google")
 data_path = vim.fs.normalize(data_path)
 coroutine.wrap(function()
   local exists, err = fs_exists(data_path)
@@ -73,14 +73,17 @@ Content-Type: text/html
 end
 
 local token_url = "https://oauth2.googleapis.com/token"
-local refresh_token_path = ("%s/refresh_token.json"):format(data_path)
 local _cache_token_info ---@type TokenInfo|nil
 local is_refreshing_access_token = false
 
 ---@async
 ---@param refresh_token string
+---@param prefix string?
 ---@return TokenInfo
-function M.refresh_access_token(refresh_token)
+function M.refresh_access_token(refresh_token, prefix)
+  prefix = prefix or ""
+  local token_path = ("%s/%stoken.json"):format(data_path, prefix)
+
   local co = coroutine.running()
   assert(co, "The function must run inside a coroutine")
 
@@ -120,7 +123,7 @@ function M.refresh_access_token(refresh_token)
         assert(new_token_info.error == "invalid_grant", vim.inspect(new_token_info))
 
         _cache_token_info = nil
-        assert(vim.fn.delete(refresh_token_path) == 0, ("Couldn't delete file %s"):format(refresh_token_path))
+        assert(vim.fn.delete(token_path) == 0, ("Couldn't delete file %s"):format(token_path))
 
         coroutine.wrap(function()
           local token_info = M.get_token_info()
@@ -143,7 +146,7 @@ function M.refresh_access_token(refresh_token)
       _cache_token_info.scope = new_token_info.scope
       _cache_token_info.token_type = new_token_info.token_type
 
-      local file = io.open(refresh_token_path, "w")
+      local file = io.open(token_path, "w")
       assert(file)
       local ok2, token_info_string = pcall(vim.json.encode, _cache_token_info) ---@type boolean, string
       assert(ok2, token_info_string)
@@ -185,22 +188,26 @@ local full_auth_url = ("%s?client_id=%s&redirect_uri=%s&scope=%s&response_type=c
 ---@field token_type string
 
 ---Reads from file if exists and asks for a token if not. May return an invalid/revoked token
+---@param prefix string?
 ---@async
 ---@return TokenInfo|nil
-function M.get_token_info()
+function M.get_token_info(prefix)
+  prefix = prefix or ""
+  local token_path = ("%s/%stoken.json"):format(data_path, prefix)
+
   local co = coroutine.running()
   assert(co, "The function must run inside a coroutine")
 
   if _cache_token_info then return _cache_token_info end
 
-  local exists, err = fs_exists(refresh_token_path)
+  local exists, err = fs_exists(token_path)
   if exists == nil and err then
     vim.notify(err, vim.log.levels.ERROR)
     return
   end
   if exists then
     local fd
-    err, fd = auv.fs_open(refresh_token_path, "r", 292) ---444
+    err, fd = auv.fs_open(token_path, "r", 292) ---444
     if err then return vim.notify(err, vim.log.levels.ERROR) end
     ---@cast fd -nil
     local stat
@@ -252,7 +259,7 @@ function M.get_token_info()
         assert(ok, token_info)
         ---@cast token_info -string
 
-        local file = io.open(refresh_token_path, "w")
+        local file = io.open(token_path, "w")
         assert(file)
         file:write(result.stdout)
         file:close()
