@@ -3,7 +3,7 @@ return {
   opts = {
     cmp = false,
     library = {
-      { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+      { path = "${3rd}/luv/library", words = { "vim%.uv", 'require "luv"' } },
       { path = "busted/library", words = { "it%(", "describe%(" } },
       { path = "wezterm-types", mods = { "wezterm" } },
     },
