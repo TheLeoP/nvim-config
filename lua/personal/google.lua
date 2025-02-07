@@ -73,7 +73,7 @@ Content-Type: text/html
 end
 
 local token_url = "https://oauth2.googleapis.com/token"
-local _cache_token_info ---@type TokenInfo|nil
+local _cache_token_info = {} ---@type table<string, TokenInfo>
 local is_refreshing_access_token = false
 
 ---@async
@@ -122,7 +122,7 @@ function M.refresh_access_token(refresh_token, prefix)
         ---@cast new_token_info -NewTokenInfo
         assert(new_token_info.error == "invalid_grant", vim.inspect(new_token_info))
 
-        _cache_token_info = nil
+        _cache_token_info[prefix] = nil
         assert(vim.fn.delete(token_path) == 0, ("Couldn't delete file %s"):format(token_path))
 
         coroutine.wrap(function()
@@ -141,20 +141,21 @@ function M.refresh_access_token(refresh_token, prefix)
       ---@cast new_token_info +NewTokenInfo
       ---@cast new_token_info -ApiTokenErrorResponse
 
-      _cache_token_info.access_token = new_token_info.access_token
-      _cache_token_info.expires_in = new_token_info.expires_in
-      _cache_token_info.scope = new_token_info.scope
-      _cache_token_info.token_type = new_token_info.token_type
+      local cached_token_info = _cache_token_info[prefix]
+      cached_token_info.access_token = new_token_info.access_token
+      cached_token_info.expires_in = new_token_info.expires_in
+      cached_token_info.scope = new_token_info.scope
+      cached_token_info.token_type = new_token_info.token_type
 
       local file = io.open(token_path, "w")
       assert(file)
-      local ok2, token_info_string = pcall(vim.json.encode, _cache_token_info) ---@type boolean, string
+      local ok2, token_info_string = pcall(vim.json.encode, cached_token_info) ---@type boolean, string
       assert(ok2, token_info_string)
       file:write(token_info_string)
       file:close()
 
       is_refreshing_access_token = false
-      api.nvim_exec_autocmds("User", { pattern = token_refreshed_pattern, data = { token_info = _cache_token_info } })
+      api.nvim_exec_autocmds("User", { pattern = token_refreshed_pattern, data = { token_info = cached_token_info } })
     end)
   )
   return coroutine.yield()
@@ -198,7 +199,7 @@ function M.get_token_info(prefix)
   local co = coroutine.running()
   assert(co, "The function must run inside a coroutine")
 
-  if _cache_token_info then return _cache_token_info end
+  if _cache_token_info[prefix] then return _cache_token_info[prefix] end
 
   local exists, err = fs_exists(token_path)
   if exists == nil and err then
@@ -225,7 +226,7 @@ function M.get_token_info(prefix)
     assert(ok, token_info)
     ---@cast token_info -string
 
-    _cache_token_info = token_info
+    _cache_token_info[prefix] = token_info
     return token_info
   end
 
@@ -264,7 +265,7 @@ function M.get_token_info(prefix)
         file:write(result.stdout)
         file:close()
 
-        _cache_token_info = token_info
+        _cache_token_info[prefix] = token_info
         co_resume(co, token_info)
       end)
     end,
