@@ -7,6 +7,11 @@ local fs = vim.fs
 
 local token_prefix = "turing-"
 
+local mime = {
+  png = "image/png",
+  mp4 = "video/mp4",
+}
+
 ---@class FileResponse
 ---@field id string
 ---@field kind "drive#file"
@@ -26,9 +31,11 @@ local function upload_screenshot(token_info, image_name, name)
     if not name then return end
   end
 
+  local extension = vim.fn.fnamemodify(name, ":e")
+
   local image_file = io.open(image_name, "r")
   assert(image_file)
-  local image = image_file:read "*a"
+  local file_content = image_file:read "*a"
   image_file:close()
 
   local tmp_name = os.tmpname()
@@ -40,7 +47,7 @@ Content-Type: application/json; charset=UTF-8
 %s
 
 --foo
-Content-Type: image/png
+Content-Type: %s
 
 %s
 --foo--
@@ -49,7 +56,8 @@ Content-Type: image/png
       name = name,
       parents = { "1XdSAONKCW96NfsTOZYNFLEA8oNxAyZIL" },
     },
-    image
+    mime[extension],
+    file_content
   )
   tmp_file:write(data)
   tmp_file:close()
@@ -120,7 +128,9 @@ local ok = w:start(path, {}, function(err, filename, events)
     end
     assert(type)
 
-    if type ~= "created" or not fullpath:find "%.png$" or already_seen[fullpath] then return end
+    if type ~= "created" or not (fullpath:find "%.png$" or fullpath:find "%.mp4$") or already_seen[fullpath] then
+      return
+    end
     already_seen[fullpath] = true
 
     local token_info = get_token_info(token_prefix)
