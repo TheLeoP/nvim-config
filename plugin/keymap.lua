@@ -44,8 +44,8 @@ keymap.set({ "n" }, "<leader><leader>t", "<cmd>tab split<cr>")
 
 -- jumplist on j and k
 
-keymap.set("n", "j", [[(v:count ? "m'" . v:count : "") . "gj"]], { expr = true })
-keymap.set("n", "k", [[(v:count ? "m'" . v:count : "") . "gk"]], { expr = true })
+keymap.set("n", "j", [[v:count ? "m'" .. v:count .. 'j' : "gj"]], { expr = true })
+keymap.set("n", "k", [[v:count ? "m'" .. v:count .. 'k' : "gk"]], { expr = true })
 
 -- toggle options
 
