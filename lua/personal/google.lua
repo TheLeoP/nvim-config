@@ -33,7 +33,7 @@ local function start_server(opts)
   server:bind("127.0.0.1", 8080)
   server:listen(180, function(err)
     assert(not err, err)
-    local client = uv.new_tcp()
+    local client = assert(uv.new_tcp())
     assert(server:accept(client))
     assert(client:read_start(vim.schedule_wrap(
       ---@param err2 string|nil
