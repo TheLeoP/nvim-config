@@ -52,7 +52,7 @@ return {
         codeaction = function(action_tuple)
           local title = action_tuple.action.title
           local client = vim.lsp.get_client_by_id(action_tuple.ctx.client_id)
-          return string.format("%s\t[%s]", title, client.name)
+          return ("%s\t[%s]"):format(title, client.name)
         end,
       },
     },

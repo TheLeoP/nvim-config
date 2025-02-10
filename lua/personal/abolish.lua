@@ -148,19 +148,17 @@ end
 ---@param p abolish.parsed_input
 local function expand_braces(p)
   local out = {} ---@type table<string, string>
-  local string = p.string or { before = "", fragments = {}, after = "" }
+  local str = p.string or { before = "", fragments = {}, after = "" }
 
-  local total = math.max(#p.pattern.fragments, #string.fragments)
+  local total = math.max(#p.pattern.fragments, #str.fragments)
 
   if total == 0 then
-    out[p.pattern.before .. p.pattern.after] = string.before .. string.after
+    out[p.pattern.before .. p.pattern.after] = str.before .. str.after
     return out
   end
 
   for i = 1, total do
-    out[p.pattern.before .. p.pattern.fragments[i] .. p.pattern.after] = string.before
-      .. string.fragments[i]
-      .. string.after
+    out[p.pattern.before .. p.pattern.fragments[i] .. p.pattern.after] = str.before .. str.fragments[i] .. str.after
   end
   return out
 end

@@ -74,16 +74,14 @@ end
 
 ---@param c string
 ---@return string
-local char_to_hex = function(c) return string.format("%%%02X", string.byte(c)) end
+local char_to_hex = function(c) return ("%%%02X"):format(c:byte()) end
 
 ---@param url string
 ---@return string|nil
 function M.url_encode(url)
   if url == nil then return end
   url = url:gsub("\n", "\r\n")
-  -- maybe use this instead of line below (?)
-  -- url = url:gsub("([^%w _%%%-%.~])", char_to_hex)
-  url = url:gsub("([^%w ])", char_to_hex)
+  url = url:gsub("([^%w _%%%-%.~])", char_to_hex)
   url = url:gsub(" ", "+")
   return url
 end

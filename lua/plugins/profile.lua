@@ -7,7 +7,7 @@ local function toggle_profile()
     vim.ui.input({ prompt = "Save profile to:", completion = "file", default = "profile.json" }, function(filename)
       if filename then
         prof.export(filename)
-        vim.notify(string.format("Wrote %s", filename))
+        vim.notify(("Wrote %s"):format(filename))
       end
     end)
   else

@@ -140,7 +140,7 @@ vim.diagnostic.config {
     format = function(diagnostic)
       local icon = diagnostic_icons[vim.diagnostic.severity[diagnostic.severity]] --[[@as string]]
       local message = vim.split(diagnostic.message, "\n")[1]
-      return string.format("%s %s ", icon, message)
+      return ("%s %s "):format(icon, message)
     end,
   },
   float = {
@@ -148,7 +148,7 @@ vim.diagnostic.config {
     -- Show severity icons as prefixes.
     prefix = function(diagnostic)
       local level = vim.diagnostic.severity[diagnostic.severity]
-      local prefix = string.format(" %s ", diagnostic_icons[level])
+      local prefix = (" %s "):format(diagnostic_icons[level])
       return prefix, "Diagnostic" .. level:gsub("^%l", string.upper)
     end,
   },
