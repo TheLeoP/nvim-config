@@ -75,30 +75,25 @@ Content-Type: %s
     "--header",
     ("Content-Length: %d"):format(#data),
     "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
-  }, { text = true }, function(result)
-    assert(result.stderr == "", result.stderr)
+  }, { text = true }, function(result) co_resume(co, result) end)
+  local result = coroutine.yield() ---@type vim.SystemCompleted
 
-    local ok, response = pcall(vim.json.decode, result.stdout) ---@type boolean, string|FileResponse|ApiErrorResponse
-    assert(ok, response)
-    ---@cast response -string
+  assert(result.stderr == "", result.stderr)
 
-    if response.error then
-      ---@cast response -FileResponse
-      assert(response.error.status == "UNAUTHENTICATED", response.error.message)
-      coroutine.wrap(function()
-        auv.schedule()
-        local refreshed_token_info = refresh_access_token(token_info.refresh_token, token_prefix)
-        local file_response = upload_screenshot(refreshed_token_info, image_name, name)
-        co_resume(co, file_response)
-      end)()
+  local ok, response = pcall(vim.json.decode, result.stdout) ---@type boolean, string|FileResponse|ApiErrorResponse
+  assert(ok, response)
+  ---@cast response -string
 
-      return
-    end
+  if response.error then
+    ---@cast response -FileResponse
+    assert(response.error.status == "UNAUTHENTICATED", response.error.message)
+    auv.schedule()
+    local refreshed_token_info = refresh_access_token(token_info.refresh_token, token_prefix)
+    return upload_screenshot(refreshed_token_info, image_name, name)
+  end
+  ---@cast response -ApiErrorResponse
 
-    co_resume(co, response)
-  end)
-
-  return coroutine.yield()
+  return response
 end
 
 local already_seen = {} ---@type table<string, boolean>
