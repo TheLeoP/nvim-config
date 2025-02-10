@@ -126,11 +126,8 @@ function M.refresh_access_token(refresh_token, prefix)
           local token_info = M.get_token_info()
           assert(token_info, "There is no token_info")
           is_refreshing_access_token = false
-          vim.schedule(
-            function()
-              api.nvim_exec_autocmds("User", { pattern = token_refreshed_pattern, data = { token_info = token_info } })
-            end
-          )
+          auv.schedule()
+          api.nvim_exec_autocmds("User", { pattern = token_refreshed_pattern, data = { token_info = token_info } })
         end)()
 
         return
