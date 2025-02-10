@@ -1600,7 +1600,7 @@ function CalendarView:show(year, month, opts)
     if has_loaded then return end
 
     notification = notify.add("Calendar: Loading    ", "INFO", "DiagnosticOk") ---@type number|nil
-    local timer = uv.new_timer()
+    local timer = assert(uv.new_timer())
     local count = 1
     local loading = {
       "Calendar: Loading    ",
