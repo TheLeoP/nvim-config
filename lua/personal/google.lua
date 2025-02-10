@@ -7,9 +7,9 @@ local co_resume = auv.co_resume
 
 local M = {}
 
-local api_key = vim.env.GOOGLE_CALENDAR_API_KEY ---@type string
-local client_id = vim.env.GOOGLE_CALENDAR_CLIENT_ID ---@type string
-local client_secret = vim.env.GOOGLE_CALENDAR_CLIENT_SECRET ---@type string
+local api_key = vim.env.GOOGLE_API_KEY ---@type string
+local client_id = vim.env.GOOGLE_CLIENT_ID ---@type string
+local client_secret = vim.env.GOOGLE_CLIENT_SECRET ---@type string
 
 local data_path = ("%s/%s"):format(vim.fn.stdpath "data", "/google")
 data_path = vim.fs.normalize(data_path)
@@ -84,7 +84,7 @@ function M.refresh_access_token(refresh_token, prefix)
   local co = coroutine.running()
   assert(co, "The function must run inside a coroutine")
 
-  local token_refreshed_pattern = "CalendarAccessTokenRefreshed"
+  local token_refreshed_pattern = "GoogleAccessTokenRefreshed"
   api.nvim_create_autocmd("User", {
     pattern = token_refreshed_pattern,
     ---@param opts {data:{token_info: TokenInfo}}
