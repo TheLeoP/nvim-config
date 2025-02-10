@@ -99,59 +99,56 @@ function M.refresh_access_token(refresh_token, prefix)
     client_secret,
     refresh_token
   )
-  vim.system(
-    {
-      "curl",
-      "--data",
-      params,
-      "--http1.1",
-      "--silent",
-      token_url,
-    },
-    { text = true },
-    vim.schedule_wrap(function(result)
-      assert(result.stderr == "", result.stderr)
-      local ok, new_token_info = pcall(vim.json.decode, result.stdout) ---@type boolean, NewTokenInfo|ApiTokenErrorResponse|string
-      assert(ok, new_token_info)
-      ---@cast new_token_info -string
+  vim.system({
+    "curl",
+    "--data",
+    params,
+    "--http1.1",
+    "--silent",
+    token_url,
+  }, { text = true }, function(result) co_resume(co, result) end)
+  local result = coroutine.yield() ---@type vim.SystemCompleted
 
-      if new_token_info.error then
-        ---@cast new_token_info -NewTokenInfo
-        assert(new_token_info.error == "invalid_grant", vim.inspect(new_token_info))
+  assert(result.stderr == "", result.stderr)
+  local ok, new_token_info = pcall(vim.json.decode, result.stdout) ---@type boolean, NewTokenInfo|ApiTokenErrorResponse|string
+  assert(ok, new_token_info)
+  ---@cast new_token_info -string
 
-        _cache_token_info[prefix] = nil
-        assert(vim.fn.delete(token_path) == 0, ("Couldn't delete file %s"):format(token_path))
+  local token_info ---@type TokenInfo
+  if new_token_info.error then
+    ---@cast new_token_info -NewTokenInfo
+    assert(new_token_info.error == "invalid_grant", vim.inspect(new_token_info))
 
-        coroutine.wrap(function()
-          local token_info = M.get_token_info()
-          assert(token_info, "There is no token_info")
-          is_refreshing_access_token = false
-          auv.schedule()
-          api.nvim_exec_autocmds("User", { pattern = token_refreshed_pattern, data = { token_info = token_info } })
-        end)()
+    _cache_token_info[prefix] = nil
+    assert(vim.fn.delete(token_path) == 0, ("Couldn't delete file %s"):format(token_path))
 
-        return
-      end
-      ---@cast new_token_info +NewTokenInfo
-      ---@cast new_token_info -ApiTokenErrorResponse
+    token_info = assert(M.get_token_info(), "There is no token_info")
+  else
+    ---@cast new_token_info +NewTokenInfo
+    ---@cast new_token_info -ApiTokenErrorResponse
 
-      local cached_token_info = _cache_token_info[prefix]
-      cached_token_info.access_token = new_token_info.access_token
-      cached_token_info.expires_in = new_token_info.expires_in
-      cached_token_info.scope = new_token_info.scope
-      cached_token_info.token_type = new_token_info.token_type
+    local cached_token_info = _cache_token_info[prefix]
+    cached_token_info.access_token = new_token_info.access_token
+    cached_token_info.expires_in = new_token_info.expires_in
+    cached_token_info.scope = new_token_info.scope
+    cached_token_info.token_type = new_token_info.token_type
 
-      local file = io.open(token_path, "w")
-      assert(file)
-      local ok2, token_info_string = pcall(vim.json.encode, cached_token_info) ---@type boolean, string
-      assert(ok2, token_info_string)
-      file:write(token_info_string)
-      file:close()
+    local file = io.open(token_path, "w")
+    assert(file)
+    local ok2, token_info_string = pcall(vim.json.encode, cached_token_info) ---@type boolean, string
+    assert(ok2, token_info_string)
+    file:write(token_info_string)
+    file:close()
 
-      is_refreshing_access_token = false
-      api.nvim_exec_autocmds("User", { pattern = token_refreshed_pattern, data = { token_info = cached_token_info } })
-    end)
-  )
+    token_info = cached_token_info
+  end
+
+  -- to be executed after coroutine.yield()
+  vim.schedule(function()
+    api.nvim_exec_autocmds("User", { pattern = token_refreshed_pattern, data = { token_info = token_info } })
+    is_refreshing_access_token = false
+  end)
+
   return coroutine.yield()
 end
 
@@ -224,7 +221,7 @@ function M.get_token_info(prefix)
     return token_info
   end
 
-  vim.notify "You need to give Calendar access to your google account"
+  vim.notify "You need to give us access to your google account"
   start_server {
     on_ready = function()
       vim.ui.open(full_auth_url)
@@ -247,24 +244,25 @@ function M.get_token_info(prefix)
         -- TODO: is this needed?
         -- "--insecure",
         token_url,
-      }, { text = true }, function(result)
-        assert(result.stderr == "", result.stderr)
-
-        local ok, token_info = pcall(vim.json.decode, result.stdout) ---@type boolean, string|TokenInfo
-        assert(ok, token_info)
-        ---@cast token_info -string
-
-        local file = io.open(token_path, "w")
-        assert(file)
-        file:write(result.stdout)
-        file:close()
-
-        _cache_token_info[prefix] = token_info
-        co_resume(co, token_info)
-      end)
+      }, { text = true }, function(result) co_resume(co, result) end)
     end,
   }
-  return coroutine.yield()
+
+  local result = coroutine.yield() ---@type vim.SystemCompleted
+  assert(result.stderr == "", result.stderr)
+
+  local ok, token_info = pcall(vim.json.decode, result.stdout) ---@type boolean, string|TokenInfo
+  assert(ok, token_info)
+  ---@cast token_info -string
+
+  local file = io.open(token_path, "w")
+  assert(file)
+  file:write(result.stdout)
+  file:close()
+
+  _cache_token_info[prefix] = token_info
+
+  return token_info
 end
 
 return M
