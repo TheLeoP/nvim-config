@@ -47,9 +47,7 @@ local function start_server(opts)
           local code = lines[1]:match "code=([^&]+)&"
           local err3 = lines[1]:match "error=([^&]+)&"
           assert(not err3, err3)
-          assert(uv.write(
-            client,
-            ([[HTTP/1.1 200 OK
+          assert(client:write(([[HTTP/1.1 200 OK
 Content-Type: text/html
 
 <!DOCTYPE html>
@@ -58,11 +56,10 @@ Content-Type: text/html
     <h1>Everything done, you can close this and return to Neovim :D</h1>
   </body>
 </html>
-]]):format(code)
-          ))
-          assert(uv.read_stop(client))
-          uv.close(client)
-          uv.close(server)
+]]):format(code)))
+          assert(client:read_stop())
+          client:close()
+          server:close()
 
           opts.on_code(code)
         end
