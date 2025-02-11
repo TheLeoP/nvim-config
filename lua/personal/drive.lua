@@ -19,24 +19,29 @@ local mime = {
 ---@field name string
 
 ---@param token_info TokenInfo
----@param image_name string
+---@param file_name string
 ---@param name string?
 ---@return FileResponse?
-local function upload_screenshot(token_info, image_name, name)
+local function upload_screenshot(token_info, file_name, name)
   local co = coroutine.running()
 
+  local file_extension = vim.fn.fnamemodify(file_name, ":e")
+
   if not name then
-    vim.ui.input({ prompt = "name", default = "task2_step1_.png" }, function(input) co_resume(co, input) end)
+    vim.ui.input(
+      { prompt = "name", default = ("task10_step1_.%s"):format(file_extension) },
+      function(input) co_resume(co, input) end
+    )
     name = coroutine.yield() ---@type string|nil
     if not name then return end
   end
 
   local extension = vim.fn.fnamemodify(name, ":e")
 
-  local image_file = io.open(image_name, "r")
-  assert(image_file)
-  local file_content = image_file:read "*a"
-  image_file:close()
+  local file = io.open(file_name, "r")
+  assert(file)
+  local file_content = file:read "*a"
+  file:close()
 
   local tmp_name = os.tmpname()
   local tmp_file = io.open(tmp_name, "w")
@@ -89,7 +94,7 @@ Content-Type: %s
     assert(response.error.status == "UNAUTHENTICATED", response.error.message)
     auv.schedule()
     local refreshed_token_info = refresh_access_token(token_info.refresh_token, token_prefix)
-    return upload_screenshot(refreshed_token_info, image_name, name)
+    return upload_screenshot(refreshed_token_info, file_name, name)
   end
   ---@cast response -ApiErrorResponse
 
