@@ -9,3 +9,5 @@ tags.log
 tags.lock
 tags.temp
 .luarc.json
+
+pegdebug.lua
