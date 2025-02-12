@@ -31,7 +31,7 @@ local function on_attach(client, buf)
     keymap.set(
       "n",
       "gd",
-      function() require("fzf-lua").lsp_definitions { jump_to_single_result = true } end,
+      function() require("fzf-lua").lsp_definitions { jump1 = true } end,
       { buffer = buf, desc = "Go to definition" }
     )
   end
@@ -39,19 +39,19 @@ local function on_attach(client, buf)
   keymap.set(
     "n",
     "grr",
-    function() require("fzf-lua").lsp_references { jump_to_single_result = true } end,
+    function() require("fzf-lua").lsp_references { jump1 = true } end,
     { buffer = buf, desc = "Go to reference" }
   )
   keymap.set(
     "n",
     "grt",
-    function() require("fzf-lua").lsp_typedefs { jump_to_single_result = true } end,
+    function() require("fzf-lua").lsp_typedefs { jump1 = true } end,
     { buffer = buf, desc = "Go to reference" }
   )
   keymap.set(
     "n",
     "gri",
-    function() require("fzf-lua").lsp_implementations { jump_to_single_result = true } end,
+    function() require("fzf-lua").lsp_implementations { jump1 = true } end,
     { buffer = buf, desc = "Go to implementation" }
   )
   if client.supports_method(methods.textDocument_signatureHelp) then
