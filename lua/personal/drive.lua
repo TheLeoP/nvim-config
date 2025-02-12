@@ -29,7 +29,7 @@ local function upload_screenshot(token_info, file_name, name)
 
   if not name then
     vim.ui.input(
-      { prompt = "name", default = ("task10_step1_.%s"):format(file_extension) },
+      { prompt = "name", default = ("task13_step1_.%s"):format(file_extension) },
       function(input) co_resume(co, input) end
     )
     name = coroutine.yield() ---@type string|nil
