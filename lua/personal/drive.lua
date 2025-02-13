@@ -18,6 +18,16 @@ local mime = {
 ---@field mimeType string
 ---@field name string
 
+local current_task = 16
+local steps = {
+  { name = "step1", subtasks = { "execution" } },
+  { name = "step2", subtasks = { "generation", "execution" } },
+  { name = "step3", subtasks = { "generation", "execution" } },
+  { name = "ideal", subtasks = { "execution" } },
+}
+local current_step_i = 1
+local current_subtask_i = 1
+
 ---@param token_info TokenInfo
 ---@param file_name string
 ---@param name string?
@@ -27,13 +37,28 @@ local function upload_screenshot(token_info, file_name, name)
 
   local file_extension = vim.fn.fnamemodify(file_name, ":e")
 
+  local current_step = steps[current_step_i]
   if not name then
-    vim.ui.input(
-      { prompt = "name", default = ("task13_step1_.%s"):format(file_extension) },
-      function(input) co_resume(co, input) end
-    )
+    vim.ui.input({
+      prompt = "name",
+      default = ("task%d_%s_%s.%s"):format(
+        current_task,
+        current_step.name,
+        current_step.subtasks[current_subtask_i],
+        file_extension
+      ),
+    }, function(input) co_resume(co, input) end)
     name = coroutine.yield() ---@type string|nil
     if not name then return end
+  end
+  current_subtask_i = next(current_step.subtasks, current_subtask_i)
+  if not current_subtask_i then
+    current_subtask_i = 1
+    current_step_i = next(steps, current_step_i)
+    if not current_step_i then
+      current_step_i = 1
+      current_task = current_task + 1
+    end
   end
 
   local extension = vim.fn.fnamemodify(name, ":e")
