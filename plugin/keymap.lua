@@ -97,3 +97,11 @@ vim.keymap.set({ "n", "x" }, "<leader>.", function()
   vim.o.operatorfunc = "v:lua.require'personal.op'.dot"
   return "g@"
 end, { expr = true })
+
+vim.keymap.set({ "n", "x" }, "<leader>e", function()
+  if vim.bo.filetype ~= "lua" and vim.bo.filetype ~= "vim" then
+    vim.schedule(function() vim.notify(("Can't source filetype %s"):format(vim.bo.filetype)) end)
+    return "<ignore>"
+  end
+  return ":source<cr>"
+end, { expr = true })
