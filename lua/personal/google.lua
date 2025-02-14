@@ -121,7 +121,9 @@ function M.refresh_access_token(refresh_token, prefix)
 
     _cache_token_info[prefix] = nil
     auv.schedule()
-    assert(vim.fn.delete(token_path) == 0, ("Couldn't delete file %s"):format(token_path))
+    if vim.fn.delete(token_path) == 0 then
+      vim.notify(("Couldn't delete file %s"):format(token_path), vim.log.levels.WARN)
+    end
 
     token_info = assert(M.get_token_info(), "There is no token_info")
   else
