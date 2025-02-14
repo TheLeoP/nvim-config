@@ -120,6 +120,7 @@ function M.refresh_access_token(refresh_token, prefix)
     assert(new_token_info.error == "invalid_grant", vim.inspect(new_token_info))
 
     _cache_token_info[prefix] = nil
+    auv.schedule()
     assert(vim.fn.delete(token_path) == 0, ("Couldn't delete file %s"):format(token_path))
 
     token_info = assert(M.get_token_info(), "There is no token_info")
