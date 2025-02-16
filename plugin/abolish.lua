@@ -24,7 +24,7 @@ vim.keymap.set("n", "cr", function()
 end, { expr = true, desc = "Coerce iw" })
 
 vim.keymap.set(
-  { "v", "n" },
+  { "x", "n" },
   "<leader>cr",
   require("personal.abolish").operator_func,
   { expr = true, desc = "Coerce operator" }
