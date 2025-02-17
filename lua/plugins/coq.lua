@@ -24,8 +24,6 @@ return {
     vim.cmd [[set wildchar=<right>]]
     vim.o.completeopt = "menuone,noselect,noinsert"
     vim.o.showmode = false
-    -- this is set automatically by coq, but if I `nvim +Cal`, the buffers are created before the option is set. So, I set it here
-    vim.o.completefunc = "v:lua.COQ.Omnifunc"
 
     vim.g.coq_settings = {
       auto_start = "shut-up",
