@@ -58,12 +58,12 @@ local path_absolute = P "/" * (segment_nz * (P "/" * segment) ^ 0) ^ -1
 local path_abempty = (P "/" * segment) ^ 0
 
 local query = Cg((pchar + P "/" + P "?") ^ 0, "query")
-local host = Cg(ip_literal + ipv4adress + reg_name, "host")
-local port = Cg(digit ^ 0 / tonumber, "port")
+local _host = Cg(ip_literal + ipv4adress + reg_name, "host")
+local _port = Cg(digit ^ 0 / tonumber, "port")
 
 local scheme = Cg(alpha * (alnum + S "+-.") ^ 0, "scheme")
 local userinfo = Cg((unreserved + pct_encoded + sub_delims + P ":") ^ 0, "userinfo")
-local authority = Ct((userinfo * P "@") ^ -1 * host * (P ":" * port) ^ -1)
+local authority = Ct((userinfo * P "@") ^ -1 * _host * (P ":" * _port) ^ -1)
 local hier_part = Cg(
   Ct(
     P "//" * Cg(authority, "authority") * Cg(path_abempty, "path")
@@ -81,8 +81,8 @@ local uri_grammar = P {
   "uri",
   scheme = scheme,
   userinfo = userinfo,
-  host = host,
-  port = port,
+  host = _host,
+  port = _port,
   authority = authority,
   hier_part = hier_part,
   query = query,
@@ -130,7 +130,7 @@ local http_grammar = P {
   http_name = S "Hh" * S "Tt" * S "Tt" * S "Pp",
   http_version = V "http_name" * P "/" * Cg(digit * P "." * digit, "version"),
   asterisk_form = P "*",
-  authority_form = host * P ":" * port,
+  authority_form = _host * P ":" * _port,
   absolute_form = absolute_URI,
   origin_form = absolute_path * (P "?" * query) ^ -1,
   request_target = V "origin_form" + V "absolute_form" + V "authority_form" + V "asterisk_form",
@@ -177,6 +177,13 @@ local http_grammar = P {
 ---@field fragment string
 ---@field scheme string
 
+---@type table<string, integer>
+local port_by_scheme = {
+  http = 80,
+  https = 443,
+}
+
+---@async
 ---@param uri string
 ---@param headers table<string, string>|nil
 ---@return http.Response
@@ -187,7 +194,7 @@ local function get(uri, headers)
 
   local parsed_uri = assert(uri_grammar:match(uri)) ---@type http.Uri
   local host = assert(parsed_uri.hier_part.authority.host)
-  local port = parsed_uri.port or 80 -- TODO: get default port from schema
+  local port = parsed_uri.port or port_by_scheme[parsed_uri.scheme]
   local path = assert(parsed_uri.hier_part.path)
 
   local resolved_host = uv.getaddrinfo(host, nil, {
@@ -241,10 +248,3 @@ Connection: close
   client:close()
   return http_grammar:match(response)
 end
-
-coroutine.wrap(function()
-  local result = get("http://httpbingo.org/get", { test = "value" })
-  local body = vim.json.decode(result.body)
-  -- __AUTO_GENERATED_PRINT_VAR_START__
-  print([==[function body:]==], vim.inspect(body)) -- __AUTO_GENERATED_PRINT_VAR_END__
-end)()
