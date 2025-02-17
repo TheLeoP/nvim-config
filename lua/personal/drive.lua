@@ -18,7 +18,8 @@ local mime = {
 ---@field mimeType string
 ---@field name string
 
-local current_task = 16
+-- TODO: why is this cycling wrongly? the problem happens after step2 excution
+local current_task = 22
 local steps = {
   { name = "step1", subtasks = { "execution" } },
   { name = "step2", subtasks = { "generation", "execution" } },
