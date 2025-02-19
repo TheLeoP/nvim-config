@@ -19,7 +19,7 @@ local mime = {
 ---@field name string
 
 -- TODO: why is this cycling wrongly? the problem happens after step2 excution
-local current_task = 22
+local current_task = 24
 local steps = {
   { name = "step1", subtasks = { "execution" } },
   { name = "step2", subtasks = { "generation", "execution" } },
@@ -51,15 +51,6 @@ local function upload_screenshot(token_info, file_name, name)
     }, function(input) co_resume(co, input) end)
     name = coroutine.yield() ---@type string|nil
     if not name then return end
-  end
-  current_subtask_i = next(current_step.subtasks, current_subtask_i)
-  if not current_subtask_i then
-    current_subtask_i = 1
-    current_step_i = next(steps, current_step_i)
-    if not current_step_i then
-      current_step_i = 1
-      current_task = current_task + 1
-    end
   end
 
   local extension = vim.fn.fnamemodify(name, ":e")
@@ -164,6 +155,18 @@ local ok = w:start(path, {}, function(err, filename, events)
     auv.schedule()
     local file_response = upload_screenshot(token_info, fullpath)
     if not file_response then return end
+
+    local current_step = steps[current_step_i]
+    current_subtask_i = next(current_step.subtasks, current_subtask_i)
+    if not current_subtask_i then
+      current_subtask_i = 1
+      current_step_i = next(steps, current_step_i)
+      if not current_step_i then
+        current_step_i = 1
+        current_task = current_task + 1
+      end
+    end
+
     -- TODO: test if this may not work in some case (i.e. if I need to get the link in a different way)
     auv.schedule()
     vim.fn.setreg("+", ("https://drive.google.com/file/d/%s/view?usp=drive_link"):format(file_response.id))
