@@ -28,10 +28,6 @@ return {
       end,
     },
     keymap = {
-      builtin = {
-        true, -- inherit from defaults
-        ["<Esc>"] = "hide",
-      },
       fzf = {
         true, -- inherit from defaults
         ["ctrl-c"] = "abort",
