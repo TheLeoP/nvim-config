@@ -18,16 +18,15 @@ local mime = {
 ---@field mimeType string
 ---@field name string
 
--- TODO: why is this cycling wrongly? the problem happens after step2 excution
-local current_task = 24
+local current_task = 27
 local steps = {
   { name = "step1", subtasks = { "execution" } },
   { name = "step2", subtasks = { "generation", "execution" } },
   { name = "step3", subtasks = { "generation", "execution" } },
   { name = "ideal", subtasks = { "execution" } },
 }
-local current_step_i = 1
-local current_subtask_i = 1
+local step_i = 2
+local subtask_i = 1
 
 ---@param token_info TokenInfo
 ---@param file_name string
@@ -38,14 +37,15 @@ local function upload_screenshot(token_info, file_name, name)
 
   local file_extension = vim.fn.fnamemodify(file_name, ":e")
 
-  local current_step = steps[current_step_i]
+  local current_step = steps[step_i]
+  -- TODO: test this without manual input
   if not name then
     vim.ui.input({
       prompt = "name",
       default = ("task%d_%s_%s.%s"):format(
         current_task,
         current_step.name,
-        current_step.subtasks[current_subtask_i],
+        current_step.subtasks[subtask_i],
         file_extension
       ),
     }, function(input) co_resume(co, input) end)
@@ -156,13 +156,13 @@ local ok = w:start(path, {}, function(err, filename, events)
     local file_response = upload_screenshot(token_info, fullpath)
     if not file_response then return end
 
-    local current_step = steps[current_step_i]
-    current_subtask_i = next(current_step.subtasks, current_subtask_i)
-    if not current_subtask_i then
-      current_subtask_i = 1
-      current_step_i = next(steps, current_step_i)
-      if not current_step_i then
-        current_step_i = 1
+    local current_step = steps[step_i]
+    subtask_i = next(current_step.subtasks, subtask_i)
+    if not subtask_i then
+      subtask_i = 1
+      step_i = next(steps, step_i)
+      if not step_i then
+        step_i = 1
         current_task = current_task + 1
       end
     end
