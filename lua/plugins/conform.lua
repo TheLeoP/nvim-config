@@ -31,6 +31,7 @@ return {
     },
     format_on_save = function(bufnr)
       if not format_options.autoformat then return end
+      if vim.list_contains(format_options.excluded_ft, vim.bo[bufnr].filetype) then return end
 
       if slow_format_filetypes[vim.bo[bufnr].filetype] then return end
       local function on_format(err)
@@ -39,17 +40,20 @@ return {
 
       return {
         timeout_ms = 500,
-        lsp_format = vim.list_contains(format_options.excluded_ft, vim.bo[bufnr].filetype) and "never" or "fallback",
+        lsp_format = vim.list_contains(format_options.excluded_lsp_ft, vim.bo[bufnr].filetype) and "never"
+          or "fallback",
       },
         on_format
     end,
     format_after_save = function(bufnr)
       if not format_options.autoformat then return end
+      if vim.list_contains(format_options.excluded_ft, vim.bo[bufnr].filetype) then return end
 
       if not slow_format_filetypes[vim.bo[bufnr].filetype] then return end
 
       return {
-        lsp_format = vim.list_contains(format_options.excluded_ft, vim.bo[bufnr].filetype) and "never" or "fallback",
+        lsp_format = vim.list_contains(format_options.excluded_lsp_ft, vim.bo[bufnr].filetype) and "never"
+          or "fallback",
       }
     end,
   },
