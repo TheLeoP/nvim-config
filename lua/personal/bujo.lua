@@ -96,6 +96,7 @@ function M.open(width)
   coroutine.wrap(function()
     local path = get_path()
     if not path then return end
+    auv.schedule()
     vim.cmd.vsplit {
       range = { width or default_width },
       args = { path },
