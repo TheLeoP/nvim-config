@@ -39,7 +39,13 @@ function M.setup()
     local current = node ---@type TSNode|nil
     while current do
       if
-        vim.list_contains({ "arrow_function", "function_declaration", "function", "method_definition" }, current:type())
+        vim.list_contains({
+          "arrow_function",
+          "function_declaration",
+          "function",
+          "method_definition",
+          "function_expression",
+        }, current:type())
       then
         break
       end
