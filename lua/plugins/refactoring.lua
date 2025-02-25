@@ -5,6 +5,13 @@ return {
   dev = true,
   config = function(_, opts)
     local refactoring = require "refactoring"
+
+    refactoring.setup {
+      print_var_statements = {
+        javascript = { 'console.log("%s %%s", JSON.stringify(%s));' },
+      },
+    }
+
     keymap.set("x", "<leader>ae", function() refactoring.refactor "Extract Function" end, { desc = "Extract Function" })
     keymap.set(
       "x",
