@@ -1,6 +1,6 @@
 local iter = vim.iter
 local bit = require "bit"
-local rshift, band, bxor = bit.rshift, bit.band, bit.bxor
+local lshift, rshift, band, bor, bxor = bit.lshift, bit.rshift, bit.band, bit.bor, bit.bxor
 
 local M = {}
 
@@ -115,7 +115,7 @@ for i = 0, order - 1 do
   log[a] = i
 
   -- multiply with generator x+1 -> left shift + 1
-  a = bxor(bit.lshift(a, 1), a)
+  a = bxor(lshift(a, 1), a)
 
   -- if a gets larger than order, reduce modulo irreducible polynom
   if a > order then a = polynom_sub(a, irr_polynom) end
@@ -139,7 +139,7 @@ local function affine_map(byte)
   local mask = 0xf8
   local result = 0
   for i = 1, 8 do
-    result = bit.lshift(result, 1)
+    result = lshift(result, 1)
 
     local parity = byte_parity(bit.band(byte, mask))
     result = result + parity
@@ -174,8 +174,8 @@ end
 ---@param a integer
 ---@return integer
 local function xtime(a)
-  if bit.band(a, 0x80) ~= 0 then return bit.band(bxor(bit.lshift(a, 1), 0x1b), 0xff) end
-  return bit.lshift(a, 1)
+  if bit.band(a, 0x80) ~= 0 then return bit.band(bxor(lshift(a, 1), 0x1b), 0xff) end
+  return lshift(a, 1)
 end
 
 -- rotate word: 0xaabbccdd gets 0xbbccddaa
@@ -434,22 +434,21 @@ local function aes_encrypt(block_length, key_length, key, plaintext)
 
   local round = n_rounds
   state = add_round_key(state, n_columns_key, round, key_schedule)
-  return state
 
   -- TODO: what is the correct interface for both if this functions? return integer[][]?
-  -- local out = {} ---@type string[]
-  -- for i = 1, n_columns do
-  --   for _, byte in ipairs(state[i]) do
-  --     table.insert(out, bit.tohex(byte, 2))
-  --   end
-  -- end
-  -- return out
+  local out = {} ---@type integer[]
+  for i = 1, n_columns do
+    for _, byte in ipairs(state[i]) do
+      table.insert(out, byte)
+    end
+  end
+  return out
 end
 
 ---@param block_length integer 128|192|256
 ---@param key_length integer 128|192|256
 ---@param key string
----@param ciphered_text integer[][]
+---@param ciphered_text integer[]
 local function aes_decrypt(block_length, key_length, key, ciphered_text)
   local n_columns = block_length / 32 -- Nb
   local n_columns_key = key_length / 32 -- Nk
@@ -461,7 +460,15 @@ local function aes_decrypt(block_length, key_length, key, ciphered_text)
     or nil
   assert(n_rounds)
 
-  local state = ciphered_text
+  local state = {} ---@type integer[]
+  for i = 1, n_columns do
+    local byte1 = ciphered_text[i * 4 - 3]
+    local byte2 = ciphered_text[i * 4 - 2]
+    local byte3 = ciphered_text[i * 4 - 1]
+    local byte4 = ciphered_text[i * 4]
+
+    table.insert(state, { byte1, byte2, byte3, byte4 })
+  end
 
   local cipher_key = {} ---@type integer[][]
   for i = 1, n_columns_key do
@@ -510,22 +517,175 @@ end
 
 local encrypted = aes_encrypt(128, 128, "1234567890123456", "algo            ")
 local decrypted = aes_decrypt(128, 128, "1234567890123456", encrypted)
--- __AUTO_GENERATED_PRINT_VAR_START__
-print([==[ decrypted:]==], vim.inspect(decrypted)) -- __AUTO_GENERATED_PRINT_VAR_END__
 
+local aux = iter(decrypted):map(function(char) return string.char(tonumber(char, 16)) end):join ""
+-- __AUTO_GENERATED_PRINT_VAR_START__
+print([==[ aux:]==], vim.inspect(aux)) -- __AUTO_GENERATED_PRINT_VAR_END__
+
+-- GF(2^128) defined by 1 + a + a^2 + a^7 + a^128
+-- Please note the MSB is x0 and LSB is x127
+---@param x integer
+---@param y integer
+local function gf_2_128_mul(x, y)
+  local res = 0
+  for i = 127, -1, -1 do
+    res = bxor(res, x * band(rshift(y, i), 1))
+    x = bxor(rshift(x, 1), band(x, 1) * 0xE1000000000000000000000000000000)
+  end
+end
+
+local function gcm_mult(key)
+  local mult = {}
+  for i = 0, 15 do
+    local row = {}
+    for j = 0, 255 do
+      table.insert(row, gf_2_128_mul(key, lshift(j, 8 * i)))
+    end
+    table.insert(mult, row)
+  end
+
+  return mult
+end
+
+---@param bytes integer[] up to 128 bits / 16 bytes / integer[16]
+---@param n integer number of most-significant bits to take
+---@return integer[] #up to 128 bites / 16 bytes / integer[4]
+local function msb(bytes, n)
+  assert(n <= #bytes * 8)
+
+  local whole_bytes_num = math.floor(n / 8)
+  local bits_last_num = n % 8
+  local whole_bytes_int_num = math.floor(whole_bytes_num / 4)
+  local bytes_in_whole_int_num = whole_bytes_int_num * 4
+
+  local nums = {} ---@type integer[]
+  for i = 1, whole_bytes_int_num do
+    local byte1 = bytes[i * 4 - 3]
+    local byte2 = bytes[i * 4 - 2]
+    local byte3 = bytes[i * 4 - 1]
+    local byte4 = bytes[i * 4]
+
+    local num = bor(lshift(byte1, 24), lshift(byte2, 16), lshift(byte3, 8), byte4)
+    table.insert(nums, num)
+  end
+
+  if whole_bytes_num ~= bytes_in_whole_int_num or bits_last_num ~= 0 then
+    local last_byte = 0
+    for i = bytes_in_whole_int_num + 1, whole_bytes_num do
+      local byte = bytes[i]
+      local relative_i = whole_bytes_num - i
+      local offset = relative_i * 8 + bits_last_num
+      last_byte = bor(last_byte, lshift(byte, offset))
+    end
+
+    if bits_last_num ~= 0 then
+      local byte = bytes[whole_bytes_num + 1]
+      -- TODO: I'm aligning the bits to the right, I may want to align them to the left (?
+      local offset = 8 - bits_last_num
+      last_byte = bor(last_byte, rshift(byte, offset))
+    end
+
+    table.insert(nums, last_byte)
+  end
+
+  return nums
+end
+
+local two_pow_32 = 2 ^ 32
+---@param value integer[]
+local function incr(value)
+  ---@type integer
+  local rightmost_32_num = iter(ipairs(value))
+    :filter(function(i) return i > (#value - 32 / 8) end)
+    :fold(0, function(acc, i, a) return acc + lshift(a, (4 - i) * 8) end)
+  rightmost_32_num = (rightmost_32_num + 1) % two_pow_32
+
+  local byte1 = rshift(rightmost_32_num, 24)
+  local byte2 = band(rshift(rightmost_32_num, 16), 0x000000ff)
+  local byte3 = band(rshift(rightmost_32_num, 8), 0x000000ff)
+  local byte4 = band(rightmost_32_num, 0x000000ff)
+
+  value[#value - 3] = byte1
+  value[#value - 2] = byte2
+  value[#value - 1] = byte3
+  value[#value] = byte4
+  return value
+end
+
+---@param k string secret key (with appropriate length for the underlying block cipher)
 ---@param p string plaintext
 ---@param aad string aditional authenticated data
----@param iv string initialization vector (a nonce)
+---@param iv integer[] initialization vector (a nonce) 96-bits
 ---@return string c ciphertext
 ---@return string t authentication tag, its length must be 128, 120, 112, 104, or 96
-local function gcm_encrypt(p, aad, iv) end
+local function gcm_encrypt(k, p, aad, iv)
+  local bits_num = 128
+  local bytes_num = bits_num / 8
 
+  -- TODO: zero pad p and aad
+
+  local total_bits_plaintext = #p * 8
+  -- n
+  local number_of_blocks_plaintext = math.ceil(total_bits_plaintext / bits_num)
+  -- u
+  local last_block_length_plaintext = total_bits_plaintext % bits_num
+
+  local total_bits_aad = #aad * 8
+  -- m
+  local number_of_blocks_aad = math.ceil(total_bits_aad / bits_num)
+  -- v
+  local last_block_length_aad = total_bits_aad % bits_num
+
+  local zeroes = string.char(0):rep(bits_num / 8)
+  -- H
+  local initial_tag = aes_encrypt(bits_num, bits_num, k, zeroes)
+
+  -- t
+  local authentication_tag_length = 0 -- TODO: is this 128?
+
+  -- y0
+  local counter = iv
+  table.insert(counter, string.char(0))
+  table.insert(counter, string.char(0))
+  table.insert(counter, string.char(0))
+  table.insert(counter, string.char(1))
+
+  for i = 1, number_of_blocks_plaintext - 1 do
+    -- yi
+    counter = incr(counter)
+    local encrypted_counter = aes_encrypt(bits_num, bits_num, k, string.char(unpack(counter)))
+
+    local plaintext_segment = p:sub(bytes_num * (i - 1) + 1, bytes_num * i)
+    -- pi
+    ---@type integer[]
+    local plaintext_block = iter(vim.split(plaintext_segment, "")):map(function(char) return char:byte() end):totable()
+
+    -- ci
+    local ciphered_block = iter(ipairs(plaintext_block))
+      :map(function(i, byte) return bxor(byte, encrypted_counter[i]) end)
+      :totable()
+  end
+  counter = incr(counter)
+  local plaintext_segment =
+    p:sub(bytes_num * (number_of_blocks_plaintext - 1) + 1, bytes_num * number_of_blocks_plaintext)
+  -- TODO: make integer[16] -> integer[4] `last_ciphered_block` will be wrong until then
+  local plaintext_block = iter(vim.split(plaintext_segment, "")):map(function(char) return char:byte() end):totable()
+  local encrypted_counter = aes_encrypt(bits_num, bits_num, k, string.char(unpack(counter)))
+  encrypted_counter = msb(encrypted_counter, last_block_length_plaintext)
+  local last_ciphered_block = iter(ipairs(plaintext_block))
+    :map(function(i, byte) return bxor(byte, encrypted_counter[i]) end)
+    :totable()
+
+  return c, t
+end
+
+---@param k string
 ---@param aad string
 ---@param iv string
 ---@param c string
 ---@param t string
 ---@return string p
-local function gcm_decrypt(aad, iv, c, t) end
+local function gcm_decrypt(k, aad, iv, c, t) end
 
 ---@param str string
 local function to_hex(str)
