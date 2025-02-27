@@ -207,11 +207,11 @@ end
     { trig = "nfor ", snippetType = "autosnippet", condition = conds.line_begin },
     fmta(
       [[
-for <start><end><step> do
+for <var> = <value>, <end> do
   <inside>
 end
 ]],
-      { start = i(1, "i = 1"), ["end"] = i(2, ", #some_table"), step = i(3, ", 1"), inside = i(4) }
+      { var = i(1, "i"), value = i(2, "1"), ["end"] = i(3, "#some_table"), inside = i(4) }
     )
   ),
   s(
