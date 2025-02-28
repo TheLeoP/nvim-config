@@ -334,14 +334,21 @@ if (<condition>) {
   ),
   s(
     { trig = "afn ", snippetType = "autosnippet", condition = not_in_string },
-    fmta(
-      [[
-  (<args>) =>> {
-    <inside>
-  }
-  ]],
-      { args = i(1), inside = i(2) }
-    )
+    fmta([[(<args>) =>> <body>]], {
+      args = i(1),
+      body = c(2, {
+        sn(nil, fmta([[<inside>]], { inside = i(1) })),
+        sn(
+          nil,
+          fmta(
+            [[{
+                <inside>
+        }]],
+            { inside = i(1) }
+          )
+        ),
+      }),
+    })
   ),
   s(
     { trig = "fn ", snippetType = "autosnippet", condition = not_in_string },
