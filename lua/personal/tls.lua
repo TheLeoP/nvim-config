@@ -378,6 +378,7 @@ end
 ---@param key_length integer 128|192|256
 ---@param key string
 ---@param plaintext string
+---@return tls.Bytes16
 local function aes_encrypt(block_length, key_length, key, plaintext)
   local n_columns = block_length / 32 -- Nb
   local n_columns_key = key_length / 32 -- Nk
@@ -523,33 +524,55 @@ local aux = iter(decrypted):map(function(char) return string.char(tonumber(char,
 print([==[ aux:]==], vim.inspect(aux)) -- __AUTO_GENERATED_PRINT_VAR_END__
 
 -- GF(2^128) defined by 1 + a + a^2 + a^7 + a^128
--- Please note the MSB is x0 and LSB is x127
----@param x integer
----@param y integer
+---@param x tls.Bytes4
+---@param y tls.Bytes4
+---@return tls.Bytes4
 local function gf_2_128_mul(x, y)
-  local res = 0
-  for i = 127, -1, -1 do
-    res = bxor(res, x * band(rshift(y, i), 1))
-    x = bxor(rshift(x, 1), band(x, 1) * 0xE1000000000000000000000000000000)
-  end
-end
+  local v = vim.deepcopy(x)
 
-local function gcm_mult(key)
-  local mult = {}
-  for i = 0, 15 do
-    local row = {}
-    for j = 0, 255 do
-      table.insert(row, gf_2_128_mul(key, lshift(j, 8 * i)))
+  local r = { 0xE1000000, 0x00000000, 0x00000000, 0x00000000 }
+
+  -- z
+  ---@type integer[]
+  local out = { 0x00000000, 0x00000000, 0x00000000, 0x00000000 }
+
+  -- TODO: maybe implement this more efficiently
+  for i = 1, 128 do
+    local int_i = math.ceil(i / 4)
+    local bit_offset = (32 - (i % 32)) % 32
+
+    local one_bit_mask = 1
+    local y_i_bit = band(rshift(y[int_i], bit_offset), one_bit_mask)
+    if y_i_bit == 1 then
+      out = iter(ipairs(out)):map(function(i, byte) return bxor(byte, x[i]) end):totable() --[=[@as integer[]]=]
     end
-    table.insert(mult, row)
+
+    local v_last_bit = band(rshift(v[#v], 7), one_bit_mask)
+    -- always rshift (after getting the last bit)
+    v = iter(ipairs(v))
+      :map(function(i, byte)
+        local previous_byte = v[i - i] or 0
+        local two_bytes = lshift(previous_byte, 8) + byte --[[@as integer]]
+        local one_byte_mask = 0xff
+        return band(rshift(two_bytes, 1), one_byte_mask)
+      end)
+      :totable() --[=[@as integer[]]=]
+    if v_last_bit == 1 then
+      -- there's no need to xor each byte because all but the first one are 0x00000000
+      v[1] = bxor(v[1], r[1])
+    end
   end
 
-  return mult
+  return out
 end
 
----@param bytes integer[] up to 128 bits / 16 bytes / integer[16]
+-- TODO: maybe implement lookup tables for multiplying for the key (to make it
+-- faster) reference:
+-- https://github.com/bozhu/AES-GCM-Python/blob/master/aes_gcm.py#L32
+
+---@param bytes integer[] up to 128 bits
 ---@param n integer number of most-significant bits to take
----@return integer[] #up to 128 bites / 16 bytes / integer[4]
+---@return integer[] #up to 128 bites
 local function msb(bytes, n)
   assert(n <= #bytes * 8)
 
@@ -558,15 +581,21 @@ local function msb(bytes, n)
   local whole_bytes_int_num = math.floor(whole_bytes_num / 4)
   local bytes_in_whole_int_num = whole_bytes_int_num * 4
 
-  local nums = {} ---@type integer[]
-  for i = 1, whole_bytes_int_num do
-    local byte1 = bytes[i * 4 - 3]
-    local byte2 = bytes[i * 4 - 2]
-    local byte3 = bytes[i * 4 - 1]
-    local byte4 = bytes[i * 4]
+  local nums ---@type tls.Bytes4
+  if #bytes == 4 then
+    ---@cast bytes -tls.Bytes16
+    nums = bytes
+  else
+    nums = {}
+    for i = 1, whole_bytes_int_num do
+      local byte1 = bytes[i * 4 - 3]
+      local byte2 = bytes[i * 4 - 2]
+      local byte3 = bytes[i * 4 - 1]
+      local byte4 = bytes[i * 4]
 
-    local num = bor(lshift(byte1, 24), lshift(byte2, 16), lshift(byte3, 8), byte4)
-    table.insert(nums, num)
+      local num = bor(lshift(byte1, 24), lshift(byte2, 16), lshift(byte3, 8), byte4)
+      table.insert(nums, num)
+    end
   end
 
   if whole_bytes_num ~= bytes_in_whole_int_num or bits_last_num ~= 0 then
@@ -612,6 +641,82 @@ local function incr(value)
   return value
 end
 
+---@class tls.Bytes4
+---@field [1] integer
+---@field [2] integer
+---@field [3] integer
+---@field [4] integer
+
+---@class tls.Bytes16
+---@field [1] integer
+---@field [2] integer
+---@field [3] integer
+---@field [4] integer
+---@field [5] integer
+---@field [6] integer
+---@field [7] integer
+---@field [8] integer
+---@field [9] integer
+---@field [10] integer
+---@field [11] integer
+---@field [12] integer
+---@field [13] integer
+---@field [14] integer
+---@field [15] integer
+---@field [16] integer
+
+---@param initial_tag tls.Bytes4
+---@param aad string
+---@param ciphered tls.Bytes4
+---@param number_of_blocks_aad integer
+---@param number_of_blocks integer
+---@return tls.Bytes4
+local function ghash(initial_tag, aad, ciphered, number_of_blocks_aad, number_of_blocks)
+  local bits_num = 128
+  local bytes_num = bits_num / 8
+
+  local total_bits_aad = #aad * 8
+
+  -- v
+  local last_block_length_aad = (total_bits_aad % bits_num) + 1
+
+  ---@type tls.Bytes4
+  local x = { 0x00000000, 0x00000000, 0x00000000, 0x00000000 }
+
+  for i = 1, number_of_blocks_aad - 1 do
+    local aad_segment = aad:sub(bytes_num * (i - 1) + 1, bytes_num * i)
+    ---@type tls.Bytes16|tls.Bytes4
+    local aad_block = iter(vim.split(aad_segment, "")):map(function(char) return char:byte() end):totable()
+    aad_block = msb(aad_block, bits_num)
+
+    x = iter(ipairs(aad_block)):map(function(i, byte) return bxor(byte, x[i]) end):totable()
+    x = gf_2_128_mul(x, initial_tag)
+  end
+
+  -- i = m
+  local aad_segment = aad:sub(bytes_num * (number_of_blocks_aad - 1) + 1, bytes_num * number_of_blocks_aad)
+  local aad_block = iter(vim.split(aad_segment, "")):map(function(char) return char:byte() end):totable() ---@type integer[]
+  local padding_bits = 128 - last_block_length_aad
+  local padding_bytes = padding_bits / 8
+  for _ = 1, padding_bytes do
+    table.insert(aad_block, 0)
+  end
+  x = iter(ipairs(aad_block)):map(function(i, byte) return bxor(byte, x[i]) end):totable()
+  x = gf_2_128_mul(x, initial_tag)
+
+  for i = number_of_blocks_aad + 1, number_of_blocks_aad + number_of_blocks - 1 do
+    -- x =
+  end
+
+  -- i = m + n
+  -- x =
+
+  -- i = m + n + 1
+  -- x =
+
+  return x
+end
+
 ---@param k string secret key (with appropriate length for the underlying block cipher)
 ---@param p string plaintext
 ---@param aad string aditional authenticated data
@@ -628,27 +733,31 @@ local function gcm_encrypt(k, p, aad, iv)
   -- n
   local number_of_blocks_plaintext = math.ceil(total_bits_plaintext / bits_num)
   -- u
-  local last_block_length_plaintext = total_bits_plaintext % bits_num
+  local last_block_length_plaintext = (total_bits_plaintext % bits_num) + 1
 
   local total_bits_aad = #aad * 8
   -- m
   local number_of_blocks_aad = math.ceil(total_bits_aad / bits_num)
   -- v
-  local last_block_length_aad = total_bits_aad % bits_num
+  local last_block_length_aad = (total_bits_aad % bits_num) + 1
 
   local zeroes = string.char(0):rep(bits_num / 8)
   -- H
   local initial_tag = aes_encrypt(bits_num, bits_num, k, zeroes)
+  initial_tag = msb(initial_tag, bits_num)
 
   -- t
   local authentication_tag_length = 0 -- TODO: is this 128?
 
   -- y0
-  local counter = iv
-  table.insert(counter, string.char(0))
-  table.insert(counter, string.char(0))
-  table.insert(counter, string.char(0))
-  table.insert(counter, string.char(1))
+  local initial_counter = iv
+  table.insert(initial_counter, string.char(0))
+  table.insert(initial_counter, string.char(0))
+  table.insert(initial_counter, string.char(0))
+  table.insert(initial_counter, string.char(1))
+  local counter = initial_counter
+
+  local ciphered = {} ---@type integer[] list of 32 bit / 4 byte integers
 
   for i = 1, number_of_blocks_plaintext - 1 do
     -- yi
@@ -657,26 +766,45 @@ local function gcm_encrypt(k, p, aad, iv)
 
     local plaintext_segment = p:sub(bytes_num * (i - 1) + 1, bytes_num * i)
     -- pi
-    ---@type integer[]
+    ---@type tls.Bytes16
     local plaintext_block = iter(vim.split(plaintext_segment, "")):map(function(char) return char:byte() end):totable()
 
     -- ci
+    ---@type integer[]
     local ciphered_block = iter(ipairs(plaintext_block))
       :map(function(i, byte) return bxor(byte, encrypted_counter[i]) end)
       :totable()
+
+    ciphered_block = msb(ciphered_block, bits_num)
+
+    vim.list_extend(ciphered, ciphered_block)
   end
+
   counter = incr(counter)
-  local plaintext_segment =
-    p:sub(bytes_num * (number_of_blocks_plaintext - 1) + 1, bytes_num * number_of_blocks_plaintext)
-  -- TODO: make integer[16] -> integer[4] `last_ciphered_block` will be wrong until then
-  local plaintext_block = iter(vim.split(plaintext_segment, "")):map(function(char) return char:byte() end):totable()
   local encrypted_counter = aes_encrypt(bits_num, bits_num, k, string.char(unpack(counter)))
   encrypted_counter = msb(encrypted_counter, last_block_length_plaintext)
+
+  local plaintext_segment =
+    p:sub(bytes_num * (number_of_blocks_plaintext - 1) + 1, bytes_num * number_of_blocks_plaintext)
+  local plaintext_block = iter(vim.split(plaintext_segment, "")):map(function(char) return char:byte() end):totable() --[[@as tls.Bytes16]]
+  plaintext_block = msb(plaintext_block, last_block_length_plaintext)
+
+  ---@type tls.Bytes4
   local last_ciphered_block = iter(ipairs(plaintext_block))
     :map(function(i, byte) return bxor(byte, encrypted_counter[i]) end)
     :totable()
 
-  return c, t
+  vim.list_extend(ciphered, last_ciphered_block)
+
+  local initial_counter_s = string.char(unpack(initial_counter))
+  local encrypted_initial_counter = aes_encrypt(bits_num, bits_num, k, initial_counter_s)
+  encrypted_initial_counter = msb(encrypted_initial_counter, 128)
+
+  local hashed = ghash(initial_tag, aad, ciphered, number_of_blocks_aad, number_of_blocks_plaintext)
+  local tag = iter(ipairs(encrypted_initial_counter)):map(function(i, a) return bxor(a, hashed[i]) end):totable() ---@type tls.Bytes4
+  tag = msb(tag, authentication_tag_length)
+
+  return ciphered, tag
 end
 
 ---@param k string
