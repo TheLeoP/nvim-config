@@ -66,7 +66,5 @@ xnoremap <silent> @ :<C-U>execute "noautocmd '<,'>normal! " . v:count1 . "@" . g
 nnoremap <a-h> <cmd>tabprevious<cr>
 nnoremap <a-l> <cmd>tabnext<cr>
 
-inoremap <c-a> <c-k>
-
 nnoremap <c-w>n <cmd>vertical new<cr>
 nnoremap <c-w><c-n> <cmd>vertical new<cr>
