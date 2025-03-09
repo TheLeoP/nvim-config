@@ -18,7 +18,7 @@ vim.api.nvim_create_user_command("F", require("personal.abolish").find_dispatche
 })
 
 vim.keymap.set("n", "cr", function()
-  local motion = require("personal.abolish").operator_func()
+  local motion = require("personal.abolish").coerce()
   if not motion then return end
   return motion .. "iw"
 end, { expr = true, desc = "Coerce iw" })
@@ -26,6 +26,6 @@ end, { expr = true, desc = "Coerce iw" })
 vim.keymap.set(
   { "x", "n" },
   "<leader>cr",
-  require("personal.abolish").operator_func,
+  require("personal.abolish").coerce,
   { expr = true, desc = "Coerce operator" }
 )

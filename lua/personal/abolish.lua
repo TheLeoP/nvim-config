@@ -7,7 +7,7 @@ local M = {}
 M.char = ""
 
 ---@return 'g@'|nil
-function M.operator_func()
+function M.coerce()
   local needs_help_msg = true
   vim.defer_fn(function()
     if not needs_help_msg then return end
@@ -40,12 +40,12 @@ function M.operator_func()
   if not ok or char == "\27" then return end
   M.char = char
 
-  vim.o.operatorfunc = "v:lua.require'personal.abolish'.coerce"
+  vim.o.operatorfunc = "v:lua.require'personal.abolish'.coerce_operatorfunc"
   return "g@"
 end
 
 ---@param type "line"|"char"|"block"
-function M.coerce(type)
+function M.coerce_operatorfunc(type)
   local cursor_location = api.nvim_win_get_cursor(0)
   local count = vim.v.count1 ---@type integer
   while count > 0 do
