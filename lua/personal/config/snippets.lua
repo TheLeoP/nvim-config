@@ -372,6 +372,17 @@ while (<condition>) {
       { condition = i(1), inside = i(2) }
     )
   ),
+  s(
+    { trig = "for ", snippetType = "autosnippet", condition = not_in_string },
+    fmta(
+      [[
+for (const <name> of <list>) {
+  <inside>
+}
+]],
+      { name = i(1), list = i(2), inside = i(3) }
+    )
+  ),
 }, { key = "personal js" })
 
 ls.add_snippets("markdown", {
