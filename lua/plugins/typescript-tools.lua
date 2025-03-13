@@ -6,7 +6,13 @@ return {
 
     require("typescript-tools").setup {
       capabilities = config.capabilities,
+      root_dir = function()
+        return vim.fs.root(0, {
+          ".git",
+        }) or vim.fs.root(0, { "package.json" })
+      end,
       settings = {
+        tsserver_max_memory = "10240",
         tsserver_file_preferences = {
           includeInlayParameterNameHints = "all",
           includeInlayParameterNameHintsWhenArgumentMatchesName = true,
