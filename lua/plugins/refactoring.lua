@@ -9,6 +9,9 @@ return {
     refactoring.setup {
       print_var_statements = {
         javascript = { 'console.log("%s %%s", JSON.stringify(%s));' },
+        typescript = { 'console.log("%s %%s", JSON.stringify(%s));' },
+        javascriptreact = { 'console.log("%s %%s", JSON.stringify(%s));' },
+        typescriptreact = { 'console.log("%s %%s", JSON.stringify(%s));' },
       },
     }
 
