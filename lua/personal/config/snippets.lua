@@ -383,6 +383,19 @@ for (const <name> of <list>) {
       { name = i(1), list = i(2), inside = i(3) }
     )
   ),
+  s(
+    { trig = "try ", snippetType = "autosnippet", condition = not_in_string },
+    fmta(
+      [[
+try {
+  <try>
+} catch (e) {
+  <catch>
+}
+]],
+      { try = i(1), catch = i(2) }
+    )
+  ),
 }, { key = "personal js" })
 
 ls.add_snippets("markdown", {
