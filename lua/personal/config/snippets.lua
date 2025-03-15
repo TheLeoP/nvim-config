@@ -27,15 +27,23 @@ local parse = require("luasnip.util.parser").parse_snippet
 local ms = ls.multi_snippet
 local k = require("luasnip.nodes.key_indexer").new_key
 
-local not_in_string = make_condition(function()
-  local js_blacklist = { "string", "template_string", "string_fragment" }
+local not_in_string_nor_comment = make_condition(function()
+  -- even when parsing the tree, it may not be updated in insert mode (?
+  -- so manually check for comments
+  local commentstring = "^%s*" .. vim.bo.commentstring:format ""
+  local current_line = vim.api.nvim_get_current_line()
+  if current_line:match(commentstring) then return false end
+
+  local js_blacklist = { "string", "template_string", "string_fragment", "comment" }
   local blacklist_by_ft = {
-    lua = { "string", "string_content" },
+    lua = { "string", "string_content", "comment", "comment_content" },
     javascript = js_blacklist,
     typescript = js_blacklist,
     typescriptreact = js_blacklist,
     javascriptreact = js_blacklist,
   }
+
+  vim.treesitter.get_parser():parse()
   local type = vim.treesitter.get_node():type()
   local ft = vim.o.filetype
   return not vim.list_contains(blacklist_by_ft[ft], type)
@@ -189,7 +197,7 @@ end
     {
       trig = "afn ",
       snippetType = "autosnippet",
-      condition = not_in_string,
+      condition = not_in_string_nor_comment,
     },
     fmta(
       [[
@@ -333,7 +341,7 @@ if (<condition>) {
     )
   ),
   s(
-    { trig = "afn ", snippetType = "autosnippet", condition = not_in_string },
+    { trig = "afn ", snippetType = "autosnippet", condition = not_in_string_nor_comment },
     fmta([[(<args>) =>> <body>]], {
       args = i(1),
       body = c(2, {
@@ -351,7 +359,7 @@ if (<condition>) {
     })
   ),
   s(
-    { trig = "fn ", snippetType = "autosnippet", condition = not_in_string },
+    { trig = "fn ", snippetType = "autosnippet", condition = not_in_string_nor_comment },
     fmta(
       [[
 function <name>(<args>) {
@@ -362,7 +370,7 @@ function <name>(<args>) {
     )
   ),
   s(
-    { trig = "while ", snippetType = "autosnippet", condition = not_in_string },
+    { trig = "while ", snippetType = "autosnippet", condition = not_in_string_nor_comment },
     fmta(
       [[
 while (<condition>) {
@@ -373,7 +381,7 @@ while (<condition>) {
     )
   ),
   s(
-    { trig = "for ", snippetType = "autosnippet", condition = not_in_string },
+    { trig = "for ", snippetType = "autosnippet", condition = not_in_string_nor_comment },
     fmta(
       [[
 for (const <name> of <list>) {
@@ -384,7 +392,7 @@ for (const <name> of <list>) {
     )
   ),
   s(
-    { trig = "try ", snippetType = "autosnippet", condition = not_in_string },
+    { trig = "try ", snippetType = "autosnippet", condition = not_in_string_nor_comment },
     fmta(
       [[
 try {
