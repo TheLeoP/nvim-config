@@ -404,6 +404,29 @@ try {
       { try = i(1), catch = i(2) }
     )
   ),
+  s(
+    { trig = "switch ", snippetType = "autosnippet", condition = not_in_string_nor_comment },
+    fmta(
+      [[
+switch (<var>) {
+  <inside>
+}
+]],
+      { var = i(1), inside = i(2) }
+    )
+  ),
+  s(
+    { trig = "case ", snippetType = "autosnippet", condition = not_in_string_nor_comment },
+    fmta(
+      [[
+case <value>: {
+  <inside>
+  break
+}
+]],
+      { value = i(1), inside = i(2) }
+    )
+  ),
 }, { key = "personal js" })
 
 ls.add_snippets("markdown", {
