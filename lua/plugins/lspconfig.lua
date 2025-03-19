@@ -50,24 +50,6 @@ return {
       },
     }
 
-    -- tailwind
-    lspconfig.tailwindcss.setup {
-      capabilities = config.capabilities,
-      root_dir = function()
-        local root = vim.fs.root(0, {
-          ".git",
-        })
-        if not root then return end
-        local package_json = root .. "/package.json"
-        local file = io.open(package_json)
-        if not file then return end
-        local content = file:read "*a"
-        if not content:find [["tailwindcss":]] then return end
-
-        return root
-      end,
-    }
-
     local servidores_generales = {
       "vimls",
       "clangd",
