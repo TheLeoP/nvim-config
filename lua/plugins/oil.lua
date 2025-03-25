@@ -18,7 +18,7 @@ return {
         mode = "n",
         desc = "Refresh and dismiss notifications",
         callback = function()
-          require("oil.actions").refresh.callback()
+          if not vim.bo.modified then require("oil.actions").refresh.callback() end
           vim.cmd.nohlsearch()
           vim.cmd.diffupdate()
           require("notify").dismiss { silent = true, pending = true }
