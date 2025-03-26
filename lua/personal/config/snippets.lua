@@ -427,6 +427,18 @@ case <value>: {
       { value = i(1), inside = i(2) }
     )
   ),
+  s(
+    { trig = "usestate ", snippetType = "autosnippet", condition = not_in_string_nor_comment },
+    fmta("const [<var>, <setter>] = useState(<initial>)", {
+      var = i(1),
+      setter = f(function(args)
+        local var = args[1][1]
+        if not var then return "" end
+        return "set" .. var:sub(1, 1):upper() .. var:sub(2)
+      end, { 1 }),
+      initial = i(2),
+    })
+  ),
 }, { key = "personal js" })
 
 ls.add_snippets("markdown", {
