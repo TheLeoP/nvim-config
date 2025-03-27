@@ -30,7 +30,7 @@ local k = require("luasnip.nodes.key_indexer").new_key
 local not_in_string_nor_comment = make_condition(function()
   -- even when parsing the tree, it may not be updated in insert mode (?
   -- so manually check for comments
-  local commentstring = "^%s*" .. vim.bo.commentstring:format ""
+  local commentstring = "^%s*" .. vim.pesc(vim.bo.commentstring:format "")
   local current_line = vim.api.nvim_get_current_line()
   if current_line:match(commentstring) then return false end
 
