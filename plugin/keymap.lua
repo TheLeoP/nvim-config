@@ -94,7 +94,7 @@ keymap.set(
 
 -- : operator
 vim.keymap.set({ "n", "x" }, "<leader>.", function()
-  vim.o.operatorfunc = "v:lua.require'personal.op'.dot"
+  vim.o.operatorfunc = "v:lua.require'personal.op'.command"
   return "g@"
 end, { expr = true })
 

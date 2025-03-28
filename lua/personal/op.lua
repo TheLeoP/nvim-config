@@ -2,8 +2,6 @@ local M = {}
 
 local api = vim.api
 
-function M.dot() api.nvim_feedkeys(":'[,']", "n", false) end
-
-function M.noop() end
+function M.command() api.nvim_input ":'[,']" end
 
 return M
