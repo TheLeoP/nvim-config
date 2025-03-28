@@ -36,7 +36,8 @@ local function on_attach(client, buf)
           max_height = math.floor(vim.o.lines * 0.5),
           max_width = math.floor(vim.o.columns * 0.4),
         }
-      end
+      end,
+      { buffer = buf, desc = "Hover" }
     )
   end
   if client:supports_method(methods.textDocument_definition) then
