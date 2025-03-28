@@ -25,9 +25,21 @@ local lsp_group = api.nvim_create_augroup("LSP", { clear = true })
 ---@param client vim.lsp.Client
 ---@param buf integer
 local function on_attach(client, buf)
-  if client.supports_method(methods.textDocument_documentSymbol) then require("nvim-navic").attach(client, buf) end
+  if client:supports_method(methods.textDocument_documentSymbol) then require("nvim-navic").attach(client, buf) end
 
-  if client.supports_method(methods.textDocument_definition) then
+  if client:supports_method(methods.textDocument_hover) then
+    keymap.set(
+      "n",
+      "K",
+      function()
+        vim.lsp.buf.hover {
+          max_height = math.floor(vim.o.lines * 0.5),
+          max_width = math.floor(vim.o.columns * 0.4),
+        }
+      end
+    )
+  end
+  if client:supports_method(methods.textDocument_definition) then
     keymap.set(
       "n",
       "gd",
@@ -54,16 +66,16 @@ local function on_attach(client, buf)
     function() require("fzf-lua").lsp_implementations { jump1 = true } end,
     { buffer = buf, desc = "Go to implementation" }
   )
-  if client.supports_method(methods.textDocument_signatureHelp) then
+  if client:supports_method(methods.textDocument_signatureHelp) then
     keymap.set("i", "<c-s>", function()
       if vim.fn.pumvisible() == 1 then api.nvim_feedkeys(vim.keycode "<c-e>", "n", false) end
-      vim.lsp.buf.signature_help()
+      vim.lsp.buf.signature_help {
+        max_height = math.floor(vim.o.lines * 0.5),
+        max_width = math.floor(vim.o.columns * 0.4),
+      }
     end, { buffer = buf, desc = "Signature help" })
   end
 
-  -- TODO: Remove on 0.11. It'll be a default
-  keymap.set({ "n", "x" }, "gra", vim.lsp.buf.code_action, { buffer = buf, desc = "Code actions" })
-  keymap.set("n", "grn", vim.lsp.buf.rename, { buffer = buf, desc = "Rename" })
   keymap.set("n", "gO", require("fzf-lua").lsp_document_symbols, { buffer = buf, desc = "Find document symbols" })
   keymap.set(
     "n",
@@ -74,7 +86,7 @@ local function on_attach(client, buf)
   keymap.set("n", "<leader>fki", require("fzf-lua").lsp_incoming_calls, { buffer = buf, desc = "Find incoming calls" })
   keymap.set("n", "<leader>fko", require("fzf-lua").lsp_outgoing_calls, { buffer = buf, desc = "Find outgoing calls" })
 
-  if client.supports_method(methods.textDocument_inlayHint) then
+  if client:supports_method(methods.textDocument_inlayHint) then
     local inlay_hint = vim.lsp.inlay_hint
     keymap.set(
       "n",
@@ -167,16 +179,6 @@ vim.diagnostic.handlers.virtual_text = {
   end,
   hide = hide_handler,
 }
-
--- TODO: update on 0.11 since vim.lsp.with will be deprecated
-vim.lsp.handlers[methods.textDocument_hover] = vim.lsp.with(vim.lsp.handlers.hover, {
-  max_height = math.floor(vim.o.lines * 0.5),
-  max_width = math.floor(vim.o.columns * 0.4),
-})
-vim.lsp.handlers[methods.textDocument_signatureHelp] = vim.lsp.with(vim.lsp.handlers.signature_help, {
-  max_height = math.floor(vim.o.lines * 0.5),
-  max_width = math.floor(vim.o.columns * 0.4),
-})
 
 vim.lsp.handlers["workspace/diagnostic/refresh"] = function(_, _, ctx)
   local ns = vim.lsp.diagnostic.get_namespace(ctx.client_id)
