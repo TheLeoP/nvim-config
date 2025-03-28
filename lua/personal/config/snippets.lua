@@ -439,6 +439,19 @@ case <value>: {
       initial = i(2),
     })
   ),
+  s(
+    { trig = "useeffect ", snippetType = "autosnippet", condition = not_in_string_nor_comment },
+    fmta(
+      [=[
+useEffect(() =>> {
+  <inside>
+}, [<dependencies>])]=],
+      {
+        inside = i(1),
+        dependencies = i(2),
+      }
+    )
+  ),
 }, { key = "personal js" })
 
 ls.add_snippets("markdown", {
