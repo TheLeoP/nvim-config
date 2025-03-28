@@ -105,3 +105,10 @@ vim.keymap.set({ "n", "x" }, "<leader>e", function()
   end
   return ":source<cr>"
 end, { expr = true })
+
+vim.keymap.set(
+  "n",
+  "<leader>tn",
+  function() vim.diagnostic.config { virtual_lines = not vim.diagnostic.config().virtual_lines } end,
+  { desc = "Toggle diagnostic virtual_lines" }
+)
