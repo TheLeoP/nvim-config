@@ -54,7 +54,7 @@ return {
         direction = "bottom",
         max_width = { 600, 0.7 },
         bindings = {
-          ["<C-t>"] = "<CMD>OverseerQuickAction open tab<CR>",
+          ["<C-t>"] = "<CMD>OverseerQuickAction zoom<CR>",
           ["<C-b>"] = "ScrollOutputUp",
           ["<C-f>"] = "ScrollOutputDown",
           ["H"] = "IncreaseAllDetail",
@@ -75,6 +75,16 @@ return {
       },
       task_win = {
         win_opts = { winblend = 5 },
+      },
+      actions = {
+        zoom = {
+          desc = "Open terminal in new tab and close task list",
+          condition = function(task) return task:get_bufnr() end,
+          run = function(task)
+            require("overseer").close()
+            task:open_output "tab"
+          end,
+        },
       },
     },
     config = function(_, opts)
