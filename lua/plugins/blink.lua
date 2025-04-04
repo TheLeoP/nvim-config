@@ -22,7 +22,7 @@ return {
       keymap = {
         preset = "none",
         ["<down>"] = { "show_and_insert", "select_next" },
-        ["<up>"] = { "select_prev" },
+        ["<up>"] = { "select_prev", "fallback" },
         ["<cr>"] = { "accept_and_enter", "fallback" },
         ["<c-e>"] = { "cancel" },
       },
