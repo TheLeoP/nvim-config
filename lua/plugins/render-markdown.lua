@@ -1,3 +1,5 @@
+local api = vim.api
+
 return {
   "MeanderingProgrammer/render-markdown.nvim",
   ---@type render.md.UserConfig
@@ -14,9 +16,8 @@ return {
       enabled = false,
     },
     render_modes = { "n", "i", "ic", "ix" },
+    completions = { blink = { enabled = true } },
+    overrides = { buftype = { ["nofile"] = { enabled = false } } },
   },
-  config = function(_, opts)
-    require("render-markdown").setup(opts)
-    -- TODO: check if it has a blink.cmp integration
-  end,
+  config = function(_, opts) require("render-markdown").setup(opts) end,
 }
