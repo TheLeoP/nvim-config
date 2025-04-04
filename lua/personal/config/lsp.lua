@@ -6,20 +6,6 @@ local M = {}
 
 M.mason_root = vim.fn.stdpath "data" .. "/mason/packages/" --[[@as string]]
 
-M.capabilities = vim.lsp.protocol.make_client_capabilities()
-M.capabilities.textDocument.completion.completionItem.snippetSupport = true
-M.capabilities.textDocument.completion.completionItem.resolveSupport = {
-  properties = {
-    "documentation",
-    "detail",
-    "additionalTextEdits",
-  },
-}
-M.capabilities.textDocument.foldingRange = {
-  dynamicRegistration = false,
-  lineFoldingOnly = true,
-}
-
 local lsp_group = api.nvim_create_augroup("LSP", { clear = true })
 
 ---@param client vim.lsp.Client
@@ -69,7 +55,9 @@ local function on_attach(client, buf)
   )
   if client:supports_method(methods.textDocument_signatureHelp) then
     keymap.set("i", "<c-s>", function()
-      if vim.fn.pumvisible() == 1 then api.nvim_feedkeys(vim.keycode "<c-e>", "n", false) end
+      -- TODO: remove if I ever change from blink.cmp. Maybe move this into its plugin spec?
+      local cmp = require "blink.cmp"
+      if cmp.is_menu_visible() then cmp.hide() end
       vim.lsp.buf.signature_help {
         max_height = math.floor(vim.o.lines * 0.5),
         max_width = math.floor(vim.o.columns * 0.4),

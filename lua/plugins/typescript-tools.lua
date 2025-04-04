@@ -1,11 +1,9 @@
 return {
   "pmizio/typescript-tools.nvim",
-  dependencies = { "nvim-lua/plenary.nvim" },
+  dependencies = { "nvim-lua/plenary.nvim", "blink.cmp" },
   config = function()
-    local config = require "personal.config.lsp"
-
     require("typescript-tools").setup {
-      capabilities = config.capabilities,
+      capabilities = require("blink.cmp").get_lsp_capabilities(),
       root_dir = function()
         return vim.fs.root(0, {
           ".git",

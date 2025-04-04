@@ -1,3 +1,4 @@
+-- TODO: track when the token is about to experie to eagerly refresh it instead of retrying requests?
 local uv = vim.uv
 local api = vim.api
 local fs_exists = require("personal.util.general").fs_exists

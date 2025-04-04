@@ -4,13 +4,14 @@ return {
     "schemastore.nvim",
     "mason-lspconfig.nvim",
     "mason.nvim",
+    "blink.cmp",
   },
   config = function()
     local lspconfig = require "lspconfig"
-    local config = require "personal.config.lsp"
+    local capabilities = require("blink.cmp").get_lsp_capabilities()
 
     lspconfig.basedpyright.setup {
-      capabilities = config.capabilities,
+      capabilities = capabilities,
       settings = {
         basedpyright = {
           analysis = {
@@ -32,12 +33,12 @@ return {
 
     -- angular
     lspconfig.angularls.setup {
-      capabilities = config.capabilities,
+      capabilities = capabilities,
     }
 
     -- fennel
     lspconfig.fennel_language_server.setup {
-      capabilities = config.capabilities,
+      capabilities = capabilities,
       settings = {
         fennel = {
           workspace = {
@@ -66,13 +67,13 @@ return {
 
     for _, server in ipairs(servidores_generales) do
       lspconfig[server].setup {
-        capabilities = config.capabilities,
+        capabilities = capabilities,
       }
     end
 
     -- lua
     lspconfig.lua_ls.setup {
-      capabilities = config.capabilities,
+      capabilities = capabilities,
       settings = {
         Lua = {
           hint = {
@@ -106,7 +107,7 @@ return {
 
     -- go
     lspconfig.gopls.setup {
-      capabilities = config.capabilities,
+      capabilities = capabilities,
       settings = {
         gopls = {
           gofumpt = true,
@@ -116,7 +117,7 @@ return {
 
     -- json
     lspconfig.jsonls.setup {
-      capabilities = config.capabilities,
+      capabilities = capabilities,
       settings = {
         json = {
           schemas = require("schemastore").json.schemas(),
@@ -130,7 +131,7 @@ return {
     -- groovy
     lspconfig.groovyls.setup {
       cmd = { "groovy-language-server" },
-      capabilities = config.capabilities,
+      capabilities = capabilities,
       settings = {
         groovy = {
           classpath = vim.list_extend(

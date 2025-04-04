@@ -17,6 +17,6 @@ return {
   },
   config = function(_, opts)
     require("render-markdown").setup(opts)
-    require("render-markdown.integ.coq").setup()
+    -- TODO: check if it has a blink.cmp integration
   end,
 }

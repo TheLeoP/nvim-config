@@ -1,7 +1,7 @@
 return {
   "pwntester/octo.nvim",
   dependencies = {
-    "plenary.nvim",
+    "nvim-lua/plenary.nvim",
     "fzf-lua",
     "nvim-web-devicons",
   },

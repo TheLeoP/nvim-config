@@ -60,18 +60,6 @@ function M.fs_exists(path)
   return false
 end
 
----@param map coq_sources
-function M.new_uid(map)
-  local key ---@type integer|nil
-  while true do
-    if not key or map[key] then
-      key = math.floor(math.random() * 10000)
-    else
-      return key
-    end
-  end
-end
-
 ---@param c string
 ---@return string
 local char_to_hex = function(c) return ("%%%02X"):format(c:byte()) end

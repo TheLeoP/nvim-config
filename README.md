@@ -4,14 +4,6 @@
 
 - general
   - git
-- coq_nvim
-  - Python >= 3.8.2
-  - pip
-  - python venv
-  - git symlinks
-    - Windows: `git config --global core.symlinks true` (may require additional config)
-    - [Workaround for when not available on Windows](https://github.com/ms-jpq/coq_nvim/issues/589#issuecomment-1651436348)
-    - [Another (untested) workaround](https://github.com/ms-jpq/coq_nvim/issues/589#issuecomment-1980518977)
 - lazy.nvim
   - hererocks
     - Python 3.x

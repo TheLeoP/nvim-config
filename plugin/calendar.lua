@@ -1,8 +1,6 @@
-local add_coq_completion = require("personal.calendar").add_coq_completion
 local CalendarView = require("personal.calendar").CalendarView
 local api = vim.api
 
-add_coq_completion()
 local calendar_view = CalendarView.new()
 
 ---@param opts abolish.command_opts

@@ -1,5 +1,6 @@
 return {
   "mfussenegger/nvim-jdtls",
+  dependencies = { "blink.cmp" },
   config = function()
     local lsp = require "personal.config.lsp"
 
@@ -68,7 +69,7 @@ return {
         flags = {
           allow_incremental_sync = true,
         },
-        capabilities = lsp.capabilities,
+        capabilities = require("blink.cmp").get_lsp_capabilities(),
         on_attach = function()
           require("jdtls").setup_dap { hotcodereplace = "auto", config_overrides = {} }
           require("jdtls.dap").setup_dap_main_class_configs()
