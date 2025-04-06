@@ -51,7 +51,7 @@ return {
       },
     }
 
-    local servidores_generales = {
+    local generic_servers = {
       "vimls",
       "clangd",
       "html",
@@ -65,7 +65,7 @@ return {
       "docker_compose_language_service",
     }
 
-    for _, server in ipairs(servidores_generales) do
+    for _, server in ipairs(generic_servers) do
       lspconfig[server].setup {
         capabilities = capabilities,
       }
