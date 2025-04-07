@@ -13,7 +13,7 @@ return {
   },
 
   ---@module "blink.cmp"
-  ---@return blink.cmp.Config
+  ---@type blink.cmp.Config
   opts = {
     keymap = {
       preset = "enter",
@@ -53,6 +53,11 @@ return {
       ghost_text = { enabled = true },
       list = {
         selection = { preselect = false, auto_insert = false },
+      },
+      accept = {
+        auto_brackets = {
+          enabled = false,
+        },
       },
     },
 
