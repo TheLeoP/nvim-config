@@ -143,6 +143,10 @@ return {
     }
 
     -- emmet
-    lspconfig.emmet_language_server.setup {}
+    lspconfig.emmet_language_server.setup {
+      init_options = {
+        showSuggestionsAsSnippets = true,
+      },
+    }
   end,
 }
