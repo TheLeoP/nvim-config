@@ -85,6 +85,7 @@ return {
           },
           completion = {
             showWord = "Disable",
+            keywordSnippet = "Disable",
           },
           diagnostics = {
             groupFileStatus = {
