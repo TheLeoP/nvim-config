@@ -7,7 +7,6 @@ local iter = vim.iter
 local compute_hex_color_group = require("mini.hipatterns").compute_hex_color_group
 local hl_enable = require("mini.hipatterns").enable
 local notify = require "mini.notify"
-local new_uid = require("personal.util.general").new_uid
 local url_encode = require("personal.util.general").url_encode
 local auv = require "personal.auv"
 local co_resume = auv.co_resume
@@ -605,6 +604,8 @@ function M.calendar_show(id)
     api.nvim_buf_set_lines(buf, 0, 0, true, vim.split(calendar_string, "\n"))
     M.undo_clear(buf)
     vim.bo[buf].filetype = "json"
+    vim.bo[buf].buftype = "acwrite"
+    vim.bo[buf].swapfile = false
 
     -- TODO: modify to put cursor on top of current calendar (?)
     keymap.set("n", "-", function()
@@ -1722,6 +1723,8 @@ function CalendarView:show(year, month, opts)
       self.d_in_w_border_buf = api.nvim_create_buf(false, false)
       vim.bo[self.d_in_w_border_buf].modified = false
       vim.bo[self.d_in_w_border_buf].modifiable = false
+      vim.bo[self.d_in_w_border_buf].buftype = "nofile"
+      vim.bo[self.d_in_w_border_buf].swapfile = false
     end
 
     local y_m_total_width = y_m_width * 2
@@ -1730,6 +1733,8 @@ function CalendarView:show(year, month, opts)
       self.y_m_border_buf = api.nvim_create_buf(false, false)
       vim.bo[self.y_m_border_buf].modified = false
       vim.bo[self.y_m_border_buf].modifiable = false
+      vim.bo[self.y_m_border_buf].buftype = "nofile"
+      vim.bo[self.y_m_border_buf].swapfile = false
     end
 
     self.month_buf = api.nvim_create_buf(false, false)
@@ -1738,12 +1743,16 @@ function CalendarView:show(year, month, opts)
     M.undo_clear(self.month_buf)
     vim.bo[self.month_buf].modified = false
     vim.bo[self.month_buf].modifiable = false
+    vim.bo[self.month_buf].buftype = "nofile"
+    vim.bo[self.month_buf].swapfile = false
 
     self.year_buf = api.nvim_create_buf(false, false)
     api.nvim_buf_set_lines(self.year_buf, 0, -1, true, self:year(year, y_m_height))
     M.undo_clear(self.year_buf)
     vim.bo[self.year_buf].modified = false
     vim.bo[self.year_buf].modifiable = false
+    vim.bo[self.year_buf].buftype = "nofile"
+    vim.bo[self.year_buf].swapfile = false
 
     for x = 1, self.d_in_w do
       local buf = api.nvim_create_buf(false, false)
@@ -1757,6 +1766,8 @@ function CalendarView:show(year, month, opts)
       hl_enable(buf, { highlighters = { day = { pattern = day_name, group = "TODO" } } })
       vim.bo[buf].modified = false
       vim.bo[buf].modifiable = false
+      vim.bo[buf].buftype = "nofile"
+      vim.bo[buf].swapfile = false
 
       self.day_bufs[x] = buf
     end
@@ -1952,6 +1963,7 @@ function CalendarView:show(year, month, opts)
         else
           x_r = 1
         end
+
         keymap.set("n", "<right>", function() self:set_current_win(y, x_r) end, { buffer = buf })
         local y_u ---@type integer
         if y - 1 >= 1 then
@@ -2153,6 +2165,8 @@ function CalendarView:show(year, month, opts)
       api.nvim_buf_set_lines(cal_buf, 0, -1, true, lines)
       M.undo_clear(cal_buf)
       vim.bo[cal_buf].modified = false
+      vim.bo[cal_buf].buftype = "acwrite"
+      vim.bo[cal_buf].swapfile = false
 
       -- this has to be done after enabling highlighting to avoid default
       -- global config to interfere
