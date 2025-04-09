@@ -112,10 +112,11 @@ return {
       },
     }
 
+    local mason_root = require("personal.config.lsp").mason_root
     dap.adapters.cppdbg = {
       id = "cppdbg",
       type = "executable",
-      command = require("personal.config.lsp").mason_root .. "cpptools/extension/debugAdapters/bin/OpenDebugAD7",
+      command = mason_root .. "cpptools/extension/debugAdapters/bin/OpenDebugAD7",
     }
 
     dap.configurations.c = {
@@ -220,44 +221,76 @@ return {
       }),
     }
 
-    for _, language in ipairs { "typescript", "javascript", "svelte", "vue", "typescriptreact", "javascriptreact" } do
-      dap.configurations[language] = {}
+    dap.adapters["pwa-node"] = {
+      type = "server",
+      host = "localhost",
+      port = "${port}",
+      executable = {
+        command = "node",
+        args = {
+          mason_root .. "js-debug-adapter/js-debug/src/dapDebugServer.js",
+          "${port}",
+        },
+      },
+    }
+    dap.adapters["node"] = function(cb, config)
+      if config.type == "node" then config.type = "pwa-node" end
+      local nativeAdapter = dap.adapters["pwa-node"]
+      if type(nativeAdapter) == "function" then
+        nativeAdapter(cb, config)
+      else
+        cb(nativeAdapter)
+      end
+    end
+
+    local js_filetypes = { "typescript", "javascript", "svelte", "vue", "typescriptreact", "javascriptreact" }
+
+    local vscode = require "dap.ext.vscode"
+    vscode.type_to_filetypes["node"] = js_filetypes
+    vscode.type_to_filetypes["pwa-node"] = js_filetypes
+
+    for _, language in ipairs(js_filetypes) do
+      dap.configurations[language] = dap.configurations[language] or {}
+
       if language == "javascript" then
         table.insert(dap.configurations[language], {
           type = "pwa-node",
           request = "launch",
-          name = "Launch current file in new node process",
+          name = "Launch",
           program = "${file}",
           cwd = "${workspaceFolder}",
+        })
+      elseif language == "typescript" then
+        table.insert(dap.configurations[language], {
+          type = "pwa-node",
+          request = "launch",
+          name = "Launch tsx",
+          program = "${file}",
+          cwd = "${workspaceFolder}",
+          runtimeExecutable = "tsx",
+          skipFiles = { "<node_internals>/**", "${workspaceFolder}/node_modules/**" },
+
+          console = "integratedTerminal",
+          internalConsoleOptions = "neverOpen",
         })
       end
 
       table.insert(dap.configurations[language], {
         type = "pwa-node",
         request = "attach",
+        name = "Attach",
         processId = require("dap.utils").pick_process,
-        name = "Attach debugger to existing `node --inspect` process",
-        sourceMaps = true,
-        resolveSourceMapsLoations = { "${workspaceFolder}/**", "!**/node_modules/**" },
         cwd = "${workspaceFolder}/src",
         skipFiles = { "${workspaceFolder}/node_modules/**/*.js" },
-      })
-      table.insert(dap.configurations[language], {
-        type = "pwa-chrome",
-        request = "launch",
-        name = "Launch Chrome to debug client side code",
-        url = "http://localhost:3000",
+
         sourceMaps = true,
-        webRoot = "${workspaceFolder}/src",
-        protocol = "inspector",
-        port = 9222,
-        skipFiles = { "${workspaceFolder}/node_modules/**/*.js", "**/@vite/*", "**/src/client/*", "**/src/*" },
+        resolveSourceMapsLoations = { "${workspaceFolder}/**", "!**/node_modules/**" },
       })
     end
 
     dap.adapters.coreclr = {
       type = "executable",
-      command = require("personal.config.lsp").mason_root .. "/netcoredbg/netcoredbg/netcoredbg",
+      command = mason_root .. "/netcoredbg/netcoredbg/netcoredbg",
       args = { "--interpreter=vscode" },
     }
 

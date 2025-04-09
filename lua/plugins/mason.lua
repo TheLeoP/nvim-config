@@ -21,6 +21,7 @@ return {
         "java-test",
         "delve",
         "powershell-editor-services",
+        "js-debug-adapter",
       } do
         local p = mr.get_package(tool)
         if not p:is_installed() then p:install() end
