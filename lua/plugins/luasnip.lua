@@ -2,9 +2,6 @@ local keymap = vim.keymap
 
 return {
   "L3MON4D3/LuaSnip",
-  dependencies = {
-    "vim-rsi", -- to override the <c-b> keymap on insert mode
-  },
   opts = {
     update_events = { "TextChanged", "TextChangedI" },
     store_selection_keys = "<c-j>",
