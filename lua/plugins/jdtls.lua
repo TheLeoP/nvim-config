@@ -69,7 +69,7 @@ return {
         flags = {
           allow_incremental_sync = true,
         },
-        capabilities = require("blink.cmp").get_lsp_capabilities(),
+        capabilities = require("blink.cmp").get_lsp_capabilities(nil, true),
         on_attach = function()
           require("jdtls").setup_dap { hotcodereplace = "auto", config_overrides = {} }
           require("jdtls.dap").setup_dap_main_class_configs()

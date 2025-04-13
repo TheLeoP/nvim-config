@@ -9,6 +9,9 @@ return {
   ---@module 'tailwind-tools'
   ---@type TailwindTools.Option
   opts = {
+    server = {
+      override = false,
+    },
     document_color = {
       kind = "background",
     },

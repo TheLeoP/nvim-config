@@ -3,7 +3,7 @@ return {
   dependencies = { "nvim-lua/plenary.nvim", "blink.cmp" },
   config = function()
     require("typescript-tools").setup {
-      capabilities = require("blink.cmp").get_lsp_capabilities(),
+      capabilities = require("blink.cmp").get_lsp_capabilities(nil, true),
       root_dir = function()
         return vim.fs.root(0, {
           ".git",
