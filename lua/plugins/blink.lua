@@ -1,4 +1,5 @@
 local api = vim.api
+
 return {
   "saghen/blink.cmp",
 
@@ -19,6 +20,11 @@ return {
       preset = "enter",
     },
     cmdline = {
+      completion = {
+        trigger = {
+          show_on_blocked_trigger_characters = { " " },
+        },
+      },
       keymap = {
         preset = "none",
         ["<down>"] = { "show_and_insert", "select_next" },
