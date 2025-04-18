@@ -60,14 +60,15 @@ return {
       args = { "start", "--" },
     }
 
+    keymap.set({ "n", "x" }, "<leader>da", ":DapEval<cr>", { desc = "Debug ev[a]l" })
     keymap.set("n", "<leader>dh", function() require("dap.ui.widgets").hover() end, { desc = "Debug hover" })
     keymap.set("n", "<leader>dc", function() dap.continue() end, { desc = "Debug continue" })
-    -- workwround for focusing the repl when openning
     keymap.set(
       "n",
-      "<leader>dr",
+      "<leader>te",
+      -- NOTE: the cmd is a workaround for focusing the repl when openning
       function() dap.repl.toggle({ height = 5 }, "aboveleft split | wincmd w") end,
-      { desc = "Debug toggle REPL" }
+      { desc = "Toggle DAP R[E]PL" }
     )
     keymap.set("n", "<leader>de", function()
       dap.terminate()

@@ -37,7 +37,7 @@ return {
     local dapui = require "dapui"
     dapui.setup(opts)
 
-    keymap.set("n", "<leader>ta", dapui.toggle, { desc = "Toggle dap-ui" })
+    keymap.set("n", "<leader>ta", dapui.toggle, { desc = "Toggle D[A]P Ui" })
   end,
   dependencies = {
     "nvim-dap",
