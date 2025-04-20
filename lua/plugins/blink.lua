@@ -81,6 +81,7 @@ return {
             { "kind_icon" },
             { "label", "label_description", gap = 1 },
             { "kind" },
+            { "source_name" },
           },
         },
       },
@@ -126,6 +127,7 @@ return {
               items
             )
           end,
+          fallbacks = {},
         },
 
         path = {
