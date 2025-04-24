@@ -58,6 +58,11 @@ return {
         end,
       },
     },
+    previewers = {
+      builtin = {
+        snacks_image = { enabled = false },
+      },
+    },
   },
   config = function(_, opts)
     local fzf = require "fzf-lua"
