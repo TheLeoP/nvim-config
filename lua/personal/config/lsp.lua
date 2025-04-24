@@ -110,14 +110,16 @@ api.nvim_create_autocmd("LspAttach", {
 })
 
 -- Update mappings when registering dynamic capabilities.
-local register_capability = vim.lsp.handlers[methods.client_registerCapability]
+local overriden = vim.lsp.handlers[methods.client_registerCapability]
 vim.lsp.handlers[methods.client_registerCapability] = function(err, res, ctx)
-  local return_value = register_capability(err, res, ctx)
+  local return_value = overriden(err, res, ctx)
 
   local client = vim.lsp.get_client_by_id(ctx.client_id)
-  if not client then return end
+  if not client then return return_value end
 
-  on_attach(client, api.nvim_get_current_buf())
+  for buf in pairs(client.attached_buffers) do
+    on_attach(client, buf)
+  end
 
   return return_value
 end
