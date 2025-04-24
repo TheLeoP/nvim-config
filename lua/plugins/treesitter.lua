@@ -1,3 +1,5 @@
+local api = vim.api
+
 return {
   "nvim-treesitter/nvim-treesitter",
   build = ":TSUpdateSync",
@@ -19,6 +21,9 @@ return {
       "graphql",
       "jsdoc",
       "regex",
+
+      "angular",
+      "scss",
     },
     sync_install = true,
     auto_install = true,
@@ -27,14 +32,16 @@ return {
       "comment",
     },
     highlight = {
-      enable = true, -- false will disable the whole extension
-      disable = {
-        "dashboard",
-      },
+      enable = true,
     },
   },
   config = function(_, opts)
     if vim.fn.has "win32" == 1 then require("nvim-treesitter.install").compilers = { "clang" } end
     require("nvim-treesitter.configs").setup(opts)
+
+    api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
+      pattern = { "*.component.html", "*.container.html" },
+      callback = function() vim.treesitter.start(nil, "angular") end,
+    })
   end,
 }
