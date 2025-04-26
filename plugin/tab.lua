@@ -23,7 +23,13 @@ function _G._personal_tab_label(i)
   local winnr = vim.fn.tabpagewinnr(i)
   local buf = buflist[winnr]
   local name = api.nvim_buf_get_name(buf)
-  if name == "" then name = "[No name]" end
+  if name == "" then
+    return "[No name]"
+  elseif vim.endswith(name, "/") or vim.endswith(name, "\\") then
+    local dirname = name:sub(1, -2)
+    local tail = vim.fn.fnamemodify(dirname, ":t")
+    return tail .. "/"
+  end
   local tail = vim.fn.fnamemodify(name, ":t")
   return tail
 end
