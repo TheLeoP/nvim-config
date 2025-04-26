@@ -102,12 +102,17 @@ local CTRL_V = vim.keycode "<C-V>"
 
 local modes = setmetatable({
   ["n"] = " N ",
+
+  ["nt"] = " N ",
+
   ["v"] = " V ",
   ["V"] = " V-L ",
   [CTRL_V] = " V-B ",
+
   ["s"] = " S ",
   ["S"] = " S-L ",
   [CTRL_S] = " S-B ",
+
   ["i"] = " I ",
   ["R"] = " R ",
   ["c"] = " C ",
