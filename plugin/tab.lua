@@ -23,6 +23,7 @@ function _G._personal_tab_label(i)
   local winnr = vim.fn.tabpagewinnr(i)
   local buf = buflist[winnr]
   local name = api.nvim_buf_get_name(buf)
+  if name == "" then name = "[No name]" end
   local tail = vim.fn.fnamemodify(name, ":t")
   return tail
 end
