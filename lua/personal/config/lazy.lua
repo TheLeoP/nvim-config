@@ -17,7 +17,7 @@ vim.opt.runtimepath:prepend(lazypath)
 
 local is_win = vim.fn.has "win32" == 1
 
-local documents = is_win and "D:/Lucho" or vim.api.nvim_eval "$HOME" .. "/Documentos"
+local documents = vim.env.HOME .. "/Documentos"
 local personal = documents .. "/Personal"
 require("lazy").setup("plugins", {
   performance = {
