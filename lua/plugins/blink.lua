@@ -51,6 +51,10 @@ return {
             return
           end
         end,
+        function(a, b)
+          if (a.source_id == nil or b.client_name == nil) or (a.client_name == b.client_name) then return end
+          return not b.source_id == "lsp"
+        end,
         -- Deprioritize emmet_language_server suggestions
         function(a, b)
           if (a.client_name == nil or b.client_name == nil) or (a.client_name == b.client_name) then return end
