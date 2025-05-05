@@ -23,8 +23,11 @@ function _G._personal_tab_label(i)
   local winnr = vim.fn.tabpagewinnr(i)
   local buf = buflist[winnr]
   local name = api.nvim_buf_get_name(buf)
+  local protocol = name:match "^(.*)://"
   if name == "" then
     return "[No name]"
+  elseif protocol == "fugitive" then
+    return protocol
   elseif vim.endswith(name, "/") or vim.endswith(name, "\\") then
     local dirname = name:sub(1, -2)
     local tail = vim.fn.fnamemodify(dirname, ":t")
