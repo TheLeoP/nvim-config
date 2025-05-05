@@ -93,12 +93,12 @@ keymap.set(
 )
 
 -- : operator
-vim.keymap.set({ "n", "x" }, "<leader>.", function()
+keymap.set({ "n", "x" }, "<leader>.", function()
   vim.o.operatorfunc = "v:lua.require'personal.op'.command"
   return "g@"
 end, { expr = true })
 
-vim.keymap.set({ "n", "x" }, "<leader>e", function()
+keymap.set({ "n", "x" }, "<leader>e", function()
   if vim.bo.filetype ~= "lua" and vim.bo.filetype ~= "vim" then
     vim.schedule(function() vim.notify(("Can't source filetype %s"):format(vim.bo.filetype)) end)
     return "<ignore>"
@@ -106,9 +106,12 @@ vim.keymap.set({ "n", "x" }, "<leader>e", function()
   return ":source<cr>"
 end, { expr = true })
 
-vim.keymap.set(
+keymap.set(
   "n",
   "<leader>tn",
   function() vim.diagnostic.config { virtual_lines = not vim.diagnostic.config().virtual_lines } end,
   { desc = "Toggle diagnostic virtual_lines" }
 )
+
+-- search within visual selection - this is magic
+keymap.set("x", "/", "<Esc>/\\%V")
