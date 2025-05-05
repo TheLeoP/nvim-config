@@ -830,7 +830,14 @@ function M.get_events(token_info, calendar_list, opts)
     local end_yday = os.date("*t", os.time(end_date--[[@as osdateparam]])).yday
     if end_yday < start_yday then end_yday = end_yday + 365 end
     for i = 0, end_yday - start_yday - 1 do
-      local date = os.date("*t", os.time { year = start_date.year, month = start_date.month, day = start_date.day + i })
+      local date = os.date(
+        "*t",
+        os.time {
+          year = start_date.year,
+          month = start_date.month,
+          day = start_date.day + i,
+        }
+      )
       local key = ("%s_%s_%s"):format(date.year, date.month, date.day)
       if _cache_events[key] then _cache_events[key] = {} end
     end
@@ -882,12 +889,31 @@ function M.get_events(token_info, calendar_list, opts)
               local start_date = M.parse_date_or_datetime(event.start, {})
               local end_date = M.parse_date_or_datetime(event["end"], { is_end = true })
 
-              local start_yday =
-                os.date("*t", os.time { year = start_date.y, month = start_date.m, day = start_date.d }).yday
-              local end_yday = os.date("*t", os.time { year = end_date.y, month = end_date.m, day = end_date.d }).yday
+              local start_yday = os.date(
+                "*t",
+                os.time {
+                  year = start_date.y,
+                  month = start_date.m,
+                  day = start_date.d,
+                }
+              ).yday
+              local end_yday = os.date(
+                "*t",
+                os.time {
+                  year = end_date.y,
+                  month = end_date.m,
+                  day = end_date.d,
+                }
+              ).yday
               for i = 0, end_yday - start_yday do
-                local date =
-                  os.date("*t", os.time { year = start_date.y, month = start_date.m, day = start_date.d + i })
+                local date = os.date(
+                  "*t",
+                  os.time {
+                    year = start_date.y,
+                    month = start_date.m,
+                    day = start_date.d + i,
+                  }
+                )
                 local key = ("%s_%s_%s"):format(date.year, date.month, date.day)
                 if not _cache_events[key] then _cache_events[key] = {} end
                 table.insert(_cache_events[key], event)
@@ -915,8 +941,14 @@ local function parse_date_time(date_time)
     local y, m, d, h, min, s = date_time:match "(%d%d%d%d)-(%d%d)-(%d%d)T(%d%d):(%d%d):(%d%d)Z"
     -- here, timestamp offset is 0 because of Z
     local local_offset = (timezone_offset_hours * 60 * 60) + (timezone_offset_minutes * 60)
-    local day_time =
-      os.date("*t", os.time { year = y, month = m, day = d, hour = h, min = min, sec = s } + local_offset)
+    local day_time = os.date("*t", os.time {
+      year = y,
+      month = m,
+      day = d,
+      hour = h,
+      min = min,
+      sec = s,
+    } + local_offset)
     return {
       y = day_time.year,
       m = day_time.month,
@@ -935,7 +967,14 @@ local function parse_date_time(date_time)
   local offset_minutes = (offset_sign == "-" and -1 or 1) * tonumber(offset_minutes_s)
   offset_minutes = offset_minutes - timezone_offset_minutes
   local local_offset = (offset_hours * 60 * 60) + (offset_minutes * 60)
-  local day_time = os.date("*t", os.time { year = y, month = m, day = d, hour = h, min = min, sec = s } + local_offset)
+  local day_time = os.date("*t", os.time {
+    year = y,
+    month = m,
+    day = d,
+    hour = h,
+    min = min,
+    sec = s,
+  } + local_offset)
   return {
     y = day_time.year,
     m = day_time.month,
@@ -1211,8 +1250,22 @@ function CalendarView:set_current_win(y, x)
 end
 
 function CalendarView:w_in_m(year, month)
-  local first_day = os.date("*t", os.time { year = year, month = month, day = 1 })
-  local last_day = os.date("*t", os.time { year = year, month = month + 1, day = 0 })
+  local first_day = os.date(
+    "*t",
+    os.time {
+      year = year,
+      month = month,
+      day = 1,
+    }
+  )
+  local last_day = os.date(
+    "*t",
+    os.time {
+      year = year,
+      month = month + 1,
+      day = 0,
+    }
+  )
 
   if (first_day.wday == 1 and month ~= 2) or (first_day.wday == 7 and last_day.day == 31) then return 6 end
   return 5
@@ -1638,7 +1691,14 @@ function CalendarView:show(year, month, opts)
   if self.y_m_border_buf then self.y_m_border_buf = nil end
   if self.month_win then self.month_win = nil end
 
-  local first_day_month = os.date("*t", os.time { year = year, month = month, day = 1 }) --[[@as osdate]]
+  local first_day_month = os.date(
+    "*t",
+    os.time {
+      year = year,
+      month = month,
+      day = 1,
+    }
+  ) --[[@as osdate]]
 
   local w_in_m = self:w_in_m(year, month)
 
@@ -1656,7 +1716,14 @@ function CalendarView:show(year, month, opts)
 
         if x == 1 then self.cal_bufs[y] = {} end
 
-        local date = os.date("*t", os.time { year = year, month = month, day = i - x_first_day_month }) --[[@as osdate]]
+        local date = os.date(
+          "*t",
+          os.time {
+            year = year,
+            month = month,
+            day = i - x_first_day_month,
+          }
+        ) --[[@as osdate]]
         if x == 1 and y == 1 then
           first_date = date
         elseif y == w_in_m and x == self.d_in_w then
@@ -1668,8 +1735,14 @@ function CalendarView:show(year, month, opts)
       end
     end
   end
-  local last_date_plus_one =
-    os.date("*t", os.time { year = last_date.year, month = last_date.month, day = last_date.day + 1 })
+  local last_date_plus_one = os.date(
+    "*t",
+    os.time {
+      year = last_date.year,
+      month = last_date.month,
+      day = last_date.day + 1,
+    }
+  )
 
   coroutine.wrap(function()
     local token_info = get_token_info()
