@@ -54,12 +54,25 @@ ls.add_snippets("all", {
     d(1, function()
       local commentstring = require("ts_context_commentstring.internal").calculate_commentstring()
         or vim.bo.commentstring
-      local template = commentstring:format "<>: <>"
+      local template = commentstring:format "<todo>: <text>"
       return sn(
         nil,
         fmta(template, {
-          c(1, { t "TODO", t "TODO(TheLeoP)", t "TODO(luis)" }),
-          i(2),
+          todo = c(2, { t "TODO", t "TODO(TheLeoP)", t "TODO(luis)" }),
+          text = i(1),
+        })
+      )
+    end),
+  }),
+  s("note", {
+    d(1, function()
+      local commentstring = require("ts_context_commentstring.internal").calculate_commentstring()
+        or vim.bo.commentstring
+      local template = commentstring:format "NOTE: <text>"
+      return sn(
+        nil,
+        fmta(template, {
+          text = i(1),
         })
       )
     end),
@@ -311,11 +324,24 @@ ls.add_snippets("javascript", {
     { trig = "if ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
     fmta(
       [[
-if (<condition>) {
-  <inside>
-}
+if (<condition>) <body>
 ]],
-      { condition = i(1), inside = i(2) }
+      {
+        condition = i(1),
+        body = c(2, {
+          sn(
+            nil,
+            fmta(
+              [[
+{
+  <inside>
+}]],
+              { inside = i(1) }
+            )
+          ),
+          i(nil),
+        }),
+      }
     )
   ),
   s(
