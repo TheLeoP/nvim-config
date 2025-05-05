@@ -2,7 +2,7 @@
 local uv = vim.uv
 local api = vim.api
 local fs_exists = require("personal.util.general").fs_exists
-local url_encode = require("personal.util.general").url_encode
+local uri_encode = require("vim.uri").uri_encode
 local auv = require "personal.auv"
 local co_resume = auv.co_resume
 
@@ -158,9 +158,9 @@ end
 
 local scope =
   "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/tasks https://www.googleapis.com/auth/drive"
-scope = assert(url_encode(scope))
+scope = assert(uri_encode(scope))
 local redirect_uri = "http://localhost:8080"
-redirect_uri = assert(url_encode(redirect_uri))
+redirect_uri = assert(uri_encode(redirect_uri))
 
 local auth_url = "https://accounts.google.com/o/oauth2/auth"
 local full_auth_url = ("%s?client_id=%s&redirect_uri=%s&scope=%s&response_type=code"):format(

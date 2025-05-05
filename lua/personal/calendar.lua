@@ -7,7 +7,7 @@ local iter = vim.iter
 local compute_hex_color_group = require("mini.hipatterns").compute_hex_color_group
 local hl_enable = require("mini.hipatterns").enable
 local notify = require "mini.notify"
-local url_encode = require("personal.util.general").url_encode
+local uri_encode = require("vim.uri").uri_encode
 local auv = require "personal.auv"
 local co_resume = auv.co_resume
 local google = require "personal.google"
@@ -403,7 +403,7 @@ function M.get_calendar(token_info, id)
       "--silent",
       "--header",
       ("Authorization: Bearer %s"):format(token_info.access_token),
-      ("https://www.googleapis.com/calendar/v3/calendars/%s"):format(url_encode(id)),
+      ("https://www.googleapis.com/calendar/v3/calendars/%s"):format(uri_encode(id)),
     },
     { text = true },
     vim.schedule_wrap(function(result)
@@ -848,9 +848,9 @@ function M.get_events(token_info, calendar_list, opts)
           "--header",
           ("Authorization: Bearer %s"):format(token_info.access_token),
           ("https://www.googleapis.com/calendar/v3/calendars/%s/events?timeMin=%s&timeMax=%s&singleEvents=%s"):format(
-            url_encode(calendar.id),
-            url_encode(time_min),
-            url_encode(time_max),
+            uri_encode(calendar.id),
+            uri_encode(time_min),
+            uri_encode(time_max),
             opts.should_query_single_events
           ),
         },
@@ -2320,7 +2320,7 @@ function M.create_event(token_info, calendar_id, diff)
       "--silent",
       "--header",
       ("Authorization: Bearer %s"):format(token_info.access_token),
-      ("https://www.googleapis.com/calendar/v3/calendars/%s/events"):format(url_encode(calendar_id)),
+      ("https://www.googleapis.com/calendar/v3/calendars/%s/events"):format(uri_encode(calendar_id)),
     },
     { text = true },
     vim.schedule_wrap(function(result)
@@ -2382,8 +2382,8 @@ function M.edit_event(token_info, calendar_id, diff)
       "--header",
       ("Authorization: Bearer %s"):format(token_info.access_token),
       ("https://www.googleapis.com/calendar/v3/calendars/%s/events/%s"):format(
-        url_encode(calendar_id),
-        url_encode(diff.cached_event.id)
+        uri_encode(calendar_id),
+        uri_encode(diff.cached_event.id)
       ),
     },
     { text = true },
@@ -2430,8 +2430,8 @@ function M.delete_event(token_info, calendar_id, diff)
       "--header",
       ("Authorization: Bearer %s"):format(token_info.access_token),
       ("https://www.googleapis.com/calendar/v3/calendars/%s/events/%s"):format(
-        url_encode(calendar_id),
-        url_encode(diff.cached_event.id)
+        uri_encode(calendar_id),
+        uri_encode(diff.cached_event.id)
       ),
     },
     { text = true },
@@ -2485,7 +2485,7 @@ function M.get_event(token_info, calendar_id, id, opts)
       "--silent",
       "--header",
       ("Authorization: Bearer %s"):format(token_info.access_token),
-      ("https://www.googleapis.com/calendar/v3/calendars/%s/events/%s"):format(url_encode(calendar_id), url_encode(id)),
+      ("https://www.googleapis.com/calendar/v3/calendars/%s/events/%s"):format(uri_encode(calendar_id), uri_encode(id)),
     },
     { text = true },
     vim.schedule_wrap(function(result)

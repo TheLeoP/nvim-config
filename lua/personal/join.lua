@@ -1,5 +1,5 @@
 local api = vim.api
-local url_encode = require("personal.util.general").url_encode
+local uri_encode = require("vim.uri").uri_encode
 
 local api_key = vim.env.JOIN_API_KEY ---@type string
 local device_id = vim.env.JOIN_DEVICE_ID ---@type string
@@ -15,9 +15,9 @@ local M = {}
 ---@param text string
 function M.clipboard(text)
   local url = ("https://joinjoaomgcd.appspot.com/_ah/api/messaging/v1/sendPush?apikey=%s&deviceId=%s&clipboard=%s"):format(
-    url_encode(api_key),
-    url_encode(device_id),
-    url_encode(text)
+    uri_encode(api_key),
+    uri_encode(device_id),
+    uri_encode(text)
   )
   vim.system(
     {
@@ -46,9 +46,9 @@ end
 ---@param cellphone_number string
 function M.call(cellphone_number)
   local url = ("https://joinjoaomgcd.appspot.com/_ah/api/messaging/v1/sendPush?apikey=%s&deviceId=%s&callnumber=%s"):format(
-    url_encode(api_key),
-    url_encode(device_id),
-    url_encode(cellphone_number)
+    uri_encode(api_key),
+    uri_encode(device_id),
+    uri_encode(cellphone_number)
   )
   vim.system(
     {
@@ -70,8 +70,8 @@ end
 
 function M.find()
   local url = ("https://joinjoaomgcd.appspot.com/_ah/api/messaging/v1/sendPush?apikey=%s&deviceId=%s&find=true"):format(
-    url_encode(api_key),
-    url_encode(device_id)
+    uri_encode(api_key),
+    uri_encode(device_id)
   )
   vim.system(
     {
@@ -95,10 +95,10 @@ end
 ---@param language string
 function M.say(text, language)
   local url = ("https://joinjoaomgcd.appspot.com/_ah/api/messaging/v1/sendPush?apikey=%s&deviceId=%s&say=%s&language=%s"):format(
-    url_encode(api_key),
-    url_encode(device_id),
-    url_encode(text),
-    url_encode(language)
+    uri_encode(api_key),
+    uri_encode(device_id),
+    uri_encode(text),
+    uri_encode(language)
   )
   vim.system(
     {
@@ -121,9 +121,9 @@ end
 ---@param name string
 function M.open_app(name)
   local url = ("https://joinjoaomgcd.appspot.com/_ah/api/messaging/v1/sendPush?apikey=%s&deviceId=%s&app=%s"):format(
-    url_encode(api_key),
-    url_encode(device_id),
-    url_encode(name)
+    uri_encode(api_key),
+    uri_encode(device_id),
+    uri_encode(name)
   )
   vim.system(
     {
@@ -160,23 +160,23 @@ end
 ---@param opts JoinNotifyOpts
 function M.notify(opts)
   local _additional_params = {} ---@type string[]
-  if opts.text then table.insert(_additional_params, ("text=%s"):format(url_encode(opts.text))) end
-  if opts.title then table.insert(_additional_params, ("title=%s"):format(url_encode(opts.title))) end
-  if opts.icon then table.insert(_additional_params, ("icon=%s"):format(url_encode(opts.icon))) end
-  if opts.smallicon then table.insert(_additional_params, ("smallicon=%s"):format(url_encode(opts.smallicon))) end
+  if opts.text then table.insert(_additional_params, ("text=%s"):format(uri_encode(opts.text))) end
+  if opts.title then table.insert(_additional_params, ("title=%s"):format(uri_encode(opts.title))) end
+  if opts.icon then table.insert(_additional_params, ("icon=%s"):format(uri_encode(opts.icon))) end
+  if opts.smallicon then table.insert(_additional_params, ("smallicon=%s"):format(uri_encode(opts.smallicon))) end
   if opts.priority then table.insert(_additional_params, ("priority=%s"):format(opts.priority)) end
-  if opts.vibration then table.insert(_additional_params, ("vibration=%s"):format(url_encode(opts.vibration))) end
+  if opts.vibration then table.insert(_additional_params, ("vibration=%s"):format(uri_encode(opts.vibration))) end
   if opts.dismiss_on_touch then table.insert(_additional_params, "dismissOnTouch=true") end
-  if opts.image then table.insert(_additional_params, ("image=%s"):format(url_encode(opts.image))) end
-  if opts.group then table.insert(_additional_params, ("group=%s"):format(url_encode(opts.group))) end
-  if opts.sound then table.insert(_additional_params, ("sound=%s"):format(url_encode(opts.sound))) end
-  if opts.actions then table.insert(_additional_params, ("actions=%s"):format(url_encode(opts.actions))) end
-  if opts.url then table.insert(_additional_params, ("url=%s"):format(url_encode(opts.url))) end
+  if opts.image then table.insert(_additional_params, ("image=%s"):format(uri_encode(opts.image))) end
+  if opts.group then table.insert(_additional_params, ("group=%s"):format(uri_encode(opts.group))) end
+  if opts.sound then table.insert(_additional_params, ("sound=%s"):format(uri_encode(opts.sound))) end
+  if opts.actions then table.insert(_additional_params, ("actions=%s"):format(uri_encode(opts.actions))) end
+  if opts.url then table.insert(_additional_params, ("url=%s"):format(uri_encode(opts.url))) end
 
   local additional_params = table.concat(_additional_params, "&")
   local url = ("https://joinjoaomgcd.appspot.com/_ah/api/messaging/v1/sendPush?apikey=%s&deviceId=%s&%s"):format(
-    url_encode(api_key),
-    url_encode(device_id),
+    uri_encode(api_key),
+    uri_encode(device_id),
     additional_params
   )
   vim.system(
@@ -205,8 +205,8 @@ end
 ---@param action 'playpause'|'play'|'pause'|'back'|'next'|'back'
 function M.media(action)
   local url = ("https://joinjoaomgcd.appspot.com/_ah/api/messaging/v1/sendPush?apikey=%s&deviceId=%s&%s=true"):format(
-    url_encode(api_key),
-    url_encode(device_id),
+    uri_encode(api_key),
+    uri_encode(device_id),
     action
   )
   vim.system(
@@ -230,9 +230,9 @@ end
 ---@param text string
 function M.media_search(text)
   local url = ("https://joinjoaomgcd.appspot.com/_ah/api/messaging/v1/sendPush?apikey=%s&deviceId=%s&mediaSearch=%s"):format(
-    url_encode(api_key),
-    url_encode(device_id),
-    url_encode(text)
+    uri_encode(api_key),
+    uri_encode(device_id),
+    uri_encode(text)
   )
   vim.system(
     {
@@ -255,9 +255,9 @@ end
 ---Location is received in the device identified by `sender_id`
 function M.location()
   local url = ("https://joinjoaomgcd.appspot.com/_ah/api/messaging/v1/sendPush?apikey=%s&deviceId=%s&location=true&senderId=%s"):format(
-    url_encode(api_key),
-    url_encode(device_id),
-    url_encode(sender_id)
+    uri_encode(api_key),
+    uri_encode(device_id),
+    uri_encode(sender_id)
   )
   vim.system(
     {
@@ -293,7 +293,7 @@ end
 ---@param cb fun(devices: JoinDevices[])
 function M.get_devices(cb)
   local url = ("https://joinjoaomgcd.appspot.com/_ah/api/registration/v1/listDevices?apikey=%s"):format(
-    url_encode(api_key)
+    uri_encode(api_key)
   )
   vim.system(
     {
