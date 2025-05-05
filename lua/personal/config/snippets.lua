@@ -54,11 +54,11 @@ ls.add_snippets("all", {
     d(1, function()
       local commentstring = require("ts_context_commentstring.internal").calculate_commentstring()
         or vim.bo.commentstring
-      local template = commentstring:format "<todo>: <text>"
+      local template = commentstring:format "TODO<author>: <text>"
       return sn(
         nil,
         fmta(template, {
-          todo = c(2, { t "TODO", t "TODO(TheLeoP)", t "TODO(luis)" }),
+          author = c(2, { t "", t "(TheLeoP)", t "(luis)" }),
           text = i(1),
         })
       )
