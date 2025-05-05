@@ -115,3 +115,8 @@ keymap.set(
 
 -- search within visual selection - this is magic
 keymap.set("x", "/", "<Esc>/\\%V")
+
+-- make this motions backwards inclusive
+for _, motion in ipairs { "F", "T", "b", "B", "ge", "0" } do
+  keymap.set("o", motion, "v" .. motion)
+end
