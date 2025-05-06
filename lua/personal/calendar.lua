@@ -1713,6 +1713,8 @@ function CalendarView:show(year, month, opts)
       for x = 1, self.d_in_w do
         i = i + 1
         local buf = api.nvim_create_buf(false, false)
+        vim.bo[buf].buftype = "acwrite"
+        vim.bo[buf].swapfile = false
 
         if x == 1 then self.cal_bufs[y] = {} end
 
@@ -1749,6 +1751,10 @@ function CalendarView:show(year, month, opts)
     assert(token_info, "There is no token_info")
     local calendar_list, maybe_new_token_info = M.get_calendar_list(token_info, {})
     token_info = maybe_new_token_info or token_info
+
+    -- NOTE: populate cache before creating buffers to avoid BufReadCmd from
+    -- failing (because of async coroutine shenanigans, I think)
+    M.get_colors(token_info)
 
     local start = {
       year = first_date.year --[[@as integer]],
@@ -1844,7 +1850,7 @@ function CalendarView:show(year, month, opts)
       self.day_bufs[x] = buf
     end
 
-    local zindex = 1 -- small value to allow floating windows to be showned above
+    local zindex = 1 -- small value to allow floating windows to be showed above
     self.month_win = api.nvim_open_win(self.month_buf, false, {
       focusable = false,
       relative = "editor",
@@ -2004,6 +2010,7 @@ function CalendarView:show(year, month, opts)
           api.nvim_win_close(win, true)
           local target_year = year
           local target_month = month - 1
+
           if target_month == 0 then
             target_month = 12
             target_year = target_year - 1
@@ -2052,116 +2059,98 @@ function CalendarView:show(year, month, opts)
         end
         keymap.set("n", "<down>", function() self:set_current_win(y_d, x) end, { buffer = buf })
 
+        -- TODO: use this for other kinds of buffers
+        api.nvim_create_autocmd("BufReadCmd", {
+          buffer = buf,
+          callback = function()
+            local day_num = ("%s"):format(buf_day)
+            local lines = { day_num }
+
+            if not day_events then
+              api.nvim_buf_set_lines(buf, 0, -1, true, lines)
+              return
+            end
+
+            -- TODO: sort only once
+            table.sort(
+              day_events,
+              ---@param a Event
+              ---@param b Event
+              function(a, b)
+                if a.start.date and b.start.date then
+                  return a.start.date < b.start.date
+                elseif a.start.date and b.start.dateTime then
+                  return true -- all day events first
+                elseif a.start.dateTime and b.start.date then
+                  return false -- all day events first
+                elseif a.start.dateTime and b.start.dateTime then
+                  local _a = parse_date_time(a.start.dateTime)
+                  local _b = parse_date_time(b.start.dateTime)
+                  if _a.h ~= _b.h then
+                    return _a.h < _b.h
+                  elseif _a.h == _b.h and _a.min ~= _b.min then
+                    return _a.min < _b.min
+                  else
+                    return _a.s < _b.s
+                  end
+                end
+                error "This shouldn't happen"
+              end
+            )
+            local events_text = iter(day_events)
+              :map(function(event)
+                local is_recurrent = event.recurrence and not vim.tbl_isempty(event.recurrence)
+                local recurrence = is_recurrent and ("%s%s"):format(sep, table.concat(event.recurrence, " ")) or ""
+
+                if not event.start.dateTime then return ("/%s %s%s"):format(event.id, event.summary, recurrence) end
+                local start_date_time = parse_date_time(event.start.dateTime)
+                local end_date_time = parse_date_time(event["end"].dateTime)
+                return ("/%s %s%s%02d:%02d:%02d%s%02d:%02d:%02d%s"):format(
+                  event.id,
+                  event.summary,
+                  sep,
+                  start_date_time.h,
+                  start_date_time.min,
+                  start_date_time.s,
+                  sep,
+                  end_date_time.h,
+                  end_date_time.min,
+                  end_date_time.s,
+                  recurrence
+                )
+              end)
+              :totable()
+
+            vim.list_extend(lines, events_text)
+            api.nvim_buf_set_lines(buf, 0, -1, true, lines)
+          end,
+        })
+
         api.nvim_create_autocmd("BufWriteCmd", {
           buffer = buf,
           callback = function()
             coroutine.wrap(function() self:write(token_info, calendar_list, events_by_date, year, month, win, buf) end)()
           end,
         })
-      end
-    end
 
-    iter(self.cal_bufs):flatten(1):each(function(cal_buf)
-      local buf_name = api.nvim_buf_get_name(cal_buf)
-      local buf_year, buf_month, buf_day = buf_name:match "^calendar://day_(%d%d%d%d)_(%d%d)_(%d%d)"
-      buf_year, buf_month, buf_day = tonumber(buf_year), tonumber(buf_month), tonumber(buf_day)
-
-      local day_num = ("%s"):format(buf_day)
-      local lines = { day_num }
-
-      local key = ("%s_%s_%s"):format(buf_year, buf_month, buf_day)
-      local day_events = events_by_date[key]
-      local highlighters = {
-        conceal_id = {
-          pattern = "^()/[^ ]+ ()",
-          group = "", -- group needs to not be `nil` to work
-          extmark_opts = {
-            conceal = "",
+        local highlighters = {
+          conceal_id = {
+            pattern = "^()/[^ ]+ ()",
+            group = "", -- group needs to not be `nil` to work
+            extmark_opts = {
+              conceal = "",
+            },
           },
-        },
-        time = {
-          pattern = "[ :]()%d%d()",
-          group = "Number",
-        },
-        punctuation = {
-          pattern = { sep, ":", ";", "=" },
-          group = "Delimiter",
-        },
-      }
+          time = {
+            pattern = "[ :]()%d%d()",
+            group = "Number",
+          },
+          punctuation = {
+            pattern = { sep, ":", ";", "=" },
+            group = "Delimiter",
+          },
+        }
 
-      if today.day == buf_day and today.month == buf_month and today.year == buf_year then
-        highlighters.day = {
-          pattern = "^%d+",
-          group = "",
-          extmark_opts = function(buf, match, data)
-            return {
-              end_row = data.line,
-              end_col = 0,
-              hl_group = "DiffText",
-              hl_eol = true,
-            }
-          end,
-        }
-      elseif buf_month == month then
-        highlighters.day = {
-          pattern = "^%d+",
-          group = "DiffAdd",
-        }
-      else
-        highlighters.day = {
-          pattern = "^%d+",
-          group = "Comment",
-        }
-      end
-      if day_events then
-        table.sort(
-          day_events,
-          ---@param a Event
-          ---@param b Event
-          function(a, b)
-            if a.start.date and b.start.date then
-              return a.start.date < b.start.date
-            elseif a.start.date and b.start.dateTime then
-              return true -- all day events first
-            elseif a.start.dateTime and b.start.date then
-              return false -- all day events first
-            elseif a.start.dateTime and b.start.dateTime then
-              local _a = parse_date_time(a.start.dateTime)
-              local _b = parse_date_time(b.start.dateTime)
-              if _a.h ~= _b.h then
-                return _a.h < _b.h
-              elseif _a.h == _b.h and _a.min ~= _b.min then
-                return _a.min < _b.min
-              else
-                return _a.s < _b.s
-              end
-            end
-            error "This shouldn't happen"
-          end
-        )
-        local events_text = iter(day_events)
-          :map(function(event)
-            local is_recurrent = event.recurrence and not vim.tbl_isempty(event.recurrence)
-            local recurrence = is_recurrent and ("%s%s"):format(sep, table.concat(event.recurrence, " ")) or ""
-
-            if not event.start.dateTime then return ("/%s %s%s"):format(event.id, event.summary, recurrence) end
-            local start_date_time = parse_date_time(event.start.dateTime)
-            local end_date_time = parse_date_time(event["end"].dateTime)
-            return ("/%s %s%s%02d:%02d:%02d%s%02d:%02d:%02d%s"):format(
-              event.id,
-              event.summary,
-              sep,
-              start_date_time.h,
-              start_date_time.min,
-              start_date_time.s,
-              sep,
-              end_date_time.h,
-              end_date_time.min,
-              end_date_time.s,
-              recurrence
-            )
-          end)
-          :totable()
         iter(day_events):each(
           ---@param event Event
           function(event)
@@ -2181,16 +2170,11 @@ function CalendarView:show(year, month, opts)
               end
             end
 
-            -- fallback to default calendar if creator ~= organizer
             ---@type CalendarListEntry|nil
             local calendar = iter(calendar_list.items):find(
               ---@param calendar CalendarListEntry
-              function(calendar) return calendar.id == event.organizer.email end
+              function(calendar) return calendar.id == event._calendar_id end
             )
-              or iter(calendar_list.items):find(
-                ---@param calendar CalendarListEntry
-                function(calendar) return calendar.id == event.creator.email end
-              )
 
             if not calendar or not event.summary then return end
 
@@ -2199,12 +2183,6 @@ function CalendarView:show(year, month, opts)
 
             local calendar_fg = current_color and current_color.foreground or calendar.foregroundColor
             local calendar_bg = current_color and current_color.background or calendar.backgroundColor
-            if
-              event.organizer.email ~= event.creator.email
-              and not calendar.id:match "family%d+@group%.calendar%.google%.com"
-            then
-              calendar_fg, calendar_bg = calendar_bg, calendar_fg
-            end
             if calendar_fg then
               local fg = compute_hex_color_group(calendar_fg, "fg")
               highlighters[event.id .. "fg"] = {
@@ -2228,21 +2206,51 @@ function CalendarView:show(year, month, opts)
           end
         )
 
-        vim.list_extend(lines, events_text)
+        if today.day == buf_day and today.month == buf_month and today.year == buf_year then
+          highlighters.day = {
+            pattern = "^%d+",
+            group = "",
+            extmark_opts = function(buf, match, data)
+              return {
+                end_row = data.line,
+                end_col = 0,
+                hl_group = "DiffText",
+                hl_eol = true,
+              }
+            end,
+          }
+        elseif buf_month == month then
+          highlighters.day = {
+            pattern = "^%d+",
+            group = "DiffAdd",
+          }
+        else
+          highlighters.day = {
+            pattern = "^%d+",
+            group = "Comment",
+          }
+        end
+        vim.b[buf].minihipatterns_config = { highlighters = highlighters }
+
+        api.nvim_create_autocmd("BufEnter", {
+          buffer = buf,
+          callback = function() -- NOTE:
+            -- * after `vim.cmd.edit` because it resets `MiniHipatterns`.
+            -- * after setting buf local config
+            -- * before global config kicks in because the cache will use it instead of the buffer local config
+            hl_enable(buf)
+          end,
+        })
+        api.nvim_win_call(win, function() vim.cmd.edit() end)
       end
-      vim.b[cal_buf].minihipatterns_config = { highlighters = highlighters }
-      hl_enable(cal_buf)
+    end
 
-      -- TODO: use the `BufReadCmd` event in an autocmd for setting text to allow for `:e!`
-      api.nvim_buf_set_lines(cal_buf, 0, -1, true, lines)
-      M.undo_clear(cal_buf)
-      vim.bo[cal_buf].modified = false
-      vim.bo[cal_buf].buftype = "acwrite"
-      vim.bo[cal_buf].swapfile = false
+    iter(self.cal_bufs):flatten(1):each(function(buf)
+      local buf_name = api.nvim_buf_get_name(buf)
+      local buf_year, buf_month, buf_day = buf_name:match "^calendar://day_(%d%d%d%d)_(%d%d)_(%d%d)"
+      buf_year, buf_month, buf_day = tonumber(buf_year), tonumber(buf_month), tonumber(buf_day)
 
-      -- this has to be done after enabling highlighting to avoid default
-      -- global config to interfere
-      if self.current_win and cal_buf == self.cal_bufs[1][1] then
+      if self.current_win and buf == self.cal_bufs[1][1] then
         local y, x = unpack(self.current_win) ---@type integer, integer
         if not self.cal_wins[y] or not self.cal_wins[y][x] then
           self:set_current_win(1, 1)
@@ -2253,7 +2261,7 @@ function CalendarView:show(year, month, opts)
         local x, y ---@type integer?, integer?
         for j, bufs in ipairs(self.cal_bufs) do
           for i, buf in ipairs(bufs) do
-            if cal_buf == buf then
+            if buf == buf then
               x, y = i, j
             end
           end
@@ -2261,11 +2269,7 @@ function CalendarView:show(year, month, opts)
         assert(y)
         assert(x)
         self:set_current_win(y, x)
-      elseif
-        not self.current_win
-        and (today.month ~= month or today.year ~= year)
-        and cal_buf == self.cal_bufs[1][1]
-      then
+      elseif not self.current_win and (today.month ~= month or today.year ~= year) and buf == self.cal_bufs[1][1] then
         self:set_current_win(1, 1)
       end
     end)
