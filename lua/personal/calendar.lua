@@ -11,7 +11,6 @@ local uri_encode = require("vim.uri").uri_encode
 local auv = require "personal.auv"
 local co_resume = auv.co_resume
 local google = require "personal.google"
-local refresh_access_token = google.refresh_access_token
 local get_token_info = google.get_token_info
 
 local M = {}
@@ -90,16 +89,18 @@ local text_timezone = "America/Guayaquil"
 local _cache_calendar_list ---@type CalendarList|nil
 
 ---@async
----@param token_info TokenInfo
 ---@param opts? {refresh:true}
 ---@return CalendarList, TokenInfo|nil
-function M.get_calendar_list(token_info, opts)
+function M.get_calendar_list(opts)
   local co = coroutine.running()
   assert(co, "The function must run inside a coroutine")
 
   if opts and opts.refresh then _cache_calendar_list = nil end
 
   if _cache_calendar_list then return _cache_calendar_list end
+
+  local token_info = get_token_info()
+  assert(token_info, "`token_info` is nil")
 
   vim.system(
     {
@@ -117,18 +118,7 @@ function M.get_calendar_list(token_info, opts)
       assert(ok, calendar_list)
       ---@cast calendar_list -string
 
-      if calendar_list.error then
-        ---@cast calendar_list -CalendarList
-        assert(calendar_list.error.status == "UNAUTHENTICATED", calendar_list.error.message)
-        coroutine.wrap(function()
-          local refreshed_token_info = refresh_access_token(token_info.refresh_token)
-          local new_calendar_list = M.get_calendar_list(refreshed_token_info, {})
-          co_resume(co, new_calendar_list, refreshed_token_info)
-        end)()
-
-        return
-      end
-      ---@cast calendar_list +CalendarList
+      assert(not calendar_list.error, vim.inspect(calendar_list.error))
       ---@cast calendar_list -ApiErrorResponse
 
       _cache_calendar_list = calendar_list
@@ -143,9 +133,7 @@ M.sep = sep
 ---@param opts? {refresh:boolean}
 function M.calendar_list_show(opts)
   coroutine.wrap(function()
-    local token_info = get_token_info()
-    assert(token_info, "There is no token_info")
-    local calendar_list = M.get_calendar_list(token_info, opts)
+    local calendar_list = M.get_calendar_list(opts)
 
     local buf = api.nvim_create_buf(false, false)
     api.nvim_buf_set_name(buf, "calendar://calendar_list")
@@ -272,9 +260,7 @@ function M.calendar_list_show(opts)
             if diff.type == "new" then
               assert(diff.summary, ("Diff has no summary %s"):format(vim.inspect(diff)))
               coroutine.wrap(function()
-                token_info = get_token_info()
-                assert(token_info, "There is no token_info")
-                local new_calendar = M.create_calendar(token_info, diff)
+                local new_calendar = M.create_calendar(diff)
                 assert(_cache_calendar_list)
                 table.insert(_cache_calendar_list.items, new_calendar)
 
@@ -282,9 +268,7 @@ function M.calendar_list_show(opts)
               end)()
             elseif diff.type == "edit" then
               coroutine.wrap(function()
-                token_info = get_token_info()
-                assert(token_info, "There is no token_info")
-                local edited_calendar = M.edit_calendar(token_info, diff)
+                local edited_calendar = M.edit_calendar(diff)
                 local cached_calendar = diff.cached_calendar --[[@as table<unknown, unknown>]]
 
                 -- can't only update some fields because google checks
@@ -298,9 +282,7 @@ function M.calendar_list_show(opts)
               end)()
             elseif diff.type == "delete" then
               coroutine.wrap(function()
-                token_info = get_token_info()
-                assert(token_info, "There is no token_info")
-                M.delete_calendar(token_info, diff)
+                M.delete_calendar(diff)
                 assert(_cache_calendar_list)
                 for j, calendar in ipairs(_cache_calendar_list.items) do
                   if calendar.id == diff.cached_calendar.id then table.remove(_cache_calendar_list.items, j) end
@@ -387,14 +369,16 @@ end
 local _cache_calendar = {} ---@type table<string, Calendar>
 
 ---@async
----@param token_info TokenInfo
 ---@param id string
 ---@return Calendar
-function M.get_calendar(token_info, id)
+function M.get_calendar(id)
   local co = coroutine.running()
   assert(co, "The function must run inside a coroutine")
 
   if _cache_calendar[id] then return _cache_calendar[id] end
+
+  local token_info = get_token_info()
+  assert(token_info, "`token_info` is nil")
 
   vim.system(
     {
@@ -412,17 +396,7 @@ function M.get_calendar(token_info, id)
       assert(ok, calendar)
       ---@cast calendar -string
 
-      if calendar.error then
-        ---@cast calendar -Calendar
-        assert(calendar.error.status == "UNAUTHENTICATED", calendar.error.message)
-        coroutine.wrap(function()
-          local refreshed_token_info = refresh_access_token(token_info.refresh_token)
-          local new_calendar = M.get_calendar(refreshed_token_info, id)
-          co_resume(co, new_calendar)
-        end)()
-        return
-      end
-      ---@cast calendar +Calendar
+      assert(not calendar.error, vim.inspect(calendar.error))
       ---@cast calendar -ApiErrorResponse
 
       _cache_calendar[id] = calendar
@@ -433,12 +407,14 @@ function M.get_calendar(token_info, id)
 end
 
 ---@async
----@param token_info TokenInfo
 ---@param diff CalendarDiff
 ---@return Calendar
-function M.create_calendar(token_info, diff)
+function M.create_calendar(diff)
   local co = coroutine.running()
   assert(co, "The function must run inside a coroutine")
+
+  local token_info = get_token_info()
+  assert(token_info, "`token_info` is nil")
 
   local data = vim.json.encode { summary = diff.summary }
   local tmp_name = os.tmpname()
@@ -465,17 +441,7 @@ function M.create_calendar(token_info, diff)
       assert(ok, new_calendar)
       ---@cast new_calendar -string
 
-      if new_calendar.error then
-        ---@cast new_calendar -Calendar
-        assert(new_calendar.error.status == "UNAUTHENTICATED", new_calendar.error.message)
-        coroutine.wrap(function(refreshed_token_info)
-          refresh_access_token(token_info.refresh_token)
-          local new_new_calendar = M.create_calendar(refreshed_token_info, diff)
-          co_resume(co, new_new_calendar)
-        end)()
-        return
-      end
-      ---@cast new_calendar +Calendar
+      assert(not new_calendar.error, vim.inspect(new_calendar.error))
       ---@cast new_calendar -ApiErrorResponse
 
       co_resume(co, new_calendar)
@@ -485,12 +451,14 @@ function M.create_calendar(token_info, diff)
 end
 
 ---@async
----@param token_info TokenInfo
 ---@param diff CalendarDiff
 ---@return Calendar
-function M.edit_calendar(token_info, diff)
+function M.edit_calendar(diff)
   local co = coroutine.running()
   assert(co, "The function must run inside a coroutine")
+
+  local token_info = get_token_info()
+  assert(token_info, "`token_info` is nil")
 
   local cached_calendar = vim.deepcopy(diff.cached_calendar)
   if diff.summary then cached_calendar.summary = diff.summary end
@@ -521,17 +489,7 @@ function M.edit_calendar(token_info, diff)
       assert(ok, edited_calendar)
       ---@cast edited_calendar -string
 
-      if edited_calendar.error then
-        ---@cast edited_calendar -Calendar
-        assert(edited_calendar.error.status == "UNAUTHENTICATED", edited_calendar.error.message)
-        coroutine.wrap(function()
-          local refreshed_token_info = refresh_access_token(token_info.refresh_token)
-          local new_edited_calendar = M.edit_calendar(refreshed_token_info, diff)
-          co_resume(co, new_edited_calendar)
-        end)()
-        return
-      end
-      ---@cast edited_calendar +Calendar
+      assert(not edited_calendar.error, vim.inspect(edited_calendar.error))
       ---@cast edited_calendar -ApiErrorResponse
 
       co_resume(co, edited_calendar)
@@ -541,11 +499,13 @@ function M.edit_calendar(token_info, diff)
 end
 
 ---@async
----@param token_info TokenInfo
 ---@param diff CalendarDiff
-function M.delete_calendar(token_info, diff)
+function M.delete_calendar(diff)
   local co = coroutine.running()
   assert(co, "The function must run inside a coroutine")
+
+  local token_info = get_token_info()
+  assert(token_info, "`token_info` is nil")
 
   vim.system(
     {
@@ -571,16 +531,7 @@ function M.delete_calendar(token_info, diff)
       assert(ok, response)
       ---@cast response -string
 
-      if response.error then
-        ---@cast response -Event
-        assert(response.error.status == "UNAUTHENTICATED", response.error.message)
-        coroutine.wrap(function()
-          local refreshed_token_info = refresh_access_token(token_info.refresh_token)
-          M.delete_calendar(refreshed_token_info, diff)
-          co_resume(co)
-        end)()
-        return
-      end
+      assert(not response.error, vim.inspect(response.error))
     end)
   )
   coroutine.yield()
@@ -589,10 +540,7 @@ end
 ---@param id string
 function M.calendar_show(id)
   coroutine.wrap(function()
-    local token_info = get_token_info()
-    assert(token_info, "There is no token_info")
-
-    local calendar = M.get_calendar(token_info, id)
+    local calendar = M.get_calendar(id)
     local buf = api.nvim_create_buf(false, false)
 
     api.nvim_create_autocmd("BufLeave", {
@@ -793,11 +741,10 @@ local already_seen = {} ---@type table<string, boolean>
 ---@field day integer
 
 ---@async
----@param token_info TokenInfo
 ---@param calendar_list CalendarList
 ---@param opts {start: CalendarDate, end: CalendarDate, refresh: boolean?, should_query_single_events: boolean?} start and end are exclusive
 ---@return table<string, Event[]>, TokenInfo|nil
-function M.get_events(token_info, calendar_list, opts)
+function M.get_events(calendar_list, opts)
   local co = coroutine.running()
   assert(co, "The function must run inside a coroutine")
 
@@ -821,6 +768,9 @@ function M.get_events(token_info, calendar_list, opts)
   local end_key = ("%s_%s_%s"):format(end_year, end_month, end_day)
   local events_key = ("%s_%s"):format(start_key, end_key)
   if already_seen[events_key] then return _cache_events end
+
+  local token_info = get_token_info()
+  assert(token_info, "`token_info` is nil")
 
   -- in order to avoid duplicates on border days, if the whole date range hasn't been queried before, clean border days
   do
@@ -868,17 +818,7 @@ function M.get_events(token_info, calendar_list, opts)
           assert(ok, events)
           ---@cast events -string
 
-          if events.error then
-            ---@cast events -CalendarEvents
-            assert(events.error.status == "UNAUTHENTICATED", events.error.message)
-            coroutine.wrap(function()
-              local refreshed_token_info = refresh_access_token(token_info.refresh_token)
-              local new_events = M.get_events(refreshed_token_info, calendar_list, opts)
-              co_resume(co, new_events, refreshed_token_info)
-            end)()
-            return
-          end
-          ---@cast events +CalendarEvents
+          assert(not events.error, vim.inspect(events.error))
           ---@cast events -ApiErrorResponse
 
           iter(events.items):each(
@@ -1313,14 +1253,13 @@ end
 ---@field calendar_summary string?
 ---@field recurrence string[]?
 
----@param token_info TokenInfo
 ---@param calendar_list CalendarList
 ---@param events_by_date table<string, Event>
 ---@param year integer
 ---@param month integer
 ---@param win integer
 ---@param buf integer
-function CalendarView:write(token_info, calendar_list, events_by_date, year, month, win, buf)
+function CalendarView:write(calendar_list, events_by_date, year, month, win, buf)
   vim.bo[buf].modifiable = false
 
   local buf_name = api.nvim_buf_get_name(buf)
@@ -1601,7 +1540,7 @@ function CalendarView:write(token_info, calendar_list, events_by_date, year, mon
           )
 
           coroutine.wrap(function()
-            local new_event = M.create_event(token_info, calendar.id, diff)
+            local new_event = M.create_event(calendar.id, diff)
             table.insert(day_events, new_event)
 
             reload_if_last_diff()
@@ -1610,7 +1549,7 @@ function CalendarView:write(token_info, calendar_list, events_by_date, year, mon
           local calendar_id = diff.cached_event.organizer.email
 
           coroutine.wrap(function()
-            local edited_event = M.edit_event(token_info, calendar_id, diff)
+            local edited_event = M.edit_event(calendar_id, diff)
             local cached_event = diff.cached_event --[[@as table<unknown, unknown>]]
 
             -- can't only update some fields because google checks
@@ -1626,7 +1565,7 @@ function CalendarView:write(token_info, calendar_list, events_by_date, year, mon
           local calendar_id = diff.cached_event.organizer.email
 
           coroutine.wrap(function()
-            M.delete_event(token_info, calendar_id, diff)
+            M.delete_event(calendar_id, diff)
             for _, events in pairs(_cache_events) do
               for j, event in ipairs(events) do
                 if event.id == diff.cached_event.id then table.remove(events, j) end
@@ -1747,14 +1686,11 @@ function CalendarView:show(year, month, opts)
   )
 
   coroutine.wrap(function()
-    local token_info = get_token_info()
-    assert(token_info, "There is no token_info")
-    local calendar_list, maybe_new_token_info = M.get_calendar_list(token_info, {})
-    token_info = maybe_new_token_info or token_info
+    local calendar_list = M.get_calendar_list {}
 
     -- NOTE: populate cache before creating buffers to avoid BufReadCmd from
     -- failing (because of async coroutine shenanigans, I think)
-    M.get_colors(token_info)
+    M.get_colors()
 
     local start = {
       year = first_date.year --[[@as integer]],
@@ -1766,7 +1702,7 @@ function CalendarView:show(year, month, opts)
       month = last_date_plus_one.month --[[@as integer]],
       day = last_date_plus_one.day --[[@as integer]],
     }
-    local events_by_date = M.get_events(token_info, calendar_list, {
+    local events_by_date = M.get_events(calendar_list, {
       start = start,
       ["end"] = end_,
       refresh = opts and opts.refresh,
@@ -1997,15 +1933,10 @@ function CalendarView:show(year, month, opts)
         keymap.set(
           "n",
           "<c-cr>",
-          function() M.event_show(token_info, calendar_list, day_events, { recurring = true }) end,
+          function() M.event_show(calendar_list, day_events, { recurring = true }) end,
           { buffer = buf }
         )
-        keymap.set(
-          "n",
-          "<cr>",
-          function() M.event_show(token_info, calendar_list, day_events, {}) end,
-          { buffer = buf }
-        )
+        keymap.set("n", "<cr>", function() M.event_show(calendar_list, day_events, {}) end, { buffer = buf })
         keymap.set("n", "<", function()
           api.nvim_win_close(win, true)
           local target_year = year
@@ -2129,7 +2060,7 @@ function CalendarView:show(year, month, opts)
         api.nvim_create_autocmd("BufWriteCmd", {
           buffer = buf,
           callback = function()
-            coroutine.wrap(function() self:write(token_info, calendar_list, events_by_date, year, month, win, buf) end)()
+            coroutine.wrap(function() self:write(calendar_list, events_by_date, year, month, win, buf) end)()
           end,
         })
 
@@ -2178,7 +2109,7 @@ function CalendarView:show(year, month, opts)
 
             if not calendar or not event.summary then return end
 
-            local colors = M.get_colors(token_info)
+            local colors = M.get_colors()
             local current_color = event.colorId and colors.event[event.colorId] or nil ---@type Color?
 
             local calendar_fg = current_color and current_color.foreground or calendar.foregroundColor
@@ -2299,13 +2230,15 @@ local _cache_colors ---@type Colors
 local is_getting_colors = false
 
 ---@async
----@param token_info TokenInfo
 ---@return Colors
-function M.get_colors(token_info)
+function M.get_colors()
   local co = coroutine.running()
   assert(co, "The function must run inside a coroutine")
 
   if _cache_colors then return _cache_colors end
+
+  local token_info = get_token_info()
+  assert(token_info, "`token_info` is nil")
 
   local colors_received_pattern = "CalendarColorsReceived"
   api.nvim_create_autocmd("User", {
@@ -2333,18 +2266,7 @@ function M.get_colors(token_info)
       assert(ok, colors)
       ---@cast colors -string
 
-      if colors.error then
-        ---@cast colors -Colors
-        assert(colors.error.status == "UNAUTHENTICATED", colors.error.message)
-        coroutine.wrap(function()
-          local refreshed_token_info = refresh_access_token(token_info.refresh_token)
-          local new_colors = M.get_colors(refreshed_token_info)
-          co_resume(co, new_colors)
-        end)()
-
-        return
-      end
-      ---@cast colors +Colors
+      assert(not colors.error, vim.inspect(colors.error))
       ---@cast colors -ApiErrorResponse
 
       _cache_colors = colors
@@ -2372,12 +2294,14 @@ end
 ---@field cached_calendar Calendar?
 
 ---@async
----@param token_info TokenInfo
 ---@param diff EventDiff
 ---@return Event
-function M.create_event(token_info, calendar_id, diff)
+function M.create_event(calendar_id, diff)
   local co = coroutine.running()
   assert(co, "The function must run inside a coroutine")
+
+  local token_info = get_token_info()
+  assert(token_info, "`token_info` is nil")
 
   local data =
     vim.json.encode { start = diff.start, ["end"] = diff["end"], summary = diff.summary, recurrence = diff.recurrence }
@@ -2405,17 +2329,7 @@ function M.create_event(token_info, calendar_id, diff)
       assert(ok, new_event)
       ---@cast new_event -string
 
-      if new_event.error then
-        ---@cast new_event -Event
-        assert(new_event.error.status == "UNAUTHENTICATED", new_event.error.message)
-        coroutine.wrap(function()
-          local refreshed_token_info = refresh_access_token(token_info.refresh_token)
-          local new_new_event = M.create_event(refreshed_token_info, calendar_id, diff)
-          co_resume(co, new_new_event)
-        end)()
-        return
-      end
-      ---@cast new_event +Event
+      assert(not new_event.error, vim.inspect(new_event.error))
       ---@cast new_event -ApiErrorResponse
 
       co_resume(co, new_event)
@@ -2425,12 +2339,14 @@ function M.create_event(token_info, calendar_id, diff)
 end
 
 ---@async
----@param token_info TokenInfo
 ---@param diff EventDiff
 ---@return Event
-function M.edit_event(token_info, calendar_id, diff)
+function M.edit_event(calendar_id, diff)
   local co = coroutine.running()
   assert(co, "The function must run inside a coroutine")
+
+  local token_info = get_token_info()
+  assert(token_info, "`token_info` is nil")
 
   local cached_event = vim.deepcopy(diff.cached_event) --[[@as Event]]
   if diff.summary then cached_event.summary = diff.summary end
@@ -2469,17 +2385,7 @@ function M.edit_event(token_info, calendar_id, diff)
       assert(ok, edited_event)
       ---@cast edited_event -string
 
-      if edited_event.error then
-        ---@cast edited_event -Event
-        assert(edited_event.error.status == "UNAUTHENTICATED", edited_event.error.message)
-        coroutine.wrap(function()
-          local refreshed_token_info = refresh_access_token(token_info.refresh_token)
-          local new_edited_event = M.edit_event(refreshed_token_info, calendar_id, diff)
-          co_resume(co, new_edited_event)
-        end)()
-        return
-      end
-      ---@cast edited_event +Event
+      assert(not edited_event.error, vim.inspect(edited_event.error))
       ---@cast edited_event -ApiErrorResponse
 
       co_resume(co, edited_event)
@@ -2489,12 +2395,14 @@ function M.edit_event(token_info, calendar_id, diff)
 end
 
 ---@async
----@param token_info TokenInfo
 ---@param calendar_id string
 ---@param diff EventDiff
-function M.delete_event(token_info, calendar_id, diff)
+function M.delete_event(calendar_id, diff)
   local co = coroutine.running()
   assert(co, "The function must run inside a coroutine")
+
+  local token_info = get_token_info()
+  assert(token_info, "`token_info` is nil")
 
   vim.system(
     {
@@ -2523,16 +2431,7 @@ function M.delete_event(token_info, calendar_id, diff)
       assert(ok, response)
       ---@cast response -string
 
-      if response.error then
-        ---@cast response -Event
-        assert(response.error.status == "UNAUTHENTICATED", response.error.message)
-        coroutine.wrap(function()
-          local refreshed_token_info = refresh_access_token(token_info.refresh_token)
-          M.delete_event(refreshed_token_info, calendar_id, diff)
-          co_resume(co)
-        end)()
-        return
-      end
+      assert(not response.error, vim.inspect(response.error))
     end)
   )
   coroutine.yield()
@@ -2542,17 +2441,19 @@ end
 local _cache_event = {} ---@type table<string, Event> recurringEventId -> Event
 
 ---@async
----@param token_info TokenInfo
 ---@param calendar_id string
 ---@param id string
 ---@param opts {refresh: boolean?}
 ---@return Event, TokenInfo|nil
-function M.get_event(token_info, calendar_id, id, opts)
+function M.get_event(calendar_id, id, opts)
   local co = coroutine.running()
   assert(co, "The function must run inside a coroutine")
   if opts.refresh then _cache_event = {} end
 
   if _cache_event[id] then return _cache_event[id] end
+
+  local token_info = get_token_info()
+  assert(token_info, "`token_info` is nil")
 
   vim.system(
     {
@@ -2570,18 +2471,7 @@ function M.get_event(token_info, calendar_id, id, opts)
       assert(ok, event)
       ---@cast event -string
 
-      if event.error then
-        ---@cast event -Event
-        assert(event.error.status == "UNAUTHENTICATED", event.error.message)
-        coroutine.wrap(function()
-          local refreshed_token_info = refresh_access_token(token_info.refresh_token)
-          local new_event = M.get_event(refreshed_token_info, calendar_id, id, opts)
-          _cache_event[id] = new_event
-          co_resume(co, new_event, refreshed_token_info)
-        end)()
-        return
-      end
-      ---@cast event +Event
+      assert(not event.error.status, vim.inspect(event.error))
       ---@cast event -ApiErrorResponse
 
       _cache_event[id] = event
@@ -2597,7 +2487,7 @@ end
 ---@param calendar_list CalendarList
 ---@param day_events Event[]
 ---@param opts {refresh: boolean?, recurring: boolean?}
-local function event_write(buf, win, token_info, calendar_list, day_events, opts)
+local function event_write(buf, win, calendar_list, day_events, opts)
   local lines = api.nvim_buf_get_lines(buf, 0, -1, true)
 
   local id = api.nvim_buf_get_name(buf):match "^calendar://event_(.*)"
@@ -2605,14 +2495,15 @@ local function event_write(buf, win, token_info, calendar_list, day_events, opts
   local calendar_id = cached_event.organizer.email
 
   if #lines == 1 and lines[1] == "" then
-    M.delete_event(token_info, calendar_id, { type = "delete", cached_event = cached_event })
+    M.delete_event(calendar_id, { type = "delete", cached_event = cached_event })
     api.nvim_win_close(win, true)
     return
   end
 
   local summary = lines[1]:match "^summary: (.*)"
-  local recurrence = vim.split(lines[2]:match "^recurrence: (.*)", " ")
-  if #recurrence == 1 and recurrence[1] == "" then recurrence = nil end
+
+  local recurrence = vim.split(lines[2]:match "^recurrence: (.*)", " ") ---@type string[]|nil
+  if recurrence and #recurrence == 1 and recurrence[1] == "" then recurrence = nil end
   local duration = vim.split(lines[3]:match "^duration: (.*)", sep)
 
   local start = {} ---@type Date
@@ -2646,7 +2537,7 @@ local function event_write(buf, win, token_info, calendar_list, day_events, opts
   local description ---@type string|nil
   if lines[5] then description = table.concat(vim.list_slice(lines, 6), "\n") end
 
-  local new_event = M.edit_event(token_info, calendar_id, {
+  local new_event = M.edit_event(calendar_id, {
     type = "edit",
     cached_event = cached_event,
     summary = summary,
@@ -2659,13 +2550,13 @@ local function event_write(buf, win, token_info, calendar_list, day_events, opts
   _cache_event[id] = new_event
 
   api.nvim_win_close(win, true)
-  M.event_show(token_info, calendar_list, day_events, opts)
+  M.event_show(calendar_list, day_events, opts)
 end
 
 ---@param calendar_list CalendarList
 ---@param day_events Event[]
 ---@param opts {refresh: boolean?, recurring: boolean?}
-function M.event_show(token_info, calendar_list, day_events, opts)
+function M.event_show(calendar_list, day_events, opts)
   coroutine.wrap(function()
     local line = api.nvim_get_current_line()
     if not line:match "^/[^ ]+" then return end
@@ -2692,7 +2583,7 @@ function M.event_show(token_info, calendar_list, day_events, opts)
     assert(calendar, ("There is no calendar for event %s"):format(event_id))
 
     local consulted_id = opts.recurring and event.recurringEventId or event.id
-    local recurring_event = M.get_event(token_info, calendar.id, consulted_id, opts)
+    local recurring_event = M.get_event(calendar.id, consulted_id, opts)
 
     local is_recurrent = recurring_event.recurrence and not vim.tbl_isempty(recurring_event.recurrence)
     local recurrence = is_recurrent and table.concat(recurring_event.recurrence, " ") or ""
@@ -2763,12 +2654,12 @@ function M.event_show(token_info, calendar_list, day_events, opts)
     api.nvim_create_autocmd("BufWriteCmd", {
       buffer = buf,
       callback = function()
-        coroutine.wrap(function() event_write(buf, win, token_info, calendar_list, day_events, opts) end)()
+        coroutine.wrap(function() event_write(buf, win, calendar_list, day_events, opts) end)()
       end,
     })
     keymap.set("n", "<F5>", function()
       api.nvim_win_close(win, true)
-      M.event_show(token_info, calendar_list, day_events, { refresh = true, recurring = opts.recurring })
+      M.event_show(calendar_list, day_events, { refresh = true, recurring = opts.recurring })
     end, { buffer = buf })
   end)()
 end

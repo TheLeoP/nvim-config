@@ -1,4 +1,3 @@
--- TODO: track when the token is about to experie to eagerly refresh it instead of retrying requests?
 local uv = vim.uv
 local api = vim.api
 local fs_exists = require("personal.util.general").fs_exists
@@ -8,7 +7,6 @@ local co_resume = auv.co_resume
 
 local M = {}
 
-local api_key = vim.env.GOOGLE_API_KEY ---@type string
 local client_id = vim.env.GOOGLE_CLIENT_ID ---@type string
 local client_secret = vim.env.GOOGLE_CLIENT_SECRET ---@type string
 
@@ -71,14 +69,16 @@ Content-Type: text/html
 end
 
 local token_url = "https://oauth2.googleapis.com/token"
-local _cache_token_info = {} ---@type table<string, TokenInfo>
+local _cache_token_info = {} ---@type table<string, TokenInfo|nil>
 local is_refreshing_access_token = false
+
+local eager_refresh_threshold_seconds = 5 * 60
 
 ---@async
 ---@param refresh_token string
 ---@param prefix string?
 ---@return TokenInfo
-function M.refresh_access_token(refresh_token, prefix)
+local function refresh_access_token(refresh_token, prefix)
   prefix = prefix or ""
   local token_path = ("%s/%stoken.json"):format(data_path, prefix)
 
@@ -86,6 +86,7 @@ function M.refresh_access_token(refresh_token, prefix)
   assert(co, "The function must run inside a coroutine")
 
   local token_refreshed_pattern = "GoogleAccessTokenRefreshed"
+  auv.schedule()
   api.nvim_create_autocmd("User", {
     pattern = token_refreshed_pattern,
     ---@param opts {data:{token_info: TokenInfo}}
@@ -132,10 +133,15 @@ function M.refresh_access_token(refresh_token, prefix)
     ---@cast new_token_info -ApiTokenErrorResponse
 
     local cached_token_info = _cache_token_info[prefix]
+    assert(cached_token_info, "`cached_token_info` is nil")
     cached_token_info.access_token = new_token_info.access_token
     cached_token_info.expires_in = new_token_info.expires_in
     cached_token_info.scope = new_token_info.scope
     cached_token_info.token_type = new_token_info.token_type
+    local now = os.time()
+    local expiry_date = os.date("*t", now) --[[@as osdate]]
+    expiry_date.sec = expiry_date.sec + new_token_info.expires_in
+    cached_token_info.expiry_date = os.time(expiry_date)
 
     local file = io.open(token_path, "w")
     assert(file)
@@ -156,8 +162,12 @@ function M.refresh_access_token(refresh_token, prefix)
   return coroutine.yield()
 end
 
-local scope =
-  "https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/tasks https://www.googleapis.com/auth/drive"
+local scopes = {
+  "https://www.googleapis.com/auth/calendar",
+  "https://www.googleapis.com/auth/tasks",
+  "https://www.googleapis.com/auth/drive",
+}
+local scope = table.concat(scopes, " ")
 scope = assert(uri_encode(scope))
 local redirect_uri = "http://localhost:8080"
 redirect_uri = assert(uri_encode(redirect_uri))
@@ -173,6 +183,7 @@ local full_auth_url = ("%s?client_id=%s&redirect_uri=%s&scope=%s&response_type=c
 ---@class TokenInfo
 ---@field access_token string
 ---@field expires_in integer
+---@field expiry_date integer
 ---@field refresh_token string
 ---@field scope string
 ---@field token_type string
@@ -183,7 +194,8 @@ local full_auth_url = ("%s?client_id=%s&redirect_uri=%s&scope=%s&response_type=c
 ---@field scope string
 ---@field token_type string
 
----Reads from file if exists and asks for a token if not. May return an invalid/revoked token
+---Reads from file if exists and asks for a token if not. If token has expired
+---(taking `eager_refresh_threshold_seconds` into account), refreshes it.
 ---@param prefix string?
 ---@async
 ---@return TokenInfo|nil
@@ -194,35 +206,46 @@ function M.get_token_info(prefix)
   local co = coroutine.running()
   assert(co, "The function must run inside a coroutine")
 
-  if _cache_token_info[prefix] then return _cache_token_info[prefix] end
+  if not _cache_token_info[prefix] then
+    local exists, err = fs_exists(token_path)
+    if exists == nil and err then
+      vim.notify(err, vim.log.levels.ERROR)
+      return
+    end
+    if exists then
+      local fd
+      err, fd = auv.fs_open(token_path, "r", tonumber(444, 8)--[[@as integer]])
+      if err then return vim.notify(err, vim.log.levels.ERROR) end
+      ---@cast fd -nil
+      local stat
+      err, stat = auv.fs_fstat(fd)
+      if err then return vim.notify(err, vim.log.level.ERROR) end
+      ---@cast stat -nil
+      local content ---@type string|nil
+      err, content = auv.fs_read(fd, stat.size, 0)
+      if err then return vim.notify(err, vim.log.level.ERROR) end
+      ---@cast content -nil
+      err = auv.fs_close(fd)
+      if err then return vim.notify(err, vim.log.level.ERROR) end
 
-  local exists, err = fs_exists(token_path)
-  if exists == nil and err then
-    vim.notify(err, vim.log.levels.ERROR)
-    return
+      local ok, token_info = pcall(vim.json.decode, content) ---@type boolean, string|TokenInfo
+      assert(ok, token_info)
+      ---@cast token_info -string
+
+      _cache_token_info[prefix] = token_info
+    end
   end
-  if exists then
-    local fd
-    err, fd = auv.fs_open(token_path, "r", 292) ---444
-    if err then return vim.notify(err, vim.log.levels.ERROR) end
-    ---@cast fd -nil
-    local stat
-    err, stat = auv.fs_fstat(fd)
-    if err then return vim.notify(err, vim.log.level.ERROR) end
-    ---@cast stat -nil
-    local content ---@type string|nil
-    err, content = auv.fs_read(fd, stat.size, 0)
-    if err then return vim.notify(err, vim.log.level.ERROR) end
-    ---@cast content -nil
-    err = auv.fs_close(fd)
-    if err then return vim.notify(err, vim.log.level.ERROR) end
 
-    local ok, token_info = pcall(vim.json.decode, content) ---@type boolean, string|TokenInfo
-    assert(ok, token_info)
-    ---@cast token_info -string
+  if _cache_token_info[prefix] then
+    local expiry_date = _cache_token_info[prefix].expiry_date
+    local now = os.time()
+    local limit_date = os.date("*t", now) --[[@as osdate]]
+    limit_date.sec = limit_date.sec + eager_refresh_threshold_seconds
+    local limit = os.time(limit_date)
 
-    _cache_token_info[prefix] = token_info
-    return token_info
+    if os.difftime(expiry_date, limit) > 0 then return _cache_token_info[prefix] end
+
+    return refresh_access_token(_cache_token_info[prefix].refresh_token, prefix)
   end
 
   vim.notify "You need to give us access to your google account"
@@ -245,8 +268,6 @@ function M.get_token_info(prefix)
         params,
         "--http1.1",
         "--silent",
-        -- TODO: is this needed?
-        -- "--insecure",
         token_url,
       }, { text = true }, function(result) co_resume(co, result) end)
     end,
@@ -259,9 +280,15 @@ function M.get_token_info(prefix)
   assert(ok, token_info)
   ---@cast token_info -string
 
+  local now = os.time()
+  local expiry_date = os.date("*t", now) --[[@as osdate]]
+  expiry_date.sec = expiry_date.sec + token_info.expires_in
+
+  token_info.expiry_date = os.time(expiry_date)
+
   local file = io.open(token_path, "w")
   assert(file)
-  file:write(result.stdout)
+  file:write(vim.json.encode(token_info))
   file:close()
 
   _cache_token_info[prefix] = token_info
