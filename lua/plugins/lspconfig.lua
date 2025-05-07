@@ -53,7 +53,7 @@ return {
 
     local generic_servers = {
       "vimls",
-      "clangd",
+      "buf_ls",
       "html",
       "cssls",
       "lemminx",
@@ -170,6 +170,13 @@ return {
 
         return root
       end,
+    }
+
+    -- clangd
+    lspconfig.clangd.setup {
+      capabilities = capabilities,
+      -- disable for protobuf files
+      filetypes = { "c", "cpp", "objc", "objcpp", "cuda" },
     }
   end,
 }
