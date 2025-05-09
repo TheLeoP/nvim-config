@@ -75,11 +75,13 @@ local is_refreshing_access_token = false
 local eager_refresh_threshold_seconds = 5 * 60
 
 ---@async
----@param refresh_token string
+---@param token_info TokenInfo
 ---@param prefix string?
 ---@return TokenInfo
-local function refresh_access_token(refresh_token, prefix)
+local function refresh_access_token(token_info, prefix)
   prefix = prefix or ""
+
+  local refresh_token = token_info.refresh_token
   local token_path = ("%s/%stoken.json"):format(data_path, prefix)
 
   local co = coroutine.running()
@@ -116,42 +118,47 @@ local function refresh_access_token(refresh_token, prefix)
   assert(ok, new_token_info)
   ---@cast new_token_info -string
 
-  local token_info ---@type TokenInfo
-  if new_token_info.error then
-    ---@cast new_token_info -NewTokenInfo
-    assert(new_token_info.error == "invalid_grant", vim.inspect(new_token_info))
+  assert(not new_token_info.error, vim.inspect(new_token_info))
+  ---@cast new_token_info -ApiTokenErrorResponse
 
-    _cache_token_info[prefix] = nil
-    auv.schedule()
-    if vim.fn.delete(token_path) ~= 0 then
-      vim.notify(("Couldn't delete file %s"):format(token_path), vim.log.levels.WARN)
-    end
-
-    token_info = assert(M.get_token_info(), "There is no token_info")
-  else
-    ---@cast new_token_info +NewTokenInfo
-    ---@cast new_token_info -ApiTokenErrorResponse
-
-    local cached_token_info = _cache_token_info[prefix]
-    assert(cached_token_info, "`cached_token_info` is nil")
-    cached_token_info.access_token = new_token_info.access_token
-    cached_token_info.expires_in = new_token_info.expires_in
-    cached_token_info.scope = new_token_info.scope
-    cached_token_info.token_type = new_token_info.token_type
+  if _cache_token_info[prefix].refresh_token_expiry_date then
+    local refresh_expiry_date = _cache_token_info[prefix].refresh_token_expiry_date --[[@as integer]]
     local now = os.time()
-    local expiry_date = os.date("*t", now) --[[@as osdate]]
-    expiry_date.sec = expiry_date.sec + new_token_info.expires_in
-    cached_token_info.expiry_date = os.time(expiry_date)
+    local limit_date = os.date("*t", now) --[[@as osdate]]
+    limit_date.sec = limit_date.sec + eager_refresh_threshold_seconds
+    local limit = os.time(limit_date)
 
-    local file = io.open(token_path, "w")
-    assert(file)
-    local ok2, token_info_string = pcall(vim.json.encode, cached_token_info) ---@type boolean, string
-    assert(ok2, token_info_string)
-    file:write(token_info_string)
-    file:close()
+    if os.difftime(refresh_expiry_date, limit) <= 0 then
+      _cache_token_info[prefix] = nil
+      auv.schedule()
+      if vim.fn.delete(token_path) ~= 0 then
+        vim.notify(("Couldn't delete file %s"):format(token_path), vim.log.levels.WARN)
+      end
 
-    token_info = cached_token_info
+      return assert(M.get_token_info(), "There is no token_info")
+    end
   end
+
+  local cached_token_info = _cache_token_info[prefix]
+  assert(cached_token_info, "`cached_token_info` is nil")
+  cached_token_info.access_token = new_token_info.access_token
+  cached_token_info.expires_in = new_token_info.expires_in
+  cached_token_info.scope = new_token_info.scope
+  cached_token_info.token_type = new_token_info.token_type
+  local now = os.time()
+  local expiry_date = os.date("*t", now) --[[@as osdate]]
+  expiry_date.sec = expiry_date.sec + new_token_info.expires_in
+  cached_token_info.expiry_date = os.time(expiry_date)
+
+  local file = io.open(token_path, "w")
+  assert(file)
+  local ok2, token_info_string = pcall(vim.json.encode, cached_token_info) ---@type boolean, string
+  assert(ok2, token_info_string)
+  file:write(token_info_string)
+  file:close()
+
+  -- TODO: better name
+  local token_info = cached_token_info
 
   -- to be executed after coroutine.yield()
   vim.schedule(function()
@@ -184,6 +191,8 @@ local full_auth_url = ("%s?client_id=%s&redirect_uri=%s&scope=%s&response_type=c
 ---@field access_token string
 ---@field expires_in integer
 ---@field expiry_date integer
+---@field refresh_token_expires_in integer | nil
+---@field refresh_token_expiry_date integer | nil
 ---@field refresh_token string
 ---@field scope string
 ---@field token_type string
@@ -210,9 +219,7 @@ function M.get_token_info(prefix)
     local exists, err = fs_exists(token_path)
     if exists == nil and err then
       vim.notify(err, vim.log.levels.ERROR)
-      return
-    end
-    if exists then
+    elseif exists then
       local fd
       err, fd = auv.fs_open(token_path, "r", tonumber(444, 8)--[[@as integer]])
       if err then return vim.notify(err, vim.log.levels.ERROR) end
@@ -245,7 +252,7 @@ function M.get_token_info(prefix)
 
     if os.difftime(expiry_date, limit) > 0 then return _cache_token_info[prefix] end
 
-    return refresh_access_token(_cache_token_info[prefix].refresh_token, prefix)
+    return refresh_access_token(_cache_token_info[prefix], prefix)
   end
 
   vim.notify "You need to give us access to your google account"
@@ -283,8 +290,13 @@ function M.get_token_info(prefix)
   local now = os.time()
   local expiry_date = os.date("*t", now) --[[@as osdate]]
   expiry_date.sec = expiry_date.sec + token_info.expires_in
-
   token_info.expiry_date = os.time(expiry_date)
+
+  if token_info.refresh_token_expires_in then
+    local refresh_expiry_date = os.date("*t", now) --[[@as osdate]]
+    refresh_expiry_date.sec = refresh_expiry_date.sec + token_info.refresh_token_expires_in
+    token_info.refresh_token_expiry_date = os.time(refresh_expiry_date)
+  end
 
   local file = io.open(token_path, "w")
   assert(file)
