@@ -74,6 +74,9 @@ local is_refreshing_access_token = false
 
 local eager_refresh_threshold_seconds = 5 * 60
 
+---Uses `token_info.refresh_token` to update token_info. If `refresh_token` has
+---expired (taking `eager_refresh_threshold_seconds` into account), calls
+---`get_token_info` to refresh it and also update token_info.
 ---@async
 ---@param token_info TokenInfo
 ---@param prefix string?
@@ -157,12 +160,9 @@ local function refresh_access_token(token_info, prefix)
   file:write(token_info_string)
   file:close()
 
-  -- TODO: better name
-  local token_info = cached_token_info
-
   -- to be executed after coroutine.yield()
   vim.schedule(function()
-    api.nvim_exec_autocmds("User", { pattern = token_refreshed_pattern, data = { token_info = token_info } })
+    api.nvim_exec_autocmds("User", { pattern = token_refreshed_pattern, data = { token_info = cached_token_info } })
     is_refreshing_access_token = false
   end)
 
@@ -205,6 +205,7 @@ local full_auth_url = ("%s?client_id=%s&redirect_uri=%s&scope=%s&response_type=c
 
 ---Reads from file if exists and asks for a token if not. If token has expired
 ---(taking `eager_refresh_threshold_seconds` into account), refreshes it.
+---Caches last token.
 ---@param prefix string?
 ---@async
 ---@return TokenInfo|nil
