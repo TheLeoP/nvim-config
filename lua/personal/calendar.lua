@@ -15,6 +15,7 @@ local get_token_info = google.get_token_info
 
 local M = {}
 
+-- TODO: %z doesn't work in Windows, I think
 ---@type string, string, string
 local timezone_sign, timezone_offset_hours_s, timezone_offset_minutes_s =
   tostring(os.date "%z"):match "([-+])(%d%d)(%d%d)"
