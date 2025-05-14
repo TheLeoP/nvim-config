@@ -19,7 +19,6 @@ return {
       "gopls",
       "jsonls",
       "groovyls",
-      "emmet_language_server",
       "tailwindcss",
       "clangd",
     }
