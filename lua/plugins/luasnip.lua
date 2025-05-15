@@ -12,7 +12,10 @@ return {
   config = function(_, opts)
     local ls = require "luasnip"
     ls.setup(opts)
-    keymap.set({ "i" }, "<C-j>", function() ls.expand() end)
+    keymap.set({ "i" }, "<C-j>", function()
+      vim.schedule(function() ls.expand() end)
+      return "<c-g>u"
+    end, { expr = true })
     keymap.set({ "i", "s" }, "<right>", function() ls.jump(1) end)
     keymap.set({ "i", "s" }, "<left>", function() ls.jump(-1) end)
 
