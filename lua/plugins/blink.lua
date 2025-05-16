@@ -89,9 +89,8 @@ return {
       default = { "lsp", "path", "buffer", "lazydev", "dadbod", "kinesis", "calendar" },
 
       per_filetype = {
-        query = { "lsp", "path", "buffer", "omni" }, -- uses builtin omni completion on query files
         ["dap-repl"] = { "lsp", "path", "buffer", "omni" }, -- uses nvim-dap omni completion on query files
-        gitcommit = { "lsp", "path", "buffer", "git" }, -- only enable git source here, it's slow the first time on Windows
+        gitcommit = { "lsp", "path", "buffer", "git" }, -- only enable git source here
       },
 
       providers = {

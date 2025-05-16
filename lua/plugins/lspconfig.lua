@@ -23,5 +23,8 @@ return {
       "clangd",
       "ts_query_ls",
     }
+
+    -- NOTE: disable bultin query linter, `ts_query_ls` it's more complete
+    vim.g.query_lint_on = {}
   end,
 }

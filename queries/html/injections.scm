@@ -1,9 +1,9 @@
-;;extends
+;extends
 
-((attribute_name) @name
+((attribute_name) @_name
   (quoted_attribute_value
     (attribute_value) @injection.content)
-  (#eq? @name "onClick")
+  (#eq? @_name "onClick")
   (#set! injection.language "javascript"))
 
 (style_element
