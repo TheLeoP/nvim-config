@@ -127,7 +127,6 @@ local function tag_tostring(tag)
 
   if tag.name == "_root" then return s end
 
-  -- TODO: parse `$$$` in ALL values
   local classes = tag.classes
       and (' class="%s"'):format(
         table.concat(vim.iter(tag.classes):map(function(value) return table.concat(value.value) end):totable(), " ")
@@ -267,12 +266,10 @@ function M.parse(text)
 
   if not parsed then return end
 
-  -- TODO: special case `_root` when building the snippet
   ---@type emmet.Tag
-  local root = {
+  local root = setmetatable({
     name = "_root",
-  }
-  setmetatable(root, mt)
+  }, mt)
   root = build_tree(parsed.tags, parsed.operators, root)
   return root
 end
