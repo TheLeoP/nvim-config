@@ -305,7 +305,7 @@ function M.to_snippet(tag, jump_index)
         ---@diagnostic disable-next-line: no-unknown
         tag_name = t(tag.name),
         ---@diagnostic disable-next-line: no-unknown
-        inside = child_snips and sn(nil, child_snips) or i(efective_jump_index),
+        inside = child_snips and sn(efective_jump_index, child_snips) or i(efective_jump_index),
         ---@diagnostic disable-next-line: no-unknown
         indentation = t(indentation),
         ---@diagnostic disable-next-line: no-unknown
