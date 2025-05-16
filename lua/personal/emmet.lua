@@ -39,6 +39,7 @@ local emmet_grammar = P {
   class_propertie = P "." * Cc "class" * V "value",
   id_propertie = P "#" * Cc "id" * V "value",
   custom_propertie = (P "[" * Cc "custom" * Ct(((V "attribute" * P " " + V "attribute") % rawset) ^ 1) * P "]"),
+  -- TODO: support text being a value to expand `$$$`
   text_propertie = P "{" * Cc "text" * C((-P "}" * P(1)) ^ 0) * P "}",
   propertie = (
     (V "class_propertie" + V "id_propertie" + V "custom_propertie" + V "text_propertie")
@@ -183,14 +184,14 @@ end
 ---@param operators string[]|nil
 ---@param root emmet.Tag
 ---@param first_operator string|nil
----@param amount integer|nil
+---@param tree_amount integer|nil
 ---@return emmet.Tag
-local function build_tree(tags, operators, root, first_operator, amount)
+local function build_tree(tags, operators, root, first_operator, tree_amount)
   operators = operators or {}
-  amount = amount or 1
+  tree_amount = tree_amount or 1
 
   -- NOTE: grouping amount is expanded here
-  for j = 1, amount do
+  for j = 1, tree_amount do
     local current_tag = root --[[@as emmet.Tag]]
     for k = 1, #tags do
       local tag = vim.deepcopy(tags[k])
@@ -216,32 +217,40 @@ local function build_tree(tags, operators, root, first_operator, amount)
       ---@cast tag -emmet.Parsed
 
       -- NOTE: grouping amount value expansion
-      if amount > 1 and not tag.amount then
-        if tag.id then tag.id.value = { parse_value(tag.id, j, amount) } end
-        if tag.classes then vim.iter(tag.classes):each(function(c) c.value = { parse_value(c, j, amount) } end) end
+      if tree_amount > 1 and not tag.amount then
+        if tag.id then tag.id.value = { parse_value(tag.id, j, tree_amount) } end
+        if tag.classes then vim.iter(tag.classes):each(function(c) c.value = { parse_value(c, j, tree_amount) } end) end
       end
 
-      -- TODO: move tag amount expansion here?
-      if operator == ">" then
-        current_tag.children = current_tag.children or {}
-        table.insert(current_tag.children, tag)
-        tag.parent = current_tag
+      -- NOTE: tag amount value expansion
+      local amount = tag.amount or 1
+      for index = 1, amount do
+        local expanded_tag = vim.deepcopy(tag)
+        if expanded_tag.id then expanded_tag.id.value = { parse_value(expanded_tag.id, index, tree_amount) } end
+        if expanded_tag.classes then
+          vim.iter(expanded_tag.classes):each(function(c) c.value = { parse_value(c, index, tree_amount) } end)
+        end
+        if operator == ">" then
+          current_tag.children = current_tag.children or {}
+          table.insert(current_tag.children, expanded_tag)
+          expanded_tag.parent = current_tag
 
-        current_tag = tag
-      elseif operator == "+" then
-        local parent = assert(current_tag.parent)
-        parent.children = parent.children or {}
-        table.insert(parent.children, tag)
-        tag.parent = parent
+          if index == amount then current_tag = expanded_tag end
+        elseif operator == "+" then
+          local parent = assert(current_tag.parent)
+          parent.children = parent.children or {}
+          table.insert(parent.children, expanded_tag)
+          expanded_tag.parent = parent
 
-        current_tag = tag
-      elseif operator == "^" then
-        local parent = assert(current_tag.parent)
-        local grandparent = parent.parent or root
-        table.insert(grandparent.children, tag)
-        tag.parent = grandparent
+          if index == amount then current_tag = expanded_tag end
+        elseif operator == "^" then
+          local parent = assert(current_tag.parent)
+          local grandparent = parent.parent or root
+          table.insert(grandparent.children, expanded_tag)
+          expanded_tag.parent = grandparent
 
-        current_tag = parent
+          if index == amount then current_tag = parent end
+        end
       end
 
       ::continue::
@@ -288,45 +297,38 @@ function M.to_snippet(tag, jump_index)
   local indentation = tag:indent()
   local text = tag.text or ""
 
-  local amount = tag.amount or 1
-  local nodes = {}
-  for index = 1, amount do
-    local id = ""
-    if tag.id then id = (' id="%s"'):format(parse_value(tag.id, index, amount)) end
-    local class = ""
-    if tag.classes then
-      local classes = vim.iter(tag.classes):map(function(c) return parse_value(c, index, amount) end):totable()
-      class = (' class="%s"'):format(table.concat(classes, " "))
-    end
+  local id = ""
+  if tag.id then id = (' id="%s"'):format(tag.id.value[1]) end
+  local class = ""
+  if tag.classes then
+    local classes = vim.iter(tag.classes):map(function(c) return c.value[1] end):totable()
+    class = (' class="%s"'):format(table.concat(classes, " "))
+  end
 
-    local efective_jump_index = jump_index + index - 1
-    -- TODO: support classes with empty `name`
-    local new_nodes = fmt(
-      [[
+  -- TODO: support classes with empty `name`
+  return fmt(
+    [[
 
 {indentation}<{tag_name}{id}{class}>{text}
 {inside}
 {indentation}</{tag_name}>
 
 ]],
-      {
-        ---@diagnostic disable-next-line: no-unknown
-        tag_name = t(tag.name),
-        ---@diagnostic disable-next-line: no-unknown
-        inside = child_snips and sn(efective_jump_index, child_snips) or i(efective_jump_index),
-        ---@diagnostic disable-next-line: no-unknown
-        indentation = t(indentation),
-        ---@diagnostic disable-next-line: no-unknown
-        id = id,
-        ---@diagnostic disable-next-line: no-unknown
-        class = class,
-        ---@diagnostic disable-next-line: no-unknown
-        text = text,
-      }
-    )
-    vim.list_extend(nodes, new_nodes)
-  end
-  return nodes
+    {
+      ---@diagnostic disable-next-line: no-unknown
+      tag_name = t(tag.name),
+      ---@diagnostic disable-next-line: no-unknown
+      inside = child_snips and sn(jump_index, child_snips) or i(jump_index),
+      ---@diagnostic disable-next-line: no-unknown
+      indentation = t(indentation),
+      ---@diagnostic disable-next-line: no-unknown
+      id = id,
+      ---@diagnostic disable-next-line: no-unknown
+      class = class,
+      ---@diagnostic disable-next-line: no-unknown
+      text = text,
+    }
+  )
 end
 
 return M
