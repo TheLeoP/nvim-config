@@ -3,11 +3,13 @@ local keymap = vim.keymap
 return {
   "L3MON4D3/LuaSnip",
   opts = {
+    keep_roots = true,
+    link_roots = true,
+    link_children = true,
+    exit_roots = false,
     update_events = { "TextChanged", "TextChangedI" },
     store_selection_keys = "<c-j>",
     enable_autosnippets = true,
-    region_check_events = { "InsertEnter" },
-    delete_check_events = { "InsertLeave" },
   },
   config = function(_, opts)
     local ls = require "luasnip"
@@ -23,9 +25,14 @@ return {
       end)
       return "<c-g>u"
     end, { expr = true })
-    -- TODO: make jumpable only if inside snippet. check api
-    keymap.set({ "i", "s" }, "<right>", function() ls.jump(1) end)
-    keymap.set({ "i", "s" }, "<left>", function() ls.jump(-1) end)
+    keymap.set({ "i", "s" }, "<right>", function()
+      if not ls.locally_jumpable(1) then return end
+      ls.jump(1)
+    end)
+    keymap.set({ "i", "s" }, "<left>", function()
+      if not ls.locally_jumpable(-1) then return end
+      ls.jump(-1)
+    end)
 
     keymap.set("i", "<a-b>", function()
       if ls.choice_active() then require "luasnip.extras.select_choice"() end
