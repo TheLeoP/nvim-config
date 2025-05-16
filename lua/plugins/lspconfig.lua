@@ -21,6 +21,7 @@ return {
       "groovyls",
       "tailwindcss",
       "clangd",
+      "ts_query_ls",
     }
   end,
 }
