@@ -6,7 +6,6 @@ return {
   -- use a release tag to download pre-built binaries
   version = "1.*",
   dependencies = {
-    "LuaSnip",
     {
       "Kaiser-Yang/blink-cmp-git",
       dependencies = { "nvim-lua/plenary.nvim" },

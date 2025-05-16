@@ -13,7 +13,14 @@ return {
     local ls = require "luasnip"
     ls.setup(opts)
     keymap.set({ "i" }, "<C-j>", function()
-      vim.schedule(function() ls.expand() end)
+      vim.schedule(function()
+        -- NOTE: this function populates the snippet cache. blink.cmp uses it
+        -- on InsertCharPre, which causes the cache to sometimes be outdated.
+        -- So, I need to manually call this function to be sure that it's
+        -- always udpated
+        if not ls.expandable() then return end
+        ls.expand {}
+      end)
       return "<c-g>u"
     end, { expr = true })
     -- TODO: make jumpable only if inside snippet. check api
