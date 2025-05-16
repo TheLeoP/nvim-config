@@ -162,6 +162,23 @@ local mt = {
   },
 }
 
+---@param value emmet.Value
+---@param index integer
+---@param amount integer
+---@return string
+local function parse_value(value, index, amount)
+  if not value.value[2] then return value.value[1] end
+
+  local base = value.base or 1
+  local descending = not not value.descending
+
+  index = descending and amount + base - index or base + index - 1
+
+  value.value[2] = ("%0" .. value.value[2]:len() .. "d"):format(index)
+
+  return table.concat(value.value, "")
+end
+
 ---@param tags (emmet.TagInfo|emmet.Parsed)[]
 ---@param operators string[]|nil
 ---@param root emmet.Tag
@@ -172,13 +189,14 @@ local function build_tree(tags, operators, root, first_operator, amount)
   operators = operators or {}
   amount = amount or 1
 
-  for _ = 1, amount do
+  -- NOTE: grouping amount is expanded here
+  for j = 1, amount do
     local current_tag = root --[[@as emmet.Tag]]
-    for i = 1, #tags do
-      local tag = tags[i]
+    for k = 1, #tags do
+      local tag = vim.deepcopy(tags[k])
       setmetatable(tag, mt)
       -- NOTE: default to `>` for first node
-      local operator = operators[i - 1] or first_operator or ">"
+      local operator = operators[k - 1] or first_operator or ">"
 
       if tag.tags then
         ---@cast tag -emmet.TagInfo
@@ -196,6 +214,14 @@ local function build_tree(tags, operators, root, first_operator, amount)
 
       ---@cast tag +emmet.Tag
       ---@cast tag -emmet.Parsed
+
+      -- NOTE: grouping amount value expansion
+      if amount > 1 and not tag.amount then
+        if tag.id then tag.id.value = { parse_value(tag.id, j, amount) } end
+        if tag.classes then vim.iter(tag.classes):each(function(c) c.value = { parse_value(c, j, amount) } end) end
+      end
+
+      -- TODO: move tag amount expansion here?
       if operator == ">" then
         current_tag.children = current_tag.children or {}
         table.insert(current_tag.children, tag)
@@ -240,24 +266,6 @@ function M.parse(text)
   setmetatable(root, mt)
   root = build_tree(parsed.tags, parsed.operators, root)
   return root
-end
-
----@param value emmet.Value
----@param index integer
----@param amount integer
----@return string
-local function parse_value(value, index, amount)
-  if not value.value[2] then return value.value[1] end
-
-  local base = value.base or 1
-  local descending = not not value.descending
-
-  -- TODO: test this for descending
-  index = descending and amount + base - index or base + index - 1
-
-  value.value[2] = ("%0" .. value.value[2]:len() .. "d"):format(index)
-
-  return table.concat(value.value, "")
 end
 
 ---@param tag emmet.Tag
