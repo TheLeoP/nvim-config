@@ -78,7 +78,6 @@ ls.add_snippets("all", {
     end),
   }),
 
-  -- TODO: why does this sometimes not have all the characters?
   s({ trig = "mm(.*)", trigEngine = "pattern" }, {
     d(1, function(_, snip)
       local emmet_input = snip.captures[1]
