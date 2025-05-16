@@ -1,6 +1,7 @@
-local l = vim.lpeg
-local P, S, V, R, C, Cg, Cmt, Cb, Ct, Cc = l.P, l.S, l.V, l.R, l.C, l.Cg, l.Cmt, l.Cb, l.Ct, l.Cc
-local locale = l.locale {} ---@type table<string, vim.lpeg.Pattern>
+local lpeg = vim.lpeg
+local P, S, V, R, C, Cg, Cmt, Cb, Ct, Cc =
+  lpeg.P, lpeg.S, lpeg.V, lpeg.R, lpeg.C, lpeg.Cg, lpeg.Cmt, lpeg.Cb, lpeg.Ct, lpeg.Cc
+local locale = lpeg.locale {} ---@type table<string, vim.lpeg.Pattern>
 local alpha = locale.alpha
 local digit = locale.digit
 local alnum = locale.alnum
@@ -62,8 +63,7 @@ local emmet_grammar = P {
   tag = Cg(-V "identifier" ^ 2 * V "identifier" ^ 1, "name") * (V "propertie" ^ 0)
     + Cg(V "identifier" ^ -1, "name") * (V "propertie" ^ 1)
     + Cg(V "text_propertie" / 2, "text"),
-  -- TODO: there can be more than one `^` one next to another
-  operator = S ">+^" % function(acc, operator)
+  operator = (S ">+" + P "^" ^ 1) % function(acc, operator)
     acc.operators = acc.operators or {}
     table.insert(acc.operators, operator)
     return acc
@@ -202,11 +202,13 @@ local function build_tree(tags, operators, root, first_operator, tree_amount)
         ---@cast tag -emmet.TagInfo
         local group_root = build_tree(tag.tags, tag.operators, current_tag, operator, tag.amount)
 
+        -- TODO: do I need to touch this in here at all? Using multiple `^`
+        -- chooses the right parent despite this not taking it into account
         if operator == ">" then
           current_tag = group_root.children[1]
         elseif operator == "+" then
           current_tag = group_root
-        elseif operator == "^" then
+        elseif operator:find "%^" then
           current_tag = group_root
         end
         goto continue
@@ -242,9 +244,12 @@ local function build_tree(tags, operators, root, first_operator, tree_amount)
           expanded_tag.parent = parent
 
           if index == amount then current_tag = expanded_tag end
-        elseif operator == "^" then
+        elseif operator:find "%^" then
           local parent = assert(current_tag.parent)
           local grandparent = parent.parent or root
+          for _ = 2, operator:len() do
+            grandparent = grandparent.parent or root
+          end
           table.insert(grandparent.children, expanded_tag)
           expanded_tag.parent = grandparent
 
