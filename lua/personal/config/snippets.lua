@@ -78,12 +78,16 @@ ls.add_snippets("all", {
     end),
   }),
 
-  s({ trig = "mm(.*)", trigEngine = "pattern" }, {
+  s({ trig = "(mm)(.*)", trigEngine = "pattern" }, {
     d(1, function(_, snip)
-      local emmet_input = snip.captures[1]
+      local prefix = snip.captures[1]
+      local emmet_input = snip.captures[2]
       local emmet = require "personal.emmet"
       local root = emmet.parse(emmet_input)
-      if not root then return end
+      if not root then
+        vim.notify("The input couldn't be parsed", vim.log.levels.WARN)
+        return sn(nil, { t(prefix .. emmet_input) })
+      end
       local snippet = emmet.to_snippet(root)
 
       return snippet
