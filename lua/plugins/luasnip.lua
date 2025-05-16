@@ -16,6 +16,7 @@ return {
       vim.schedule(function() ls.expand() end)
       return "<c-g>u"
     end, { expr = true })
+    -- TODO: make jumpable only if inside snippet. check api
     keymap.set({ "i", "s" }, "<right>", function() ls.jump(1) end)
     keymap.set({ "i", "s" }, "<left>", function() ls.jump(-1) end)
 

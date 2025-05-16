@@ -1,0 +1,324 @@
+local l = vim.lpeg
+local P, S, V, R, C, Cg, Cmt, Cb, Ct, Cc = l.P, l.S, l.V, l.R, l.C, l.Cg, l.Cmt, l.Cb, l.Ct, l.Cc
+local locale = l.locale {} ---@type table<string, vim.lpeg.Pattern>
+local alpha = locale.alpha
+local digit = locale.digit
+local alnum = locale.alnum
+local quote = P '"' + P "'"
+
+local ls = require "luasnip"
+local fmt = require("luasnip.extras.fmt").fmt
+local t = ls.text_node
+local i = ls.insert_node
+local sn = ls.snippet_node
+
+local trace = require("personal.pegdebug").trace
+
+local insert_value = function(acc, value)
+  acc.value = acc.value or {}
+  table.insert(acc.value, value)
+  return acc
+end
+
+-- TODO: support shortcuts
+---@diagnostic disable-next-line: missing-fields
+local emmet_grammar = P {
+  "line",
+  identifier = alpha ^ 1,
+  -- TODO: this can be not only be alnum, add other chars
+  value = Ct(
+    ((alnum ^ 1) % insert_value)
+      * ((P "$" ^ 1) % insert_value * (P "@" * (P "-" * Cg(Cc(true), "descending")) ^ -1 * Cg(
+        digit ^ 0 / tonumber,
+        "base"
+      )) ^ -1) ^ 0
+      * (alnum ^ 1 % insert_value) ^ -1
+  ),
+  -- TODO: this doesn't check that the quote pair matches. Use Cmt to do so
+  attribute = C(V "identifier") * P "=" * (quote * C((-quote * P(1)) ^ 0) * quote + V "value"),
+  class_propertie = P "." * Cc "class" * V "value",
+  id_propertie = P "#" * Cc "id" * V "value",
+  custom_propertie = (P "[" * Cc "custom" * Ct(((V "attribute" * P " " + V "attribute") % rawset) ^ 1) * P "]"),
+  text_propertie = P "{" * Cc "text" * C((-P "}" * P(1)) ^ 0) * P "}",
+  propertie = (
+    (V "class_propertie" + V "id_propertie" + V "custom_propertie" + V "text_propertie")
+    % function(acc, type, capture)
+      if type == "class" then
+        acc.classes = acc.classes or {}
+        table.insert(acc.classes, capture)
+      elseif type == "id" then
+        acc.id = capture
+      elseif type == "custom" then
+        ---@cast capture table<string, string>
+        acc.attributes = acc.attributes or {}
+        acc.attributes = vim.tbl_extend("force", acc.attributes, capture)
+      elseif type == "text" then
+        acc.text = capture
+      end
+      return acc
+    end
+  ),
+  tag = Cg(V "identifier" ^ 1, "name") * (V "propertie" ^ 0)
+    + Cg(V "identifier" ^ 0, "name") * (V "propertie" ^ 1)
+    + Cg(V "text_propertie" / 2, "text"),
+  -- TODO: there can be more than one `^` one next to another
+  operator = S ">+^" % function(acc, operator)
+    acc.operators = acc.operators or {}
+    table.insert(acc.operators, operator)
+    return acc
+  end,
+  grouping = P "(" * V "partial_line" * P ")",
+  -- TODO: this only accepts `amount` after `properties`, but it looks like it can also be specified before
+  tag_or_grouping = Ct((V "grouping" + V "tag") * (P "*" * (digit ^ 1 % function(acc, amount)
+    acc.amount = tonumber(amount)
+    return acc
+  end)) ^ -1) % function(acc, tag)
+    acc.tags = acc.tags or {}
+    table.insert(acc.tags, tag)
+    return acc
+  end,
+  tag_or_grouping_with_operator = ((V "tag_or_grouping" * V "operator") + V "tag_or_grouping"),
+  partial_line = V "tag_or_grouping_with_operator" ^ 1,
+  line = Ct(V "partial_line") * P(-1),
+}
+
+---@class emmet.Value
+---@field value string[]
+---@field descending boolean|nil
+---@field base integer|nil
+
+---@class emmet.TagInfo
+---@field name string|nil
+---@field amount integer|nil
+---@field id emmet.Value|nil
+---@field classes emmet.Value[]|nil
+---@field attributes emmet.Value[]|nil
+---@field text string|nil
+
+---@class emmet.Tag: emmet.TagInfo
+---@field children emmet.Tag[]|nil
+---@field parent emmet.Tag|nil
+---@field indent fun(self: emmet.Tag): string
+
+---@class emmet.Parsed
+---@field operators string[]
+---@field tags (emmet.TagInfo|emmet.Parsed)[]
+---@field amount integer|nil
+
+---@param tag emmet.Tag
+---@return string
+local function indent(tag)
+  local acc = {}
+  local current = tag.parent
+  while current do
+    current = current.parent
+    table.insert(acc, "  ")
+  end
+  table.remove(acc, 1)
+  return table.concat(acc)
+end
+
+---@param tag emmet.Tag
+local function tag_tostring(tag)
+  local children = tag.children and vim.iter(tag.children):map(function(child) return tostring(child) end):totable()
+    or {}
+  local s = table.concat(children, "")
+
+  if tag.name == "_root" then return s end
+
+  -- TODO: parse `$$$` in ALL values
+  local classes = tag.classes
+      and (' class="%s"'):format(
+        table.concat(vim.iter(tag.classes):map(function(value) return table.concat(value.value) end):totable(), " ")
+      )
+    or ""
+
+  local id = tag.id and (' id="%s"'):format(table.concat(tag.id.value)) or ""
+
+  local text = tag.text or ""
+  text = text .. "\n"
+
+  local indentation = indent(tag)
+
+  local str = ([[
+%s<%s%s%s>
+%s%s%s</%s>
+]]):format(indentation, tag.name, classes, id, s, text, indentation, tag.name)
+
+  if tag.amount then
+    local out = {}
+    for _ = 1, tag.amount do
+      table.insert(out, str)
+    end
+    str = table.concat(out, "")
+  end
+
+  return str
+end
+local mt = {
+  __tostring = tag_tostring,
+  __index = {
+    indent = indent,
+  },
+}
+
+---@param tags (emmet.TagInfo|emmet.Parsed)[]
+---@param operators string[]|nil
+---@param root emmet.Tag
+---@param first_operator string|nil
+---@param amount integer|nil
+---@return emmet.Tag
+local function build_tree(tags, operators, root, first_operator, amount)
+  operators = operators or {}
+  amount = amount or 1
+
+  for _ = 1, amount do
+    local current_tag = root --[[@as emmet.Tag]]
+    for i = 1, #tags do
+      local tag = tags[i]
+      setmetatable(tag, mt)
+      -- NOTE: default to `>` for first node
+      local operator = operators[i - 1] or first_operator or ">"
+
+      if tag.tags then
+        ---@cast tag -emmet.TagInfo
+        local group_root = build_tree(tag.tags, tag.operators, current_tag, operator, tag.amount)
+
+        if operator == ">" then
+          current_tag = group_root.children[1]
+        elseif operator == "+" then
+          current_tag = group_root
+        elseif operator == "^" then
+          current_tag = group_root
+        end
+        goto continue
+      end
+
+      ---@cast tag +emmet.Tag
+      ---@cast tag -emmet.Parsed
+      if operator == ">" then
+        current_tag.children = current_tag.children or {}
+        table.insert(current_tag.children, tag)
+        tag.parent = current_tag
+
+        current_tag = tag
+      elseif operator == "+" then
+        local parent = assert(current_tag.parent)
+        parent.children = parent.children or {}
+        table.insert(parent.children, tag)
+        tag.parent = parent
+
+        current_tag = tag
+      elseif operator == "^" then
+        local parent = assert(current_tag.parent)
+        local grandparent = parent.parent or root
+        table.insert(grandparent.children, tag)
+        tag.parent = grandparent
+
+        current_tag = parent
+      end
+
+      ::continue::
+    end
+  end
+
+  return root
+end
+
+local M = {}
+
+function M.parse(text)
+  local parsed = emmet_grammar:match(text) ---@type emmet.Parsed|nil
+
+  if not parsed then return end
+
+  -- TODO: special case `_root` when building the snippet
+  ---@type emmet.Tag
+  local root = {
+    name = "_root",
+  }
+  setmetatable(root, mt)
+  root = build_tree(parsed.tags, parsed.operators, root)
+  return root
+end
+
+---@param value emmet.Value
+---@param index integer
+---@param amount integer
+---@return string
+local function parse_value(value, index, amount)
+  if not value.value[2] then return value.value[1] end
+
+  local base = value.base or 1
+  local descending = not not value.descending
+
+  -- TODO: test this for descending
+  index = descending and amount + base - index or base + index - 1
+
+  value.value[2] = ("%0" .. value.value[2]:len() .. "d"):format(index)
+
+  return table.concat(value.value, "")
+end
+
+---@param tag emmet.Tag
+---@param jump_index integer|nil
+---@return table[]
+function M.to_snippet(tag, jump_index)
+  jump_index = jump_index or 1
+
+  local child_snips = tag.children
+      and vim
+        .iter(tag.children)
+        :enumerate()
+        :map(function(index, child) return M.to_snippet(child, index) end)
+        :flatten()
+        :totable()
+    or nil
+
+  if tag.name == "_root" then return sn(nil, child_snips) end
+
+  local indentation = tag:indent()
+  local text = tag.text or ""
+
+  local amount = tag.amount or 1
+  local nodes = {}
+  for index = 1, amount do
+    local id = ""
+    if tag.id then id = (' id="%s"'):format(parse_value(tag.id, index, amount)) end
+    local class = ""
+    if tag.classes then
+      local classes = vim.iter(tag.classes):map(function(c) return parse_value(c, index, amount) end):totable()
+      class = (' class="%s"'):format(table.concat(classes, " "))
+    end
+
+    local efective_jump_index = jump_index + index - 1
+    -- TODO: support classes with empty `name`
+    local new_nodes = fmt(
+      [[
+
+{indentation}<{tag_name}{id}{class}>{text}
+{inside}
+{indentation}</{tag_name}>
+
+]],
+      {
+        ---@diagnostic disable-next-line: no-unknown
+        tag_name = t(tag.name),
+        ---@diagnostic disable-next-line: no-unknown
+        inside = child_snips and sn(nil, child_snips) or i(efective_jump_index),
+        ---@diagnostic disable-next-line: no-unknown
+        indentation = t(indentation),
+        ---@diagnostic disable-next-line: no-unknown
+        id = id,
+        ---@diagnostic disable-next-line: no-unknown
+        class = class,
+        ---@diagnostic disable-next-line: no-unknown
+        text = text,
+      }
+    )
+    vim.list_extend(nodes, new_nodes)
+  end
+  return nodes
+end
+
+return M

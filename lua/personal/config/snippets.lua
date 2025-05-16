@@ -77,6 +77,19 @@ ls.add_snippets("all", {
       )
     end),
   }),
+
+  -- TODO: why does this sometimes not have all the characters?
+  s({ trig = "mm(.*)", trigEngine = "pattern" }, {
+    d(1, function(_, snip)
+      local emmet_input = snip.captures[1]
+      local emmet = require "personal.emmet"
+      local root = emmet.parse(emmet_input)
+      if not root then return end
+      local snippet = emmet.to_snippet(root)
+
+      return snippet
+    end),
+  }),
 }, { key = "personal all" })
 
 ls.add_snippets("cs", {
