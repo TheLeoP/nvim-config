@@ -59,8 +59,8 @@ local emmet_grammar = P {
       return acc
     end
   ),
-  tag = Cg(V "identifier" ^ 1, "name") * (V "propertie" ^ 0)
-    + Cg(V "identifier" ^ 0, "name") * (V "propertie" ^ 1)
+  tag = Cg(-V "identifier" ^ 2 * V "identifier" ^ 1, "name") * (V "propertie" ^ 0)
+    + Cg(V "identifier" ^ -1, "name") * (V "propertie" ^ 1)
     + Cg(V "text_propertie" / 2, "text"),
   -- TODO: there can be more than one `^` one next to another
   operator = S ">+^" % function(acc, operator)
