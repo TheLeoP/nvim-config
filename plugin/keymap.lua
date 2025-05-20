@@ -79,6 +79,8 @@ end, { desc = "Toggle wrap" })
 
 keymap.set("n", "<leader>tu", "<cmd>UndotreeToggle<cr>")
 
+keymap.set("n", "<c-w>d", function() vim.diagnostic.open_float { source = true } end)
+
 keymap.set(
   "n",
   "]e",
