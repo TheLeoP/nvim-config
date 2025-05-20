@@ -42,6 +42,6 @@ return {
       if ls.choice_active() then ls.change_choice(1) end
     end)
 
-    vim.cmd.source(vim.fn.stdpath "config" .. "/lua/personal/config/snippets.lua")
+    vim.cmd.source(vim.fn.stdpath "config" .. "/lua/personal/snippets.lua")
   end,
 }
