@@ -35,8 +35,11 @@ local emmet_grammar = P {
       )) ^ -1) ^ 0
       * (alnum ^ 1 % insert_value) ^ -1
   ),
-  -- TODO: this doesn't check that the quote pair matches. Use Cmt to do so
-  attribute = C(V "identifier") * P "=" * (quote * C((-quote * P(1)) ^ 0) * quote + V "value"),
+  -- TODO: take into account `open_quote` for the negate pattern inside of the quotes
+  attribute = C(V "identifier") * P "=" * (Cg(quote, "open_quote") * C((-quote * P(1)) ^ 0) * Cmt(
+    C(quote) * Cb "open_quote",
+    function(_, _, open_quote, close_quote) return open_quote == close_quote end
+  ) + V "value"),
   class_propertie = P "." * Cc "class" * V "value",
   id_propertie = P "#" * Cc "id" * V "value",
   custom_propertie = (P "[" * Cc "custom" * Ct(((V "attribute" * P " " + V "attribute") % rawset) ^ 1) * P "]"),
@@ -93,7 +96,7 @@ local emmet_grammar = P {
 ---@field amount integer|nil
 ---@field id emmet.Value|nil
 ---@field classes emmet.Value[]|nil
----@field attributes emmet.Value[]|nil
+---@field attributes table<string, string>|nil
 ---@field text string|nil
 
 ---@class emmet.Tag: emmet.TagInfo
@@ -231,6 +234,7 @@ local function build_tree(tags, operators, root, first_operator, tree_amount)
         if expanded_tag.classes then
           vim.iter(expanded_tag.classes):each(function(c) c.value = { parse_value(c, index, tree_amount) } end)
         end
+
         if operator == ">" then
           current_tag.children = current_tag.children or {}
           table.insert(current_tag.children, expanded_tag)
@@ -306,12 +310,23 @@ function M.to_snippet(tag, jump_index)
     local classes = vim.iter(tag.classes):map(function(c) return c.value[1] end):totable()
     class = (' class="%s"'):format(table.concat(classes, " "))
   end
+  local custom_attributes = ""
+  if tag.attributes then
+    custom_attributes = table.concat(
+      -- TODO: keep track of the type of quote? This will break otherwise
+      vim.list_extend(
+        { "" },
+        vim.iter(tag.attributes):map(function(key, value) return ('%s="%s"'):format(key, value) end):totable()
+      ),
+      " "
+    )
+  end
 
   -- TODO: support classes with empty `name`
   return fmt(
     [[
 
-{indentation}<{tag_name}{id}{class}>{text}
+{indentation}<{tag_name}{id}{class}{custom_attributes}>{text}
 {inside}
 {indentation}</{tag_name}>
 
@@ -329,6 +344,8 @@ function M.to_snippet(tag, jump_index)
       class = class,
       ---@diagnostic disable-next-line: no-unknown
       text = text,
+      ---@diagnostic disable-next-line: no-unknown
+      custom_attributes = custom_attributes,
     }
   )
 end
