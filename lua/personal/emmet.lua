@@ -22,69 +22,71 @@ local insert_value = function(acc, value)
 end
 
 -- TODO: support shortcuts
----@diagnostic disable-next-line: missing-fields
-local emmet_grammar = P {
-  "line",
-  identifier = alpha ^ 1,
-  -- TODO: this can be not only be alnum, add other chars
-  value = Ct(
-    ((alnum ^ 1) % insert_value)
-      * ((P "$" ^ 1) % insert_value * (P "@" * (P "-" * Cg(Cc(true), "descending")) ^ -1 * Cg(
-        digit ^ 0 / tonumber,
-        "base"
-      )) ^ -1) ^ 0
-      * (alnum ^ 1 % insert_value) ^ -1
-  ),
-  -- TODO: take into account `open_quote` for the negate pattern inside of the quotes
-  attribute = C(V "identifier") * P "=" * (Cg(quote, "open_quote") * C((-quote * P(1)) ^ 0) * Cmt(
-    C(quote) * Cb "open_quote",
-    function(_, _, open_quote, close_quote) return open_quote == close_quote end
-  ) + V "value"),
-  class_propertie = P "." * Cc "class" * V "value",
-  id_propertie = P "#" * Cc "id" * V "value",
-  custom_propertie = (P "[" * Cc "custom" * Ct(((V "attribute" * P " " + V "attribute") % rawset) ^ 1) * P "]"),
-  -- TODO: support text being a value to expand `$$$`
-  text_propertie = P "{" * Cc "text" * C((-P "}" * P(1)) ^ 0) * P "}",
-  propertie = (
-    (V "class_propertie" + V "id_propertie" + V "custom_propertie" + V "text_propertie")
-    % function(acc, type, capture)
-      if type == "class" then
-        acc.classes = acc.classes or {}
-        table.insert(acc.classes, capture)
-      elseif type == "id" then
-        acc.id = capture
-      elseif type == "custom" then
-        ---@cast capture table<string, string>
-        acc.attributes = acc.attributes or {}
-        acc.attributes = vim.tbl_extend("force", acc.attributes, capture)
-      elseif type == "text" then
-        acc.text = capture
+local emmet_grammar =
+  ---@diagnostic disable-next-line: missing-fields
+  P {
+    "line",
+    identifier = alpha ^ 1,
+    -- TODO: this can be not only be alnum, add other chars
+    value = Ct(
+      ((alnum ^ 1) % insert_value)
+        * ((P "$" ^ 1) % insert_value * (P "@" * (P "-" * Cg(Cc(true), "descending")) ^ -1 * Cg(
+          digit ^ 0 / tonumber,
+          "base"
+        )) ^ -1) ^ 0
+        * (alnum ^ 1 % insert_value) ^ -1
+    ),
+    attribute = C(V "identifier") * P "=" * (Cg(quote, "open_quote") * C(
+      Cmt(C(P(1)) * Cb "open_quote", function(_, _, char, open_quote) return char ~= open_quote end) ^ 0
+    ) * Cmt(
+      C(quote) * Cb "open_quote",
+      function(_, _, open_quote, close_quote) return open_quote == close_quote end
+    ) + V "value"),
+    class_propertie = P "." * Cc "class" * V "value",
+    id_propertie = P "#" * Cc "id" * V "value",
+    custom_propertie = (P "[" * Cc "custom" * Ct(((V "attribute" * P " " + V "attribute") % rawset) ^ 1) * P "]"),
+    -- TODO: support text being a value to expand `$$$`
+    text_propertie = P "{" * Cc "text" * C((-P "}" * P(1)) ^ 0) * P "}",
+    propertie = (
+      (V "class_propertie" + V "id_propertie" + V "custom_propertie" + V "text_propertie")
+      % function(acc, type, capture)
+        if type == "class" then
+          acc.classes = acc.classes or {}
+          table.insert(acc.classes, capture)
+        elseif type == "id" then
+          acc.id = capture
+        elseif type == "custom" then
+          ---@cast capture table<string, string>
+          acc.attributes = acc.attributes or {}
+          acc.attributes = vim.tbl_extend("force", acc.attributes, capture)
+        elseif type == "text" then
+          acc.text = capture
+        end
+        return acc
       end
+    ),
+    tag = Cg(-V "identifier" ^ 2 * V "identifier" ^ 1, "name") * (V "propertie" ^ 0)
+      + Cg(V "identifier" ^ -1, "name") * (V "propertie" ^ 1)
+      + Cg(V "text_propertie" / 2, "text"),
+    operator = (S ">+" + P "^" ^ 1) % function(acc, operator)
+      acc.operators = acc.operators or {}
+      table.insert(acc.operators, operator)
       return acc
-    end
-  ),
-  tag = Cg(-V "identifier" ^ 2 * V "identifier" ^ 1, "name") * (V "propertie" ^ 0)
-    + Cg(V "identifier" ^ -1, "name") * (V "propertie" ^ 1)
-    + Cg(V "text_propertie" / 2, "text"),
-  operator = (S ">+" + P "^" ^ 1) % function(acc, operator)
-    acc.operators = acc.operators or {}
-    table.insert(acc.operators, operator)
-    return acc
-  end,
-  grouping = P "(" * V "partial_line" * P ")",
-  -- TODO: this only accepts `amount` after `properties`, but it looks like it can also be specified before
-  tag_or_grouping = Ct((V "grouping" + V "tag") * (P "*" * (digit ^ 1 % function(acc, amount)
-    acc.amount = tonumber(amount)
-    return acc
-  end)) ^ -1) % function(acc, tag)
-    acc.tags = acc.tags or {}
-    table.insert(acc.tags, tag)
-    return acc
-  end,
-  tag_or_grouping_with_operator = ((V "tag_or_grouping" * V "operator") + V "tag_or_grouping"),
-  partial_line = V "tag_or_grouping_with_operator" ^ 1,
-  line = Ct(V "partial_line") * P(-1),
-}
+    end,
+    grouping = P "(" * V "partial_line" * P ")",
+    -- TODO: this only accepts `amount` after `properties`, but it looks like it can also be specified before
+    tag_or_grouping = Ct((V "grouping" + V "tag") * (P "*" * (digit ^ 1 % function(acc, amount)
+      acc.amount = tonumber(amount)
+      return acc
+    end)) ^ -1) % function(acc, tag)
+      acc.tags = acc.tags or {}
+      table.insert(acc.tags, tag)
+      return acc
+    end,
+    tag_or_grouping_with_operator = ((V "tag_or_grouping" * V "operator") + V "tag_or_grouping"),
+    partial_line = V "tag_or_grouping_with_operator" ^ 1,
+    line = Ct(V "partial_line") * P(-1),
+  }
 
 ---@class emmet.Value
 ---@field value string[]
