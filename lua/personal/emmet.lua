@@ -36,6 +36,8 @@ local emmet_grammar =
         )) ^ -1) ^ 0
         * (alnum ^ 1 % insert_value) ^ -1
     ),
+    -- TODO: allow empty attributes
+    -- TODO: support attribute being a value to expand `$$$`
     attribute = C(V "identifier") * P "=" * (Cg(quote, "open_quote") * C(
       Cmt(C(P(1)) * Cb "open_quote", function(_, _, char, open_quote) return char ~= open_quote end) ^ 0
     ) * Cmt(
@@ -207,13 +209,16 @@ local function build_tree(tags, operators, root, first_operator, tree_amount)
         ---@cast tag -emmet.TagInfo
         local group_root = build_tree(tag.tags, tag.operators, current_tag, operator, tag.amount)
 
-        -- TODO: do I need to touch this in here at all? Using multiple `^`
-        -- chooses the right parent despite this not taking it into account
         if operator == ">" then
           current_tag = group_root.children[1]
         elseif operator == "+" then
           current_tag = group_root
         elseif operator:find "%^" then
+          -- TODO: fix this case, currently is broken. `build_tree` is
+          -- returning `current_tag` and it's being used as the next
+          -- `current_tag`. But, just like in the non-grouping case, the next
+          -- `current_tag` should be the top grandparent reached with the `^`
+          -- operator
           current_tag = group_root
         end
         goto continue
@@ -316,6 +321,7 @@ function M.to_snippet(tag, jump_index)
   if tag.attributes then
     custom_attributes = table.concat(
       -- TODO: keep track of the type of quote? This will break otherwise
+      -- TODO: or maybe handle differently `"` inside of attributes defined with `'`
       vim.list_extend(
         { "" },
         vim.iter(tag.attributes):map(function(key, value) return ('%s="%s"'):format(key, value) end):totable()
@@ -325,6 +331,7 @@ function M.to_snippet(tag, jump_index)
   end
 
   -- TODO: support classes with empty `name`
+  -- TODO: only expand to multiline if it has children, otherwise keep into the same line
   return fmt(
     [[
 
