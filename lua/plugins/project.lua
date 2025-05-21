@@ -3,7 +3,7 @@ return {
   config = function()
     require("project_nvim").setup {
       detection_methods = { "lsp", "pattern" },
-      ignore_lsp = { "lemminx" },
+      ignore_lsp = { "lemminx", "dockerls" },
       scope_chdir = "tab",
       patterns = {
         "!>packages",
