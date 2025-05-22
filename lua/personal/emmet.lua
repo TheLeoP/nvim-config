@@ -330,7 +330,7 @@ function M.to_snippet(tag, jump_index)
     )
   end
 
-  -- TODO: support classes with empty `name`
+  -- TODO: correctly support classes with empty `name` (i.e. only text, or infered tag names)
   if not child_snips then
     return fmt(
       [[
