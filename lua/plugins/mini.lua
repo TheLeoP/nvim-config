@@ -1,6 +1,73 @@
 local api = vim.api
 local iter = vim.iter
 local keymap = vim.keymap
+local ts = vim.treesitter
+
+-- TODO: support fallback to lua pattern?
+---@param ai_captures {a: string|string[], i: string|string[]}
+local function gen_ts_spec(ai_captures)
+  if type(ai_captures.a) == "string" then
+    ai_captures.a = {
+      ai_captures.a --[[@as string]],
+    }
+  end
+  if type(ai_captures.i) == "string" then
+    ai_captures.i = {
+      ai_captures.i --[[@as string]],
+    }
+  end
+
+  return
+  ---@param ai_type "a" | "i"
+  function(ai_type)
+    local captures = ai_captures[ai_type] --[=[@as string[]]=]
+
+    local ft = vim.bo.filetype
+    local lang = ts.language.get_lang(ft)
+    if not lang then return vim.notify(("There is no lang for filetype %s"):format(ft), vim.log.levels.ERROR) end
+    local parser, err = ts.get_parser(0, lang, { error = false })
+    if not parser then return vim.notify(err, vim.log.levels.ERROR) end
+    parser:parse()
+
+    local query = ts.query.get(lang, "textobjects")
+    if not query then
+      return vim.notify(("There are no textobject queries for lang %s"):format(lang), vim.log.levels.ERROR)
+    end
+
+    local is_requested_capture = iter(query.captures)
+      :map(function(c) return vim.tbl_contains(captures, "@" .. c) end)
+      :totable()
+
+    local ranges = {} ---@type Range4[]
+    for _, tree in ipairs(parser:trees()) do
+      for _, match, _ in query:iter_matches(tree:root(), 0) do
+        for capture_id, nodes in pairs(match) do
+          -- TODO: support metadata to modify ranges
+          if is_requested_capture[capture_id] then
+            local first = nodes[1]
+            local start_row, start_col = first:range()
+            local last = nodes[#nodes]
+            local _, _, end_row, end_col = last:range()
+            table.insert(ranges, { start_row, start_col, end_row, end_col })
+          end
+        end
+      end
+    end
+
+    return iter(ranges)
+      :map(
+        ---@param range Range4
+        function(range)
+          -- Ranges are 0-based numbers for end-exclusive region
+          return {
+            from = { line = range[1] + 1, col = range[2] + 1 },
+            to = { line = range[3] + 1, col = range[4] },
+          }
+        end
+      )
+      :totable()
+  end
+end
 
 return {
   "echasnovski/mini.nvim",
@@ -22,31 +89,32 @@ return {
     ai.setup {
       n_lines = 500,
       custom_textobjects = {
-        o = ai.gen_spec.treesitter {
+        o = gen_ts_spec {
           a = { "@block.outer", "@conditional.outer", "@loop.outer" },
           i = { "@block.inner", "@conditional.inner", "@loop.inner" },
         },
-        f = ai.gen_spec.treesitter { a = "@function.outer", i = "@function.inner" },
-        c = ai.gen_spec.treesitter { a = "@class.outer", i = "@class.inner" },
-        F = ai.gen_spec.treesitter { a = "@call.outer", i = "@call.inner" },
-        t = { "<([%p%w]-)%f[^<%w][^<>]->.-</%1>", "^<.->().*()</[^/]->$" },
+        f = gen_ts_spec { a = "@function.outer", i = "@function.inner" },
+        c = gen_ts_spec { a = "@class.outer", i = "@class.inner" },
+        F = gen_ts_spec { a = "@call.outer", i = "@call.inner" },
+        t = gen_ts_spec { a = "@tag.outer", i = "@tag.inner" },
+        a = gen_ts_spec {
+          a = { "@parameter.outer", "@attribute.outer" },
+          i = { "@parameter.inner", "@attribute.inner" },
+        },
 
         B = gen_ai_spec.buffer(),
         d = gen_ai_spec.diagnostic(),
         e = gen_ai_spec.indent(),
         i = gen_ai_spec.line(),
         u = gen_ai_spec.number(),
-        P = function()
-          local start_row, start_col = unpack(api.nvim_buf_get_mark(0, "[")) --[[@as integer, integer]]
-          local end_row, end_col = unpack(api.nvim_buf_get_mark(0, "]")) --[[@as integer, integer]]
-          local vis_mode = vim.fn.getregtype '"'
-          if #vis_mode > 1 then vis_mode = vis_mode:sub(1, 1) end
-          local region = {
-            from = { line = start_row, col = start_col + 1 },
-            to = { line = end_row, col = end_col + 1 },
-            vis_mode = vis_mode,
+
+        g = function()
+          local from = { line = 1, col = 1 }
+          local to = {
+            line = vim.fn.line "$",
+            col = math.max(vim.fn.getline("$"):len(), 1),
           }
-          return region
+          return { from = from, to = to }
         end,
       },
       mappings = {
