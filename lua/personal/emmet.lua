@@ -331,20 +331,42 @@ function M.to_snippet(tag, jump_index)
   end
 
   -- TODO: support classes with empty `name`
-  -- TODO: only expand to multiline if it has children, otherwise keep into the same line
+  if not child_snips then
+    return fmt(
+      [[
+
+{indentation}<{tag_name}{id}{class}{custom_attributes}>{text}{inside}</{tag_name}>
+
+]],
+      {
+        ---@diagnostic disable-next-line: no-unknown
+        tag_name = t(tag.name),
+        ---@diagnostic disable-next-line: no-unknown
+        inside = i(jump_index),
+        ---@diagnostic disable-next-line: no-unknown
+        indentation = t(indentation),
+        ---@diagnostic disable-next-line: no-unknown
+        id = id,
+        ---@diagnostic disable-next-line: no-unknown
+        class = class,
+        ---@diagnostic disable-next-line: no-unknown
+        text = text,
+        ---@diagnostic disable-next-line: no-unknown
+        custom_attributes = custom_attributes,
+      }
+    )
+  end
   return fmt(
     [[
 
 {indentation}<{tag_name}{id}{class}{custom_attributes}>{text}
-{inside}
-{indentation}</{tag_name}>
-
+{inside}</{tag_name}>
 ]],
     {
       ---@diagnostic disable-next-line: no-unknown
       tag_name = t(tag.name),
       ---@diagnostic disable-next-line: no-unknown
-      inside = child_snips and sn(jump_index, child_snips) or i(jump_index),
+      inside = sn(jump_index, child_snips),
       ---@diagnostic disable-next-line: no-unknown
       indentation = t(indentation),
       ---@diagnostic disable-next-line: no-unknown
