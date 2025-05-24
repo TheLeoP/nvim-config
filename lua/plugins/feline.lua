@@ -2,6 +2,8 @@ local api = vim.api
 local fs = vim.fs
 local uv = vim.uv
 
+local diagnostic_icons = require("personal.icons").diagnostic
+
 local function file_provider()
   local str_multibyte_sub = require("personal.util.general").str_multibyte_sub
 
@@ -125,6 +127,27 @@ local modes = setmetatable({
 
 local function mode() return modes[vim.api.nvim_get_mode().mode] end
 
+local function hint()
+  local hint_severity = vim.diagnostic.severity.HINT
+  local count = vim.diagnostic.count(nil, { severity = hint_severity })[hint_severity] or 0
+  return ("%s %d "):format(diagnostic_icons.HINT, count)
+end
+local function info()
+  local info_severity = vim.diagnostic.severity.INFO
+  local count = vim.diagnostic.count(nil, { severity = info_severity })[info_severity] or 0
+  return ("%s %d "):format(diagnostic_icons.INFO, count)
+end
+local function warn()
+  local warn_severity = vim.diagnostic.severity.WARN
+  local count = vim.diagnostic.count(nil, { severity = warn_severity })[warn_severity] or 0
+  return ("%s %d "):format(diagnostic_icons.WARN, count)
+end
+local function err()
+  local err_severity = vim.diagnostic.severity.ERROR
+  local count = vim.diagnostic.count(nil, { severity = err_severity })[err_severity] or 0
+  return ("%s %d "):format(diagnostic_icons.ERROR, count)
+end
+
 return {
   "famiu/feline.nvim",
   config = function()
@@ -157,6 +180,10 @@ return {
       navic = navic_provider,
       git_branch_ = git_branch_provider,
       mode = mode,
+      hint = hint,
+      info = info,
+      warn = warn,
+      err = err,
       filetype = function() return (" %s "):format(vim.bo.filetype) end,
     }
 
@@ -227,6 +254,27 @@ return {
       },
     })
 
+    table.insert(right, {
+      provider = "info",
+      hl = {
+        fg = "white",
+        bg = "bg",
+      },
+    })
+    table.insert(right, {
+      provider = "warn",
+      hl = {
+        fg = "orange",
+        bg = "bg",
+      },
+    })
+    table.insert(right, {
+      provider = "err",
+      hl = {
+        fg = "red",
+        bg = "bg",
+      },
+    })
     table.insert(right, {
       provider = "filetype",
       hl = {

@@ -1,4 +1,4 @@
-local should_profile = os.getenv "NVIM_PROFILE"
+local should_profile = vim.env.NVIM_PROFILE
 
 local function toggle_profile()
   local prof = require "profile"
@@ -25,8 +25,6 @@ return {
         require("profile").start "*"
       else
         require("profile").instrument "*"
-        require("profile").ignore "gitsigns.manager*"
-        require("profile").ignore "gitsigns.async*"
       end
 
       vim.keymap.set("n", "<f4>", toggle_profile)

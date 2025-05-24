@@ -2,6 +2,8 @@ local methods = vim.lsp.protocol.Methods
 local api = vim.api
 local keymap = vim.keymap
 
+local diagnostic_icons = require("personal.icons").diagnostic
+
 local M = {}
 
 M.mason_root = vim.fn.stdpath "data" .. "/mason/packages/" --[[@as string]]
@@ -123,13 +125,6 @@ vim.lsp.handlers[methods.client_registerCapability] = function(err, res, ctx)
 
   return return_value
 end
-
-local diagnostic_icons = {
-  ERROR = "",
-  WARN = "",
-  HINT = "",
-  INFO = "",
-}
 
 -- Define the diagnostic signs.
 for severity, icon in pairs(diagnostic_icons) do

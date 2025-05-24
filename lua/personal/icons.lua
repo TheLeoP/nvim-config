@@ -7,4 +7,11 @@ M.arrows = {
   down = "",
 }
 
+M.diagnostic = {
+  ERROR = "",
+  WARN = "",
+  HINT = "",
+  INFO = "",
+}
+
 return M
