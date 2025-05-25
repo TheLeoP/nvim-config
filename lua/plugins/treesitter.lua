@@ -111,7 +111,6 @@ return {
         "tsx",
         "toml",
         "vue",
-        "dap-repl",
 
         "yaml",
       },
