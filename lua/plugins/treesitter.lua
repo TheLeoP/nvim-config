@@ -1,11 +1,12 @@
 local api = vim.api
+local iter = vim.iter
 
 return {
   "nvim-treesitter/nvim-treesitter",
   branch = "main",
   build = ":TSUpdate",
   config = function()
-    require("nvim-treesitter").install {
+    local ensure_installed = {
       "c",
       "lua",
       "vim",
@@ -60,6 +61,11 @@ return {
       "angular",
       "scss",
     }
+    local already_installed = require("nvim-treesitter.config").installed_parsers()
+    local to_install = iter(require("nvim-treesitter.config").installed_parsers())
+      :filter(function(p) return not vim.tbl_contains(already_installed, p) end)
+      :totable()
+    if #to_install > 0 then require("nvim-treesitter").install(ensure_installed) end
 
     api.nvim_create_autocmd("FileType", {
       -- TODO: join both tables with some kind of relationship between them
