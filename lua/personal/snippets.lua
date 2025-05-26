@@ -49,6 +49,16 @@ local not_in_string_nor_comment = make_condition(function()
   return not vim.list_contains(blacklist_by_ft[ft], type)
 end)
 
+---@param line_to_cursor string
+---@return string|nil, any[]|nil
+local function emmet_matcher(line_to_cursor)
+  local emmet = require "personal.emmet"
+  local root = emmet.parse(line_to_cursor)
+  if not root then return end
+
+  return line_to_cursor, { root }
+end
+
 ls.add_snippets("all", {
   s("todo", {
     d(1, function()
@@ -79,22 +89,6 @@ ls.add_snippets("all", {
           text = i(1),
         })
       )
-    end),
-  }),
-
-  s({ trig = "(mm)(.*)", trigEngine = "pattern" }, {
-    d(1, function(_, snip)
-      local prefix = snip.captures[1]
-      local emmet_input = snip.captures[2]
-      local emmet = require "personal.emmet"
-      local root = emmet.parse(emmet_input)
-      if not root then
-        vim.notify("The input couldn't be parsed", vim.log.levels.WARN)
-        return sn(nil, { t(prefix .. emmet_input) })
-      end
-      local snippet = emmet.to_snippet(root)
-
-      return snippet
     end),
   }),
 }, { key = "personal all" })
@@ -375,7 +369,8 @@ local <name> = require("<module>")
 
 ls.filetype_extend("typescript", { "javascript" })
 ls.filetype_extend("javascriptreact", { "javascript" })
-ls.filetype_extend("typescriptreact", { "javascript" })
+ls.filetype_extend("typescriptreact", { "javascript", "javascriptreact" })
+ls.filetype_extend("html", { "javascriptreact" })
 ls.add_snippets("javascript", {
   s(
     { trig = "if ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
@@ -536,6 +531,22 @@ useEffect(() =>> {
     )
   ),
 }, { key = "personal js" })
+
+ls.add_snippets("javascriptreact", {
+  s({
+    -- NOTE: trig does nothing here
+    trig = "",
+    trigEngine = function() return emmet_matcher end,
+  }, {
+    d(1, function(_, snip)
+      local emmet = require "personal.emmet"
+      local root = snip.captures[1] --[[@as emmet.Tag]]
+      local snippet = emmet.to_snippet(root)
+
+      return snippet
+    end),
+  }),
+}, { key = "personal jsx" })
 
 ls.add_snippets("markdown", {
   s(

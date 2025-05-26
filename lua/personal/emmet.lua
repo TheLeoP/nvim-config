@@ -334,10 +334,7 @@ function M.to_snippet(tag, jump_index)
   if not child_snips then
     return fmt(
       [[
-
-{indentation}<{tag_name}{id}{class}{custom_attributes}>{text}{inside}</{tag_name}>
-
-]],
+{indentation}<{tag_name}{id}{class}{custom_attributes}>{text}{inside}</{tag_name}>]],
       {
         ---@diagnostic disable-next-line: no-unknown
         tag_name = t(tag.name),
@@ -356,11 +353,14 @@ function M.to_snippet(tag, jump_index)
       }
     )
   end
+  -- TODO: instead of adding a newline at the end always (like when it has
+  -- children) or never (like when it doesn't have children), use some kind of
+  -- join-like logic to only put it between two sibling nodes
   return fmt(
     [[
-
 {indentation}<{tag_name}{id}{class}{custom_attributes}>{text}
-{inside}</{tag_name}>
+{inside}
+{indentation}</{tag_name}>
 ]],
     {
       ---@diagnostic disable-next-line: no-unknown
