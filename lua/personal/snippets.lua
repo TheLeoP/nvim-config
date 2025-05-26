@@ -330,6 +330,43 @@ local <name> = require("<module>")
       }
     )
   ),
+  s({ trig = [[\([a-zA-Z_]\+\) \(+\|-\|\%(\.\.\)\)= ]], trigEngine = "vim", snippetType = "autosnippet" }, {
+    d(1, function(_, snip)
+      local identifier = snip.captures[1]
+      local operator = snip.captures[2]
+
+      return sn(
+        nil,
+        fmta(
+          [[
+<identifier> = <identifier> <operator> ]],
+          {
+            identifier = t(identifier),
+            operator = t(operator),
+          }
+        )
+      )
+    end),
+  }),
+  s({ trig = [[\([a-zA-Z_]\+\)\(\%(++\)\|\%(--\)\)]], trigEngine = "vim", snippetType = "autosnippet" }, {
+    d(1, function(_, snip)
+      local identifier = snip.captures[1]
+      local operator = snip.captures[2]
+      local operation = operator == "++" and "+ 1" or "- 1"
+
+      return sn(
+        nil,
+        fmta(
+          [[
+<identifier> = <identifier> <operation>]],
+          {
+            identifier = t(identifier),
+            operation = t(operation),
+          }
+        )
+      )
+    end),
+  }),
 }, { key = "personal lua" })
 
 ls.filetype_extend("typescript", { "javascript" })
