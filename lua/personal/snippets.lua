@@ -54,6 +54,8 @@ ls.add_snippets("all", {
     d(1, function()
       local commentstring = require("ts_context_commentstring.internal").calculate_commentstring()
         or vim.bo.commentstring
+      commentstring = commentstring:gsub("<", "<<")
+      commentstring = commentstring:gsub(">", ">>")
       local template = commentstring:format "TODO<author>: <text>"
       return sn(
         nil,
@@ -68,6 +70,8 @@ ls.add_snippets("all", {
     d(1, function()
       local commentstring = require("ts_context_commentstring.internal").calculate_commentstring()
         or vim.bo.commentstring
+      commentstring = commentstring:gsub("<", "<<")
+      commentstring = commentstring:gsub(">", ">>")
       local template = commentstring:format "NOTE: <text>"
       return sn(
         nil,
