@@ -86,7 +86,7 @@ return {
     keymap.set(
       "n",
       "<leader>fI",
-      function() fzf.live_grep { prompt = "< Rg nvim config >", cwd = vim.fn.stdpath "config" } end,
+      function() fzf.live_grep { silent = true, prompt = "< Rg nvim config >", cwd = vim.fn.stdpath "config" } end,
       { desc = "Rg in nvim config" }
     )
 
@@ -99,7 +99,7 @@ return {
     keymap.set(
       "n",
       "<leader>fL",
-      function() fzf.live_grep { prompt = "< Rg plugins >", cwd = vim.fn.stdpath "data" .. "/lazy" } end,
+      function() fzf.live_grep { silent = true, prompt = "< Rg plugins >", cwd = vim.fn.stdpath "data" .. "/lazy" } end,
       { desc = "Rg in plugins dir" }
     )
 
