@@ -61,8 +61,8 @@ return {
       "angular",
       "scss",
     }
-    local already_installed = require("nvim-treesitter.config").installed_parsers()
-    local to_install = iter(require("nvim-treesitter.config").installed_parsers())
+    local already_installed = require("nvim-treesitter.config").get_installed "parsers"
+    local to_install = iter(already_installed)
       :filter(function(p) return not vim.tbl_contains(already_installed, p) end)
       :totable()
     if #to_install > 0 then require("nvim-treesitter").install(ensure_installed) end
