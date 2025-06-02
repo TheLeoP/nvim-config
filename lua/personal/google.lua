@@ -101,6 +101,24 @@ local function refresh_access_token(token_info, prefix)
   if is_refreshing_access_token then return coroutine.yield() end
   is_refreshing_access_token = true
 
+  if _cache_token_info[prefix].refresh_token_expiry_date then
+    local refresh_expiry_date = _cache_token_info[prefix].refresh_token_expiry_date --[[@as integer]]
+    local now = os.time()
+    local limit_date = os.date("*t", now) --[[@as osdate]]
+    limit_date.sec = limit_date.sec + eager_refresh_threshold_seconds
+    local limit = os.time(limit_date)
+
+    if os.difftime(refresh_expiry_date, limit) <= 0 then
+      _cache_token_info[prefix] = nil
+      auv.schedule()
+      if vim.fn.delete(token_path) ~= 0 then
+        vim.notify(("Couldn't delete file %s"):format(token_path), vim.log.levels.WARN)
+      end
+
+      return assert(M.get_token_info(), "There is no token_info")
+    end
+  end
+
   local params = ("client_id=%s&client_secret=%s&grant_type=refresh_token&refresh_token=%s"):format(
     client_id,
     client_secret,
@@ -123,24 +141,6 @@ local function refresh_access_token(token_info, prefix)
 
   assert(not new_token_info.error, vim.inspect(new_token_info))
   ---@cast new_token_info -ApiTokenErrorResponse
-
-  if _cache_token_info[prefix].refresh_token_expiry_date then
-    local refresh_expiry_date = _cache_token_info[prefix].refresh_token_expiry_date --[[@as integer]]
-    local now = os.time()
-    local limit_date = os.date("*t", now) --[[@as osdate]]
-    limit_date.sec = limit_date.sec + eager_refresh_threshold_seconds
-    local limit = os.time(limit_date)
-
-    if os.difftime(refresh_expiry_date, limit) <= 0 then
-      _cache_token_info[prefix] = nil
-      auv.schedule()
-      if vim.fn.delete(token_path) ~= 0 then
-        vim.notify(("Couldn't delete file %s"):format(token_path), vim.log.levels.WARN)
-      end
-
-      return assert(M.get_token_info(), "There is no token_info")
-    end
-  end
 
   local cached_token_info = _cache_token_info[prefix]
   assert(cached_token_info, "`cached_token_info` is nil")
