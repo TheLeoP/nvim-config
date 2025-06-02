@@ -2472,7 +2472,7 @@ function M.get_event(calendar_id, id, opts)
       assert(ok, event)
       ---@cast event -string
 
-      assert(not event.error.status, vim.inspect(event.error))
+      assert(not event.error, vim.inspect(event.error))
       ---@cast event -ApiErrorResponse
 
       _cache_event[id] = event
