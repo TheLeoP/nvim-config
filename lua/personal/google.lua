@@ -91,14 +91,16 @@ local function refresh_access_token(token_info, prefix)
   assert(co, "The function must run inside a coroutine")
 
   local token_refreshed_pattern = "GoogleAccessTokenRefreshed"
-  auv.schedule()
-  api.nvim_create_autocmd("User", {
-    pattern = token_refreshed_pattern,
-    ---@param opts {data:{token_info: TokenInfo}}
-    callback = function(opts) co_resume(co, opts.data.token_info) end,
-    once = true,
-  })
-  if is_refreshing_access_token then return coroutine.yield() end
+  if is_refreshing_access_token then
+    auv.schedule()
+    api.nvim_create_autocmd("User", {
+      pattern = token_refreshed_pattern,
+      ---@param opts {data:{token_info: TokenInfo}}
+      callback = function(opts) co_resume(co, opts.data.token_info) end,
+      once = true,
+    })
+    return coroutine.yield()
+  end
   is_refreshing_access_token = true
 
   if _cache_token_info[prefix].refresh_token_expiry_date then
@@ -115,7 +117,11 @@ local function refresh_access_token(token_info, prefix)
         vim.notify(("Couldn't delete file %s"):format(token_path), vim.log.levels.WARN)
       end
 
-      return assert(M.get_token_info(), "There is no token_info")
+      local new_token_info = assert(M.get_token_info(), "There is no token_info")
+      auv.schedule()
+      api.nvim_exec_autocmds("User", { pattern = token_refreshed_pattern, data = { token_info = new_token_info } })
+      is_refreshing_access_token = false
+      return new_token_info
     end
   end
 
@@ -160,13 +166,9 @@ local function refresh_access_token(token_info, prefix)
   file:write(token_info_string)
   file:close()
 
-  -- to be executed after coroutine.yield()
-  vim.schedule(function()
-    api.nvim_exec_autocmds("User", { pattern = token_refreshed_pattern, data = { token_info = cached_token_info } })
-    is_refreshing_access_token = false
-  end)
-
-  return coroutine.yield()
+  api.nvim_exec_autocmds("User", { pattern = token_refreshed_pattern, data = { token_info = cached_token_info } })
+  is_refreshing_access_token = false
+  return cached_token_info
 end
 
 local scopes = {
