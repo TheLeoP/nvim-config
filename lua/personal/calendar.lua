@@ -2192,8 +2192,8 @@ function CalendarView:show(year, month, opts)
       elseif not self.current_win and today.day == buf_day and today.month == buf_month and today.year == buf_year then
         local x, y ---@type integer?, integer?
         for j, bufs in ipairs(self.cal_bufs) do
-          for i, buf in ipairs(bufs) do
-            if buf == buf then
+          for i, cal_buf in ipairs(bufs) do
+            if cal_buf == buf then
               x, y = i, j
             end
           end
