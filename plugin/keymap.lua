@@ -101,6 +101,8 @@ keymap.set({ "n", "x" }, "<leader>.", function()
 end, { expr = true })
 
 keymap.set({ "n", "x" }, "<leader>e", function()
+  if vim.bo.filetype == "javascript" then return "<cmd>w|!node %<cr>" end
+
   if vim.bo.filetype ~= "lua" and vim.bo.filetype ~= "vim" then
     vim.schedule(function() vim.notify(("Can't source filetype %s"):format(vim.bo.filetype)) end)
     return "<ignore>"
