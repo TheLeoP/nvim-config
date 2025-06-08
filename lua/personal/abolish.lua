@@ -201,7 +201,9 @@ end
 
 ---@param word string
 ---@return string
-function M.uppercase(word) return M.snakecase(word):upper() end
+function M.uppercase(word)
+  return M.snakecase(word):upper()
+end
 
 ---@param word string
 ---@return string
@@ -269,7 +271,9 @@ end
 
 ---@param pattern string
 ---@return string
-local function subesc(pattern) return vim.fn.substitute(pattern, [=[[][\\/.*+?~%()&]]=], [[\\&]], "g") end
+local function subesc(pattern)
+  return vim.fn.substitute(pattern, [=[[][\\/.*+?~%()&]]=], [[\\&]], "g")
+end
 
 ---@param dict table<string, string>
 ---@param boundaries number
@@ -453,7 +457,9 @@ M.complete = function(arg_lead, _cmd_line, _cursor_pos)
     all_words = get_words()
     all_words = vim.tbl_map(
       ---@param word string
-      function(word) return char .. word end,
+      function(word)
+        return char .. word
+      end,
       all_words
     )
   elseif does_not_start_with_search:match_str(arg_lead) then
@@ -515,7 +521,9 @@ M.subvert_grammar = P {
   prefix = Cg(locale.alpha ^ 1, "command"),
   separator = -S [[\"| ]] * -locale.alnum * 1,
   start_separator = Cg(V "separator", "separator"),
-  end_separator = Cmt(C(V "separator") * Cb "separator", function(_s, _i, a, b) return a == b end),
+  end_separator = Cmt(C(V "separator") * Cb "separator", function(_s, _i, a, b)
+    return a == b
+  end),
   char = locale.alnum + S "_-.",
   fragment = C(V "char" ^ 0) * P "," + C(V "char" ^ 0) * P "}",
   section = Ct(
@@ -539,7 +547,9 @@ M.find_grammar = P {
   prefix = Cg(locale.alpha ^ 1, "command"),
   separator = -S [[\"| ]] * -locale.alnum * 1,
   start_separator = Cg(V "separator", "separator"),
-  end_separator = Cmt(C(V "separator") * Cb "separator", function(_s, _i, a, b) return a == b end),
+  end_separator = Cmt(C(V "separator") * Cb "separator", function(_s, _i, a, b)
+    return a == b
+  end),
   char = locale.alnum + S "_-.",
   fragment = C(V "char" ^ 0) * P "," + C(V "char" ^ 0) * P "}",
   section = Ct(

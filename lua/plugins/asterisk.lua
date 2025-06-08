@@ -1,6 +1,8 @@
 return {
   "haya14busa/vim-asterisk",
-  init = function() vim.g["asterisk#keeppos"] = 1 end,
+  init = function()
+    vim.g["asterisk#keeppos"] = 1
+  end,
   config = function()
     vim.keymap.set({ "n", "x", "o" }, "*", "<Plug>(asterisk-*)")
     vim.keymap.set({ "n", "x", "o" }, "#", "<Plug>(asterisk-#)")

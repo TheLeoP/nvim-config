@@ -17,7 +17,11 @@ end, {
   ---@param _cursor_pos integer
   ---@return string[]
   complete = function(arg_lead, _cmd_line, _cursor_pos)
-    return iter({ "auth" }):filter(function(subcommand) return vim.startswith(subcommand, arg_lead) end):totable()
+    return iter({ "auth" })
+      :filter(function(subcommand)
+        return vim.startswith(subcommand, arg_lead)
+      end)
+      :totable()
   end,
   nargs = "*",
   force = true,

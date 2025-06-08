@@ -122,10 +122,14 @@ local modes = setmetatable({
   ["!"] = " Sh ",
   ["t"] = " T ",
 }, {
-  __index = function() return " ? " end,
+  __index = function()
+    return " ? "
+  end,
 })
 
-local function mode() return modes[vim.api.nvim_get_mode().mode] end
+local function mode()
+  return modes[vim.api.nvim_get_mode().mode]
+end
 
 local function hint()
   local hint_severity = vim.diagnostic.severity.HINT
@@ -184,7 +188,9 @@ return {
       info = info,
       warn = warn,
       err = err,
-      filetype = function() return (" %s "):format(vim.bo.filetype) end,
+      filetype = function()
+        return (" %s "):format(vim.bo.filetype)
+      end,
     }
 
     local statusline_components = {
@@ -213,7 +219,9 @@ return {
 
     table.insert(left, {
       provider = "git_branch_",
-      enabled = function() return vim.b.gitsigns_head ~= nil or vim.g.gitsigns_head ~= nil end,
+      enabled = function()
+        return vim.b.gitsigns_head ~= nil or vim.g.gitsigns_head ~= nil
+      end,
       hl = {
         fg = "lightblue",
       },
@@ -221,7 +229,9 @@ return {
 
     table.insert(left, {
       provider = "cwd",
-      enabled = function() return uv.cwd() ~= nil end,
+      enabled = function()
+        return uv.cwd() ~= nil
+      end,
       right_sep = {
         str = " |",
         hl = {

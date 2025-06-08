@@ -53,18 +53,12 @@ keymap.set("n", "<leader>ts", function()
   vim.wo.spell = not vim.wo.spell
   vim.notify(("Spell is %s for current window"):format(vim.wo.spell and "on" or "off"))
 end, { desc = "Toggle spell" })
-keymap.set(
-  "n",
-  "<leader>tr",
-  function() vim.wo.relativenumber = not vim.wo.relativenumber end,
-  { desc = "Toggle relative numbers" }
-)
-keymap.set(
-  "n",
-  "<leader>td",
-  function() vim.o.background = vim.o.background == "dark" and "light" or "dark" end,
-  { desc = "Toggle darkmode" }
-)
+keymap.set("n", "<leader>tr", function()
+  vim.wo.relativenumber = not vim.wo.relativenumber
+end, { desc = "Toggle relative numbers" })
+keymap.set("n", "<leader>td", function()
+  vim.o.background = vim.o.background == "dark" and "light" or "dark"
+end, { desc = "Toggle darkmode" })
 local last_conceal ---@type integer
 keymap.set("n", "<leader>tc", function()
   local current_conceal = vim.wo.conceallevel
@@ -79,20 +73,16 @@ end, { desc = "Toggle wrap" })
 
 keymap.set("n", "<leader>tu", "<cmd>UndotreeToggle<cr>")
 
-keymap.set("n", "<c-w>d", function() vim.diagnostic.open_float { source = true } end)
+keymap.set("n", "<c-w>d", function()
+  vim.diagnostic.open_float { source = true }
+end)
 
-keymap.set(
-  "n",
-  "]e",
-  function() vim.diagnostic.jump { count = 1, severity = vim.diagnostic.severity.ERROR, float = true } end,
-  { desc = "Next error" }
-)
-keymap.set(
-  "n",
-  "[e",
-  function() vim.diagnostic.jump { count = -1, severity = vim.diagnostic.severity.ERROR, float = true } end,
-  { desc = "Prev error" }
-)
+keymap.set("n", "]e", function()
+  vim.diagnostic.jump { count = 1, severity = vim.diagnostic.severity.ERROR, float = true }
+end, { desc = "Next error" })
+keymap.set("n", "[e", function()
+  vim.diagnostic.jump { count = -1, severity = vim.diagnostic.severity.ERROR, float = true }
+end, { desc = "Prev error" })
 
 -- : operator
 keymap.set({ "n", "x" }, "<leader>.", function()
@@ -104,18 +94,17 @@ keymap.set({ "n", "x" }, "<leader>e", function()
   if vim.bo.filetype == "javascript" then return "<cmd>w|!node %<cr>" end
 
   if vim.bo.filetype ~= "lua" and vim.bo.filetype ~= "vim" then
-    vim.schedule(function() vim.notify(("Can't source filetype %s"):format(vim.bo.filetype)) end)
+    vim.schedule(function()
+      vim.notify(("Can't source filetype %s"):format(vim.bo.filetype))
+    end)
     return "<ignore>"
   end
   return ":source<cr>"
 end, { expr = true })
 
-keymap.set(
-  "n",
-  "<leader>tn",
-  function() vim.diagnostic.config { virtual_lines = not vim.diagnostic.config().virtual_lines } end,
-  { desc = "Toggle diagnostic virtual_lines" }
-)
+keymap.set("n", "<leader>tn", function()
+  vim.diagnostic.config { virtual_lines = not vim.diagnostic.config().virtual_lines }
+end, { desc = "Toggle diagnostic virtual_lines" })
 
 -- search within visual selection - this is magic
 keymap.set("x", "/", "<Esc>/\\%V")

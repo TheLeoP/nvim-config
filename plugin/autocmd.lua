@@ -3,13 +3,17 @@ local uv = vim.uv
 vim.api.nvim_create_autocmd("CmdwinEnter", {
   group = vim.api.nvim_create_augroup("ExecuteCmdAndStay", { clear = true }),
   desc = "Execute command and stay in the command-line window",
-  callback = function(args) vim.keymap.set({ "n", "i" }, "<S-CR>", "<cr>q:", { buffer = args.buf }) end,
+  callback = function(args)
+    vim.keymap.set({ "n", "i" }, "<S-CR>", "<cr>q:", { buffer = args.buf })
+  end,
 })
 
 vim.api.nvim_create_autocmd("Filetype", {
   group = vim.api.nvim_create_augroup("Format options", { clear = true }),
   desc = "Remove unwanted flags from format options",
-  callback = function() vim.o.formatoptions = "qjl1r" end,
+  callback = function()
+    vim.o.formatoptions = "qjl1r"
+  end,
 })
 
 vim.api.nvim_create_autocmd("TermOpen", {

@@ -16,45 +16,28 @@ local function on_attach(client, buf)
   if client:supports_method(methods.textDocument_documentSymbol) then require("nvim-navic").attach(client, buf) end
 
   if client:supports_method(methods.textDocument_hover) then
-    keymap.set(
-      "n",
-      "K",
-      function()
-        vim.lsp.buf.hover {
-          max_height = math.floor(vim.o.lines * 0.5),
-          max_width = math.floor(vim.o.columns * 0.4),
-        }
-      end,
-      { buffer = buf, desc = "Hover" }
-    )
+    keymap.set("n", "K", function()
+      vim.lsp.buf.hover {
+        max_height = math.floor(vim.o.lines * 0.5),
+        max_width = math.floor(vim.o.columns * 0.4),
+      }
+    end, { buffer = buf, desc = "Hover" })
   end
   if client:supports_method(methods.textDocument_definition) then
-    keymap.set(
-      "n",
-      "gd",
-      function() require("fzf-lua").lsp_definitions { jump1 = true } end,
-      { buffer = buf, desc = "Go to definition" }
-    )
+    keymap.set("n", "gd", function()
+      require("fzf-lua").lsp_definitions { jump1 = true }
+    end, { buffer = buf, desc = "Go to definition" })
   end
   keymap.set("n", "gD", vim.lsp.buf.declaration, { buffer = buf, desc = "Go to declaration" })
-  keymap.set(
-    "n",
-    "grr",
-    function() require("fzf-lua").lsp_references { jump1 = true } end,
-    { buffer = buf, desc = "Go to reference" }
-  )
-  keymap.set(
-    "n",
-    "grt",
-    function() require("fzf-lua").lsp_typedefs { jump1 = true } end,
-    { buffer = buf, desc = "Go to reference" }
-  )
-  keymap.set(
-    "n",
-    "gri",
-    function() require("fzf-lua").lsp_implementations { jump1 = true } end,
-    { buffer = buf, desc = "Go to implementation" }
-  )
+  keymap.set("n", "grr", function()
+    require("fzf-lua").lsp_references { jump1 = true }
+  end, { buffer = buf, desc = "Go to reference" })
+  keymap.set("n", "grt", function()
+    require("fzf-lua").lsp_typedefs { jump1 = true }
+  end, { buffer = buf, desc = "Go to reference" })
+  keymap.set("n", "gri", function()
+    require("fzf-lua").lsp_implementations { jump1 = true }
+  end, { buffer = buf, desc = "Go to implementation" })
   if client:supports_method(methods.textDocument_signatureHelp) then
     keymap.set("i", "<c-s>", function()
       -- TODO: remove if I ever change from blink.cmp. Maybe move this into its plugin spec?
@@ -79,12 +62,9 @@ local function on_attach(client, buf)
 
   if client:supports_method(methods.textDocument_inlayHint) then
     local inlay_hint = vim.lsp.inlay_hint
-    keymap.set(
-      "n",
-      "<leader>ti",
-      function() inlay_hint.enable(not inlay_hint.is_enabled()) end,
-      { buffer = buf, desc = "Toggle inlay hints" }
-    )
+    keymap.set("n", "<leader>ti", function()
+      inlay_hint.enable(not inlay_hint.is_enabled())
+    end, { buffer = buf, desc = "Toggle inlay hints" })
   end
 
   keymap.set({ "n", "x" }, "<leader>cc", vim.lsp.codelens.run, { desc = "Run codelens" })
@@ -160,7 +140,9 @@ local show_handler = vim.diagnostic.handlers.virtual_text.show
 local hide_handler = vim.diagnostic.handlers.virtual_text.hide
 vim.diagnostic.handlers.virtual_text = {
   show = function(ns, bufnr, diagnostics, opts)
-    table.sort(diagnostics, function(diag1, diag2) return diag1.severity > diag2.severity end)
+    table.sort(diagnostics, function(diag1, diag2)
+      return diag1.severity > diag2.severity
+    end)
     return show_handler(ns, bufnr, diagnostics, opts)
   end,
   hide = hide_handler,

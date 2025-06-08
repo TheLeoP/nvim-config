@@ -536,7 +536,9 @@ ls.add_snippets("javascriptreact", {
   s({
     -- NOTE: trig does nothing here
     trig = "",
-    trigEngine = function() return emmet_matcher end,
+    trigEngine = function()
+      return emmet_matcher
+    end,
   }, {
     d(1, function(_, snip)
       local emmet = require "personal.emmet"

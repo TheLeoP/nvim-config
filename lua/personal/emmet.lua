@@ -39,11 +39,12 @@ local emmet_grammar =
     -- TODO: allow empty attributes
     -- TODO: support attribute being a value to expand `$$$`
     attribute = C(V "identifier") * P "=" * (Cg(quote, "open_quote") * C(
-      Cmt(C(P(1)) * Cb "open_quote", function(_, _, char, open_quote) return char ~= open_quote end) ^ 0
-    ) * Cmt(
-      C(quote) * Cb "open_quote",
-      function(_, _, open_quote, close_quote) return open_quote == close_quote end
-    ) + V "value"),
+      Cmt(C(P(1)) * Cb "open_quote", function(_, _, char, open_quote)
+        return char ~= open_quote
+      end) ^ 0
+    ) * Cmt(C(quote) * Cb "open_quote", function(_, _, open_quote, close_quote)
+      return open_quote == close_quote
+    end) + V "value"),
     class_propertie = P "." * Cc "class" * V "value",
     id_propertie = P "#" * Cc "id" * V "value",
     custom_propertie = (P "[" * Cc "custom" * Ct(((V "attribute" * P " " + V "attribute") % rawset) ^ 1) * P "]"),
@@ -128,16 +129,26 @@ end
 
 ---@param tag emmet.Tag
 local function tag_tostring(tag)
-  local children = tag.children and vim.iter(tag.children):map(function(child) return tostring(child) end):totable()
-    or {}
+  local children = tag.children and vim
+    .iter(tag.children)
+    :map(function(child)
+      return tostring(child)
+    end)
+    :totable() or {}
   local s = table.concat(children, "")
 
   if tag.name == "_root" then return s end
 
   local classes = tag.classes
-      and (' class="%s"'):format(
-        table.concat(vim.iter(tag.classes):map(function(value) return table.concat(value.value) end):totable(), " ")
-      )
+      and (' class="%s"'):format(table.concat(
+        vim
+          .iter(tag.classes)
+          :map(function(value)
+            return table.concat(value.value)
+          end)
+          :totable(),
+        " "
+      ))
     or ""
 
   local id = tag.id and (' id="%s"'):format(table.concat(tag.id.value)) or ""
@@ -230,7 +241,11 @@ local function build_tree(tags, operators, root, first_operator, tree_amount)
       -- NOTE: grouping amount value expansion
       if tree_amount > 1 and not tag.amount then
         if tag.id then tag.id.value = { parse_value(tag.id, j, tree_amount) } end
-        if tag.classes then vim.iter(tag.classes):each(function(c) c.value = { parse_value(c, j, tree_amount) } end) end
+        if tag.classes then
+          vim.iter(tag.classes):each(function(c)
+            c.value = { parse_value(c, j, tree_amount) }
+          end)
+        end
       end
 
       -- NOTE: tag amount value expansion
@@ -239,7 +254,9 @@ local function build_tree(tags, operators, root, first_operator, tree_amount)
         local expanded_tag = vim.deepcopy(tag)
         if expanded_tag.id then expanded_tag.id.value = { parse_value(expanded_tag.id, index, tree_amount) } end
         if expanded_tag.classes then
-          vim.iter(expanded_tag.classes):each(function(c) c.value = { parse_value(c, index, tree_amount) } end)
+          vim.iter(expanded_tag.classes):each(function(c)
+            c.value = { parse_value(c, index, tree_amount) }
+          end)
         end
 
         if operator == ">" then
@@ -300,7 +317,9 @@ function M.to_snippet(tag, jump_index)
       and vim
         .iter(tag.children)
         :enumerate()
-        :map(function(index, child) return M.to_snippet(child, index) end)
+        :map(function(index, child)
+          return M.to_snippet(child, index)
+        end)
         :flatten()
         :totable()
     or nil
@@ -314,7 +333,12 @@ function M.to_snippet(tag, jump_index)
   if tag.id then id = (' id="%s"'):format(tag.id.value[1]) end
   local class = ""
   if tag.classes then
-    local classes = vim.iter(tag.classes):map(function(c) return c.value[1] end):totable()
+    local classes = vim
+      .iter(tag.classes)
+      :map(function(c)
+        return c.value[1]
+      end)
+      :totable()
     class = (' class="%s"'):format(table.concat(classes, " "))
   end
   local custom_attributes = ""
@@ -324,7 +348,12 @@ function M.to_snippet(tag, jump_index)
       -- TODO: or maybe handle differently `"` inside of attributes defined with `'`
       vim.list_extend(
         { "" },
-        vim.iter(tag.attributes):map(function(key, value) return ('%s="%s"'):format(key, value) end):totable()
+        vim
+          .iter(tag.attributes)
+          :map(function(key, value)
+            return ('%s="%s"'):format(key, value)
+          end)
+          :totable()
       ),
       " "
     )

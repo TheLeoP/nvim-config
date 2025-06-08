@@ -295,14 +295,28 @@ local select_label = function(path, cwd, opts)
 end
 
 M.mini_visit = {
-  recent_cwd = function() select_path(false, 1, { winopts = { title = "Select recent (cwd)" } }) end,
-  recent_all = function() select_path(true, 1, { winopts = { title = "Select recent (all)" } }) end,
-  frecent_cwd = function() select_path(false, 0.5, { winopts = { title = "Select frecent (cwd)" } }) end,
-  frecent_all = function() select_path(true, 0.5, { winopts = { title = "Select frecent (all)" } }) end,
-  frequent_cwd = function() select_path(false, 0, { winopts = { title = "Select frequent (cwd)" } }) end,
-  frequent_all = function() select_path(true, 0, { winopts = { title = "Select frequent (all)" } }) end,
+  recent_cwd = function()
+    select_path(false, 1, { winopts = { title = "Select recent (cwd)" } })
+  end,
+  recent_all = function()
+    select_path(true, 1, { winopts = { title = "Select recent (all)" } })
+  end,
+  frecent_cwd = function()
+    select_path(false, 0.5, { winopts = { title = "Select frecent (cwd)" } })
+  end,
+  frecent_all = function()
+    select_path(true, 0.5, { winopts = { title = "Select frecent (all)" } })
+  end,
+  frequent_cwd = function()
+    select_path(false, 0, { winopts = { title = "Select frequent (cwd)" } })
+  end,
+  frequent_all = function()
+    select_path(true, 0, { winopts = { title = "Select frequent (all)" } })
+  end,
   select_label_cwd = select_label,
-  select_label_all = function() select_label("", "") end,
+  select_label_all = function()
+    select_label("", "")
+  end,
 }
 
 return M

@@ -54,7 +54,9 @@ function source:get_completions(ctx, callback)
       local items = iter(calendar_list.items)
         :filter(
           ---@param calendar CalendarListEntry
-          function(calendar) return calendar.accessRole ~= "reader" end
+          function(calendar)
+            return calendar.accessRole ~= "reader"
+          end
         )
         :map(
           ---@param calendar CalendarListEntry
@@ -80,7 +82,9 @@ function source:get_completions(ctx, callback)
     if not recurrence_field:match "EXDATE" then table.insert(properties, "EXDATE") end
     callback {
       items = iter(properties)
-        :map(function(field) return { label = field, kind = vim.lsp.protocol.CompletionItemKind.EnumMember } end)
+        :map(function(field)
+          return { label = field, kind = vim.lsp.protocol.CompletionItemKind.EnumMember }
+        end)
         :totable(),
       is_incomplete_backward = false,
       is_incomplete_forward = false,
@@ -172,15 +176,13 @@ function source:get_completions(ctx, callback)
     end
     callback {
       items = iter(rules)
-        :map(
-          function(rule)
-            return {
-              label = rule[1],
-              documentation = rule[2],
-              kind = vim.lsp.protocol.CompletionItemKind.EnumMember,
-            }
-          end
-        )
+        :map(function(rule)
+          return {
+            label = rule[1],
+            documentation = rule[2],
+            kind = vim.lsp.protocol.CompletionItemKind.EnumMember,
+          }
+        end)
         :totable(),
       is_incomplete_backward = false,
       is_incomplete_forward = false,
@@ -213,7 +215,9 @@ function source:get_completions(ctx, callback)
 
     callback {
       items = iter(options[current_rule])
-        :map(function(option) return { label = option, kind = vim.lsp.protocol.CompletionItemKind.EnumMember } end)
+        :map(function(option)
+          return { label = option, kind = vim.lsp.protocol.CompletionItemKind.EnumMember }
+        end)
         :totable(),
       is_incomplete_backward = false,
       is_incomplete_forward = false,

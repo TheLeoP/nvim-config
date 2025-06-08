@@ -35,7 +35,9 @@ local function gen_ts_spec(ai_captures)
     end
 
     local is_requested_capture = iter(query.captures)
-      :map(function(c) return vim.tbl_contains(captures, "@" .. c) end)
+      :map(function(c)
+        return vim.tbl_contains(captures, "@" .. c)
+      end)
       :totable()
 
     local ranges = {} ---@type Range4[]
@@ -208,7 +210,9 @@ return {
           if submode ~= "\22" then return eval_lua_lines(lines) end
 
           -- In blockwise selection evaluate and return each line separately
-          return vim.tbl_map(function(l) return eval_lua_lines({ l })[1] end, lines)
+          return vim.tbl_map(function(l)
+            return eval_lua_lines({ l })[1]
+          end, lines)
         end,
       },
     }
@@ -310,8 +314,12 @@ return {
       window = { zindex = 100 }, -- show above nvim-treesitter-context
     }
 
-    keymap.set("n", "<leader>tm", function() map.toggle() end, { desc = "Toggle mini.map" })
-    keymap.set("n", "<leader>tM", function() map.toggle_side() end, { desc = "Toggle mini.map side" })
+    keymap.set("n", "<leader>tm", function()
+      map.toggle()
+    end, { desc = "Toggle mini.map" })
+    keymap.set("n", "<leader>tM", function()
+      map.toggle_side()
+    end, { desc = "Toggle mini.map side" })
 
     local splitjoin = require "mini.splitjoin"
     splitjoin.setup()

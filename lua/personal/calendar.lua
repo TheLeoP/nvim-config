@@ -140,7 +140,9 @@ function M.calendar_list_show(opts)
     api.nvim_buf_set_name(buf, "calendar://calendar_list")
     api.nvim_create_autocmd("BufLeave", {
       buffer = buf,
-      callback = function() api.nvim_buf_delete(buf, { force = true }) end,
+      callback = function()
+        api.nvim_buf_delete(buf, { force = true })
+      end,
       once = true,
     })
 
@@ -215,7 +217,9 @@ function M.calendar_list_show(opts)
                 assert(_cache_calendar_list)
                 local cached_calendar = iter(_cache_calendar_list.items):find(
                   ---@param calendar CalendarListEntry
-                  function(calendar) return calendar.id == id end
+                  function(calendar)
+                    return calendar.id == id
+                  end
                 )
                 assert(
                   cached_calendar,
@@ -242,9 +246,9 @@ function M.calendar_list_show(opts)
             end
           )
 
-        iter(calendars_by_id):each(
-          function(_id, calendar) table.insert(diffs, { type = "delete", cached_calendar = calendar }) end
-        )
+        iter(calendars_by_id):each(function(_id, calendar)
+          table.insert(diffs, { type = "delete", cached_calendar = calendar })
+        end)
 
         local diff_num = #diffs
         local i = 0
@@ -546,7 +550,9 @@ function M.calendar_show(id)
 
     api.nvim_create_autocmd("BufLeave", {
       buffer = buf,
-      callback = function() api.nvim_buf_delete(buf, { force = true }) end,
+      callback = function()
+        api.nvim_buf_delete(buf, { force = true })
+      end,
       once = true,
     })
     local calendar_string = vim.json.encode(calendar)
@@ -1223,17 +1229,21 @@ function CalendarView:year(year, height)
     table.insert(digits, 1, year % 10)
     year = math.floor(year / 10)
   end
-  local a = iter(digits):map(function(digit) return vim.split(self.digits[digit], "\n") end):fold(
-    {},
-    ---@param acc string[]
-    ---@param splitted_digit string[]
-    function(acc, splitted_digit)
-      for i, _ in ipairs(splitted_digit) do
-        acc[i] = (acc[i] or "") .. splitted_digit[i]
+  local a = iter(digits)
+    :map(function(digit)
+      return vim.split(self.digits[digit], "\n")
+    end)
+    :fold(
+      {},
+      ---@param acc string[]
+      ---@param splitted_digit string[]
+      function(acc, splitted_digit)
+        for i, _ in ipairs(splitted_digit) do
+          acc[i] = (acc[i] or "") .. splitted_digit[i]
+        end
+        return acc
       end
-      return acc
-    end
-  )
+    )
   return a
 end
 
@@ -1460,7 +1470,9 @@ function CalendarView:write(calendar_list, events_by_date, year, month, win, buf
           ---@type Event
           local cached_event = iter(day_events):find(
             ---@param event Event
-            function(event) return event.id == id end
+            function(event)
+              return event.id == id
+            end
           )
           if not cached_event then
             should_abort = true
@@ -1536,9 +1548,9 @@ function CalendarView:write(calendar_list, events_by_date, year, month, win, buf
       ---@param diff EventDiff
       function(diff)
         if diff.type == "new" then
-          local calendar = iter(calendar_list.items):find(
-            function(calendar) return calendar.summary == diff.calendar_summary end
-          )
+          local calendar = iter(calendar_list.items):find(function(calendar)
+            return calendar.summary == diff.calendar_summary
+          end)
 
           coroutine.wrap(function()
             local new_event = M.create_event(calendar.id, diff)
@@ -1901,7 +1913,11 @@ function CalendarView:show(year, month, opts)
     if self.y_m_border_win then table.insert(all_wins, self.y_m_border_win) end
 
     api.nvim_create_autocmd("WinClosed", {
-      pattern = iter(all_wins):map(function(win) return tostring(win) end):totable(),
+      pattern = iter(all_wins)
+        :map(function(win)
+          return tostring(win)
+        end)
+        :totable(),
       callback = function()
         iter(all_bufs):each(function(buf)
           if api.nvim_buf_is_valid(buf) and api.nvim_buf_is_loaded(buf) then
@@ -1930,14 +1946,15 @@ function CalendarView:show(year, month, opts)
           api.nvim_win_close(win, true)
           self:show(year, month, { refresh = true })
         end, { buffer = buf })
-        keymap.set("n", "<Del>", function() M.calendar_list_show() end, { buffer = buf })
-        keymap.set(
-          "n",
-          "<c-cr>",
-          function() M.event_show(calendar_list, day_events, { recurring = true }) end,
-          { buffer = buf }
-        )
-        keymap.set("n", "<cr>", function() M.event_show(calendar_list, day_events, {}) end, { buffer = buf })
+        keymap.set("n", "<Del>", function()
+          M.calendar_list_show()
+        end, { buffer = buf })
+        keymap.set("n", "<c-cr>", function()
+          M.event_show(calendar_list, day_events, { recurring = true })
+        end, { buffer = buf })
+        keymap.set("n", "<cr>", function()
+          M.event_show(calendar_list, day_events, {})
+        end, { buffer = buf })
         keymap.set("n", "<", function()
           api.nvim_win_close(win, true)
           local target_year = year
@@ -1967,7 +1984,9 @@ function CalendarView:show(year, month, opts)
         else
           x_l = self.d_in_w
         end
-        keymap.set("n", "<left>", function() self:set_current_win(y, x_l) end, { buffer = buf })
+        keymap.set("n", "<left>", function()
+          self:set_current_win(y, x_l)
+        end, { buffer = buf })
         local x_r ---@type integer
         if x + 1 <= self.d_in_w then
           x_r = x + 1
@@ -1975,21 +1994,27 @@ function CalendarView:show(year, month, opts)
           x_r = 1
         end
 
-        keymap.set("n", "<right>", function() self:set_current_win(y, x_r) end, { buffer = buf })
+        keymap.set("n", "<right>", function()
+          self:set_current_win(y, x_r)
+        end, { buffer = buf })
         local y_u ---@type integer
         if y - 1 >= 1 then
           y_u = y - 1
         else
           y_u = w_in_m
         end
-        keymap.set("n", "<up>", function() self:set_current_win(y_u, x) end, { buffer = buf })
+        keymap.set("n", "<up>", function()
+          self:set_current_win(y_u, x)
+        end, { buffer = buf })
         local y_d ---@type integer
         if y + 1 <= w_in_m then
           y_d = y + 1
         else
           y_d = 1
         end
-        keymap.set("n", "<down>", function() self:set_current_win(y_d, x) end, { buffer = buf })
+        keymap.set("n", "<down>", function()
+          self:set_current_win(y_d, x)
+        end, { buffer = buf })
 
         -- TODO: use this for other kinds of buffers
         api.nvim_create_autocmd("BufReadCmd", {
@@ -2061,7 +2086,9 @@ function CalendarView:show(year, month, opts)
         api.nvim_create_autocmd("BufWriteCmd", {
           buffer = buf,
           callback = function()
-            coroutine.wrap(function() self:write(calendar_list, events_by_date, year, month, win, buf) end)()
+            coroutine.wrap(function()
+              self:write(calendar_list, events_by_date, year, month, win, buf)
+            end)()
           end,
         })
 
@@ -2105,7 +2132,9 @@ function CalendarView:show(year, month, opts)
             ---@type CalendarListEntry|nil
             local calendar = iter(calendar_list.items):find(
               ---@param calendar CalendarListEntry
-              function(calendar) return calendar.id == event._calendar_id end
+              function(calendar)
+                return calendar.id == event._calendar_id
+              end
             )
 
             if not calendar or not event.summary then return end
@@ -2173,7 +2202,9 @@ function CalendarView:show(year, month, opts)
             hl_enable(buf)
           end,
         })
-        api.nvim_win_call(win, function() vim.cmd.edit() end)
+        api.nvim_win_call(win, function()
+          vim.cmd.edit()
+        end)
       end
     end
 
@@ -2245,7 +2276,9 @@ function M.get_colors()
   api.nvim_create_autocmd("User", {
     pattern = colors_received_pattern,
     ---@param opts {data:{colors: Colors}}
-    callback = function(opts) co_resume(co, opts.data.colors) end,
+    callback = function(opts)
+      co_resume(co, opts.data.colors)
+    end,
     once = true,
   })
   if is_getting_colors then return coroutine.yield() end
@@ -2568,7 +2601,9 @@ function M.event_show(calendar_list, day_events, opts)
     ---@type Event
     local event = iter(events):find(
       ---@param event Event
-      function(event) return event.id == event_id end
+      function(event)
+        return event.id == event_id
+      end
     )
     assert(event, ("There is no event with id %s"):format(event_id))
     if not event.recurringEventId and opts.recurring then
@@ -2579,7 +2614,9 @@ function M.event_show(calendar_list, day_events, opts)
     ---@type Calendar
     local calendar = iter(calendar_list.items):find(
       ---@param calendar CalendarListEntry
-      function(calendar) return calendar.id == event._calendar_id end
+      function(calendar)
+        return calendar.id == event._calendar_id
+      end
     )
     assert(calendar, ("There is no calendar for event %s"):format(event_id))
 
@@ -2594,7 +2631,9 @@ function M.event_show(calendar_list, day_events, opts)
       recurring_event.reminders.useDefault and "default" or "nodefault",
       sep,
       iter(recurring_event.reminders.overrides or {})
-        :map(function(o) return ("%s min : %s"):format(o.minutes, o.method) end)
+        :map(function(o)
+          return ("%s min : %s"):format(o.minutes, o.method)
+        end)
         :join(sep)
     )
 
@@ -2602,7 +2641,9 @@ function M.event_show(calendar_list, day_events, opts)
     api.nvim_buf_set_name(buf, ("calendar://event_%s"):format(consulted_id))
     api.nvim_create_autocmd("BufLeave", {
       buffer = buf,
-      callback = function() api.nvim_buf_delete(buf, { force = true }) end,
+      callback = function()
+        api.nvim_buf_delete(buf, { force = true })
+      end,
       once = true,
     })
     hl_enable(buf, {
@@ -2655,7 +2696,9 @@ function M.event_show(calendar_list, day_events, opts)
     api.nvim_create_autocmd("BufWriteCmd", {
       buffer = buf,
       callback = function()
-        coroutine.wrap(function() event_write(buf, win, calendar_list, day_events, opts) end)()
+        coroutine.wrap(function()
+          event_write(buf, win, calendar_list, day_events, opts)
+        end)()
       end,
     })
     keymap.set("n", "<F5>", function()

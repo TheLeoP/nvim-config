@@ -79,7 +79,9 @@ return {
       actions = {
         zoom = {
           desc = "Open terminal in new tab and close task list",
-          condition = function(task) return task:get_bufnr() end,
+          condition = function(task)
+            return task:get_bufnr()
+          end,
           run = function(task)
             require("overseer").close()
             task:open_output "tab"

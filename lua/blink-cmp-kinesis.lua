@@ -8,7 +8,9 @@ function source.new(opts)
   return self
 end
 
-function source:enabled() return vim.bo.filetype == "kinesis" end
+function source:enabled()
+  return vim.bo.filetype == "kinesis"
+end
 
 local kinesis_keywords = {
   "t&h",
@@ -166,14 +168,12 @@ function source:get_completions(ctx, callback)
   --- @type lsp.CompletionItem[]
   local items = vim
     .iter(kinesis_keywords)
-    :map(
-      function(keyword)
-        return {
-          label = keyword,
-          kind = vim.lsp.protocol.CompletionItemKind.Keyword,
-        }
-      end
-    )
+    :map(function(keyword)
+      return {
+        label = keyword,
+        kind = vim.lsp.protocol.CompletionItemKind.Keyword,
+      }
+    end)
     :totable()
 
   callback {

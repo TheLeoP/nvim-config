@@ -26,7 +26,11 @@ return {
     keymap.set("n", "<c-n>", "<Plug>(YankyNextEntry)")
     keymap.set("n", "<c-n>", "<Plug>(YankyNextEntry)")
 
-    keymap.set({ "o", "x" }, "iy", function() require("yanky.textobj").last_put() end, { desc = "In put (yank)" })
-    keymap.set({ "o", "x" }, "ay", function() require("yanky.textobj").last_put() end, { desc = "At put (yank)" })
+    keymap.set({ "o", "x" }, "iy", function()
+      require("yanky.textobj").last_put()
+    end, { desc = "In put (yank)" })
+    keymap.set({ "o", "x" }, "ay", function()
+      require("yanky.textobj").last_put()
+    end, { desc = "At put (yank)" })
   end,
 }

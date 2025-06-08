@@ -96,7 +96,9 @@ local function refresh_access_token(token_info, prefix)
     api.nvim_create_autocmd("User", {
       pattern = token_refreshed_pattern,
       ---@param opts {data:{token_info: TokenInfo}}
-      callback = function(opts) co_resume(co, opts.data.token_info) end,
+      callback = function(opts)
+        co_resume(co, opts.data.token_info)
+      end,
       once = true,
     })
     return coroutine.yield()
@@ -137,7 +139,9 @@ local function refresh_access_token(token_info, prefix)
     "--http1.1",
     "--silent",
     token_url,
-  }, { text = true }, function(result) co_resume(co, result) end)
+  }, { text = true }, function(result)
+    co_resume(co, result)
+  end)
   local result = coroutine.yield() ---@type vim.SystemCompleted
 
   assert(result.stderr == "", result.stderr)
@@ -279,7 +283,9 @@ function M.get_token_info(prefix)
         "--http1.1",
         "--silent",
         token_url,
-      }, { text = true }, function(result) co_resume(co, result) end)
+      }, { text = true }, function(result)
+        co_resume(co, result)
+      end)
     end,
   }
 

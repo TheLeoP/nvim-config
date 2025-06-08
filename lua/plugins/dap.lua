@@ -18,7 +18,9 @@ end
 
 local dotnet_last_dll ---@type string|nil
 ---@return string
-local request = function() return vim.fn.input("Path to dll: ", vim.fn.getcwd() .. "/bin/Debug/", "file") end
+local request = function()
+  return vim.fn.input("Path to dll: ", vim.fn.getcwd() .. "/bin/Debug/", "file")
+end
 local function dotnet_get_dll_path()
   if
     not dotnet_last_dll
@@ -61,20 +63,28 @@ return {
     }
 
     keymap.set({ "n", "x" }, "<leader>da", ":DapEval<cr>", { desc = "Debug ev[a]l" })
-    keymap.set("n", "<leader>dh", function() require("dap.ui.widgets").hover() end, { desc = "Debug hover" })
-    keymap.set("n", "<leader>dc", function() dap.continue() end, { desc = "Debug continue" })
+    keymap.set("n", "<leader>dh", function()
+      require("dap.ui.widgets").hover()
+    end, { desc = "Debug hover" })
+    keymap.set("n", "<leader>dc", function()
+      dap.continue()
+    end, { desc = "Debug continue" })
     keymap.set(
       "n",
       "<leader>te",
       -- NOTE: the cmd is a workaround for focusing the repl when openning
-      function() dap.repl.toggle({ height = 5 }, "aboveleft split | wincmd w") end,
+      function()
+        dap.repl.toggle({ height = 5 }, "aboveleft split | wincmd w")
+      end,
       { desc = "Toggle DAP R[E]PL" }
     )
     keymap.set("n", "<leader>de", function()
       dap.terminate()
       dapui.close()
     end, { desc = "Debug end" })
-    keymap.set("n", "<leader>db", function() dap.toggle_breakpoint() end, { desc = "Debug toggle breakpoint" })
+    keymap.set("n", "<leader>db", function()
+      dap.toggle_breakpoint()
+    end, { desc = "Debug toggle breakpoint" })
     keymap.set("n", "<leader>dB", function()
       vim.ui.input(
         { prompt = "Breakpoint condition: " },
@@ -84,16 +94,34 @@ return {
         end
       )
     end, { desc = "Debug toggle condition breakpoint" })
-    keymap.set("n", "<leader>dq", function() dap.list_breakpoints(true) end, { desc = "Debug breakpoints to qf" })
-    keymap.set("n", "<leader>dv", function() dap.step_over() end, { desc = "Debug step over" })
-    keymap.set("n", "<leader>dsi", function() dap.step_into() end, { desc = "Debuf step into" })
-    keymap.set("n", "<leader>dso", function() dap.step_out() end, { desc = "Debug step out" })
-    keymap.set("n", "<leader>dsb", function() dap.step_back() end, { desc = "Debug step back" })
-    keymap.set("n", "<leader>dtc", function() dap.run_to_cursor() end, { desc = "Debug to cursor" })
+    keymap.set("n", "<leader>dq", function()
+      dap.list_breakpoints(true)
+    end, { desc = "Debug breakpoints to qf" })
+    keymap.set("n", "<leader>dv", function()
+      dap.step_over()
+    end, { desc = "Debug step over" })
+    keymap.set("n", "<leader>dsi", function()
+      dap.step_into()
+    end, { desc = "Debuf step into" })
+    keymap.set("n", "<leader>dso", function()
+      dap.step_out()
+    end, { desc = "Debug step out" })
+    keymap.set("n", "<leader>dsb", function()
+      dap.step_back()
+    end, { desc = "Debug step back" })
+    keymap.set("n", "<leader>dtc", function()
+      dap.run_to_cursor()
+    end, { desc = "Debug to cursor" })
 
-    dap.listeners.after.event_initialized["dapui_config"] = function() dapui.open {} end
-    dap.listeners.before.event_terminated["dapui_config"] = function() dapui.close {} end
-    dap.listeners.before.event_exited["dapui_config"] = function() dapui.close {} end
+    dap.listeners.after.event_initialized["dapui_config"] = function()
+      dapui.open {}
+    end
+    dap.listeners.before.event_terminated["dapui_config"] = function()
+      dapui.close {}
+    end
+    dap.listeners.before.event_exited["dapui_config"] = function()
+      dapui.close {}
+    end
 
     require("dap.ext.vscode").json_decode = require("overseer.json").decode
 
@@ -163,7 +191,9 @@ return {
           local co = coroutine.running()
 
           vim.notify "Building Neovim"
-          vim.system({ "make", "CMAKE_BUILD_TYPE=RelWithDebInfo" }, nil, function(out) coroutine.resume(co, out) end)
+          vim.system({ "make", "CMAKE_BUILD_TYPE=RelWithDebInfo" }, nil, function(out)
+            coroutine.resume(co, out)
+          end)
           ---@type vim.SystemCompleted
           local out = coroutine.yield(co)
           vim.notify "Done building"
@@ -200,7 +230,9 @@ return {
             -- The pid is the parent pid, we need to attach to the child. This uses the `ps` tool to get it
             -- It takes a bit for the child to arrive. This uses the `vim.wait` function to wait up to a second
             -- to get the child pid.
-            vim.wait(1000, function() return tonumber(vim.fn.system("ps -o pid= --ppid " .. tostring(ppid))) ~= nil end)
+            vim.wait(1000, function()
+              return tonumber(vim.fn.system("ps -o pid= --ppid " .. tostring(ppid))) ~= nil
+            end)
             local pid = tonumber(vim.fn.system("ps -o pid= --ppid " .. tostring(ppid)))
 
             -- If we found it, spawn another debug session that attaches to the pid.

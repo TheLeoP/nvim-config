@@ -11,7 +11,9 @@ local function get_last_terminal()
     if channel["mode"] == "terminal" and channel["pty"] ~= "" then table.insert(terminal_channels, channel) end
   end
 
-  table.sort(terminal_channels, function(left, right) return left["buffer"] > right["buffer"] end)
+  table.sort(terminal_channels, function(left, right)
+    return left["buffer"] > right["buffer"]
+  end)
 
   return terminal_channels[1]["id"]
 end
@@ -26,7 +28,9 @@ function M.visual_ejecutar_en_terminal()
 
   local lines = vim
     .iter(api.nvim_buf_get_lines(0, start_col - 1, end_col, true))
-    :map(function(line) return line .. line_end end)
+    :map(function(line)
+      return line .. line_end
+    end)
     :totable()
 
   local commands = table.concat(lines)

@@ -8,5 +8,7 @@ return {
       enabled = true,
     },
   },
-  config = function(_, opts) require("snacks").setup(opts) end,
+  config = function(_, opts)
+    require("snacks").setup(opts)
+  end,
 }

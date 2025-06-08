@@ -19,5 +19,7 @@ return {
     completions = { blink = { enabled = true } },
     overrides = { buftype = { ["nofile"] = { enabled = false } } },
   },
-  config = function(_, opts) require("render-markdown").setup(opts) end,
+  config = function(_, opts)
+    require("render-markdown").setup(opts)
+  end,
 }

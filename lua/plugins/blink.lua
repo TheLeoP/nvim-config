@@ -105,7 +105,9 @@ return {
         git = {
           module = "blink-cmp-git",
           name = "Git",
-          enabled = function() return vim.tbl_contains({ "octo", "gitcommit", "markdown" }, vim.bo.filetype) end,
+          enabled = function()
+            return vim.tbl_contains({ "octo", "gitcommit", "markdown" }, vim.bo.filetype)
+          end,
         },
 
         kinesis = {
@@ -120,24 +122,27 @@ return {
           name = "LSP",
           module = "blink.cmp.sources.lsp",
           transform_items = function(_, items)
-            return vim.tbl_filter(
-              function(item) return item.kind ~= require("blink.cmp.types").CompletionItemKind.Keyword end,
-              items
-            )
+            return vim.tbl_filter(function(item)
+              return item.kind ~= require("blink.cmp.types").CompletionItemKind.Keyword
+            end, items)
           end,
           fallbacks = {},
         },
 
         path = {
           opts = {
-            get_cwd = function(_) return vim.fn.getcwd() end,
+            get_cwd = function(_)
+              return vim.fn.getcwd()
+            end,
           },
         },
 
         buffer = {
           opts = {
             get_bufnrs = function()
-              return vim.tbl_filter(function(bufnr) return vim.bo[bufnr].buftype == "" end, vim.api.nvim_list_bufs())
+              return vim.tbl_filter(function(bufnr)
+                return vim.bo[bufnr].buftype == ""
+              end, vim.api.nvim_list_bufs())
             end,
           },
         },
