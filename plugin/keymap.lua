@@ -106,8 +106,8 @@ keymap.set("n", "<leader>tn", function()
   vim.diagnostic.config { virtual_lines = not vim.diagnostic.config().virtual_lines }
 end, { desc = "Toggle diagnostic virtual_lines" })
 
--- search within visual selection - this is magic
-keymap.set("x", "/", "<Esc>/\\%V")
+-- search within visual selection
+keymap.set("x", "g/", "<Esc>/\\%V")
 
 -- make these motions backwards inclusive
 for _, motion in ipairs { "F", "T", "b", "B", "ge", "0" } do
