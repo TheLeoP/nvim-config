@@ -1,8 +1,8 @@
 local keymap = vim.keymap
 local api = vim.api
 
--- Toggle the quickfix/loclist window.
--- When toggling these, ignore error messages and restore the cursor to the original window when opening the list.
+-- When toggling these, ignore error messages and restore the cursor to the
+-- original window when opening the list.
 local silent_mods = { mods = { silent = true, emsg_silent = true } }
 keymap.set("n", "<leader>tq", function()
   if vim.fn.getqflist({ winid = 0 }).winid ~= 0 then
@@ -27,25 +27,20 @@ keymap.set("n", "<leader>tp", "<cmd>pclose<cr>")
 
 keymap.set("c", "Mes", "mes")
 
--- execute current buffer
-keymap.set({ "n" }, "<leader><leader>x", function()
-  if vim.bo.filetype == "lua" then
-    vim.cmd "silent! write"
-    vim.cmd "source %"
-  elseif vim.bo.filetype == "vim" then
-    vim.cmd "silent! write"
-    vim.cmd "source %"
-  else
-    vim.notify(("The current filetype is `%s`"):format(vim.bo.filetype), vim.log.levels.WARN)
-  end
-end, { desc = "Execute current buffer (vim or lua)" })
-
 keymap.set({ "n" }, "<leader><leader>t", "<cmd>tab split<cr>")
 
--- jumplist on j and k
-
-keymap.set("n", "j", [[v:count ? "m'" .. v:count .. 'j' : "gj"]], { expr = true })
-keymap.set("n", "k", [[v:count ? "m'" .. v:count .. 'k' : "gk"]], { expr = true })
+keymap.set(
+  "n",
+  "j",
+  [[v:count ? "m'" .. v:count .. 'j' : "gj"]],
+  { expr = true, desc = "Set qflist if j has a count. Use gj otherwise" }
+)
+keymap.set(
+  "n",
+  "k",
+  [[v:count ? "m'" .. v:count .. 'k' : "gk"]],
+  { expr = true, desc = "Set qflist if k has a count. Use gk otherwise" }
+)
 
 -- toggle options
 
@@ -106,10 +101,8 @@ keymap.set("n", "<leader>tn", function()
   vim.diagnostic.config { virtual_lines = not vim.diagnostic.config().virtual_lines }
 end, { desc = "Toggle diagnostic virtual_lines" })
 
--- search within visual selection
-keymap.set("x", "g/", "<Esc>/\\%V")
+keymap.set("x", "g/", "<Esc>/\\%V", { desc = "Search within visual selection" })
 
--- make these motions backwards inclusive
 for _, motion in ipairs { "F", "T", "b", "B", "ge", "0" } do
-  keymap.set("o", motion, "v" .. motion)
+  keymap.set("o", motion, "v" .. motion, { desc = ("Backwards inclusive %s"):format(motion) })
 end
