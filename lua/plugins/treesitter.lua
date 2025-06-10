@@ -49,6 +49,7 @@ return {
       "typescript",
       "vue",
       "yaml",
+      "diff",
 
       "doxygen",
       "re2c",
