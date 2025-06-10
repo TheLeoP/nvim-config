@@ -109,7 +109,7 @@ end, { desc = "Toggle diagnostic virtual_lines" })
 -- search within visual selection - this is magic
 keymap.set("x", "/", "<Esc>/\\%V")
 
--- make this motions backwards inclusive
+-- make these motions backwards inclusive
 for _, motion in ipairs { "F", "T", "b", "B", "ge", "0" } do
   keymap.set("o", motion, "v" .. motion)
 end
