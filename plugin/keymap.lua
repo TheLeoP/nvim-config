@@ -56,6 +56,12 @@ keymap.set("n", "<leader>td", function()
 end, { desc = "Toggle darkmode" })
 local last_conceal ---@type integer
 keymap.set("n", "<leader>tc", function()
+  if vim.bo.filetype == "markdown" then
+    vim.cmd.RenderMarkdown "buf_toggle"
+    vim.notify "Toggling RenderMarkdown for current buf"
+    return
+  end
+
   local current_conceal = vim.wo.conceallevel
   vim.wo.conceallevel = vim.wo.conceallevel ~= 0 and 0 or last_conceal or 3
   vim.notify(("Conceal level is %s"):format(vim.wo.conceallevel))
