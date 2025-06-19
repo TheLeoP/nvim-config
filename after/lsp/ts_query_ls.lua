@@ -1,7 +1,7 @@
 return {
   settings = {
     parser_install_directories = {
-      vim.fn.stdpath "data" .. "/lazy/nvim-treesitter/parser/",
+      vim.fn.stdpath "data" .. "/site/parser",
     },
     valid_captures = {
       highlights = {
