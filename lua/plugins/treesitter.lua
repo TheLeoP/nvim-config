@@ -61,6 +61,8 @@ return {
 
       "angular",
       "scss",
+
+      "powershell",
     }
     local already_installed = require("nvim-treesitter.config").get_installed "parsers"
     local to_install = iter(already_installed)
@@ -75,7 +77,6 @@ return {
       pattern = {
         "c",
         "lua",
-        "powershell",
         "javascript",
         "javascriptreact",
         "typescript",
@@ -122,6 +123,8 @@ return {
         "vue",
 
         "yaml",
+
+        "ps1",
       },
       callback = function()
         vim.treesitter.start()
