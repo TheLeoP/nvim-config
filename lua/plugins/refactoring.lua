@@ -3,7 +3,7 @@ local keymap = vim.keymap
 return {
   "theprimeagen/refactoring.nvim",
   dev = true,
-  config = function(_, opts)
+  config = function()
     local refactoring = require "refactoring"
 
     keymap.set({ "n", "x" }, "<leader>ae", function()
