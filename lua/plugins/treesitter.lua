@@ -63,6 +63,8 @@ return {
       "scss",
 
       "powershell",
+
+      "astro",
     }
     local already_installed = require("nvim-treesitter.config").get_installed "parsers"
     local to_install = iter(already_installed)
@@ -125,6 +127,8 @@ return {
         "yaml",
 
         "ps1",
+
+        "astro",
       },
       callback = function()
         vim.treesitter.start()
