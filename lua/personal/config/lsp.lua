@@ -106,12 +106,6 @@ vim.lsp.handlers[methods.client_registerCapability] = function(err, res, ctx)
   return return_value
 end
 
--- Define the diagnostic signs.
-for severity, icon in pairs(diagnostic_icons) do
-  local hl = "DiagnosticSign" .. severity:sub(1, 1) .. severity:sub(2):lower()
-  vim.fn.sign_define(hl, { text = icon, texthl = hl })
-end
-
 vim.diagnostic.config {
   virtual_text = {
     prefix = "",
@@ -147,12 +141,5 @@ vim.diagnostic.handlers.virtual_text = {
   end,
   hide = hide_handler,
 }
-
-vim.lsp.handlers["workspace/diagnostic/refresh"] = function(_, _, ctx)
-  local ns = vim.lsp.diagnostic.get_namespace(ctx.client_id)
-  local bufnr = vim.api.nvim_get_current_buf()
-  vim.diagnostic.reset(ns, bufnr)
-  return true
-end
 
 return M
