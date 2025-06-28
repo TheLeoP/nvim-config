@@ -28,7 +28,7 @@ return {
         preset = "none",
         ["<down>"] = { "show_and_insert", "select_next" },
         ["<up>"] = { "select_prev", "fallback" },
-        ["<cr>"] = { "accept_and_enter", "fallback" },
+        ["<cr>"] = { "fallback" },
         ["<c-e>"] = { "cancel" },
       },
     },
