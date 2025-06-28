@@ -50,10 +50,6 @@ return {
             return
           end
         end,
-        function(a, b)
-          if (a.source_id == nil or b.client_name == nil) or (a.client_name == b.client_name) then return end
-          return not b.source_id == "lsp"
-        end,
         "score",
         "sort_text",
       },
@@ -121,6 +117,7 @@ return {
         lsp = {
           name = "LSP",
           module = "blink.cmp.sources.lsp",
+          score_offset = 1,
           transform_items = function(_, items)
             return vim.tbl_filter(function(item)
               return item.kind ~= require("blink.cmp.types").CompletionItemKind.Keyword
