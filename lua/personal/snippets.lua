@@ -632,4 +632,20 @@ if (<condition>) {
       }
     )
   ),
+  s(
+    { trig = "fn ", snippetType = "autosnippet", condition = conds.line_begin },
+    fmta(
+      [[
+<return_type> <name>(<args>) {
+  <inside>
+}
+]],
+      {
+        name = i(1, "name"),
+        args = i(2),
+        return_type = i(3, "void"),
+        inside = i(4),
+      }
+    )
+  ),
 }, { key = "personal cs" })
