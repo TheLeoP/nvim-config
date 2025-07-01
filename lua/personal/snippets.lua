@@ -53,7 +53,10 @@ end)
 ---@return string|nil, any[]|nil
 local function emmet_matcher(line_to_cursor)
   local emmet = require "personal.emmet"
-  local root = emmet.parse(line_to_cursor)
+  -- TODO: can I do something to make this work in jsx files in a line like
+  -- `return div>div`?
+  local unindented_line_to_cursor = line_to_cursor:match "^%s*(.*)$"
+  local root = emmet.parse(unindented_line_to_cursor)
   if not root then return end
 
   return line_to_cursor, { root }
