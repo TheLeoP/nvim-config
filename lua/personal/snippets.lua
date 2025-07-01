@@ -649,3 +649,21 @@ if (<condition>) {
     )
   ),
 }, { key = "personal cs" })
+
+ls.add_snippets("python", {
+  s(
+    { trig = "fn ", snippetType = "autosnippet", condition = conds.line_begin },
+    fmta(
+      [[
+def <name>(<args>)<return_type>:
+    <inside>
+]],
+      {
+        name = i(1, "name"),
+        args = i(2),
+        return_type = i(3),
+        inside = i(4, "pass"),
+      }
+    )
+  ),
+}, { key = "personal cs" })
