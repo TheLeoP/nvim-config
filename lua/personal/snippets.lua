@@ -43,7 +43,7 @@ local not_in_string_nor_comment = make_condition(function()
     javascriptreact = js_blacklist,
   }
 
-  vim.treesitter.get_parser():parse()
+  vim.treesitter.get_parser():parse(true)
   local type = vim.treesitter.get_node():type()
   local ft = vim.o.filetype
   return not vim.list_contains(blacklist_by_ft[ft], type)
