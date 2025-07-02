@@ -666,4 +666,42 @@ def <name>(<args>)<return_type>:
       }
     )
   ),
+  s(
+    { trig = "if ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
+    fmta(
+      [[
+if <condition>:
+    <inside>
+]],
+      {
+        condition = i(1, "True"),
+        inside = i(2, "pass"),
+      }
+    )
+  ),
+  s(
+    { trig = "else ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
+    fmta(
+      [[
+else:
+    <inside>
+]],
+      {
+        inside = i(1, "pass"),
+      }
+    )
+  ),
+  s(
+    { trig = "elif ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
+    fmta(
+      [[
+elif <condition>:
+    <inside>
+]],
+      {
+        condition = i(1, "True"),
+        inside = i(2, "pass"),
+      }
+    )
+  ),
 }, { key = "personal cs" })
