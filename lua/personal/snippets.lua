@@ -41,6 +41,7 @@ local not_in_string_nor_comment = make_condition(function()
     typescript = js_blacklist,
     typescriptreact = js_blacklist,
     javascriptreact = js_blacklist,
+    python = { "string", "string_content", "comment" },
   }
 
   vim.treesitter.get_parser():parse(true)
@@ -680,7 +681,7 @@ if (<condition>) {
       }
     )
   ),
-}, { key = "personal cs" })
+}, { key = "personal c" })
 
 ls.add_snippets("python", {
   s(
@@ -736,4 +737,30 @@ elif <condition>:
       }
     )
   ),
-}, { key = "personal cs" })
+  s(
+    { trig = "for ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
+    fmta(
+      [[
+for <item> in <expr>:
+  <inside>
+]],
+      {
+        item = i(1, "item"),
+        expr = i(2, "expr"),
+        inside = i(3, "pass"),
+      }
+    )
+  ),
+  s(
+    { trig = "afn ", snippetType = "autosnippet", condition = not_in_string_nor_comment },
+    fmta(
+      [[
+lambda <args>: <inside>
+]],
+      {
+        args = i(1, "x"),
+        inside = i(2, "pass"),
+      }
+    )
+  ),
+}, { key = "personal python" })
