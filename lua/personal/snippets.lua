@@ -187,7 +187,11 @@ if (<condition>)
 
 ls.add_snippets("lua", {
   s(
-    { trig = "if ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
+    {
+      trig = "if ",
+      snippetType = "autosnippet",
+      condition = conds.line_begin * conds.line_end * not_in_string_nor_comment,
+    },
     fmta(
       [[
 if <condition> then
@@ -198,7 +202,11 @@ end
     )
   ),
   s(
-    { trig = "elseif ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
+    {
+      trig = "elseif ",
+      snippetType = "autosnippet",
+      condition = conds.line_begin * conds.line_end * not_in_string_nor_comment,
+    },
     fmta(
       [[
 elseif <condition> then
@@ -208,7 +216,11 @@ elseif <condition> then
     )
   ),
   s(
-    { trig = "fn ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
+    {
+      trig = "fn ",
+      snippetType = "autosnippet",
+      condition = conds.line_begin * conds.line_end * not_in_string_nor_comment,
+    },
     fmta(
       [[
 <visibility>function <name>(<args>)
@@ -242,7 +254,11 @@ end
     )
   ),
   s(
-    { trig = "nfor ", snippetType = "autosnippet", condition = conds.line_begin },
+    {
+      trig = "nfor ",
+      snippetType = "autosnippet",
+      condition = conds.line_begin * conds.line_end * not_in_string_nor_comment,
+    },
     fmta(
       [[
 for <var> = <value>, <end> do
@@ -253,7 +269,11 @@ end
     )
   ),
   s(
-    { trig = "for ", snippetType = "autosnippet", condition = conds.line_begin },
+    {
+      trig = "for ",
+      snippetType = "autosnippet",
+      condition = conds.line_begin * conds.line_end * not_in_string_nor_comment,
+    },
     fmta(
       [[
 for <iterator> do
@@ -283,7 +303,11 @@ end
     )
   ),
   s(
-    { trig = "while ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
+    {
+      trig = "while ",
+      snippetType = "autosnippet",
+      condition = conds.line_begin * conds.line_end * not_in_string_nor_comment,
+    },
     fmta(
       [[
 while <condition> do
@@ -294,7 +318,11 @@ end
     )
   ),
   s(
-    { trig = "repeat ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
+    {
+      trig = "repeat ",
+      snippetType = "autosnippet",
+      condition = conds.line_begin * conds.line_end * not_in_string_nor_comment,
+    },
     fmta(
       [[
 repeat 
@@ -305,7 +333,11 @@ until <condition>
     )
   ),
   s(
-    { trig = "do ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
+    {
+      trig = "do ",
+      snippetType = "autosnippet",
+      condition = conds.line_begin * conds.line_end * not_in_string_nor_comment,
+    },
     fmta(
       [[
 do
