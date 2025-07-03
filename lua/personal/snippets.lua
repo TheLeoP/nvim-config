@@ -681,6 +681,20 @@ if (<condition>) {
       }
     )
   ),
+  s(
+    { trig = "struct ", snippetType = "autosnippet", condition = conds.line_begin },
+    fmta(
+      [[
+typedef struct {
+  <inside>
+} <name>;
+]],
+      {
+        name = i(1, "name"),
+        inside = i(2),
+      }
+    )
+  ),
 }, { key = "personal c" })
 
 ls.add_snippets("python", {
