@@ -249,6 +249,69 @@ return {
             end
           end
 
+          vim.schedule(function()
+            coroutine.resume(co)
+          end)
+          coroutine.yield()
+          return config
+        end,
+      }),
+      setmetatable({
+        name = "make",
+        type = "cppdbg",
+        request = "launch",
+        cwd = "${workspaceFolder}",
+        program = function()
+          return coroutine.create(function(dap_run_co)
+            vim.ui.input({
+              prompt = "Path to executable: ",
+              default = vim.uv.cwd() .. "/bin/release/main",
+              completion = "file",
+            }, function(choice)
+              if not choice then
+                coroutine.resume(dap_run_co, dap.ABORT)
+                return
+              end
+              coroutine.resume(dap_run_co, choice)
+            end)
+          end)
+        end,
+        args = function()
+          return coroutine.create(function(dap_run_co)
+            vim.ui.input({
+              prompt = "Args: ",
+              default = "",
+              completion = "file",
+            }, function(args)
+              if not args then
+                coroutine.resume(dap_run_co, dap.ABORT)
+                return
+              end
+              coroutine.resume(dap_run_co, vim.split(args, " ", { trimempty = true }))
+            end)
+          end)
+        end,
+
+        externalConsole = true,
+      }, {
+        __call = function(config)
+          local co = coroutine.running()
+
+          vim.notify "Running make"
+          vim.system({ "make" }, nil, function(out)
+            coroutine.resume(co, out)
+          end)
+          ---@type vim.SystemCompleted
+          local out = coroutine.yield(co)
+          vim.notify "Done building"
+          if out.stderr ~= "" then
+            -- vim.notify(out.stderr, vim.log.levels.ERROR)
+            return
+          end
+          vim.schedule(function()
+            coroutine.resume(co)
+          end)
+          coroutine.yield()
           return config
         end,
       }),
