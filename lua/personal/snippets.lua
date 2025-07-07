@@ -666,7 +666,7 @@ if (<condition>) {
     )
   ),
   s(
-    { trig = "fn ", snippetType = "autosnippet", condition = conds.line_begin },
+    { trig = "fn ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
     fmta(
       [[
 <return_type> <name>(<args>) {
@@ -682,7 +682,7 @@ if (<condition>) {
     )
   ),
   s(
-    { trig = "struct ", snippetType = "autosnippet", condition = conds.line_begin },
+    { trig = "struct ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
     fmta(
       [[
 typedef struct {
@@ -691,6 +691,20 @@ typedef struct {
 ]],
       {
         name = i(1, "name"),
+        inside = i(2),
+      }
+    )
+  ),
+  s(
+    { trig = "switch ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
+    fmta(
+      [[
+switch (<var>) {
+  <inside>
+}
+]],
+      {
+        var = i(1, "var"),
         inside = i(2),
       }
     )
