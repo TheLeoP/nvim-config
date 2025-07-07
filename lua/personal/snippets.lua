@@ -611,16 +611,17 @@ ls.add_snippets("c", {
     { trig = "for ", snippetType = "autosnippet", condition = conds.line_begin },
     fmta(
       [[
-for (<init>;<condition>;<step>)
-{
+for (int <var> = <start>; <var_rep> <condition>;<var_rep><step>) {
     <inside>
 }
 ]],
       {
-        inside = i(4),
-        init = i(1, "int i = 0"),
-        condition = i(2, "i < 5"),
-        step = i(3, "i++"),
+        var = i(1, "i"),
+        var_rep = rep(1),
+        start = i(2, "0"),
+        condition = i(3, "< 5"),
+        step = i(4, "++"),
+        inside = i(5),
       }
     )
   ),
