@@ -709,6 +709,20 @@ switch (<var>) {
       }
     )
   ),
+  s(
+    { trig = "case ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
+    fmta(
+      [[
+case <value>:
+  <inside>
+  break;
+]],
+      {
+        value = i(1, "value"),
+        inside = i(2),
+      }
+    )
+  ),
 }, { key = "personal c" })
 
 ls.add_snippets("python", {
