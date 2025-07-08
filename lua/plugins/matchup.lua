@@ -1,12 +1,12 @@
 return {
-  "theleop/vim-matchup",
-  branch = "update-treesitter",
+  "andymass/vim-matchup",
   init = function()
-    vim.g.matchup_delim_noskips = 1 -- recognize only symbols in strings and comments
-    vim.g.matchup_matchparen_offscreen = {} -- disable feature
+    -- recognize only symbols in strings and comments (and not words like `for`
+    -- or `end`)
+    vim.g.matchup_delim_noskips = 1
+    -- disable feature
+    vim.g.matchup_matchparen_offscreen = {}
     vim.g.matchup_matchparen_deferred = 1
     vim.g.matchup_mouse_enabled = 0
-
-    vim.g.matchup_treesitter_enabled = true
   end,
 }
