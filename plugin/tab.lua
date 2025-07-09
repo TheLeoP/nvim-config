@@ -9,7 +9,7 @@ function _G._personal_tab()
     table.insert(out, i == current and "%#TabLineSel#" or "%#TabLine#")
     table.insert(out, ("%%%dT"):format(i)) -- set the tab page number (for mouse clicks)
 
-    table.insert(out, (" %%{v:lua._personal_tab_label(%d)} "):format(i))
+    table.insert(out, (" %d| %%{v:lua._personal_tab_label(%d)} "):format(i, i))
   end
   table.insert(out, "%#TabLineFill#%T")
   table.insert(out, "%=%#TabLine#%999XX")
