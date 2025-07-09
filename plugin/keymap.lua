@@ -112,3 +112,7 @@ keymap.set("x", "g/", "<Esc>/\\%V", { desc = "Search within visual selection" })
 for _, motion in ipairs { "F", "T", "b", "B", "ge", "0" } do
   keymap.set("o", motion, "v" .. motion, { desc = ("Backwards inclusive %s"):format(motion) })
 end
+
+for _, num in ipairs { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 } do
+  keymap.set("n", ("<leader>%d"):format(num), ("%dgt"):format(num))
+end
