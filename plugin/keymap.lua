@@ -115,4 +115,14 @@ end
 
 for _, num in ipairs { 1, 2, 3, 4, 5, 6, 7, 8, 9 } do
   keymap.set("n", ("<leader>%d"):format(num), ("%dgt"):format(num))
+  keymap.set("n", ("<leader><leader>%d"):format(num), function()
+    local current_tab = vim.fn.tabpagenr()
+    if num == 1 then
+      vim.cmd.tabmove(("%d"):format(0))
+    elseif current_tab < num then
+      vim.cmd.tabmove(("%d"):format(num))
+    elseif current_tab > num then
+      vim.cmd.tabmove(("%d"):format(num - 1))
+    end
+  end)
 end
