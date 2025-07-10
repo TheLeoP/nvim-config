@@ -90,3 +90,5 @@ o.winblend = 10
 o.sessionoptions = "curdir,tabpages,help,globals,winsize,winpos"
 
 o.linebreak = true
+
+o.nrformats = o.nrformats .. ",blank"
