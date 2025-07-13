@@ -26,7 +26,9 @@ local function gen_ts_spec(ai_captures)
     local lang = ts.language.get_lang(ft)
     if not lang then return vim.notify(("There is no lang for filetype %s"):format(ft), vim.log.levels.ERROR) end
     local parser, err = ts.get_parser(0, lang, { error = false })
-    if not parser then return vim.notify(err, vim.log.levels.ERROR) end
+    if not parser then
+      return vim.notify(err --[[@as string]], vim.log.levels.ERROR)
+    end
     parser:parse()
 
     local query = ts.query.get(lang, "textobjects")
