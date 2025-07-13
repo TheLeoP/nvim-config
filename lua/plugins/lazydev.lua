@@ -1,5 +1,7 @@
 return {
   "folke/lazydev.nvim",
+  ---@module "lazydev"
+  ---@type lazydev.Config
   opts = {
     cmp = false,
     library = {
@@ -11,7 +13,7 @@ return {
       { path = "wezterm-types", mods = { "wezterm" } },
     },
     integrations = {
-      lspconfig = true,
+      lspconfig = false,
       cmp = false,
     },
     enabled = function(root_dir)
