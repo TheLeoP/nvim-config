@@ -1,8 +1,4 @@
 return {
-  on_attach = function(client)
-    -- disable completion from tailwind because they send too much completion candidates
-    client.server_capabilities.completionProvider = nil
-  end,
   ---@param buf integer
   ---@param cb fun(root_dir: string)
   root_dir = function(buf, cb)
