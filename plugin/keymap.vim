@@ -51,9 +51,5 @@ imap  
 nnoremap <silent> @ <cmd>execute "noautocmd normal! " . v:count1 . "@" . getcharstr()<cr>
 xnoremap <silent> @ :<C-U>execute "noautocmd '<,'>normal! " . v:count1 . "@" . getcharstr()<cr>
 
-" tabs
-nnoremap <a-h> <cmd>tabprevious<cr>
-nnoremap <a-l> <cmd>tabnext<cr>
-
 nnoremap <c-w>n <cmd>vertical new<cr>
 nnoremap <c-w><c-n> <cmd>vertical new<cr>
