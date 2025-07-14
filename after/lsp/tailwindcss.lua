@@ -1,3 +1,4 @@
+---@type vim.lsp.Config
 return {
   ---@param buf integer
   ---@param cb fun(root_dir: string)
