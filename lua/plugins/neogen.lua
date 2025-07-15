@@ -1,3 +1,5 @@
+local keymap = vim.keymap
+
 ---@param node TSNode
 ---@return TSNode[] nodes
 local extract_from_var = function(node)
@@ -31,6 +33,7 @@ return {
     local i = require("neogen.types.template").item
     local extractors = require "neogen.utilities.extractors"
     return {
+      placeholders_hl = "None",
       snippet_engine = "luasnip",
       languages = {
         lua = {
@@ -86,9 +89,9 @@ return {
   end,
   config = function(_, opts)
     require("neogen").setup(opts)
-    vim.keymap.set("n", "<leader>gf", "<cmd>Neogen func<cr>")
-    vim.keymap.set("n", "<leader>gF", "<cmd>Neogen file<cr>")
-    vim.keymap.set("n", "<leader>gc", "<cmd>Neogen class<cr>")
-    vim.keymap.set("n", "<leader>gt", "<cmd>Neogen type<cr>")
+    keymap.set("n", "<leader>gf", "<cmd>Neogen func<cr>")
+    keymap.set("n", "<leader>gF", "<cmd>Neogen file<cr>")
+    keymap.set("n", "<leader>gc", "<cmd>Neogen class<cr>")
+    keymap.set("n", "<leader>gt", "<cmd>Neogen type<cr>")
   end,
 }
