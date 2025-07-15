@@ -91,6 +91,8 @@ api.nvim_create_autocmd("LspAttach", {
   end,
 })
 
+vim.lsp.config("*", { workspace_required = true })
+
 -- Update mappings when registering dynamic capabilities.
 local overriden = vim.lsp.handlers[methods.client_registerCapability]
 vim.lsp.handlers[methods.client_registerCapability] = function(err, res, ctx)
