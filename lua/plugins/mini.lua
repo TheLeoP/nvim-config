@@ -175,6 +175,12 @@ return {
       n_lines = 100,
 
       custom_surroundings = {
+        i = {
+          input = surround.gen_spec.input.treesitter { outer = "@conditional.outer", inner = "@conditinoal.inner" },
+        },
+        r = {
+          input = surround.gen_spec.input.treesitter { outer = "@loop.outer", inner = "@loop.inner" },
+        },
         F = {
           input = ts_input { outer = "@call.outer", inner = "@call.inner" },
           output = function()
