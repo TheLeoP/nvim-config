@@ -63,24 +63,23 @@ return {
       },
     }
 
-    for _, tobj in ipairs {
-      { id = "f", k_l = "f", k_r = "F" },
-      { id = "c", k_l = "{", k_r = "}" },
-      { id = "o", k_l = "o", k_r = "O" },
-      { id = "i", k_l = "i", k_r = "I" },
-      { id = "u", k_l = "u", k_r = "U" },
+    for _, text_object in ipairs {
+      { id = "f", key_goto_left = "f", key_goto_right = "F" },
+      { id = "c", key_goto_left = "{", key_goto_right = "}" },
+      { id = "o", key_goto_left = "o", key_goto_right = "O" },
+      { id = "u", key_goto_left = "u", key_goto_right = "U" },
     } do
       for _, dir in ipairs { { b = "[", m = "prev" }, { b = "]", m = "next" } } do
-        keymap.set({ "n", "x", "o" }, ("%s%s"):format(dir.b, tobj.k_l), function()
+        keymap.set({ "n", "x", "o" }, ("%s%s"):format(dir.b, text_object.key_goto_left), function()
           local count = vim.v.count1
           vim.cmd.normal { "m'", bang = true }
-          MiniAi.move_cursor("left", "a", ("%s"):format(tobj.id), { n_times = count, search_method = dir.m })
-        end, { desc = ("%s %s"):format(dir.m, tobj.id) })
-        keymap.set({ "n", "x", "o" }, ("%s%s"):format(dir.b, tobj.k_r), function()
+          MiniAi.move_cursor("left", "a", ("%s"):format(text_object.id), { n_times = count, search_method = dir.m })
+        end, { desc = ("%s %s"):format(dir.m, text_object.id) })
+        keymap.set({ "n", "x", "o" }, ("%s%s"):format(dir.b, text_object.key_goto_right), function()
           local count = vim.v.count1
           vim.cmd.normal { "m'", bang = true }
-          MiniAi.move_cursor("right", "a", ("%s"):format(tobj.id), { n_times = count, search_method = dir.m })
-        end, { desc = ("%s %s"):format(dir.m, tobj.id) })
+          MiniAi.move_cursor("right", "a", ("%s"):format(text_object.id), { n_times = count, search_method = dir.m })
+        end, { desc = ("%s %s"):format(dir.m, text_object.id) })
       end
     end
 
