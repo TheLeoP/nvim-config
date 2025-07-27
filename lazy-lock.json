@@ -56,7 +56,7 @@
   "quicker.nvim": { "branch": "master", "commit": "51d3926f183c2d98fbc237cc237ae0926839af3a" },
   "render-markdown.nvim": { "branch": "main", "commit": "5c0e241bdbd208b7ae546009378d6bc93c083ef3" },
   "roslyn.nvim": { "branch": "main", "commit": "3056635ed6ebe5035c94a7c8d0d362e95817839e" },
-  "schemastore.nvim": { "branch": "main", "commit": "272ba8ed842763e24d1780574d8b55e351d06892" },
+  "schemastore.nvim": { "branch": "main", "commit": "67d6c391e9a372d2d8701b5b8c9ae89455561fbf" },
   "snacks.nvim": { "branch": "main", "commit": "bc0630e43be5699bb94dadc302c0d21615421d93" },
   "suda.vim": { "branch": "master", "commit": "9adda7d195222d4e2854efb2a88005a120296c47" },
   "treewalker.nvim": { "branch": "main", "commit": "ae229700e1cce34198280f588568dc49c52d9eb1" },
