@@ -6,66 +6,71 @@ return {
   branch = "main",
   build = ":TSUpdate",
   config = function()
-    local ensure_installed = {
-      "c",
-      "lua",
-      "vim",
-      "xml",
-      "http",
-      "json",
-      "graphql",
-      "query",
-      "vimdoc",
-      "c_sharp",
-      "cpp",
-      "css",
-      "dockerfile",
-      "editorconfig",
-      "git_config",
-      "git_rebase",
-      "go",
-      "gomod",
-      "gosum",
-      "gitattributes",
-      "gitcommit",
-      "gitignore",
-      "groovy",
-      "html",
-      "javascript",
-      "java",
-      "ini",
-      "jsonc",
-      "make",
-      "markdown",
-      "pem",
-      "php",
-      "proto",
-      "python",
-      "ruby",
-      "sql",
-      "ssh_config",
-      "tsx",
-      "toml",
-      "typescript",
-      "vue",
-      "yaml",
-      "diff",
+    ---@type {parser: string, ft: string[]?}[]
+    local ts_info = {
+      { parser = "bash", ft = { "bash" } },
+      { parser = "c", ft = { "c" } },
+      { parser = "lua", ft = { "lua" } },
+      { parser = "vim", ft = { "vim" } },
+      { parser = "xml", ft = { "xml" } },
+      { parser = "http", ft = { "http" } },
+      { parser = "json", ft = { "json" } },
+      { parser = "graphql", ft = { "graphql" } },
+      { parser = "query", ft = { "query" } },
+      { parser = "vimdoc", ft = { "help" } },
+      { parser = "c_sharp", ft = { "cs" } },
+      { parser = "cpp", ft = { "cpp" } },
+      { parser = "css", ft = { "css" } },
+      { parser = "dockerfile", ft = { "dockerfile" } },
+      { parser = "editorconfig", ft = { "editorconfig" } },
+      { parser = "git_config", ft = { "gitconfig" } },
+      { parser = "git_rebase", ft = { "gitrebase" } },
+      { parser = "gitattributes", ft = { "gitattributes" } },
+      { parser = "gitcommit", ft = { "gitcommit" } },
+      { parser = "gitignore", ft = { "gitignore" } },
+      { parser = "go", ft = { "go" } },
+      { parser = "gomod", ft = { "gomod" } },
+      { parser = "gosum", ft = { "gosum" } },
+      { parser = "groovy", ft = { "groovy" } },
+      { parser = "html", ft = { "html" } },
+      { parser = "javascript", ft = { "javascript", "javascriptreact" } },
+      { parser = "typescript", ft = { "typescript" } },
+      { parser = "tsx", ft = { "typescriptreact" } },
+      { parser = "java", ft = { "java" } },
+      { parser = "ini", ft = { "ini" } },
+      { parser = "jsonc", ft = { "jsonc" } },
+      { parser = "make", ft = { "make" } },
+      { parser = "markdown", ft = { "markdown" } },
+      { parser = "pem", ft = { "pem" } },
+      { parser = "php", ft = { "php" } },
+      { parser = "proto", ft = { "proto" } },
+      { parser = "python", ft = { "python" } },
+      { parser = "ruby", ft = { "ruby" } },
+      { parser = "sql", ft = { "sql" } },
+      { parser = "ssh_config", ft = { "sshconfig" } },
+      { parser = "toml", ft = { "toml" } },
+      { parser = "vue", ft = { "vue" } },
+      { parser = "yaml", ft = { "yaml" } },
+      { parser = "diff", ft = { "diff" } },
+      { parser = "powershell", ft = { "ps1" } },
+      { parser = "astro", ft = { "astro" } },
+      { parser = "desktop", ft = { "desktop" } },
 
-      "doxygen",
-      "re2c",
-      "luap",
-      "printf",
-      "luadoc",
-      "jsdoc",
-      "regex",
-
-      "angular",
-      "scss",
-
-      "powershell",
-
-      "astro",
+      { parser = "doxygen" },
+      { parser = "re2c" },
+      { parser = "luap" },
+      { parser = "printf" },
+      { parser = "luadoc" },
+      { parser = "jsdoc" },
+      { parser = "regex" },
+      { parser = "angular" },
+      { parser = "scss" },
     }
+    local ensure_installed = iter(ts_info)
+      :map(function(info)
+        return info.parser
+      end)
+      :totable()
     local already_installed = require("nvim-treesitter.config").get_installed "parsers"
     local to_install = iter(already_installed)
       :filter(function(p)
@@ -74,71 +79,23 @@ return {
       :totable()
     if #to_install > 0 then require("nvim-treesitter").install(ensure_installed) end
 
+    local pattern = iter(ts_info)
+      :map(function(info)
+        return info.ft
+      end)
+      :flatten(1)
+      :totable()
     api.nvim_create_autocmd("FileType", {
-      -- TODO: join both tables with some kind of relationship between them
-      pattern = {
-        "c",
-        "lua",
-        "javascript",
-        "javascriptreact",
-        "typescript",
-        "typescriptreact",
-        "json",
-        "http",
-        "xml",
-        "vim",
-        "query",
-        "help",
-
-        "go",
-        "gomod",
-        "gosum",
-        "bash",
-        "cs",
-        "cpp",
-        "css",
-        "desktop",
-        "diff",
-        "dockerfile",
-        "editorconfig",
-        "gitconfig",
-        "gitrebase",
-        "gitattributes",
-        "gitcommit",
-        "gitignore",
-        "groovy",
-        "html",
-        "java",
-        "ini",
-        "jsonc",
-        "make",
-        "markdown",
-        "pem",
-        "php",
-        "proto",
-        "python",
-        "ruby",
-        "sql",
-        "sshconfig",
-        "tsx",
-        "toml",
-        "vue",
-
-        "yaml",
-
-        "ps1",
-
-        "astro",
-      },
-      callback = function()
-        vim.treesitter.start()
+      pattern = pattern,
+      callback = function(args)
+        vim.treesitter.start(args.buf)
       end,
     })
 
     api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
       pattern = { "*.component.html", "*.container.html" },
-      callback = function()
-        vim.treesitter.start(nil, "angular")
+      callback = function(args)
+        vim.treesitter.start(args.buf, "angular")
       end,
     })
   end,
