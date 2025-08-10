@@ -72,12 +72,12 @@ return {
       end)
       :totable()
     local already_installed = require("nvim-treesitter.config").get_installed "parsers"
-    local to_install = iter(already_installed)
+    local to_install = iter(ensure_installed)
       :filter(function(p)
         return not vim.tbl_contains(already_installed, p)
       end)
       :totable()
-    if #to_install > 0 then require("nvim-treesitter").install(ensure_installed) end
+    if #to_install > 0 then require("nvim-treesitter").install(to_install) end
 
     local pattern = iter(ts_info)
       :map(function(info)
