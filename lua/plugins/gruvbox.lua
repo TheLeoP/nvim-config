@@ -62,6 +62,7 @@ return {
 
         -- personal preferences
         ["@lsp.type.string"] = { link = "None" },
+        ["@lsp.type.variable"] = { link = "None" },
       },
       italic = {
         strings = false,
