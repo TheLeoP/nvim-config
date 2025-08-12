@@ -6,6 +6,12 @@ return {
   "stevearc/conform.nvim",
   ---@type conform.setupOpts
   opts = {
+    formatters = {
+      csharpier = {
+        command = "csharpier",
+        args = { "format" },
+      },
+    },
     formatters_by_ft = {
       ["markdown.mdx"] = { "prettierd" },
       cs = { "csharpier" },
