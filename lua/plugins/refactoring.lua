@@ -3,6 +3,7 @@ local keymap = vim.keymap
 return {
   "theprimeagen/refactoring.nvim",
   dev = true,
+  dependencies = { "lewis6991/async.nvim" },
   config = function()
     local refactoring = require "refactoring"
 

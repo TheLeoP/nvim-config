@@ -1,5 +1,6 @@
 {
   "LuaSnip": { "branch": "master", "commit": "de10d8414235b0a8cabfeba60d07c24304e71f5c" },
+  "async.nvim": { "branch": "main", "commit": "81f958451528052efc3320f695b4aa90fb2cecbe" },
   "blink-cmp-git": { "branch": "master", "commit": "a820245eb0e5cb44ed0c27c63a41d90635b39e0e" },
   "blink.cmp": { "branch": "main", "commit": "bae4bae0eedd1fa55f34b685862e94a222d5c6f8" },
   "busted": { "branch": "main", "commit": "5ed85d0e016a5eb5eca097aa52905eedf1b180f1" },
