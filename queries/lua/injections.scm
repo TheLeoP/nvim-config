@@ -8,5 +8,5 @@
     (string
       content: (string_content) @injection.content))
   (#eq? @_table child)
-  (#eq? @_field lua)
+  (#any-of? @_field lua lua_get)
   (#set! injection.language "lua"))
