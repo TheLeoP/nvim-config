@@ -75,12 +75,10 @@ return {
       for _, dir in ipairs { { b = "[", m = "prev" }, { b = "]", m = "next" } } do
         keymap.set({ "n", "x", "o" }, ("%s%s"):format(dir.b, text_object.key_goto_left), function()
           local count = vim.v.count1
-          vim.cmd.normal { "m'", bang = true }
           MiniAi.move_cursor("left", "a", ("%s"):format(text_object.id), { n_times = count, search_method = dir.m })
         end, { desc = ("%s %s"):format(dir.m, text_object.id) })
         keymap.set({ "n", "x", "o" }, ("%s%s"):format(dir.b, text_object.key_goto_right), function()
           local count = vim.v.count1
-          vim.cmd.normal { "m'", bang = true }
           MiniAi.move_cursor("right", "a", ("%s"):format(text_object.id), { n_times = count, search_method = dir.m })
         end, { desc = ("%s %s"):format(dir.m, text_object.id) })
       end
