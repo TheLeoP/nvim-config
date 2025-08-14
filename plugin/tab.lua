@@ -9,7 +9,7 @@ function _G._personal_tab()
     table.insert(out, i == current and "%#TabLineSel#" or "%#TabLine#")
     table.insert(out, ("%%%dT"):format(i)) -- set the tab page number (for mouse clicks)
 
-    table.insert(out, (" %d| %%{v:lua._personal_tab_label(%d)} "):format(i, i))
+    table.insert(out, (" %d| %%{%%v:lua._personal_tab_label(%d)%%} "):format(i, i))
   end
   table.insert(out, "%#TabLineFill#%T")
   table.insert(out, "%=%#TabLine#%999XX")
@@ -34,7 +34,15 @@ function _G._personal_tab_label(i)
     return tail .. "/"
   end
   local tail = vim.fn.fnamemodify(name, ":t")
-  return tail
+  local max = 15
+  if #tail > max then tail = tail:sub(1, max - 1) .. "…" end
+
+  local devicons = require "nvim-web-devicons"
+  local filename = vim.fn.fnamemodify(name, ":t")
+  local extension = vim.fn.fnamemodify(name, ":e")
+  local icon, hl = devicons.get_icon(filename, extension)
+
+  return ("%s %%#%s# %s"):format(tail, hl, icon)
 end
 
 vim.o.tabline = "%{%v:lua._personal_tab()%}"
