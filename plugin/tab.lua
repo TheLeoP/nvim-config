@@ -19,6 +19,8 @@ end
 
 ---@param i integer
 function _G._personal_tab_label(i)
+  local current = vim.fn.tabpagenr()
+
   local buflist = vim.fn.tabpagebuflist(i) ---@type integer[]
   local winnr = vim.fn.tabpagewinnr(i)
   local buf = buflist[winnr]
@@ -42,7 +44,7 @@ function _G._personal_tab_label(i)
   local extension = vim.fn.fnamemodify(name, ":e")
   local icon, hl = devicons.get_icon(filename, extension)
 
-  return ("%s %%#%s# %s"):format(tail, hl, icon)
+  return ("%%#%s#%s %%#%s#%s"):format(hl, icon, current == i and "TabLineSel" or "TabLine", tail)
 end
 
 vim.o.tabline = "%{%v:lua._personal_tab()%}"
