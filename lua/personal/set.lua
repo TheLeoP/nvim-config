@@ -7,7 +7,7 @@ o.relativenumber = true
 
 o.wrap = false
 
-o.spelllang = "es,en,de"
+o.spelllang = "es,en"
 
 o.swapfile = false
 o.undofile = true
