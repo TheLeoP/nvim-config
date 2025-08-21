@@ -14,7 +14,7 @@ return {
   config = function(_, opts)
     local ls = require "luasnip"
     ls.setup(opts)
-    keymap.set({ "i" }, "<C-j>", function()
+    keymap.set("i", "<C-j>", function()
       vim.schedule(function()
         -- NOTE: this function populates the snippet cache. blink.cmp uses it
         -- on InsertCharPre, which causes the cache to sometimes be outdated.
