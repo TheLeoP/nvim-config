@@ -32,7 +32,9 @@ return {
           },
         },
         menu = {
-          auto_show = true,
+          auto_show = function(ctx, _)
+            return ctx.mode == "cmdwin" or vim.fn.getcmdtype() == ":"
+          end,
         },
       },
       keymap = {
