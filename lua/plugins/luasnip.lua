@@ -19,7 +19,7 @@ return {
         -- NOTE: this function populates the snippet cache. blink.cmp uses it
         -- on InsertCharPre, which causes the cache to sometimes be outdated.
         -- So, I need to manually call this function to be sure that it's
-        -- always udpated
+        -- always updated
         if not ls.expandable() then return end
         ls.expand {}
       end)
