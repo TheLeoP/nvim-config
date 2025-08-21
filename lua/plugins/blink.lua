@@ -17,6 +17,8 @@ return {
   opts = {
     keymap = {
       preset = "enter",
+      ["<up>"] = { "select_prev" },
+      ["<down>"] = { "select_next" },
     },
     cmdline = {
       completion = {
