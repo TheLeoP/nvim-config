@@ -25,13 +25,23 @@ return {
         trigger = {
           show_on_blocked_trigger_characters = { " " },
         },
+        list = {
+          selection = {
+            preselect = false,
+            auto_insert = false,
+          },
+        },
+        menu = {
+          auto_show = true,
+        },
       },
       keymap = {
         preset = "none",
-        ["<down>"] = { "show_and_insert", "select_next" },
+        ["<down>"] = { "select_next", "fallback" },
         ["<up>"] = { "select_prev", "fallback" },
-        ["<cr>"] = { "fallback" },
+        ["<cr>"] = { "accept", "fallback" },
         ["<c-e>"] = { "cancel" },
+        ["<c-space>"] = { "show" },
       },
     },
     snippets = { preset = "luasnip" },
