@@ -1,4 +1,5 @@
 local keymap = vim.keymap
+local api = vim.api
 
 return {
   "L3MON4D3/LuaSnip",
@@ -14,17 +15,23 @@ return {
   config = function(_, opts)
     local ls = require "luasnip"
     ls.setup(opts)
+
+    local g = api.nvim_create_augroup("personal-luasnip", { clear = true })
+    api.nvim_create_autocmd("User", {
+      group = g,
+      pattern = "LuasnipPreExpand",
+      callback = function()
+        vim.go.undolevels = vim.go.undolevels
+      end,
+    })
     keymap.set("i", "<C-j>", function()
-      vim.schedule(function()
-        -- NOTE: this function populates the snippet cache. blink.cmp uses it
-        -- on InsertCharPre, which causes the cache to sometimes be outdated.
-        -- So, I need to manually call this function to be sure that it's
-        -- always updated
-        if not ls.expandable() then return end
-        ls.expand {}
-      end)
-      return "<c-g>u"
-    end, { expr = true })
+      -- NOTE: this function populates the snippet cache. blink.cmp uses it
+      -- on InsertCharPre, which causes the cache to sometimes be outdated.
+      -- So, I need to manually call this function to be sure that it's
+      -- always updated
+      if not ls.expandable() then return end
+      ls.expand {}
+    end)
     keymap.set({ "i", "s" }, "<right>", function()
       if not ls.locally_jumpable(1) then return end
       ls.jump(1)
