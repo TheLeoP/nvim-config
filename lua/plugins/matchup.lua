@@ -1,6 +1,5 @@
 return {
-  "theleop/vim-matchup",
-  branch = "perf",
+  "andymass/vim-matchup",
   init = function()
     -- recognize only symbols in strings and comments (and not words like `for`
     -- or `end`)
