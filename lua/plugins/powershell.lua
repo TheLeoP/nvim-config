@@ -10,7 +10,18 @@ return {
       enableProfileLoading = false,
     },
     settings = {
-      enableProfileLoading = false,
+      powershell = {
+        codeFormatting = {
+          openBraceOnSameLine = true,
+
+          useConstantStrings = true,
+          useCorrectCasing = true,
+          whitespaceAroundOperator = true,
+          whitespaceAfterSeparator = true,
+          whitespaceBeforeOpenBrace = true,
+          addWhitespaceAroundPipe = true,
+        },
+      },
     },
   },
 }
