@@ -34,6 +34,7 @@ return {
       typescriptreact = { "prettierd" },
       vue = { "prettierd" },
       yaml = { "prettierd" },
+      php = { "pretty-php" },
     },
     format_on_save = function(bufnr)
       if not format_options.autoformat then return end
