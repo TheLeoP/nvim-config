@@ -3,7 +3,15 @@ local lsp = require "personal.config.lsp"
 local bundles = {
   vim.fn.glob(lsp.mason_root .. "java-debug-adapter/extension/server/com.microsoft.java.debug.plugin-*.jar", true),
 }
-vim.list_extend(bundles, vim.split(vim.fn.glob(lsp.mason_root .. "java-test/extension/server/*.jar", true), "\n"))
+local java_test_bundles = vim.split(vim.fn.glob("/path/to/vscode-java-test/server/*.jar", true), "\n")
+local excluded = {
+  "com.microsoft.java.test.runner-jar-with-dependencies.jar",
+  "jacocoagent.jar",
+}
+for _, java_test_jar in ipairs(java_test_bundles) do
+  local fname = vim.fn.fnamemodify(java_test_jar, ":t")
+  if not vim.tbl_contains(excluded, fname) then table.insert(bundles, java_test_jar) end
+end
 
 ---@type vim.lsp.Config
 return {
