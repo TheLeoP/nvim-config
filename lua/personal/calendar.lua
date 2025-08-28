@@ -1940,7 +1940,7 @@ function CalendarView:show(year, month, opts)
         local buf_year, buf_month, buf_day = buf_name:match "^calendar://day_(%d%d%d%d)_(%d%d)_(%d%d)"
         buf_year, buf_month, buf_day = tonumber(buf_year), tonumber(buf_month), tonumber(buf_day)
         local key = ("%s_%s_%s"):format(buf_year, buf_month, buf_day)
-        local day_events = events_by_date[key]
+        local day_events = events_by_date[key] or {}
 
         keymap.set("n", "<F5>", function()
           api.nvim_win_close(win, true)
