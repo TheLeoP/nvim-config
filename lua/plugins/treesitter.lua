@@ -55,6 +55,7 @@ return {
       { parser = "powershell", ft = { "ps1" } },
       { parser = "astro", ft = { "astro" } },
       { parser = "desktop", ft = { "desktop" } },
+      { parser = "blade", ft = { "blade" } },
 
       { parser = "doxygen" },
       { parser = "re2c" },
