@@ -22,6 +22,7 @@ return {
         "delve",
         "powershell-editor-services",
         "js-debug-adapter",
+        "pretty-php",
       } do
         local p = mr.get_package(tool)
         if not p:is_installed() then p:install() end
