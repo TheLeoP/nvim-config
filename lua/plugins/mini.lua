@@ -3,7 +3,7 @@ local iter = vim.iter
 local keymap = vim.keymap
 
 return {
-  "echasnovski/mini.nvim",
+  "nvim-mini/mini.nvim",
 
   version = false,
   dependencies = {
