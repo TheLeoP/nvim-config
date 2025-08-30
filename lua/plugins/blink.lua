@@ -17,8 +17,10 @@ return {
   opts = {
     keymap = {
       preset = "enter",
-      ["<up>"] = { "select_prev" },
+      -- NOTE: fallbak only because of previous input in `vim.ui.input`
+      ["<up>"] = { "select_prev", "fallback_to_mappings" },
       ["<down>"] = { "select_next" },
+      ["<tab>"] = false,
     },
     cmdline = {
       completion = {
