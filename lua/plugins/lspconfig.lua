@@ -22,6 +22,7 @@ return {
       "tailwindcss",
       "clangd",
       "ts_query_ls",
+      "laravel_ls",
     }
 
     -- NOTE: disable bultin query linter, `ts_query_ls` is more complete
