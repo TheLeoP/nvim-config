@@ -66,6 +66,7 @@ return {
       { parser = "regex" },
       { parser = "angular" },
       { parser = "scss" },
+      { parser = "phpdoc" },
     }
     local ensure_installed = iter(ts_info)
       :map(function(info)
