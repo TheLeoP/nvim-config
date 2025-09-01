@@ -129,12 +129,14 @@ end
 
 ---@param tag emmet.Tag
 local function tag_tostring(tag)
-  local children = tag.children and vim
-    .iter(tag.children)
-    :map(function(child)
-      return tostring(child)
-    end)
-    :totable() or {}
+  local children = tag.children
+      and vim
+        .iter(tag.children)
+        :map(function(child)
+          return tostring(child)
+        end)
+        :totable()
+    or {}
   local s = table.concat(children, "")
 
   if tag.name == "_root" then return s end

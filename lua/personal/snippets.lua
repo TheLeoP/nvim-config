@@ -50,19 +50,6 @@ local not_in_string_nor_comment = make_condition(function()
   return not vim.list_contains(blacklist_by_ft[ft], type)
 end)
 
----@param line_to_cursor string
----@return string|nil, any[]|nil
-local function emmet_matcher(line_to_cursor)
-  local emmet = require "personal.emmet"
-  -- TODO: can I do something to make this work in jsx files in a line like
-  -- `return div>div`?
-  local unindented_line_to_cursor = line_to_cursor:match "^%s*(.*)$"
-  local root = emmet.parse(unindented_line_to_cursor)
-  if not root then return end
-
-  return line_to_cursor, { root }
-end
-
 ls.add_snippets("all", {
   s("todo", {
     d(1, function()
@@ -567,6 +554,26 @@ useEffect(() =>> {
     )
   ),
 }, { key = "personal js" })
+
+---@param line_to_cursor string
+---@return string|nil, any[]|nil
+local function emmet_matcher(line_to_cursor)
+  local emmet = require "personal.emmet"
+  local unindented_line_to_cursor = vim.text.indent(0, line_to_cursor)
+
+  local emmet_str ---@type string|nil
+  if unindented_line_to_cursor:match "%b[]" then
+    emmet_str = unindented_line_to_cursor:match "%S*%b[]%S*$"
+  else
+    emmet_str = unindented_line_to_cursor:match "%S+$"
+  end
+
+  if not emmet_str then return end
+  local root = emmet.parse(emmet_str)
+  if not root then return end
+
+  return emmet_str, { root }
+end
 
 ls.add_snippets("javascriptreact", {
   s({
