@@ -26,7 +26,7 @@ local emmet_grammar =
   ---@diagnostic disable-next-line: missing-fields
   P {
     "line",
-    identifier = alpha ^ 1,
+    identifier = alpha * alnum ^ 0,
     -- TODO: this can be not only be alnum, add other chars
     value = Ct(
       ((alnum ^ 1) % insert_value)
