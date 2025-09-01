@@ -563,6 +563,8 @@ local function emmet_matcher(line_to_cursor)
 
   local emmet_str ---@type string|nil
   if unindented_line_to_cursor:match "%b[]" then
+    -- TODO: this currently only finds the first pair of balanced [], the match
+    -- should go up to the last one instead
     emmet_str = unindented_line_to_cursor:match "%S*%b[]%S*$"
   else
     emmet_str = unindented_line_to_cursor:match "%S+$"
