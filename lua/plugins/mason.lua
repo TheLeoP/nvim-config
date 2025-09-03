@@ -23,6 +23,7 @@ return {
         "powershell-editor-services",
         "js-debug-adapter",
         "pretty-php",
+        "npm-groovy-lint",
       } do
         local p = mr.get_package(tool)
         if not p:is_installed() then p:install() end
