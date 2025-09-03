@@ -816,3 +816,19 @@ lambda <args>: <inside>
     )
   ),
 }, { key = "personal python" })
+
+ls.add_snippets("ps1", {
+  s(
+    { trig = "if ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
+    fmta(
+      [[
+if (<condition>) {
+  <inside>
+}]],
+      {
+        condition = i(1, "true"),
+        inside = i(2),
+      }
+    )
+  ),
+}, { key = "personal python" })
