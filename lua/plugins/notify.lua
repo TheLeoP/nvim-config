@@ -7,6 +7,10 @@ return {
     timeout = 300,
     background_colour = "#282828",
   },
+  dependencies = {
+    -- NOTE: this allows me to override `vim.notify` from `mini.notify`
+    "mini.nvim",
+  },
   config = function(_, opts)
     vim.o.termguicolors = true
     require("notify").setup(opts)
