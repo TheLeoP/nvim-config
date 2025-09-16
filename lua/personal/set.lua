@@ -91,4 +91,4 @@ o.sessionoptions = "curdir,tabpages,help,globals,winsize,winpos"
 
 o.linebreak = true
 
-o.nrformats = o.nrformats .. ",blank"
+if vim.fn.has "nvim-0.11" == 1 then o.nrformats = o.nrformats .. ",blank" end
