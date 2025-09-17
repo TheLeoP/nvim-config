@@ -327,7 +327,5 @@ return {
     })
 
     require("mini.test").setup()
-    require("mini.extra").setup()
-    require("mini.pick").setup()
   end,
 }
