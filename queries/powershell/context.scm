@@ -23,3 +23,5 @@
 (class_method_definition) @context
 
 (command) @context
+
+(hash_literal_expression) @context
