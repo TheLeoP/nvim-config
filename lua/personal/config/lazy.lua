@@ -37,6 +37,6 @@ require("lazy").setup("plugins", {
     enabled = false,
   },
   rocks = {
-    hererocks = true,
+    enabled = false,
   },
 })
