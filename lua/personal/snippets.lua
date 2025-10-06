@@ -832,4 +832,4 @@ if (<condition>) {
       }
     )
   ),
-}, { key = "personal python" })
+}, { key = "personal powershell" })
