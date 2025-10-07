@@ -805,6 +805,19 @@ for <item> in <expr>:
     )
   ),
   s(
+    { trig = "while ", snippetType = "autosnippet", condition = conds.line_begin * conds.line_end },
+    fmta(
+      [[
+while <condition>:
+  <inside>
+]],
+      {
+        condition = i(1, "True"),
+        inside = i(2, "pass"),
+      }
+    )
+  ),
+  s(
     { trig = "afn ", snippetType = "autosnippet", condition = not_in_string_nor_comment },
     fmta(
       [[
