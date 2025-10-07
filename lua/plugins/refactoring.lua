@@ -10,7 +10,7 @@ return {
     keymap.set({ "n", "x" }, "<leader>ae", function()
       return refactoring.refactor "Extract Function"
     end, { desc = "Extract Function", expr = true })
-    keymap.set({ "n", "x" }, "<leader>af", function()
+    keymap.set({ "n", "x" }, "<leader>aE", function()
       return refactoring.refactor "Extract Function To File"
     end, { desc = "Extract Function To File", expr = true })
     keymap.set({ "n", "x" }, "<leader>av", function()
