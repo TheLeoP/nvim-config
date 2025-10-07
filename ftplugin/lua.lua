@@ -11,6 +11,8 @@ vim.b.minisurround_config = {
 
 vim.b.miniai_config = {
   custom_textobjects = {
-    s = MiniAi.gen_spec.pair("[[", "]]"),
+    -- NOTE: result of `MiniAi.gen_spec.pair("[[\n?", "]]"),` without the `?`
+    -- incorrectly scaped
+    s = { "%[%[\n?().-()%]%]" },
   },
 }
