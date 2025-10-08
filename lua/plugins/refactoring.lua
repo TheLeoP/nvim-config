@@ -10,12 +10,22 @@ return {
     keymap.set({ "n", "x" }, "<leader>ae", function()
       return refactoring.refactor "Extract Function"
     end, { desc = "Extract Function", expr = true })
+    keymap.set({ "n", "x" }, "<leader>aee", function()
+      return refactoring.refactor "Extract Function" .. "_"
+    end, { desc = "Extract Function (line)", expr = true })
+
     keymap.set({ "n", "x" }, "<leader>aE", function()
       return refactoring.refactor "Extract Function To File"
     end, { desc = "Extract Function To File", expr = true })
+
     keymap.set({ "n", "x" }, "<leader>av", function()
       return refactoring.refactor "Extract Variable"
     end, { desc = "Extract Variable", expr = true })
+
+    keymap.set({ "n", "x" }, "<leader>avv", function()
+      return refactoring.refactor "Extract Variable" .. "_"
+    end, { desc = "Extract Variable (line)", expr = true })
+
     keymap.set({ "n", "x" }, "<leader>ai", function()
       return refactoring.refactor "Inline Variable"
     end, { desc = "Inline Variable", expr = true })
