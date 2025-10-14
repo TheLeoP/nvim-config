@@ -92,3 +92,5 @@ o.sessionoptions = "curdir,tabpages,help,globals,winsize,winpos"
 o.linebreak = true
 
 if vim.fn.has "nvim-0.11" == 1 then o.nrformats = o.nrformats .. ",blank" end
+
+o.switchbuf = "usetab"
