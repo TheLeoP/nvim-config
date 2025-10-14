@@ -21,7 +21,7 @@ vim.api.nvim_create_autocmd("Filetype", {
   group = vim.api.nvim_create_augroup("Format options", { clear = true }),
   desc = "Remove unwanted flags from format options",
   callback = function()
-    vim.o.formatoptions = "qjl1r"
+    vim.o.formatoptions = "qjl1rn"
   end,
 })
 

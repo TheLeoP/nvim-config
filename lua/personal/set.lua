@@ -55,6 +55,7 @@ opt.diffopt:append { "vertical", "context:99" }
 opt.shortmess:append "sWcC"
 
 o.breakindent = true
+o.breakindentopt = "list:-1"
 
 -- Disable health checks for these providers.
 vim.g.loaded_python3_provider = 0
