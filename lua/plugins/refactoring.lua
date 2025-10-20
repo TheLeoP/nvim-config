@@ -5,48 +5,52 @@ return {
   dev = true,
   dependencies = { "lewis6991/async.nvim" },
   config = function()
-    local refactoring = require "refactoring"
-
     keymap.set({ "n", "x" }, "<leader>ae", function()
-      return refactoring.refactor "Extract Function"
+      return require("refactoring").extract_func()
     end, { desc = "Extract Function", expr = true })
-    keymap.set({ "n", "x" }, "<leader>aee", function()
-      return refactoring.refactor "Extract Function" .. "_"
+    keymap.set("n", "<leader>aee", function()
+      return require("refactoring").extract_func() .. "_"
     end, { desc = "Extract Function (line)", expr = true })
 
     keymap.set({ "n", "x" }, "<leader>aE", function()
-      return refactoring.refactor "Extract Function To File"
+      return require("refactoring").extract_func_to_file()
     end, { desc = "Extract Function To File", expr = true })
 
     keymap.set({ "n", "x" }, "<leader>av", function()
-      return refactoring.refactor "Extract Variable"
+      return require("refactoring").extract_var()
     end, { desc = "Extract Variable", expr = true })
 
-    keymap.set({ "n", "x" }, "<leader>avv", function()
-      return refactoring.refactor "Extract Variable" .. "_"
+    keymap.set("n", "<leader>avv", function()
+      return require("refactoring").extract_var() .. "_"
     end, { desc = "Extract Variable (line)", expr = true })
 
     keymap.set({ "n", "x" }, "<leader>ai", function()
-      return refactoring.refactor "Inline Variable"
+      return require("refactoring").inline_var()
     end, { desc = "Inline Variable", expr = true })
     keymap.set({ "n", "x" }, "<leader>aI", function()
-      return refactoring.refactor(115)
+      return require("refactoring").inline_func()
     end, { desc = "Inline function", expr = true })
 
-    keymap.set("n", "<leader>pP", function()
-      refactoring.debug.printf { below = false }
-    end, { desc = "Debug print above" })
-    keymap.set("n", "<leader>pp", function()
-      refactoring.debug.printf { below = true }
-    end, { desc = "Debug print below" })
-    keymap.set({ "x", "n" }, "<leader>pV", function()
-      refactoring.debug.print_var { below = false }
-    end, { desc = "Debug print var above" })
+    keymap.set({ "n", "x" }, "<leader>as", function()
+      return require("refactoring").select_refactor()
+    end, { desc = "Select refactor" })
+
     keymap.set({ "x", "n" }, "<leader>pv", function()
-      refactoring.debug.print_var { below = true }
-    end, { desc = "Debug print var below" })
-    keymap.set("n", "<leader>pc", function()
-      refactoring.debug.cleanup {}
-    end, { desc = "Debug print clean" })
+      return require("refactoring.debug").print_var { output_location = "below" }
+    end, { desc = "Debug print var above", expr = true })
+    keymap.set({ "x", "n" }, "<leader>pvv", function()
+      return require("refactoring.debug").print_var { output_location = "below" } .. "_"
+    end, { desc = "Debug print var above", expr = true })
+
+    keymap.set({ "x", "n" }, "<leader>pV", function()
+      return require("refactoring.debug").print_var { output_location = "above" }
+    end, { desc = "Debug print var above", expr = true })
+    keymap.set({ "x", "n" }, "<leader>pVV", function()
+      return require("refactoring.debug").print_var { output_location = "above" } .. "_"
+    end, { desc = "Debug print var above", expr = true })
+
+    keymap.set({ "x", "n" }, "<leader>pc", function()
+      return require("refactoring.debug").cleanup()
+    end, { desc = "Debug print clean", expr = true })
   end,
 }
