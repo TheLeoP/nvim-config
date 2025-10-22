@@ -211,6 +211,22 @@ return {
             return { left = left[ft], right = right[ft] }
           end,
         },
+        t = {
+          input = ts_input { outer = "@tag.outer", inner = "@tag.inner" },
+        },
+        T = {
+          input = ts_input { outer = "@tag_name.outer", inner = "@tag_name.inner" },
+          output = function()
+            local tag_name = surround.user_input "Function name"
+            if not tag_name then return end
+
+            local ends_with_space = vim.endswith(tag_name, " ")
+            local right = ends_with_space and "" or tag_name
+            if not ends_with_space then tag_name = tag_name .. " " end
+
+            return { left = tag_name, right = right }
+          end,
+        },
       },
     }
 
