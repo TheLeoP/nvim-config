@@ -86,7 +86,7 @@ ls.add_snippets("all", {
 
 ls.add_snippets("cs", {
   s(
-    { trig = "cl", snippetType = "autosnippet", condition = conds.line_begin },
+    { trig = "class ", snippetType = "autosnippet", condition = conds.line_begin },
     fmta(
       [[
 <visibility> class <name>
@@ -826,6 +826,19 @@ lambda <args>: <inside>
       {
         args = i(1, "x"),
         inside = i(2, "pass"),
+      }
+    )
+  ),
+  s(
+    { trig = "class ", snippetType = "autosnippet", condition = not_in_string_nor_comment },
+    fmta(
+      [[
+class <name>:
+    <body>
+]],
+      {
+        name = i(1, "Name"),
+        body = i(2, "pass"),
       }
     )
   ),
