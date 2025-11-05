@@ -49,6 +49,13 @@ return {
       return require("refactoring.debug").print_var { output_location = "above" } .. "_"
     end, { desc = "Debug print var above", expr = true })
 
+    keymap.set("n", "<leader>pP", function()
+      return require("refactoring.debug").print_loc { output_location = "above" }
+    end, { desc = "Debug print location", expr = true })
+    keymap.set("n", "<leader>pp", function()
+      return require("refactoring.debug").print_loc { output_location = "below" }
+    end, { desc = "Debug print location", expr = true })
+
     keymap.set({ "x", "n" }, "<leader>pc", function()
       return require("refactoring.debug").cleanup()
     end, { desc = "Debug print clean", expr = true })
