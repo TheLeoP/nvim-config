@@ -114,7 +114,7 @@ return {
     end, { desc = "Debug to cursor" })
 
     dap.listeners.after.event_initialized["dapui_config"] = function()
-      dapui.open {}
+      vim.notify("Initialized", vim.log.levels.INFO, { title = "DAP" })
     end
     dap.listeners.before.event_terminated["dapui_config"] = function()
       dapui.close {}
