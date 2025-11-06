@@ -33,7 +33,7 @@ vim.api.nvim_create_autocmd("TermOpen", {
     vim.opt_local.foldmethod = "manual"
     vim.opt_local.foldenable = false
 
-    vim.keymap.set("t", "<esc><esc>", "<c-\\><c-n>", { buffer = args.buf })
+    vim.keymap.set("t", "<esc>", "<c-\\><c-n>", { buffer = args.buf })
   end,
 })
 

@@ -1,1 +1,1 @@
-vim.keymap.del("t", "<esc><esc>", { buffer = true })
+vim.keymap.del("t", "<esc>", { buffer = true })
