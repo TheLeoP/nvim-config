@@ -23,7 +23,7 @@ local function start_prompt()
   local overseer = require "overseer"
   vim.ui.input({ prompt = "cmd: ", completion = "file" }, function(input)
     if not input or input == "" then return end
-    overseer.run_template({
+    overseer.run_template {
       name = "shell",
       prompt = "never",
       params = {
@@ -35,10 +35,7 @@ local function start_prompt()
           "on_complete_dispose",
         },
       },
-    }, function(task)
-      if not task then return end
-      open_and_close()
-    end)
+    }
   end)
 end
 
@@ -103,12 +100,6 @@ return {
       vim.keymap.set("n", "<leader>to", "<cmd>OverseerToggle<cr>", { desc = "Toggle task window" })
 
       vim.keymap.set("n", "<leader>o<", restart_last_task, { desc = "Restart last task" })
-      vim.keymap.set("n", "<leader>or", function()
-        overseer.run_template({}, function(task)
-          if not task then return end
-          open_and_close()
-        end)
-      end, { desc = "Run task" })
 
       -- vim-dispatch style keymaps
       vim.keymap.set("n", "' ", start_prompt)

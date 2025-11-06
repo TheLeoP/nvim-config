@@ -98,7 +98,7 @@ return {
     },
 
     sources = {
-      default = { "lsp", "path", "buffer", "lazydev", "dadbod", "kinesis", "calendar" },
+      default = { "lsp", "path", "buffer", "lazydev", "dadbod", "kinesis" },
 
       per_filetype = {
         ["dap-repl"] = { "lsp", "path", "buffer", "omni" }, -- use nvim-dap omni completion on dap-repl
@@ -125,10 +125,6 @@ return {
 
         kinesis = {
           module = "blink-cmp-kinesis",
-        },
-
-        calendar = {
-          module = "blink-cmp-calendar",
         },
 
         lsp = {
