@@ -57,7 +57,7 @@ return {
     end, { desc = "Debug print location", expr = true })
 
     keymap.set({ "x", "n" }, "<leader>pc", function()
-      return require("refactoring.debug").cleanup()
+      return require("refactoring.debug").cleanup { restore_view = true }
     end, { desc = "Debug print clean", expr = true })
   end,
 }
