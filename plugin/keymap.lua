@@ -126,3 +126,16 @@ for _, num in ipairs { 1, 2, 3, 4, 5, 6, 7, 8, 9 } do
     end
   end)
 end
+
+local function eval_in_last_term_opfuc()
+  vim.o.operatorfunc = "v:lua.require'personal.util.general'.eval_in_last_term"
+  return "g@"
+end
+
+keymap.set({ "x", "n" }, "<leader>mt", function()
+  return eval_in_last_term_opfuc()
+end, { expr = true })
+
+keymap.set("n", "<leader>mtt", function()
+  return eval_in_last_term_opfuc() .. "_"
+end, { expr = true })

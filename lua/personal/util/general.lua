@@ -1,40 +1,44 @@
 local api = vim.api
 local auv = require "personal.auv"
+local iter = vim.iter
 local debounce = require("personal.dedup").debounce
 
 local M = {}
 
-local function get_last_terminal()
-  local terminal_channels = {}
+---@class personal.channel
+---@field id integer
+---@field argv? string[]
+---@field stream 'stdio'|'stderr'|'socket'|'job'
+---@field mode 'bytes'|'terminal'|'rpc'
+---@field pty? string
+---@field buffer? integer
+---@field client? table
 
-  for _, channel in pairs(api.nvim_list_chans()) do
-    if channel["mode"] == "terminal" and channel["pty"] ~= "" then table.insert(terminal_channels, channel) end
-  end
-
+local function last_terminal()
+  ---@type personal.channel[]
+  local terminal_channels = iter(api.nvim_list_chans())
+    :filter(
+      ---@param channel personal.channel
+      function(channel)
+        return channel.mode == "terminal" and channel.pty ~= nil
+      end
+    )
+    :totable()
   table.sort(terminal_channels, function(left, right)
-    return left["buffer"] > right["buffer"]
+    return left.buffer > right.buffer
   end)
 
-  return terminal_channels[1]["id"]
+  return terminal_channels[1].id
 end
 
-local line_end = vim.fn.has "win32" == 1 and "\r\n" or "\n"
+---@param type 'line'|'char'|'block'
+function M.eval_in_last_term(type)
+  local range_type = type == "line" and "V" or type == "char" and "v" or "\22"
 
-function M.visual_ejecutar_en_terminal()
-  --- @type integer, integer
-  local start_col, _start_row = unpack(api.nvim_buf_get_mark(0, "<"))
-  --- @type integer, integer
-  local end_col, _end_row = unpack(api.nvim_buf_get_mark(0, ">"))
+  local lines = vim.fn.getregion(vim.fn.getpos "'[", vim.fn.getpos "']", { type = range_type })
+  table.insert(lines, "")
 
-  local lines = vim
-    .iter(api.nvim_buf_get_lines(0, start_col - 1, end_col, true))
-    :map(function(line)
-      return line .. line_end
-    end)
-    :totable()
-
-  local commands = table.concat(lines)
-  api.nvim_chan_send(get_last_terminal(), commands)
+  api.nvim_chan_send(last_terminal(), table.concat(lines, "\r\n"))
 end
 
 ---@param str string
