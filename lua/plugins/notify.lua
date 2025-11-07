@@ -1,6 +1,7 @@
+---@module "notify"
+
 return {
   "rcarriga/nvim-notify",
-  ---@module "notify"
   ---@type notify.Config
   ---@diagnostic disable-next-line: missing-fields
   opts = {
@@ -23,9 +24,8 @@ return {
 
       require("personal.util.general").clear_system_notifications()
 
-      vim.cmd.normal { "\12", bang = true } --[[ ctrl-l]]
+      vim.cmd.normal { vim.keycode "<c-l>", bang = true }
     end)
-
     vim.notify = require "notify"
   end,
 }

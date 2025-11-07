@@ -23,7 +23,7 @@ return {
           vim.cmd.diffupdate()
           require("notify").dismiss { silent = true, pending = true }
           require("personal.util.general").clear_system_notifications()
-          vim.cmd.normal { "\12", bang = true } -- ctrl-l
+          vim.cmd.normal { vim.keycode "<c-l>", bang = true }
         end,
       },
       ["<leader>cd"] = { "actions.cd", opts = { scope = "tab", silent = true } },

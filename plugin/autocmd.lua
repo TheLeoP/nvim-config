@@ -52,7 +52,7 @@ vim.api.nvim_create_autocmd("BufNewFile", {
       local tpl = table.concat { config, "/templates/", candidate, ".tpl" }
       if not uv.fs_stat(tpl) then goto continue end
 
-      vim.cmd("0r " .. tpl)
+      vim.cmd.read { range = { 0 }, args = { tpl } }
       do
         return
       end

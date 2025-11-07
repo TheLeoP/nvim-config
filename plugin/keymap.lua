@@ -34,18 +34,14 @@ end, { expr = true })
 
 keymap.set({ "n" }, "<leader><leader>t", "<cmd>tab split<cr>")
 
-keymap.set(
-  "n",
-  "j",
-  [[v:count ? "m'" .. v:count .. 'j' : "gj"]],
-  { expr = true, desc = "Set qflist if j has a count. Use gj otherwise" }
-)
-keymap.set(
-  "n",
-  "k",
-  [[v:count ? "m'" .. v:count .. 'k' : "gk"]],
-  { expr = true, desc = "Set qflist if k has a count. Use gk otherwise" }
-)
+keymap.set("n", "j", function()
+  if vim.v.count == 0 then return "gj" end
+  return ("m'%dj"):format(vim.v.count)
+end, { expr = true, desc = "Add jump to jumplist if j has a count. Use gj otherwise" })
+keymap.set("n", "k", function()
+  if vim.v.count == 0 then return "gk" end
+  return ("m'%dk"):format(vim.v.count)
+end, { expr = true, desc = "Add jump to jumplist if k has a count. Use gk otherwise" })
 
 -- toggle options
 
@@ -123,7 +119,7 @@ for _, num in ipairs { 1, 2, 3, 4, 5, 6, 7, 8, 9 } do
   keymap.set("n", ("<leader><leader>%d"):format(num), function()
     local current_tab = vim.fn.tabpagenr()
     if num == 1 then
-      vim.cmd.tabmove(("%d"):format(0))
+      vim.cmd.tabmove(0)
     elseif current_tab < num then
       vim.cmd.tabmove(("%d"):format(num))
     elseif current_tab > num then
@@ -139,8 +135,82 @@ end
 
 keymap.set({ "x", "n" }, "<leader>mt", function()
   return eval_in_last_term_opfuc()
-end, { expr = true })
+end, { expr = true, desc = "[M]isc send to [t]erm" })
 
 keymap.set("n", "<leader>mtt", function()
   return eval_in_last_term_opfuc() .. "_"
-end, { expr = true })
+end, { expr = true, desc = "[M]isc send to [t]erm (line)" })
+
+-- on insert mode, create a new undo block on each character
+for _, key in ipairs {
+  ",",
+  ".",
+  "¡",
+  "!",
+  "¿",
+  "?",
+  "(",
+  ")",
+  "[",
+  "]",
+  "{",
+  "}",
+  "&",
+  "\\",
+  ":",
+  ";",
+  "=",
+  "<",
+  ">",
+  "#",
+  "/",
+  "*",
+  "-",
+  "+",
+} do
+  keymap.set("i", key, ("%s<c-g>u"):format(key))
+end
+
+-- easier on Latin America QWERTY keyboard
+keymap.set({ "n", "x" }, "{", "[", { remap = true })
+keymap.set({ "n", "x" }, "}", "]", { remap = true })
+
+-- alternative key for builtin `{` and `}`
+keymap.set({ "n", "x" }, "<leader>{", "{")
+keymap.set({ "n", "x" }, "<leader>}", "}")
+
+keymap.set("n", "J", "mzJ`z")
+keymap.set("n", "gJ", "mzgJ`z")
+
+keymap.set("n", "<leader>w", "<cmd>w<cr>")
+keymap.set("n", "<leader>q", "<cmd>q<cr>")
+
+keymap.set("n", "<c-w>n", "<cmd>vertical new<cr>")
+keymap.set("n", "<c-w><c-n>", "<cmd>vertical new<cr>")
+
+keymap.set("n", "@", function()
+  vim.cmd.normal {
+    ("%d@%s"):format(vim.v.count1, vim.fn.getcharstr()),
+    bang = true,
+    mods = {
+      noautocmd = true,
+    },
+  }
+end)
+keymap.set("x", "@", function()
+  vim.cmd.normal { vim.keycode [[<c-\><c-n>]], bang = true }
+
+  local srow = unpack(api.nvim_buf_get_mark(0, "<"))
+  local erow = unpack(api.nvim_buf_get_mark(0, ">"))
+
+  vim.cmd.normal {
+    ("%d@%s"):format(vim.v.count1, vim.fn.getcharstr()),
+    bang = true,
+    mods = {
+      noautocmd = true,
+    },
+    range = { srow, erow },
+  }
+end)
+
+keymap.set("n", "<leader>cd", "<cmd>tcd %:p:h<cr>")

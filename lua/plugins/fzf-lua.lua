@@ -3,14 +3,11 @@ local keymap = vim.keymap
 ---@param idx integer
 local spell_on_choice = vim.schedule_wrap(function(idx)
   if type(idx) ~= "number" then return end
-  vim.cmd("normal! " .. idx .. "z=")
+  vim.cmd.normal { ("%dz="):format(idx), bang = true }
 end)
 
 local spellsuggest_select = function()
-  if vim.v.count > 0 then
-    spell_on_choice(vim.v.count)
-    return
-  end
+  if vim.v.count > 0 then return spell_on_choice(vim.v.count) end
   require("fzf-lua").spell_suggest()
 end
 
