@@ -24,6 +24,8 @@ local function last_terminal()
       end
     )
     :totable()
+  if vim.tbl_isempty(terminal_channels) then return end
+
   table.sort(terminal_channels, function(left, right)
     return left.buffer > right.buffer
   end)
@@ -33,12 +35,15 @@ end
 
 ---@param type 'line'|'char'|'block'
 function M.eval_in_last_term(type)
+  local last_term = last_terminal()
+  if not last_term then return vim.notify "An opened terminal couldn't be found" end
+
   local range_type = type == "line" and "V" or type == "char" and "v" or "\22"
 
   local lines = vim.fn.getregion(vim.fn.getpos "'[", vim.fn.getpos "']", { type = range_type })
   table.insert(lines, "")
 
-  api.nvim_chan_send(last_terminal(), table.concat(lines, "\r\n"))
+  api.nvim_chan_send(last_term, table.concat(lines, "\r\n"))
 end
 
 ---@param str string
