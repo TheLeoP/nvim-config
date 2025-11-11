@@ -47,19 +47,15 @@ function M.eval_in_last_term(type)
 end
 
 ---@param str string
----@param i integer start of the substring (base 1)
----@param j integer|nil end of the substring exclusive (base 1)
----@return string the substring
+---@param i integer
+---@param j? integer
+---@return string
 function M.str_multibyte_sub(str, i, j)
-  local length = vim.str_utfindex(str, "utf-8") --[[@as integer]]
-  if i < 0 then i = i + length + 1 end
-  if j and j < 0 then j = j + length + 1 end
-  local u = (i > 0) and i or 1
-  local v = (j and j <= length) and j or length
-  if u > v then return "" end
-  local s = vim.str_byteindex(str, "utf-8", u - 1)
-  local e = vim.str_byteindex(str, "utf-8", v)
-  return str:sub(s + 1, e)
+  j = j or vim.str_utfindex(str, "utf-32", #str)
+  i = math.min(i - 1, j)
+  local first_byte_index = vim.str_byteindex(str, "utf-32", i) + 1
+  local last_byte_index = vim.str_byteindex(str, "utf-32", j)
+  return str:sub(first_byte_index, last_byte_index)
 end
 
 ---@async
