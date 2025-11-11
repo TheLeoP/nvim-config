@@ -25,6 +25,12 @@ function M.projects()
         local project_path = selected[1] ---@type string
         require("fzf-lua").live_grep { cwd = project_path }
       end,
+      ["ctrl-d"] = {
+        fn = function(selected)
+          require("project_nvim.utils.history").delete_project(selected[1])
+        end,
+        reload = true,
+      },
     },
     preview = vim.fn.executable "eza" and "eza -la --color=always --icons -g --group-directories-first {1}"
       or "ls -la {1}",
