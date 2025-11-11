@@ -26,6 +26,8 @@ function M.projects()
         require("fzf-lua").live_grep { cwd = project_path }
       end,
     },
+    preview = vim.fn.executable "eza" and "eza -la --color=always --icons -g --group-directories-first {1}"
+      or "ls -la {1}",
   })
 end
 
