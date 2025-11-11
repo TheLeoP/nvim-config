@@ -34,6 +34,9 @@ function M.projects()
     },
     preview = vim.fn.executable "eza" and "eza -la --color=always --icons -g --group-directories-first {1}"
       or "ls -la {1}",
+    fzf_opts = {
+      ["--tiebreak"] = "index",
+    },
   })
 end
 
