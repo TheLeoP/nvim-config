@@ -1,5 +1,6 @@
 return {
-  "andymass/vim-matchup",
+  "TheLeoP/vim-matchup",
+  branch = "perf",
   init = function()
     -- recognize only symbols in strings and comments (and not words like `for`
     -- or `end`)
