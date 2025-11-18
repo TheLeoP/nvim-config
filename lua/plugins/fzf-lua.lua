@@ -43,9 +43,9 @@ return {
         ---@param selected string[]
         ---@param opts table
         enter = function(selected, opts)
-          require("fzf-lua.actions").cd(selected, opts)
+          require("fzf-lua.actions").zoxide_cd(selected, opts)
 
-          -- copied from inside of the `cd` action
+          -- copied from inside of the `zoxide_cd` action
           local cwd = selected[1]:match "[^\t]+$" or selected[1]
           if opts.cwd then cwd = opts.cwd .. cwd end
           local git_root = opts.git_root and require("fzf-lua.path").git_root({ cwd = cwd }, true) or nil
