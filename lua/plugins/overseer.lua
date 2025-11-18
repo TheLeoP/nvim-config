@@ -100,6 +100,12 @@ return {
       vim.keymap.set("n", "<leader>to", "<cmd>OverseerToggle<cr>", { desc = "Toggle task window" })
 
       vim.keymap.set("n", "<leader>o<", restart_last_task, { desc = "Restart last task" })
+      vim.keymap.set("n", "<leader>or", function()
+        overseer.run_template({}, function(task)
+          if not task then return end
+          open_and_close()
+        end)
+      end, { desc = "Run task" })
 
       -- vim-dispatch style keymaps
       vim.keymap.set("n", "' ", start_prompt)
