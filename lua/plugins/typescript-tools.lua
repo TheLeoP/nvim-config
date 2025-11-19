@@ -4,10 +4,11 @@ return {
   config = function()
     require("typescript-tools").setup {
       capabilities = require("blink.cmp").get_lsp_capabilities(nil, true),
-      root_dir = function()
-        return vim.fs.root(0, {
-          ".git",
-        }) or vim.fs.root(0, { "package.json" })
+      root_dir = function(buf, cb)
+        local root = vim.fs.root(buf, { ".git" })
+        if root then cb(root) end
+        root = vim.fs.root(buf, { "package.json" })
+        if root then cb(root) end
       end,
       settings = {
         tsserver_max_memory = "10240",
