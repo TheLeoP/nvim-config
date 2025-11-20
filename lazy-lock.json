@@ -9,7 +9,7 @@
   "diffview.nvim": { "branch": "main", "commit": "4516612fe98ff56ae0415a259ff6361a89419b0a" },
   "dressing.nvim": { "branch": "master", "commit": "2d7c2db2507fa3c4956142ee607431ddb2828639" },
   "feline.nvim": { "branch": "master", "commit": "3587f57480b88e8009df7b36dc84e9c7ff8f2c49" },
-  "fzf": { "branch": "master", "commit": "2ab923f3ae04d5e915e5ff4a9cd3bd515bfd1ea5" },
+  "fzf": { "branch": "master", "commit": "3db63f5e52ebf88a483558cbdfa4143fb84e41d0" },
   "fzf-lua": { "branch": "main", "commit": "123cc546c4618f5fd90d5db2da5643e76979162c" },
   "gitsigns.nvim": { "branch": "main", "commit": "cdafc320f03f2572c40ab93a4eecb733d4016d07" },
   "grug-far.nvim": { "branch": "main", "commit": "b58b2d65863f4ebad88b10a1ddd519e5380466e0" },
