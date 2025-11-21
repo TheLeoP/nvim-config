@@ -23,6 +23,7 @@ o.expandtab = true
 o.shiftwidth = 4
 
 o.scrolloff = 8
+o.sidescrolloff = 20
 
 o.cmdheight = 2
 
