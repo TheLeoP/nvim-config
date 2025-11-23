@@ -4,11 +4,7 @@ return {
   settings = {
     Lua = {
       hint = {
-        enable = true,
         arrayIndex = "Disable",
-      },
-      codelens = {
-        enable = true,
       },
       completion = {
         showWord = "Disable",
