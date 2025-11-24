@@ -60,6 +60,9 @@ return {
         snacks_image = { enabled = false },
       },
     },
+    lsp = {
+      includeDeclaration = false,
+    },
   },
   config = function(_, opts)
     local fzf = require "fzf-lua"
