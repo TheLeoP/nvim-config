@@ -342,6 +342,25 @@ return {
       end,
     })
 
+    local cmdline = require "mini.cmdline"
+    cmdline.setup {
+      autocomplete = {
+        map_arrows = false,
+      },
+    }
+    vim.cmd [[set wildchar=<down>]]
+    local mk = require "mini.keymap"
+    mk.map_multistep("c", "<up>", {
+      {
+        condition = function()
+          return vim.fn.wildmenumode() == 1
+        end,
+        action = function()
+          return "<c-p>"
+        end,
+      },
+    })
+
     require("mini.test").setup()
   end,
 }

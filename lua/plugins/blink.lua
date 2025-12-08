@@ -23,53 +23,9 @@ return {
       ["<tab>"] = false,
     },
     cmdline = {
-      completion = {
-        trigger = {
-          show_on_blocked_trigger_characters = { " " },
-        },
-        list = {
-          selection = {
-            preselect = false,
-            auto_insert = false,
-          },
-        },
-        menu = {
-          auto_show = function(ctx, _)
-            return ctx.mode == "cmdwin" or vim.fn.getcmdtype() == ":"
-          end,
-        },
-      },
-      keymap = {
-        preset = "none",
-        ["<down>"] = { "select_next", "fallback" },
-        ["<up>"] = { "select_prev", "fallback" },
-        ["<cr>"] = { "accept", "fallback" },
-        ["<c-e>"] = { "cancel" },
-        ["<c-space>"] = { "show" },
-      },
+      enabled = false,
     },
     snippets = { preset = "luasnip" },
-    fuzzy = {
-      sorts = {
-        -- shows user defined commands first
-        function(a, b)
-          local mode = api.nvim_get_mode().mode
-          if not mode:match "^c" then return end
-
-          local a_is_upper = a.label:sub(1, 1) == a.label:sub(1, 1):upper()
-          local b_is_upper = b.label:sub(1, 1) == b.label:sub(1, 1):upper()
-          if a_is_upper and not b_is_upper then
-            return true
-          elseif b_is_upper and not a_is_upper then
-            return false
-          else
-            return
-          end
-        end,
-        "score",
-        "sort_text",
-      },
-    },
 
     completion = {
       keyword = {
