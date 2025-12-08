@@ -51,7 +51,8 @@ o.ruler = false -- laststatus overrides ruler, but it's still on by default, whi
 
 o.cursorline = true
 
-opt.diffopt:append { "vertical", "context:99" }
+-- NOTE: remove `linematch:40` from the default because it messes up `dp` and `do`
+o.diffopt = "internal,filler,closeoff,vertical"
 
 opt.shortmess:append "sWcC"
 
