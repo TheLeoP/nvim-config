@@ -25,13 +25,6 @@ end, { desc = "Toggle location list" })
 
 keymap.set("n", "<leader>tp", "<cmd>pclose<cr>")
 
-keymap.set("c", "Mes", function()
-  local default = "Mes"
-  if vim.fn.getcmdtype() ~= ":" then return default end
-  if vim.fn.getcmdline() ~= "" then return default end
-  return "mes"
-end, { expr = true })
-
 keymap.set({ "n" }, "<leader><leader>t", "<cmd>tab split<cr>")
 
 keymap.set("n", "j", function()
