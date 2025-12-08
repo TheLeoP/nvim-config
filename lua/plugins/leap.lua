@@ -3,7 +3,7 @@ local api = vim.api
 
 return {
   {
-    "ggandor/leap.nvim",
+    url = "https://codeberg.org/andyg/leap.nvim.git",
     dependencies = { "tpope/vim-repeat" },
     config = function()
       local leap = require "leap"
