@@ -5,32 +5,31 @@ local M = {}
 
 ---@param buf integer
 ---@param cursor {[1]: integer, [2]: integer}
-local function set_term_cursor(buf, cursor)
+---@param term_keys editable_term.TermKeys
+local function set_term_cursor(buf, cursor, term_keys)
   local bufinfo = M.buffers[buf]
   local prompt_start = bufinfo.prompt_cursor[2]
   local line = vim.api.nvim_buf_get_lines(buf, cursor[1] - 1, cursor[1], true)[1]
   local cursor_end_index = vim.str_utfindex(line, "utf-32", cursor[2], true)
-  local p = vim.keycode(bufinfo.term_keys.goto_line_start)
-    .. vim.keycode(bufinfo.term_keys.forward_char):rep(cursor_end_index - prompt_start)
+  local p = vim.keycode(term_keys.goto_line_start)
+    .. vim.keycode(term_keys.forward_char):rep(cursor_end_index - prompt_start)
   vim.fn.chansend(vim.bo.channel, p)
 end
 
 ---@param buf integer
 ---@param chan integer
 ---@param line string
-local function update_line(buf, chan, line)
+---@param term_keys editable_term.TermKeys
+local function update_line(buf, chan, line, term_keys)
   local bufinfo = M.buffers[buf]
   local cursor = vim.api.nvim_win_get_cursor(0)
   if not bufinfo.prompt_cursor or cursor[1] ~= bufinfo.prompt_cursor[1] then return end
 
-  vim.fn.chansend(chan, vim.keycode(bufinfo.term_keys.clear_current_line))
+  vim.fn.chansend(chan, vim.keycode(term_keys.clear_current_line))
   local prompt_start = bufinfo.prompt_cursor[2]
   local prompt_start_byte_index = vim.str_byteindex(line, "utf-32", prompt_start)
   vim.fn.chansend(chan, line:sub(prompt_start_byte_index + 1))
 end
-
----@class editable_term.Prompt
----@field term_keys? editable_term.TermKeys
 
 ---@class editable_term.TermKeys
 ---@field clear_current_line string
@@ -42,7 +41,6 @@ end
 ---@field term_keys? editable_term.TermKeys
 
 ---@class editable_term.BufInfo
----@field term_keys? editable_term.TermKeys
 ---@field prompt_cursor? {[1]: integer, [2]: integer}
 
 ---@type {[integer]: editable_term.BufInfo}
@@ -64,7 +62,7 @@ M.setup = function(config)
     group = vim.api.nvim_create_augroup("editable-term", { clear = true }),
     callback = function(args)
       local editgroup = vim.api.nvim_create_augroup("editable-term-text-change" .. args.buf, { clear = true })
-      M.buffers[args.buf] = { term_keys = term_keys }
+      M.buffers[args.buf] = {}
 
       vim.keymap.set("n", "A", function()
         local bufinfo = M.buffers[args.buf]
@@ -73,8 +71,7 @@ M.setup = function(config)
           local line = vim.api.nvim_buf_get_lines(args.buf, cursor_row - 1, cursor_row, true)[1]
           line = line:sub(cursor_col)
           local start = line:find "%s*$"
-          local p = vim.keycode(bufinfo.term_keys.goto_line_start)
-            .. vim.keycode(bufinfo.term_keys.forward_char):rep(start - 2)
+          local p = vim.keycode(term_keys.goto_line_start) .. vim.keycode(term_keys.forward_char):rep(start - 2)
           vim.fn.chansend(vim.bo.channel, p)
         end
         vim.cmd.startinsert()
@@ -87,8 +84,7 @@ M.setup = function(config)
           local line = vim.api.nvim_buf_get_lines(args.buf, cursor_row - 1, cursor_row, false)[1]
           line = line:sub(cursor_col)
           local _, end_ = line:find "[^%s]"
-          local p = vim.keycode(bufinfo.term_keys.goto_line_start)
-            .. vim.keycode(bufinfo.term_keys.forward_char):rep(end_ - 2)
+          local p = vim.keycode(term_keys.goto_line_start) .. vim.keycode(term_keys.forward_char):rep(end_ - 2)
           vim.fn.chansend(vim.bo.channel, p)
         end
         vim.cmd.startinsert()
@@ -99,9 +95,9 @@ M.setup = function(config)
         local cursor = vim.api.nvim_win_get_cursor(0)
         if bufinfo.prompt_cursor then
           if cursor[1] == bufinfo.prompt_cursor[1] then
-            set_term_cursor(args.buf, cursor)
+            set_term_cursor(args.buf, cursor, term_keys)
           else
-            vim.fn.chansend(vim.bo.channel, vim.keycode(bufinfo.term_keys.goto_line_end))
+            vim.fn.chansend(vim.bo.channel, vim.keycode(term_keys.goto_line_end))
           end
         end
         vim.cmd.startinsert()
@@ -113,34 +109,26 @@ M.setup = function(config)
           local cursor = vim.api.nvim_win_get_cursor(0)
           if cursor[1] == bufinfo.prompt_cursor[1] then
             cursor[2] = cursor[2] + 1
-            set_term_cursor(args.buf, cursor)
+            set_term_cursor(args.buf, cursor, term_keys)
           else
-            vim.fn.chansend(vim.bo.channel, vim.keycode(bufinfo.term_keys.goto_line_end))
+            vim.fn.chansend(vim.bo.channel, vim.keycode(term_keys.goto_line_end))
           end
         end
         vim.cmd.startinsert()
       end, { buffer = args.buf })
 
       vim.keymap.set("n", "dd", function()
-        local bufinfo = M.buffers[args.buf]
-        vim.fn.chansend(
-          vim.bo.channel,
-          vim.keycode(bufinfo.term_keys.clear_current_line .. bufinfo.term_keys.goto_line_start)
-        )
+        vim.fn.chansend(vim.bo.channel, vim.keycode(term_keys.clear_current_line .. term_keys.goto_line_start))
         local cursor = vim.api.nvim_win_get_cursor(0)
         cursor[2] = 0
-        set_term_cursor(args.buf, cursor)
+        set_term_cursor(args.buf, cursor, term_keys)
       end, { buffer = args.buf })
 
       vim.keymap.set("n", "cc", function()
-        local bufinfo = M.buffers[args.buf]
-        vim.fn.chansend(
-          vim.bo.channel,
-          vim.keycode(bufinfo.term_keys.clear_current_line .. bufinfo.term_keys.goto_line_start)
-        )
+        vim.fn.chansend(vim.bo.channel, vim.keycode(term_keys.clear_current_line .. term_keys.goto_line_start))
         local cursor = vim.api.nvim_win_get_cursor(0)
         cursor[2] = 0
-        set_term_cursor(args.buf, cursor)
+        set_term_cursor(args.buf, cursor, term_keys)
         vim.cmd.startinsert()
       end, { buffer = args.buf })
 
@@ -158,13 +146,13 @@ M.setup = function(config)
             start_point[2] = start_point[2] + vim.str_utf_start(line, start_point[2] + 1)
             end_point[2] = end_point[2] + vim.str_utf_end(line, end_point[2] + 1) + 1 + 1
             line = line:sub(1, start_point[2]) .. line:sub(end_point[2])
-            update_line(args2.buf, vim.bo.channel, line)
+            update_line(args2.buf, vim.bo.channel, line, term_keys)
 
             -- NOTE: this is an empty region
             if start_point[1] == end_point[1] and end_point[2] < start_point[2] then
               start_point[2] = start_point[2] - 1
             end
-            set_term_cursor(args2.buf, start_point)
+            set_term_cursor(args2.buf, start_point, term_keys)
           end
         end,
       })
@@ -182,7 +170,7 @@ M.setup = function(config)
 
           local cursor_row = unpack(bufinfo.prompt_cursor)
           local line = vim.api.nvim_buf_get_lines(args.buf, cursor_row - 1, cursor_row, true)[1]
-          update_line(args2.buf, vim.bo.channel, line)
+          update_line(args2.buf, vim.bo.channel, line, term_keys)
           busy = true
           vim.defer_fn(function()
             busy = false
