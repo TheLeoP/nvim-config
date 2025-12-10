@@ -1,4 +1,5 @@
 -- TODO: create a PR to add to Neovim
+-- TODO: support prompts spanning multiple lines
 local M = {}
 
 ---@param buf integer
@@ -43,7 +44,6 @@ end
 
 ---@class editable_term.Config
 ---@field term_keys? editable_term.TermKeys
----@field prompts? {[string]: editable_term.Prompt}
 ---@field wait_for_keys_delay? integer
 
 ---@class editable_term.BufInfo
@@ -59,7 +59,6 @@ M.wait_for_keys_delay = 50
 M.setup = function(config)
   config = config or {}
 
-  local prompts = config.prompts
   local term_keys = config.term_keys
     or {
       goto_line_start = "<c-a>",
@@ -189,29 +188,6 @@ M.setup = function(config)
           local cursor_row = unpack(bufinfo.prompt_cursor)
           local line = vim.api.nvim_buf_get_lines(args.buf, cursor_row - 1, cursor_row, true)[1]
           update_line(args2.buf, vim.bo.channel, line)
-        end,
-      })
-
-      vim.api.nvim_create_autocmd("TermLeave", {
-        group = editgroup,
-        buffer = args.buf,
-        callback = function(args2)
-          if not prompts then return end
-          local bufinfo = M.buffers[args2.buf]
-
-          local cursor_row = unpack(bufinfo.prompt_cursor)
-          local line = vim.api.nvim_buf_get_lines(args.buf, cursor_row - 1, cursor_row, true)[1]
-          local cursor = vim.api.nvim_win_get_cursor(0)
-          vim.api.nvim_win_set_cursor(0, cursor)
-          local row = cursor[1]
-          for pattern, prompt in pairs(prompts) do
-            local start, end_ = line:find(pattern)
-            if start then
-              bufinfo.prompt_cursor = { row, end_ }
-              bufinfo.term_keys = prompt.term_keys or term_keys
-              break
-            end
-          end
         end,
       })
 
