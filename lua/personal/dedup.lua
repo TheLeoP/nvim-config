@@ -8,7 +8,7 @@ function M.throttle(cb, ms)
   local timer ---@type uv.uv_timer_t|nil
 
   return function()
-    -- if the function is alreaydy waiting to be executed, don't execute it
+    -- if the function is already waiting to be executed, don't execute it
     -- until the previous one has finished
     if timer then return end
     timer = assert(uv.new_timer())
@@ -30,7 +30,7 @@ function M.debounce(cb, ms)
   local timer ---@type uv.uv_timer_t|nil
 
   return function()
-    -- always start the timer, even if it's running. This will delay it's
+    -- always start the timer, even if it's running. This will delay its
     -- execution until the last call
     if not timer then timer = assert(uv.new_timer()) end
     timer:start(ms, 0, function()
