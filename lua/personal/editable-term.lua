@@ -1,5 +1,6 @@
 -- TODO: create a PR to add to Neovim
 -- TODO: support prompts spanning multiple lines
+
 local M = {}
 
 ---@param buf integer
@@ -26,11 +27,6 @@ local function update_line(buf, chan, line)
   local prompt_start = bufinfo.prompt_cursor[2]
   local prompt_start_byte_index = vim.str_byteindex(line, "utf-32", prompt_start)
   vim.fn.chansend(chan, line:sub(prompt_start_byte_index + 1))
-
-  M.buffers[buf].waiting = true
-  vim.defer_fn(function()
-    M.buffers[buf].waiting = false
-  end, M.wait_for_keys_delay)
 end
 
 ---@class editable_term.Prompt
@@ -44,16 +40,13 @@ end
 
 ---@class editable_term.Config
 ---@field term_keys? editable_term.TermKeys
----@field wait_for_keys_delay? integer
 
 ---@class editable_term.BufInfo
 ---@field term_keys? editable_term.TermKeys
----@field waiting? boolean
 ---@field prompt_cursor? {[1]: integer, [2]: integer}
 
 ---@type {[integer]: editable_term.BufInfo}
 M.buffers = {}
-M.wait_for_keys_delay = 50
 
 ---@param config editable_term.Config?
 M.setup = function(config)
@@ -66,7 +59,6 @@ M.setup = function(config)
       clear_current_line = "<c-u>",
       forward_char = "<c-f>",
     }
-  if config.wait_for_keys_delay then M.wait_for_keys_delay = config.wait_for_keys_delay end
 
   vim.api.nvim_create_autocmd("TermOpen", {
     group = vim.api.nvim_create_augroup("editable-term", { clear = true }),
@@ -177,17 +169,24 @@ M.setup = function(config)
         end,
       })
 
+      -- NOTE: the event gets retriggered by the changes made on `update_line`,
+      -- so we need to ignore it for a small amount of time
+      local busy = false
       vim.api.nvim_create_autocmd("TextChanged", {
         buffer = args.buf,
         group = editgroup,
         callback = function(args2)
+          if busy then return end
           local bufinfo = M.buffers[args2.buf]
-          if bufinfo.waiting then return end
           if not bufinfo.prompt_cursor then return end
 
           local cursor_row = unpack(bufinfo.prompt_cursor)
           local line = vim.api.nvim_buf_get_lines(args.buf, cursor_row - 1, cursor_row, true)[1]
           update_line(args2.buf, vim.bo.channel, line)
+          busy = true
+          vim.defer_fn(function()
+            busy = false
+          end, 50)
         end,
       })
 
@@ -198,14 +197,6 @@ M.setup = function(config)
           if not string.match(args2.data.sequence, "^\027]133;B") then return end
 
           M.buffers[args2.buf].prompt_cursor = args2.data.cursor
-        end,
-      })
-
-      vim.api.nvim_create_autocmd("BufDelete", {
-        group = editgroup,
-        buffer = args.buf,
-        callback = function()
-          vim.api.nvim_del_augroup_by_id(editgroup)
         end,
       })
 
