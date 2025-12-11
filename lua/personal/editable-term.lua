@@ -1,5 +1,4 @@
 -- TODO: create a PR to add to Neovim
--- TODO: when in q: in a term buffer, accepting a command seems to trigger some of these autocmds and it shouldn't
 
 local api = vim.api
 
@@ -169,7 +168,7 @@ M.setup = function(config)
             if is_last_new_line then break end
           end
 
-          -- TODO: use vim.range here and everywhere
+          -- TODO: use vim.range here and everywhere when creating a PR to Neovim
           if
             start_point[1] < cmd_start[1]
             or end_point[1] < cmd_start[1]
@@ -206,6 +205,8 @@ M.setup = function(config)
 
       -- NOTE: the event gets retriggered by the changes made on `update_line`,
       -- so we need to ignore it for a small amount of time
+      -- NOTE: the event gets triggered on terminal reflow, which may happen
+      -- when opening a new window on a split or even on `q:`
       local busy = false
       api.nvim_create_autocmd("TextChanged", {
         buffer = args.buf,
