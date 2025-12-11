@@ -42,10 +42,9 @@ local function set_term_cursor(buf, cursor, term_keys)
 end
 
 ---@param buf integer
----@param chan integer
 ---@param new_lines string[]
 ---@param term_keys editable_term.TermKeys
-local function update_line(buf, chan, new_lines, term_keys)
+local function update_lines(buf, new_lines, term_keys)
   local bufinfo = M.buffers[buf]
   local cmd_start = bufinfo.cmd_cursor
   if not cmd_start then return end
@@ -64,7 +63,7 @@ local function update_line(buf, chan, new_lines, term_keys)
   local new_term_line = table.concat(new_term_line_segments)
 
   vim.fn.chansend(
-    chan,
+    vim.bo[buf].channel,
     vim.keycode(term_keys.clear_current_line) .. new_term_line .. vim.keycode(term_keys.clear_suggestions)
   )
 end
@@ -146,12 +145,28 @@ M.setup = function(config)
         vim.cmd.startinsert()
       end, { buffer = args.buf })
 
-      -- NOTE: this isn't triggered for `c` nor `d` when using the blackhole register
-      api.nvim_create_autocmd("TextYankPost", {
+      -- NOTE: does not work with empty regions (e.g. `ci"` with the text `grep
+      -- ""`) because the marks `[` and `]` return {0, 0}. TextYankPost can be
+      -- used to compute the change ourselves and make this work with empty
+      -- regions, but it wouldn't work when using the blackhole register.
+      -- NOTE: the problem with empty ranges includes plugins workarounds like
+      -- on mini.ai or targets.vim, but for a different reason. Their
+      -- workaround is to insert a single space in the empty region, visually
+      -- select it and allow only operators like `c` or `d` (because they'll be
+      -- able to delete the space)
+      api.nvim_create_autocmd("ModeChanged", {
         group = editgroup,
         buffer = args.buf,
         callback = function(args2)
-          if vim.v.event.operator == "y" then return end
+          local intercepting_c_operator = (vim.v.event.old_mode == "v" or vim.v.event.old_mode == "no")
+            and vim.v.event.new_mode == "t"
+            and vim.v.operator == "c"
+          local intercepting_d_or_custom_operator = (
+            (vim.v.event.old_mode == "v" or vim.v.event.old_mode == "no")
+            and vim.v.event.new_mode == "nt"
+            and (vim.v.operator == "d" or vim.v.operator == "g@")
+          )
+          if not intercepting_c_operator and not intercepting_d_or_custom_operator then return end
 
           local bufinfo = M.buffers[args2.buf]
           local cmd_start = bufinfo.cmd_cursor
@@ -160,12 +175,11 @@ M.setup = function(config)
           local start_point = api.nvim_buf_get_mark(args2.buf, "[")
           local end_point = api.nvim_buf_get_mark(args2.buf, "]")
 
-          local lines = api.nvim_buf_get_lines(args2.buf, cmd_start[1] - 1, -1, true)
-          local new_lines = {} ---@type string[]
-          for i, line in ipairs(lines) do
-            table.insert(new_lines, line)
-            local is_last_new_line = lines[i + 1] == "" and lines[i + 2] == ""
-            if is_last_new_line then break end
+          -- NOTE: this seems to happen when trying to change an empty region
+          -- in a terminal buffer. For now, treat this as invalid
+          if start_point[1] == 0 and start_point[2] == 0 and end_point[1] == 0 and end_point[2] == 0 then
+            vim.fn.chansend(vim.bo.channel, vim.keycode "<c-c>")
+            return
           end
 
           -- TODO: use vim.range here and everywhere when creating a PR to Neovim
@@ -179,21 +193,19 @@ M.setup = function(config)
             return
           end
 
-          if vim.v.event.operator ~= "c" then return end
+          -- TODO: check if custom operators that end in terminal mode trigger TextChanged
+          -- NOTE: operators that do not end in terminal mode are captured by TextChanged
+          if vim.v.event.new_mode ~= "t" then return end
 
-          local start_point_i = start_point[1] - cmd_start[1] + 1
-          local end_point_i = end_point[1] - cmd_start[1] + 1
-          start_point[2] = start_point[2] + vim.str_utf_start(new_lines[start_point_i], start_point[2] + 1)
-          end_point[2] = end_point[2] + vim.str_utf_end(new_lines[end_point_i], end_point[2] + 1) + 1 + 1
-
-          if start_point[1] == end_point[1] then
-            new_lines[start_point_i] = new_lines[start_point_i]:sub(1, start_point[2])
-              .. new_lines[start_point_i]:sub(end_point[2])
-          else
-            new_lines[start_point_i] = new_lines[start_point_i]:sub(1, start_point[2])
-            new_lines[end_point_i] = new_lines[end_point_i]:sub(end_point[2])
+          local lines = api.nvim_buf_get_lines(args2.buf, cmd_start[1] - 1, -1, true)
+          local new_lines = {} ---@type string[]
+          for i, line in ipairs(lines) do
+            table.insert(new_lines, line)
+            local is_last_new_line = lines[i + 1] == "" and lines[i + 2] == ""
+            if is_last_new_line then break end
           end
-          update_line(args2.buf, vim.bo.channel, new_lines, term_keys)
+
+          update_lines(args2.buf, new_lines, term_keys)
 
           -- NOTE: this is an empty region
           if start_point[1] == end_point[1] and end_point[2] < start_point[2] then
@@ -232,7 +244,7 @@ M.setup = function(config)
             if is_last_new_line then break end
           end
 
-          update_line(args2.buf, vim.bo.channel, new_lines, term_keys)
+          update_lines(args2.buf, new_lines, term_keys)
         end,
       })
 
