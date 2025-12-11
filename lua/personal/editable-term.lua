@@ -1,5 +1,7 @@
 -- TODO: create a PR to add to Neovim
--- TODO: support prompts spanning multiple lines
+-- TODO: when in q: in a term buffer, accepting a command seems to trigger some of these autocmds and it shouldn't
+
+local api = vim.api
 
 local M = {}
 
@@ -8,27 +10,64 @@ local M = {}
 ---@param term_keys editable_term.TermKeys
 local function set_term_cursor(buf, cursor, term_keys)
   local bufinfo = M.buffers[buf]
-  local prompt_start = bufinfo.prompt_cursor[2]
-  local line = vim.api.nvim_buf_get_lines(buf, cursor[1] - 1, cursor[1], true)[1]
-  local cursor_end_index = vim.str_utfindex(line, "utf-32", cursor[2], true)
-  local p = vim.keycode(term_keys.goto_line_start)
-    .. vim.keycode(term_keys.forward_char):rep(cursor_end_index - prompt_start)
-  vim.fn.chansend(vim.bo.channel, p)
+  local cmd_start = bufinfo.cmd_cursor
+  if not cmd_start then return end
+  if cursor[1] < cmd_start[1] then return end
+  local n_forward_chars ---@type integer
+  if cursor[1] == cmd_start[1] then
+    local line = api.nvim_buf_get_lines(buf, cursor[1] - 1, cursor[1], true)[1]
+    local cursor_end_index = vim.str_utfindex(line, "utf-32", cursor[2], true)
+    n_forward_chars = cursor_end_index - cmd_start[2]
+  else
+    local lines = api.nvim_buf_get_lines(buf, cmd_start[1] - 1, cursor[1], true)
+
+    for i, line in ipairs(lines) do
+      if line ~= "" then
+        if i == 1 then
+          local first_line_end_index = vim.str_utfindex(line, "utf-32", #line - 1, true)
+          n_forward_chars = first_line_end_index - cmd_start[2] + 1
+        elseif i == #lines then
+          local last_line_end_index = vim.str_utfindex(line, "utf-32", cursor[2], true)
+          n_forward_chars = n_forward_chars + last_line_end_index
+        else
+          local end_index = vim.str_utfindex(line, "utf-32", #line - 1, true)
+          n_forward_chars = n_forward_chars + end_index + 1
+        end
+      end
+    end
+  end
+
+  local movement_chars = vim.keycode(term_keys.goto_line_start)
+    .. vim.keycode(term_keys.forward_char):rep(n_forward_chars)
+  vim.fn.chansend(vim.bo.channel, movement_chars)
 end
 
 ---@param buf integer
 ---@param chan integer
----@param line string
+---@param new_lines string[]
 ---@param term_keys editable_term.TermKeys
-local function update_line(buf, chan, line, term_keys)
+local function update_line(buf, chan, new_lines, term_keys)
   local bufinfo = M.buffers[buf]
-  local cursor = vim.api.nvim_win_get_cursor(0)
-  if not bufinfo.prompt_cursor or cursor[1] ~= bufinfo.prompt_cursor[1] then return end
+  local cmd_start = bufinfo.cmd_cursor
+  if not cmd_start then return end
 
-  vim.fn.chansend(chan, vim.keycode(term_keys.clear_current_line))
-  local prompt_start = bufinfo.prompt_cursor[2]
-  local prompt_start_byte_index = vim.str_byteindex(line, "utf-32", prompt_start)
-  vim.fn.chansend(chan, line:sub(prompt_start_byte_index + 1))
+  local new_term_line_segments = {} ---@type string[]
+  for i, line in ipairs(new_lines) do
+    if line ~= "" then
+      if i == 1 then
+        local cmd_start_byte_index = vim.str_byteindex(line, "utf-32", cmd_start[2])
+        table.insert(new_term_line_segments, line:sub(cmd_start_byte_index + 1))
+      else
+        table.insert(new_term_line_segments, line)
+      end
+    end
+  end
+  local new_term_line = table.concat(new_term_line_segments)
+
+  vim.fn.chansend(
+    chan,
+    vim.keycode(term_keys.clear_current_line) .. new_term_line .. vim.keycode(term_keys.clear_suggestions)
+  )
 end
 
 ---@class editable_term.TermKeys
@@ -36,12 +75,13 @@ end
 ---@field forward_char string
 ---@field goto_line_start string
 ---@field goto_line_end string
+---@field clear_suggestions string
 
 ---@class editable_term.Config
 ---@field term_keys? editable_term.TermKeys
 
 ---@class editable_term.BufInfo
----@field prompt_cursor? {[1]: integer, [2]: integer}
+---@field cmd_cursor? {[1]: integer, [2]: integer}
 
 ---@type {[integer]: editable_term.BufInfo}
 M.buffers = {}
@@ -56,145 +96,166 @@ M.setup = function(config)
       goto_line_end = "<c-e>",
       clear_current_line = "<c-u>",
       forward_char = "<c-f>",
+      clear_suggestions = "",
     }
 
-  vim.api.nvim_create_autocmd("TermOpen", {
-    group = vim.api.nvim_create_augroup("editable-term", { clear = true }),
+  api.nvim_create_autocmd("TermOpen", {
+    group = api.nvim_create_augroup("editable-term", { clear = true }),
     callback = function(args)
-      local editgroup = vim.api.nvim_create_augroup("editable-term-text-change" .. args.buf, { clear = true })
+      local editgroup = api.nvim_create_augroup("editable-term-text-change" .. args.buf, { clear = true })
       M.buffers[args.buf] = {}
 
       vim.keymap.set("n", "A", function()
-        local bufinfo = M.buffers[args.buf]
-        if bufinfo.prompt_cursor then
-          local cursor_row, cursor_col = unpack(bufinfo.prompt_cursor)
-          local line = vim.api.nvim_buf_get_lines(args.buf, cursor_row - 1, cursor_row, true)[1]
-          line = line:sub(cursor_col)
-          local start = line:find "%s*$"
-          local p = vim.keycode(term_keys.goto_line_start) .. vim.keycode(term_keys.forward_char):rep(start - 2)
-          vim.fn.chansend(vim.bo.channel, p)
-        end
+        vim.fn.chansend(vim.bo.channel, vim.keycode(term_keys.goto_line_end))
         vim.cmd.startinsert()
       end, { buffer = args.buf })
 
       vim.keymap.set("n", "I", function()
-        local bufinfo = M.buffers[args.buf]
-        if bufinfo.prompt_cursor then
-          local cursor_row, cursor_col = unpack(bufinfo.prompt_cursor)
-          local line = vim.api.nvim_buf_get_lines(args.buf, cursor_row - 1, cursor_row, false)[1]
-          line = line:sub(cursor_col)
-          local _, end_ = line:find "[^%s]"
-          local p = vim.keycode(term_keys.goto_line_start) .. vim.keycode(term_keys.forward_char):rep(end_ - 2)
-          vim.fn.chansend(vim.bo.channel, p)
-        end
+        vim.fn.chansend(vim.bo.channel, vim.keycode(term_keys.goto_line_start))
         vim.cmd.startinsert()
       end, { buffer = args.buf })
 
       vim.keymap.set("n", "i", function()
         local bufinfo = M.buffers[args.buf]
-        local cursor = vim.api.nvim_win_get_cursor(0)
-        if bufinfo.prompt_cursor then
-          if cursor[1] == bufinfo.prompt_cursor[1] then
-            set_term_cursor(args.buf, cursor, term_keys)
-          else
-            vim.fn.chansend(vim.bo.channel, vim.keycode(term_keys.goto_line_end))
-          end
+        local cursor = api.nvim_win_get_cursor(0)
+        if bufinfo.cmd_cursor and cursor[1] >= bufinfo.cmd_cursor[1] then
+          set_term_cursor(args.buf, cursor, term_keys)
+        else
+          vim.fn.chansend(vim.bo.channel, vim.keycode(term_keys.goto_line_end))
         end
         vim.cmd.startinsert()
       end, { buffer = args.buf })
 
       vim.keymap.set("n", "a", function()
         local bufinfo = M.buffers[args.buf]
-        if bufinfo.prompt_cursor then
-          local cursor = vim.api.nvim_win_get_cursor(0)
-          if cursor[1] == bufinfo.prompt_cursor[1] then
-            cursor[2] = cursor[2] + 1
-            set_term_cursor(args.buf, cursor, term_keys)
-          else
-            vim.fn.chansend(vim.bo.channel, vim.keycode(term_keys.goto_line_end))
-          end
+        local cursor = api.nvim_win_get_cursor(0)
+        if bufinfo.cmd_cursor and cursor[1] >= bufinfo.cmd_cursor[1] then
+          cursor[2] = cursor[2] + 1
+          set_term_cursor(args.buf, cursor, term_keys)
+        else
+          vim.fn.chansend(vim.bo.channel, vim.keycode(term_keys.goto_line_end))
         end
         vim.cmd.startinsert()
       end, { buffer = args.buf })
 
       vim.keymap.set("n", "dd", function()
         vim.fn.chansend(vim.bo.channel, vim.keycode(term_keys.clear_current_line .. term_keys.goto_line_start))
-        local cursor = vim.api.nvim_win_get_cursor(0)
-        cursor[2] = 0
-        set_term_cursor(args.buf, cursor, term_keys)
       end, { buffer = args.buf })
 
       vim.keymap.set("n", "cc", function()
         vim.fn.chansend(vim.bo.channel, vim.keycode(term_keys.clear_current_line .. term_keys.goto_line_start))
-        local cursor = vim.api.nvim_win_get_cursor(0)
-        cursor[2] = 0
-        set_term_cursor(args.buf, cursor, term_keys)
         vim.cmd.startinsert()
       end, { buffer = args.buf })
 
-      vim.api.nvim_create_autocmd("TextYankPost", {
+      -- NOTE: this isn't triggered for `c` nor `d` when using the blackhole register
+      api.nvim_create_autocmd("TextYankPost", {
         group = editgroup,
         buffer = args.buf,
         callback = function(args2)
-          local start_point = vim.api.nvim_buf_get_mark(args2.buf, "[")
-          local end_point = vim.api.nvim_buf_get_mark(args2.buf, "]")
+          if vim.v.event.operator == "y" then return end
 
-          if start_point[1] ~= end_point[1] then
-            vim.fn.chansend(vim.bo.channel, vim.keycode "<C-C>")
-          elseif vim.v.event.operator == "c" then
-            local line = vim.api.nvim_buf_get_lines(args2.buf, start_point[1] - 1, start_point[1], true)[1]
-            start_point[2] = start_point[2] + vim.str_utf_start(line, start_point[2] + 1)
-            end_point[2] = end_point[2] + vim.str_utf_end(line, end_point[2] + 1) + 1 + 1
-            line = line:sub(1, start_point[2]) .. line:sub(end_point[2])
-            update_line(args2.buf, vim.bo.channel, line, term_keys)
+          local bufinfo = M.buffers[args2.buf]
+          local cmd_start = bufinfo.cmd_cursor
+          if not cmd_start then return end
 
-            -- NOTE: this is an empty region
-            if start_point[1] == end_point[1] and end_point[2] < start_point[2] then
-              start_point[2] = start_point[2] - 1
-            end
-            set_term_cursor(args2.buf, start_point, term_keys)
+          local start_point = api.nvim_buf_get_mark(args2.buf, "[")
+          local end_point = api.nvim_buf_get_mark(args2.buf, "]")
+
+          local lines = api.nvim_buf_get_lines(args2.buf, cmd_start[1] - 1, -1, true)
+          local new_lines = {} ---@type string[]
+          for i, line in ipairs(lines) do
+            table.insert(new_lines, line)
+            local is_last_new_line = lines[i + 1] == "" and lines[i + 2] == ""
+            if is_last_new_line then break end
           end
+
+          -- TODO: use vim.range here and everywhere
+          if
+            start_point[1] < cmd_start[1]
+            or end_point[1] < cmd_start[1]
+            or (start_point[1] == cmd_start[1] and start_point[2] < cmd_start[2])
+            or (end_point[1] == cmd_start[1] and end_point[2] < cmd_start[2])
+          then
+            vim.fn.chansend(vim.bo.channel, vim.keycode "<c-c>")
+            return
+          end
+
+          if vim.v.event.operator ~= "c" then return end
+
+          local start_point_i = start_point[1] - cmd_start[1] + 1
+          local end_point_i = end_point[1] - cmd_start[1] + 1
+          start_point[2] = start_point[2] + vim.str_utf_start(new_lines[start_point_i], start_point[2] + 1)
+          end_point[2] = end_point[2] + vim.str_utf_end(new_lines[end_point_i], end_point[2] + 1) + 1 + 1
+
+          if start_point[1] == end_point[1] then
+            new_lines[start_point_i] = new_lines[start_point_i]:sub(1, start_point[2])
+              .. new_lines[start_point_i]:sub(end_point[2])
+          else
+            new_lines[start_point_i] = new_lines[start_point_i]:sub(1, start_point[2])
+            new_lines[end_point_i] = new_lines[end_point_i]:sub(end_point[2])
+          end
+          update_line(args2.buf, vim.bo.channel, new_lines, term_keys)
+
+          -- NOTE: this is an empty region
+          if start_point[1] == end_point[1] and end_point[2] < start_point[2] then
+            start_point[2] = start_point[2] - 1
+          end
+          set_term_cursor(args2.buf, start_point, term_keys)
         end,
       })
 
       -- NOTE: the event gets retriggered by the changes made on `update_line`,
       -- so we need to ignore it for a small amount of time
       local busy = false
-      vim.api.nvim_create_autocmd("TextChanged", {
+      api.nvim_create_autocmd("TextChanged", {
         buffer = args.buf,
         group = editgroup,
         callback = function(args2)
           if busy then return end
-          local bufinfo = M.buffers[args2.buf]
-          if not bufinfo.prompt_cursor then return end
-
-          local cursor_row = unpack(bufinfo.prompt_cursor)
-          local line = vim.api.nvim_buf_get_lines(args.buf, cursor_row - 1, cursor_row, true)[1]
-          update_line(args2.buf, vim.bo.channel, line, term_keys)
           busy = true
           vim.defer_fn(function()
             busy = false
-          end, 50)
+            -- NOTE: there must be a better way to handle this, probably by
+            -- plugin into the C implementation of the terminal buffer
+          end, 100)
+
+          local bufinfo = M.buffers[args2.buf]
+          local cmd_start = bufinfo.cmd_cursor
+          if not cmd_start then return end
+
+          local lines = api.nvim_buf_get_lines(args2.buf, cmd_start[1] - 1, -1, true)
+          local new_lines = {} ---@type string[]
+          for i, line in ipairs(lines) do
+            table.insert(new_lines, line)
+            local is_last_new_line = lines[i + 1] == "" and lines[i + 2] == ""
+            if is_last_new_line then break end
+          end
+
+          update_line(args2.buf, vim.bo.channel, new_lines, term_keys)
         end,
       })
 
-      vim.api.nvim_create_autocmd("TermRequest", {
+      api.nvim_create_autocmd("TermRequest", {
         group = editgroup,
         buffer = args.buf,
         callback = function(args2)
           if not string.match(args2.data.sequence, "^\027]133;B") then return end
 
-          M.buffers[args2.buf].prompt_cursor = args2.data.cursor
+          M.buffers[args2.buf].cmd_cursor = args2.data.cursor
         end,
       })
 
-      vim.api.nvim_create_autocmd("CursorMoved", {
+      api.nvim_create_autocmd("CursorMoved", {
         group = editgroup,
         buffer = args.buf,
         callback = function(args2)
-          local cursor = vim.api.nvim_win_get_cursor(0)
+          local cursor = api.nvim_win_get_cursor(0)
           local bufinfo = M.buffers[args2.buf]
-          vim.bo.modifiable = bufinfo.prompt_cursor ~= nil and cursor[1] == bufinfo.prompt_cursor[1]
+          vim.bo.modifiable = bufinfo.cmd_cursor
+            and (
+              (cursor[1] == bufinfo.cmd_cursor[1] and cursor[2] > bufinfo.cmd_cursor[2])
+              or cursor[1] > bufinfo.cmd_cursor[1]
+            )
         end,
       })
     end,
