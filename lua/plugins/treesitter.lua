@@ -4,7 +4,6 @@ local ts = vim.treesitter
 
 return {
   "nvim-treesitter/nvim-treesitter",
-  branch = "main",
   build = ":TSUpdate",
   config = function()
     ---@type string[]
