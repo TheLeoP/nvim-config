@@ -68,7 +68,7 @@ return {
       "scss",
       "phpdoc",
     }
-    local already_installed = require("nvim-treesitter.config").get_installed "parsers"
+    local already_installed = require("nvim-treesitter").get_installed "parsers"
     local to_install = iter(ensure_langs)
       :filter(function(p)
         return not vim.tbl_contains(already_installed, p)
