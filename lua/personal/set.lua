@@ -51,8 +51,7 @@ o.ruler = false -- laststatus overrides ruler, but it's still on by default, whi
 
 o.cursorline = true
 
--- NOTE: remove `linematch:40` from the default because it messes up `dp` and `do`
-o.diffopt = "internal,filler,closeoff,vertical"
+o.diffopt = o.diffopt .. ",vertical"
 
 opt.shortmess:append "sWcC"
 
