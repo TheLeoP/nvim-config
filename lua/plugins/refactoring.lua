@@ -38,16 +38,30 @@ return {
     keymap.set({ "x", "n" }, "<leader>pv", function()
       return require("refactoring.debug").print_var { output_location = "below" }
     end, { desc = "Debug print var above", expr = true })
-    keymap.set({ "x", "n" }, "<leader>pvv", function()
+    keymap.set("n", "<leader>pvv", function()
       return require("refactoring.debug").print_var { output_location = "below" } .. "_"
     end, { desc = "Debug print var above", expr = true })
 
     keymap.set({ "x", "n" }, "<leader>pV", function()
       return require("refactoring.debug").print_var { output_location = "above" }
     end, { desc = "Debug print var above", expr = true })
-    keymap.set({ "x", "n" }, "<leader>pVV", function()
+    keymap.set("n", "<leader>pVV", function()
       return require("refactoring.debug").print_var { output_location = "above" } .. "_"
     end, { desc = "Debug print var above", expr = true })
+
+    keymap.set({ "x", "n" }, "<leader>pe", function()
+      return require("refactoring.debug").print_exp { output_location = "below" }
+    end, { desc = "Debug print exp below", expr = true })
+    keymap.set("n", "<leader>pee", function()
+      return require("refactoring.debug").print_exp { output_location = "below" } .. "_"
+    end, { desc = "Debug print exp below", expr = true })
+
+    keymap.set({ "x", "n" }, "<leader>pE", function()
+      return require("refactoring.debug").print_exp { output_location = "above" }
+    end, { desc = "Debug print exp above", expr = true })
+    keymap.set("n", "<leader>pEE", function()
+      return require("refactoring.debug").print_exp { output_location = "above" } .. "_"
+    end, { desc = "Debug print exp above", expr = true })
 
     keymap.set("n", "<leader>pP", function()
       return require("refactoring.debug").print_loc { output_location = "above" }
