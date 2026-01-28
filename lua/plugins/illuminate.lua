@@ -1,5 +1,6 @@
 return {
-  "RRethy/vim-illuminate",
+  "TheLeoP/vim-illuminate",
+  branch = "leo",
   config = function()
     require("illuminate").configure {
       modes_denylist = {
