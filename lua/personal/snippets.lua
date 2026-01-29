@@ -858,4 +858,31 @@ if (<condition>) {
       }
     )
   ),
+  s(
+    { trig = "fn ", snippetType = "autosnippet", condition = conds.line_begin },
+    fmta(
+      [[
+function <name>{
+<maybe_param>
+  <inside>
+}]],
+      {
+        name = i(1, "do-foo"),
+        maybe_param = c(2, {
+          t "",
+          sn(
+            nil,
+            fmta(
+              [[
+param(
+  <inside>
+)]],
+              { inside = i(1) }
+            )
+          ),
+        }),
+        inside = i(3),
+      }
+    )
+  ),
 }, { key = "personal powershell" })
