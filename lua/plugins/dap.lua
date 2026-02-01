@@ -64,7 +64,10 @@ return {
 
     keymap.set({ "n", "x" }, "<leader>da", ":DapEval<cr>", { desc = "Debug ev[a]l" })
     keymap.set("n", "<leader>dh", function()
+      local cache_iskeyword = vim.o.iskeyword
+      vim.o.iskeyword = "@,48-57,_,192-255"
       require("dap.ui.widgets").hover()
+      vim.o.iskeyword = cache_iskeyword
     end, { desc = "Debug hover" })
     keymap.set("n", "<leader>dc", function()
       dap.continue()
@@ -148,6 +151,7 @@ return {
       command = mason_root .. "cpptools/extension/debugAdapters/bin/OpenDebugAD7",
     }
 
+    local nvim_bin = nil ---@type string|nil
     dap.configurations.c = {
       setmetatable({
         name = "Neovim",
@@ -156,6 +160,8 @@ return {
         cwd = "${workspaceFolder}",
         program = function()
           return coroutine.create(function(dap_run_co)
+            if nvim_bin then return coroutine.resume(dap_run_co, nvim_bin) end
+
             vim.ui.input({
               prompt = "Path to executable: ",
               default = vim.uv.cwd() .. "/build/bin/nvim",
@@ -165,6 +171,7 @@ return {
                 coroutine.resume(dap_run_co, dap.ABORT)
                 return
               end
+              nvim_bin = choice
               coroutine.resume(dap_run_co, choice)
             end)
           end)
@@ -237,13 +244,14 @@ return {
 
             -- If we found it, spawn another debug session that attaches to the pid.
             if pid then
+              assert(nvim_bin)
               dap.run {
                 name = "Neovim embedded",
                 type = "cppdbg",
                 request = "attach",
                 processId = pid,
-                program = vim.env.HOME .. "/neovim/build/bin/nvim",
-                cwd = vim.env.HOME .. "/neovim/",
+                program = nvim_bin,
+                cwd = nvim_bin,
                 externalConsole = false,
               }
             end
