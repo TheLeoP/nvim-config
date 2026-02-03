@@ -97,3 +97,5 @@ if vim.fn.has "nvim-0.11" == 1 then o.nrformats = o.nrformats .. ",blank" end
 
 -- NOTE: treat `-` as part of "word"
 o.iskeyword = "@,48-57,_,192-255,-"
+
+o.jumpoptions = o.jumpoptions .. ",view"
