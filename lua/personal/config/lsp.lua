@@ -70,7 +70,8 @@ local function on_attach(client, buf)
   keymap.set({ "n", "x" }, "<leader>cc", vim.lsp.codelens.run, { desc = "Run codelens" })
   keymap.set("n", "<leader>cC", vim.lsp.codelens.refresh, { desc = "Refresh & display codelens" })
 
-  -- TODO: disabled until https://github.com/neovim/neovim/pull/22115 is merged
+  -- TODO: https://github.com/neovim/neovim/pull/37626 should address this.
+  -- Look into it once 0.12 is released
   -- api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
   --   buffer = bufnr,
   --   callback = function()
