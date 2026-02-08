@@ -7,6 +7,11 @@ return {
     bigfile = {
       enabled = true,
     },
+    profiler = {
+      filter_mod = {
+        ["^vim%."] = true,
+      },
+    },
   },
   config = function(_, opts)
     require("snacks").setup(opts)
