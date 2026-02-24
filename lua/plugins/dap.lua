@@ -209,18 +209,11 @@ return {
             return
           end
 
-          local key = "the-leo-p"
-
-          -- ⬇️ `dap.listeners.<before | after>.<event_or_command>.<plugin_key>`
-          -- We listen to the `initialize` response. It indicates a new session got initialized
+          local key = "personal"
           dap.listeners.after.initialize[key] = function(session)
-            -- ⬇️ immediately clear the listener, we don't want to run this logic for additional sessions
+            -- immediately clear the listener, we don't want to run this logic for additional sessions
             dap.listeners.after.initialize[key] = nil
 
-            -- The first argument to a event or response is always the session
-            -- A session contains a `on_close` table that allows us to register functions
-            -- that get called when the session closes.
-            -- We use this to ensure the listeners get cleaned up
             session.on_close[key] = function()
               for _, handler in pairs(dap.listeners.after) do
                 handler[key] = nil
@@ -228,9 +221,8 @@ return {
             end
           end
 
-          -- We listen to `event_process` to get the pid:
           dap.listeners.after.event_process[key] = function(_, body)
-            -- ⬇️ immediately clear the listener, we don't want to run this logic for additional sessions
+            -- immediately clear the listener, we don't want to run this logic for additional sessions
             dap.listeners.after.event_process[key] = nil
 
             local ppid = body.systemProcessId --[[@as string]]
