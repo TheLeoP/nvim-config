@@ -1,3 +1,6 @@
+local api = vim.api
+local keymap = vim.keymap
+
 return {
   "TheLeoP/powershell.nvim",
   dev = true,
@@ -24,13 +27,22 @@ return {
       },
     }
 
-    local augroup = vim.api.nvim_create_augroup("personal-powershell", { clear = true })
-    vim.api.nvim_create_autocmd("User", {
+    local augroup = api.nvim_create_augroup("personal-powershell", { clear = true })
+    api.nvim_create_autocmd("User", {
       group = augroup,
       pattern = "powershell.nvim-term",
       callback = function(opts)
-        vim.keymap.set("n", "<leader>P", function()
+        keymap.set("n", "<leader>lt", function()
           require("powershell").toggle_term()
+        end, { buffer = opts.data.buf })
+      end,
+    })
+    api.nvim_create_autocmd("User", {
+      group = augroup,
+      pattern = "powershell.nvim-debug_term",
+      callback = function(opts)
+        keymap.set("n", "<leader>ld", function()
+          require("powershell").toggle_debug_term()
         end, { buffer = opts.data.buf })
       end,
     })
