@@ -5,6 +5,8 @@ local ts = vim.treesitter
 return {
   "nvim-treesitter/nvim-treesitter",
   build = ":TSUpdate",
+  -- TODO: remove after updating to Neovim 0.12
+  commit = "90cd658",
   config = function()
     ---@type string[]
     local ensure_langs = {
