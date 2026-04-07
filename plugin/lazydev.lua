@@ -9,7 +9,6 @@ vim.pack.add {
 require("lazydev").setup {
   cmp = false,
   library = {
-    { path = "${3rd}/luv/library", words = { "vim%.uv", 'require "luv"' } },
     { path = "${3rd}/love2d/library", words = { "love%." } },
     { path = "busted/library", words = { "it%(", "describe%(" } },
     { path = "luassert/library", words = { "it%(", "describe%(" } },
