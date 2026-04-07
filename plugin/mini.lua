@@ -66,7 +66,7 @@ for _, text_object in ipairs {
   { id = "o", key_goto_left = "o", key_goto_right = "O" },
   { id = "u", key_goto_left = "u", key_goto_right = "U" },
 } do
-  for _, dir in ipairs { { b = "[", m = "prev" }, { b = "]", m = "next" } } do
+  for _, dir in ipairs { { b = "[", m = "cover_or_prev" }, { b = "]", m = "cover_or_next" } } do
     keymap.set({ "n", "x", "o" }, ("%s%s"):format(dir.b, text_object.key_goto_left), function()
       local count = vim.v.count1
       MiniAi.move_cursor("left", "a", ("%s"):format(text_object.id), { n_times = count, search_method = dir.m })
