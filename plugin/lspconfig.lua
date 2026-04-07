@@ -25,6 +25,3 @@ vim.lsp.enable {
   "ts_query_ls",
   "laravel_ls",
 }
-
--- disables bultin query linter, `ts_query_ls` is more complete
-vim.g.query_lint_on = {}
