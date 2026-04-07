@@ -4,10 +4,6 @@
 
 - general
   - git
-- lazy.nvim
-  - hererocks
-    - Python 3.x
-    - Windows: [MSVC in $PATH](https://github.com/nvim-treesitter/nvim-treesitter/wiki/Windows-support#msvc)
 - fzf-lua
   - [rg](https://github.com/BurntSushi/ripgrep)
   - [fd](https://github.com/sharkdp/fd)

@@ -1,7 +1,7 @@
-local lsp = require "personal.config.lsp"
+local mason_root = vim.fn.stdpath "data" .. "/mason/packages"
 
 local bundles = {
-  vim.fn.glob(lsp.mason_root .. "java-debug-adapter/extension/server/com.microsoft.java.debug.plugin-*.jar", true),
+  vim.fn.glob(mason_root .. "/java-debug-adapter/extension/server/com.microsoft.java.debug.plugin-*.jar", true),
 }
 local java_test_bundles = vim.split(vim.fn.glob("/path/to/vscode-java-test/server/*.jar", true), "\n")
 local excluded = {
@@ -16,7 +16,7 @@ end
 ---@type vim.lsp.Config
 return {
   cmd = function(dispatchers, config)
-    local jdtls_root = lsp.mason_root .. "jdtls"
+    local jdtls_root = mason_root .. "/jdtls"
     local jar = vim.fn.glob(jdtls_root .. "/plugins/org.eclipse.equinox.launcher_*.jar", false, false)
     local config_location = jdtls_root .. (vim.fn.has "win32" == 1 and "/config_win" or "/config_linux")
 

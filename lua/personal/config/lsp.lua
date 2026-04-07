@@ -1,4 +1,3 @@
-local methods = vim.lsp.protocol.Methods
 local api = vim.api
 local keymap = vim.keymap
 
@@ -6,16 +5,14 @@ local diagnostic_icons = require("personal.icons").diagnostic
 
 local M = {}
 
-M.mason_root = vim.fn.stdpath "data" .. "/mason/packages/" --[[@as string]]
-
 local lsp_group = api.nvim_create_augroup("LSP", { clear = true })
 
 ---@param client vim.lsp.Client
 ---@param buf integer
 local function on_attach(client, buf)
-  if client:supports_method(methods.textDocument_documentSymbol) then require("nvim-navic").attach(client, buf) end
+  if client:supports_method "textDocument/documentSymbol" then require("nvim-navic").attach(client, buf) end
 
-  if client:supports_method(methods.textDocument_hover) then
+  if client:supports_method "textDocument/hover" then
     keymap.set("n", "K", function()
       vim.lsp.buf.hover {
         max_height = math.floor(vim.o.lines * 0.5),
@@ -23,7 +20,7 @@ local function on_attach(client, buf)
       }
     end, { buffer = buf, desc = "Hover" })
   end
-  if client:supports_method(methods.textDocument_definition) then
+  if client:supports_method "textDocument/definition" then
     keymap.set("n", "gd", function()
       require("fzf-lua").lsp_definitions { jump1 = true }
     end, { buffer = buf, desc = "Go to definition" })
@@ -38,9 +35,9 @@ local function on_attach(client, buf)
   keymap.set("n", "gri", function()
     require("fzf-lua").lsp_implementations { jump1 = true }
   end, { buffer = buf, desc = "Go to implementation" })
-  if client:supports_method(methods.textDocument_signatureHelp) then
+  if client:supports_method "textDocument/signatureHelp" then
     keymap.set("i", "<c-s>", function()
-      -- TODO: remove if I ever change from blink.cmp. Maybe move this into its plugin spec?
+      -- TODO: remove if I ever change from blink.cmp
       local cmp = require "blink.cmp"
       if cmp.is_menu_visible() then cmp.hide() end
       vim.lsp.buf.signature_help {
@@ -60,24 +57,19 @@ local function on_attach(client, buf)
   keymap.set("n", "<leader>fki", require("fzf-lua").lsp_incoming_calls, { buffer = buf, desc = "Find incoming calls" })
   keymap.set("n", "<leader>fko", require("fzf-lua").lsp_outgoing_calls, { buffer = buf, desc = "Find outgoing calls" })
 
-  if client:supports_method(methods.textDocument_inlayHint) then
+  if client:supports_method "textDocument/inlayHint" then
     local inlay_hint = vim.lsp.inlay_hint
     keymap.set("n", "<leader>ti", function()
       inlay_hint.enable(not inlay_hint.is_enabled())
     end, { buffer = buf, desc = "Toggle inlay hints" })
   end
 
-  keymap.set({ "n", "x" }, "<leader>cc", vim.lsp.codelens.run, { desc = "Run codelens" })
-  keymap.set("n", "<leader>cC", vim.lsp.codelens.refresh, { desc = "Refresh & display codelens" })
-
-  -- TODO: https://github.com/neovim/neovim/pull/37626 should address this.
-  -- Look into it once 0.12 is released
-  -- api.nvim_create_autocmd({ "BufEnter", "CursorHold", "InsertLeave" }, {
-  --   buffer = bufnr,
-  --   callback = function()
-  --     if client.supports_method(methods.textDocument_codeLens) then vim.lsp.codelens.refresh { bufnr = bufnr } end
-  --   end,
-  -- })
+  if client:supports_method "textDocument/codeLens" then
+    local codelens = vim.lsp.codelens
+    keymap.set("n", "<leader>tx", function()
+      codelens.enable(not codelens.is_enabled())
+    end, { buffer = buf, desc = "Toggle Codelens" })
+  end
 end
 
 api.nvim_create_autocmd("LspAttach", {
@@ -95,8 +87,8 @@ api.nvim_create_autocmd("LspAttach", {
 vim.lsp.config("*", { workspace_required = true })
 
 -- Update mappings when registering dynamic capabilities.
-local overriden = vim.lsp.handlers[methods.client_registerCapability]
-vim.lsp.handlers[methods.client_registerCapability] = function(err, res, ctx)
+local overriden = vim.lsp.handlers["client/registerCapability"]
+vim.lsp.handlers["client/registerCapability"] = function(err, res, ctx)
   local return_value = overriden(err, res, ctx)
 
   local client = vim.lsp.get_client_by_id(ctx.client_id)
