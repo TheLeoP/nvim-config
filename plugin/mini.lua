@@ -336,7 +336,8 @@ api.nvim_create_autocmd("User", {
   end,
 })
 
-vim.o.pumheight = 10
+vim.o.pumheight = 4
+vim.o.pummaxwidth = 25
 local cmdline = require "mini.cmdline"
 cmdline.setup {
   autocomplete = {
