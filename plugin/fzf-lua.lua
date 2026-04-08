@@ -76,6 +76,22 @@ fzf.setup {
   lsp = {
     includeDeclaration = false,
   },
+  ui_select = function(opts)
+    if opts.kind == "codeaction" then
+      return {
+        winopts = {
+          height = 0.9,
+          width = 0.9,
+        },
+      }
+    end
+    return {
+      winopts = {
+        height = 0.5,
+        width = 0.5,
+      },
+    }
+  end,
 }
 
 keymap.set("n", "<leader>fe", fzf.zoxide)

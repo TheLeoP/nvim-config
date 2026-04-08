@@ -8,4 +8,5 @@ require("snacks").setup {
       ["^vim%."] = true,
     },
   },
+  input = {},
 }
