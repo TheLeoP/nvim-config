@@ -38,19 +38,19 @@
       "src": "https://github.com/famiu/feline.nvim"
     },
     "fzf": {
-      "rev": "18315000185a6e6461b9b4aa4a4cb6cd164e0e35",
+      "rev": "0eb2ae9f8bd57fed6242d76d2273df4a1be31cc8",
       "src": "https://github.com/junegunn/fzf"
     },
     "fzf-lua": {
-      "rev": "9f0432fdd7825ab163520045831a40b6df82ea28",
+      "rev": "4deeecf611c0beba6455e6cf06e2c051a6169dd4",
       "src": "https://github.com/ibhagwan/fzf-lua"
     },
     "gitsigns.nvim": {
-      "rev": "0d797daee85366bc242580e352a4f62d67557b84",
+      "rev": "8d82c240f190fc33723d48c308ccc1ed8baad69d",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
     "grug-far.nvim": {
-      "rev": "6f8c2097ab4422976063fefe0f29331e12a32334",
+      "rev": "37d0eafc6a2dcf8641aa19fc2a8db5e391b7f16b",
       "src": "https://github.com/MagicDuck/grug-far.nvim"
     },
     "gruvbox.nvim": {
@@ -82,7 +82,7 @@
       "src": "https://github.com/mason-org/mason.nvim"
     },
     "mini.nvim": {
-      "rev": "402ee6c6ec8ea44b22330446c8fb4e615fd3953e",
+      "rev": "2431902e78b76f435542d1e606f08475360068ca",
       "src": "https://github.com/nvim-mini/mini.nvim"
     },
     "neogen": {
@@ -122,7 +122,7 @@
       "src": "https://github.com/mfussenegger/nvim-lint"
     },
     "nvim-lspconfig": {
-      "rev": "bedca8b426b2fee0ccac596d167d71bbe971253f",
+      "rev": "c588db330592fa477a70d2fee6ba20a57194bdc3",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
     "nvim-navic": {
@@ -146,7 +146,7 @@
       "src": "https://github.com/nvim-treesitter/nvim-treesitter-context"
     },
     "nvim-treesitter-textobjects": {
-      "rev": "93d60a475f0b08a8eceb99255863977d3a25f310",
+      "rev": "851e865342e5a4cb1ae23d31caf6e991e1c99f1e",
       "src": "https://github.com/nvim-treesitter/nvim-treesitter-textobjects",
       "version": "'main'"
     },
@@ -159,7 +159,7 @@
       "src": "https://github.com/JoosepAlviste/nvim-ts-context-commentstring"
     },
     "nvim-web-devicons": {
-      "rev": "40e9d5a6cc3db11b309e39593fc7ac03bb844e38",
+      "rev": "6e76c5e47e957fbf080b1fdac165c66dbd2e7cfb",
       "src": "https://github.com/nvim-tree/nvim-web-devicons"
     },
     "oil.nvim": {
@@ -200,7 +200,7 @@
       "version": "'develop'"
     },
     "render-markdown.nvim": {
-      "rev": "687de727de91a63b0bff9cff4e71d73f9d40fa77",
+      "rev": "54d4b5431e9634ee3d8d30784e017239b5b89d41",
       "src": "https://github.com/MeanderingProgrammer/render-markdown.nvim"
     },
     "roslyn.nvim": {
@@ -208,7 +208,7 @@
       "src": "https://github.com/seblyng/roslyn.nvim"
     },
     "schemastore.nvim": {
-      "rev": "6d0329adb9c8cbe51b9a28299890a5eb104db7dc",
+      "rev": "35d19ffb25c9cf160f515360e9d8286cdd2c3d4f",
       "src": "https://github.com/b0o/schemastore.nvim"
     },
     "snacks.nvim": {
@@ -286,7 +286,7 @@
       "src": "https://github.com/tpope/vim-sleuth"
     },
     "wezterm-types": {
-      "rev": "6d10943919a660038e1c9477ca37fdb8911691e3",
+      "rev": "00e2c0e5417a71e541cab67f308914653a56ef52",
       "src": "https://github.com/justinsgithub/wezterm-types"
     }
   }
