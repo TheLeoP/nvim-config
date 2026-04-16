@@ -16,3 +16,14 @@ vim.pack.add {
   "https://github.com/kristijanhusak/vim-dadbod-ui",
   "https://github.com/kristijanhusak/vim-dadbod-completion",
 }
+
+local api = vim.api
+
+local group = api.nvim_create_augroup("personal-dadbod", { clear = true })
+api.nvim_create_autocmd("FileType", {
+  group = group,
+  pattern = "dbout",
+  callback = function()
+    vim.cmd [[setlocal nofoldenable]]
+  end,
+})

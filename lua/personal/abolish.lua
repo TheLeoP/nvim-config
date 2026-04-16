@@ -106,7 +106,7 @@ end
 ---@type table<string, string>
 local abolish_last_dict
 
----@class abolish.command_opts
+---@class abolish.CommandOpts
 ---@field name string Command name
 ---@field args string The args passed to the command, if any
 ---@field fargs string[] The args split by unescaped whitespace (when more than one argument is allowed), if any
@@ -483,7 +483,7 @@ M.complete = function(arg_lead, _cmd_line, _cursor_pos)
   return filtered_words
 end
 
----@param opts abolish.command_opts|{preview_ns: integer}
+---@param opts abolish.CommandOpts|{preview_ns: integer}
 ---@param preview_ns integer
 M.subvert_preview = function(opts, preview_ns)
   opts.preview_ns = preview_ns or api.nvim_create_namespace "abolish-preview"
@@ -574,7 +574,7 @@ M.find_grammar = P {
 ---@field string? abolish.section
 ---@field flags string
 
----@param opts abolish.command_opts | {preview_ns: integer|nil}
+---@param opts abolish.CommandOpts | {preview_ns: integer|nil}
 ---@return abolish.parsed_input?
 M.subvert_dispatcher = function(opts)
   local t = M.subvert_grammar:match(opts.args) --[[@as abolish.parsed_input?]]
@@ -587,7 +587,7 @@ M.subvert_dispatcher = function(opts)
   return t
 end
 
----@param opts abolish.command_opts | {preview_ns: integer|nil}
+---@param opts abolish.CommandOpts | {preview_ns: integer|nil}
 ---@return abolish.parsed_input?
 M.find_dispatcher = function(opts)
   local t = M.find_grammar:match(opts.args) --[[@as abolish.parsed_input?]]

@@ -72,22 +72,22 @@ require("oil").setup {
 }
 vim.keymap.set("n", "-", "<cmd>Oil<cr>", { desc = "Open parent directory" })
 
-local group = api.nvim_create_augroup("oil-remove-buffer", {})
+local group = api.nvim_create_augroup("personal-oil", {})
 api.nvim_create_autocmd("User", {
   pattern = "OilActionsPost",
   desc = "Remove buffer after file delete",
   group = group,
-  ---@param opts _oil.autocmd_opts
   callback = function(opts)
-    if opts.data.err then return end
+    local data = opts.data ---@type personal.OilAutocmdData
+    if data.err then return end
 
-    iter(opts.data.actions):each(
+    iter(data.actions):each(
       ---@param action oil.Action
       function(action)
         if action.type ~= "delete" or action.entry_type ~= "file" then return end
         local posix_to_os_path = require("oil.fs").posix_to_os_path
 
-        local _scheme, path = action.url:match "^(.*://)(.*)$"
+        local path = action.url:match "^.*://(.*)$"
         path = posix_to_os_path(path)
 
         local buf = vim.fn.bufnr(path)
@@ -96,5 +96,12 @@ api.nvim_create_autocmd("User", {
         api.nvim_buf_delete(buf, { force = true })
       end
     )
+  end,
+})
+api.nvim_create_autocmd("FileType", {
+  pattern = "oil",
+  group = group,
+  callback = function(opts)
+    vim.b[opts.buf].minihipatterns_disable = true
   end,
 })

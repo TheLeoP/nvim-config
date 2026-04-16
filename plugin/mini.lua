@@ -302,21 +302,20 @@ keymap.set("n", "<leader>vV", visits.remove_label, { desc = "Remove visit label"
 keymap.set("n", "<leader>vl", fzf_visits.select_label_cwd, { desc = "Select label (cwd)" })
 keymap.set("n", "<leader>vL", fzf_visits.select_label_all, { desc = "Select label (all)" })
 
----@module "oil"
-
----@class _oil.autocmd_opts: abolish.command_opts
----@field data {actions: oil.Action[],err: string}
+---@class personal.OilAutocmdData
+---@field actions oil.Action[]
+---@field err? string
 
 local group = api.nvim_create_augroup("mini.visits-oil-rename", {})
 api.nvim_create_autocmd("User", {
   pattern = "OilActionsPost",
   desc = "Rename in mini.visits index from oil move",
   group = group,
-  ---@param opts _oil.autocmd_opts
   callback = function(opts)
-    if opts.data.err then return end
+    local data = opts.data ---@type personal.OilAutocmdData
+    if data.err then return end
 
-    iter(opts.data.actions):each(
+    iter(data.actions):each(
       ---@param action oil.Action
       function(action)
         if action.type ~= "move" then return end

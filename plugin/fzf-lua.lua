@@ -9,7 +9,9 @@ vim.pack.add {
   "https://github.com/ibhagwan/fzf-lua",
 }
 
-vim.api.nvim_del_user_command "FZF"
+local api = vim.api
+
+api.nvim_del_user_command "FZF"
 
 local keymap = vim.keymap
 
@@ -93,6 +95,15 @@ fzf.setup {
     }
   end,
 }
+
+local group = api.nvim_create_augroup("personal-fzf-lua", { clear = true })
+api.nvim_create_autocmd("FileType", {
+  group = group,
+  pattern = "fzf",
+  callback = function(opts)
+    vim.keymap.del("t", "<esc>", { buffer = opts.buf })
+  end,
+})
 
 keymap.set("n", "<leader>fe", fzf.zoxide)
 keymap.set("n", "<leader>ff", fzf.files)
