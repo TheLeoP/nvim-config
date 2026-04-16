@@ -2,6 +2,9 @@ local M = {}
 
 function M.projects()
   local results = require("project_nvim.utils.history").get_recent_projects()
+  local preview = vim.fn.executable "eza" == 1 and "eza -la --color=always --icons -g --group-directories-first {1}"
+    or "ls -la {1}"
+  if vim.fn.has "win32" == 1 then preview = "dir {1}" end
   require("fzf-lua").fzf_exec(results, {
     actions = {
       ["default"] = function(selected)
@@ -32,8 +35,7 @@ function M.projects()
         reload = true,
       },
     },
-    preview = vim.fn.executable "eza" and "eza -la --color=always --icons -g --group-directories-first {1}"
-      or "ls -la {1}",
+    preview = preview,
     fzf_opts = {
       ["--tiebreak"] = "index",
     },
