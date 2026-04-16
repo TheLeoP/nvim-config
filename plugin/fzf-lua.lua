@@ -130,3 +130,6 @@ keymap.set("n", "<leader>fgs", fzf.git_stash)
 keymap.set("n", "<leader>fg<cr>", fzf.git_status)
 
 keymap.set("n", "<leader>fdb", fzf.dap_breakpoints)
+
+keymap.set("n", "<leader>ft", fzf.tagstack)
+keymap.set("n", "<leader>fj", fzf.jumps)
