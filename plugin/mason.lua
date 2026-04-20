@@ -33,7 +33,7 @@ mr.refresh(function()
     "basedpyright",
     "angular-language-server",
     "vim-language-server",
-    "buf-language-server",
+    "buf",
     "html-lsp",
     "css-lsp",
     "lemminx",
