@@ -72,6 +72,10 @@ require("oil").setup {
 }
 vim.keymap.set("n", "-", "<cmd>Oil<cr>", { desc = "Open parent directory" })
 
+---@class personal.OilAutocmdData
+---@field actions oil.Action[]
+---@field err? string
+
 local group = api.nvim_create_augroup("personal-oil", {})
 api.nvim_create_autocmd("User", {
   pattern = "OilActionsPost",

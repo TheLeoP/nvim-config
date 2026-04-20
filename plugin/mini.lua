@@ -282,67 +282,6 @@ end, { desc = "Toggle mini.map side" })
 local splitjoin = require "mini.splitjoin"
 splitjoin.setup()
 
--- TODO: remove mini.visits setup? I'm not really using it
-local visits = require "mini.visits"
-visits.setup {
-  list = {
-
-    ---@param data {path:string, count:number, latest: number, labels: table<string, true>}
-    filter = function(data)
-      local custom_schema = data.path:match "[^:]://."
-      if custom_schema and custom_schema ~= "file" then return false end
-      if data.path:match ".git/COMMIT_EDITMSG$" then return false end
-      return true
-    end,
-  },
-}
-local fzf_visits = require("personal.fzf-lua").mini_visit
-
-keymap.set("n", "<leader>vr", fzf_visits.recent_cwd, { desc = "Select recent (cwd)" })
-keymap.set("n", "<leader>vR", fzf_visits.recent_all, { desc = "Select recent (all)" })
-keymap.set("n", "<leader>vy", fzf_visits.frecent_cwd, { desc = "Select frecent (cwd)" })
-keymap.set("n", "<leader>vY", fzf_visits.frecent_all, { desc = "Select frecent (all)" })
-keymap.set("n", "<leader>vf", fzf_visits.frequent_cwd, { desc = "Select frequent (cwd)" })
-keymap.set("n", "<leader>vF", fzf_visits.frequent_all, { desc = "Select frequent (all)" })
-
-keymap.set("n", "<leader>vv", visits.add_label, { desc = "Add visit label" })
-keymap.set("n", "<leader>vV", visits.remove_label, { desc = "Remove visit label" })
-keymap.set("n", "<leader>vl", fzf_visits.select_label_cwd, { desc = "Select label (cwd)" })
-keymap.set("n", "<leader>vL", fzf_visits.select_label_all, { desc = "Select label (all)" })
-
----@class personal.OilAutocmdData
----@field actions oil.Action[]
----@field err? string
-
-local group = api.nvim_create_augroup("mini.visits-oil-rename", {})
-api.nvim_create_autocmd("User", {
-  pattern = "OilActionsPost",
-  desc = "Rename in mini.visits index from oil move",
-  group = group,
-  callback = function(opts)
-    local data = opts.data ---@type personal.OilAutocmdData
-    if data.err then return end
-
-    iter(data.actions):each(
-      ---@param action oil.Action
-      function(action)
-        if action.type ~= "move" then return end
-        local posix_to_os_path = require("oil.fs").posix_to_os_path
-
-        local _src_scheme, src_path = action.src_url:match "^(.*://)(.*)$"
-        local _dest_scheme, dest_path = action.dest_url:match "^(.*://)(.*)$"
-        src_path = posix_to_os_path(src_path)
-        dest_path = posix_to_os_path(dest_path)
-
-        local cur_index = visits.get_index()
-        local ok, new_index = pcall(visits.rename_in_index, src_path, dest_path, cur_index)
-        if not ok then return end
-        visits.set_index(new_index)
-      end
-    )
-  end,
-})
-
 vim.o.pumheight = 4
 vim.o.pummaxwidth = 25
 local cmdline = require "mini.cmdline"
