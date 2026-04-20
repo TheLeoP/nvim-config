@@ -39,17 +39,11 @@ keymap.set({ "n", "x" }, "<leader>as", function()
 end, { desc = "Select refactor" })
 
 keymap.set({ "x", "n" }, "<leader>pv", function()
-  return require("refactoring.debug").print_var { output_location = "below" }
-end, { desc = "Debug print var above", expr = true })
-keymap.set("n", "<leader>pvv", function()
-  return require("refactoring.debug").print_var { output_location = "below" } .. "_"
+  return require("refactoring.debug").print_var { output_location = "below" } .. "iw"
 end, { desc = "Debug print var above", expr = true })
 
 keymap.set({ "x", "n" }, "<leader>pV", function()
-  return require("refactoring.debug").print_var { output_location = "above" }
-end, { desc = "Debug print var above", expr = true })
-keymap.set("n", "<leader>pVV", function()
-  return require("refactoring.debug").print_var { output_location = "above" } .. "_"
+  return require("refactoring.debug").print_var { output_location = "above" } .. "iw"
 end, { desc = "Debug print var above", expr = true })
 
 keymap.set({ "x", "n" }, "<leader>pe", function()
@@ -73,6 +67,7 @@ keymap.set("n", "<leader>pp", function()
   return require("refactoring.debug").print_loc { output_location = "below" }
 end, { desc = "Debug print location", expr = true })
 
+-- depends on `mini.ai` `ag` textobject
 keymap.set({ "x", "n" }, "<leader>pc", function()
-  return require("refactoring.debug").cleanup { restore_view = true }
-end, { desc = "Debug print clean", expr = true })
+  return require("refactoring.debug").cleanup { restore_view = true } .. "ag"
+end, { desc = "Debug print clean", expr = true, remap = true })
