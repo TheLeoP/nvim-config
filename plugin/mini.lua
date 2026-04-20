@@ -66,16 +66,23 @@ for _, text_object in ipairs {
   { id = "o", key_goto_left = "o", key_goto_right = "O" },
   { id = "u", key_goto_left = "u", key_goto_right = "U" },
 } do
-  for _, dir in ipairs { { b = "[", m = "cover_or_prev" }, { b = "]", m = "cover_or_next" } } do
-    keymap.set({ "n", "x", "o" }, ("%s%s"):format(dir.b, text_object.key_goto_left), function()
-      local count = vim.v.count1
-      MiniAi.move_cursor("left", "a", ("%s"):format(text_object.id), { n_times = count, search_method = dir.m })
-    end, { desc = ("%s %s"):format(dir.m, text_object.id) })
-    keymap.set({ "n", "x", "o" }, ("%s%s"):format(dir.b, text_object.key_goto_right), function()
-      local count = vim.v.count1
-      MiniAi.move_cursor("right", "a", ("%s"):format(text_object.id), { n_times = count, search_method = dir.m })
-    end, { desc = ("%s %s"):format(dir.m, text_object.id) })
-  end
+  keymap.set({ "n", "x", "o" }, ("[%s"):format(text_object.key_goto_left), function()
+    local count = vim.v.count1
+    MiniAi.move_cursor("left", "a", text_object.id, { n_times = count, search_method = "cover_or_prev" })
+  end, { desc = ("cover_or_prev %s"):format(text_object.id) })
+  keymap.set({ "n", "x", "o" }, ("[%s"):format(text_object.key_goto_right), function()
+    local count = vim.v.count1
+    MiniAi.move_cursor("right", "a", text_object.id, { n_times = count, search_method = "prev" })
+  end, { desc = ("prev %s"):format(text_object.id) })
+
+  keymap.set({ "n", "x", "o" }, ("]%s"):format(text_object.key_goto_left), function()
+    local count = vim.v.count1
+    MiniAi.move_cursor("left", "a", text_object.id, { n_times = count, search_method = "next" })
+  end, { desc = ("next %s"):format(text_object.id) })
+  keymap.set({ "n", "x", "o" }, ("]%s"):format(text_object.key_goto_right), function()
+    local count = vim.v.count1
+    MiniAi.move_cursor("right", "a", text_object.id, { n_times = count, search_method = "cover_or_next" })
+  end, { desc = ("cover_or_next %s"):format(text_object.id) })
 end
 
 require("mini.align").setup {
@@ -275,6 +282,7 @@ end, { desc = "Toggle mini.map side" })
 local splitjoin = require "mini.splitjoin"
 splitjoin.setup()
 
+-- TODO: remove mini.visits setup? I'm not really using it
 local visits = require "mini.visits"
 visits.setup {
   list = {
