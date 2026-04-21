@@ -22,7 +22,7 @@ return {
           strong = "Warning",
         },
         unusedLocalExclude = { "_*" },
-        libraryFiles = "Disabled",
+        libraryFiles = "Disable",
       },
       workspace = {
         checkThirdParty = "Disable",
