@@ -40,7 +40,7 @@ end, { desc = "Select refactor" })
 
 keymap.set({ "x", "n" }, "<leader>pv", function()
   return require("refactoring.debug").print_var { output_location = "below" } .. "iw"
-end, { desc = "Debug print var above", expr = true })
+end, { desc = "Debug print var below", expr = true })
 
 keymap.set({ "x", "n" }, "<leader>pV", function()
   return require("refactoring.debug").print_var { output_location = "above" } .. "iw"
