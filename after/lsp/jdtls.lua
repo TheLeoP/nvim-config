@@ -13,6 +13,7 @@ for _, java_test_jar in ipairs(java_test_bundles) do
   if not vim.tbl_contains(excluded, fname) then table.insert(bundles, java_test_jar) end
 end
 
+---@module "lspconfig"
 ---@type vim.lsp.Config
 return {
   cmd = function(dispatchers, config)
@@ -49,6 +50,7 @@ return {
       eclipse_wd,
     }, dispatchers)
   end,
+  ---@type lspconfig.settings.jdtls
   settings = {
     java = {
       signatureHelp = { enabled = true },

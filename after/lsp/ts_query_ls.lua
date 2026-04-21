@@ -1,5 +1,7 @@
+---@module "lspconfig"
 ---@type vim.lsp.Config
 return {
+  ---@type lspconfig.settings.ts_ls
   settings = {
     parser_install_directories = {
       vim.fn.stdpath "data" .. "/site/parser",
