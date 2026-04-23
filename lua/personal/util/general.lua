@@ -71,7 +71,7 @@ end
 
 M.clear_system_notifications = debounce(function()
   -- TODO: windows support
-  if vim.fn.has "win32" ~= 1 then
+  if vim.fn.has "win32" ~= 1 and vim.fn.executable "dunstctl" == 1 then
     vim.system({ "dunstctl", "close-all" }, nil, function(out)
       if out.stderr ~= "" then vim.notify(out.stderr, vim.log.levels.ERROR) end
     end)
