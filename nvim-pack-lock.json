@@ -26,11 +26,11 @@
       "src": "https://github.com/uga-rosa/ccc.nvim"
     },
     "conform.nvim": {
-      "rev": "086a40dc7ed8242c03be9f47fbcee68699cc2395",
+      "rev": "dca1a190aa85f9065979ef35802fb77131911106",
       "src": "https://github.com/stevearc/conform.nvim"
     },
     "diffview.nvim": {
-      "rev": "eaa5f2a4570a8b756201987e50ded5ad34ac34b0",
+      "rev": "df4f0b224754f541e219a0fefd53f60a1329b775",
       "src": "https://github.com/dlyongemallo/diffview.nvim"
     },
     "feline.nvim": {
@@ -42,7 +42,7 @@
       "src": "https://github.com/junegunn/fzf"
     },
     "fzf-lua": {
-      "rev": "beaa4e83e6be4174af291a464e4f49548c943963",
+      "rev": "ffa44ee9470743a7697d28df3a1a216fdfe2b09d",
       "src": "https://github.com/ibhagwan/fzf-lua"
     },
     "gitsigns.nvim": {
@@ -122,7 +122,7 @@
       "src": "https://github.com/mfussenegger/nvim-lint"
     },
     "nvim-lspconfig": {
-      "rev": "e146efacbafed3789ac568abcc5a981c5decaa58",
+      "rev": "81878de76c0de4ce289513734ad80c31ec7871b8",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
     "nvim-navic": {
@@ -187,7 +187,7 @@
       "src": "https://github.com/stevearc/profile.nvim"
     },
     "project.nvim": {
-      "rev": "42edfb4d4a914930563cea1913c0d229bb6b6292",
+      "rev": "33d8b7e2127313a4ae88a5492881a811cdb03270",
       "src": "https://github.com/TheLeoP/project.nvim"
     },
     "quicker.nvim": {
@@ -204,11 +204,11 @@
       "src": "https://github.com/MeanderingProgrammer/render-markdown.nvim"
     },
     "roslyn.nvim": {
-      "rev": "946e559db19bfc5c7bf8be524a9c1acfde8ffffe",
+      "rev": "b62d1a588765f0aa1b46ed260252c9e456408835",
       "src": "https://github.com/seblyng/roslyn.nvim"
     },
     "schemastore.nvim": {
-      "rev": "250aed7415ddd6cb3ea321490c7b35094ed9148d",
+      "rev": "0c303573345e710a233f5ba75f9aadc05852771b",
       "src": "https://github.com/b0o/schemastore.nvim"
     },
     "snacks.nvim": {
@@ -286,7 +286,7 @@
       "src": "https://github.com/tpope/vim-sleuth"
     },
     "wezterm-types": {
-      "rev": "643d19e6244527cda2bd4696c477bc8df4758af8",
+      "rev": "7900cb362b92ed31c632919d49d927f950ebc557",
       "src": "https://github.com/justinsgithub/wezterm-types"
     }
   }
