@@ -1,6 +1,6 @@
 local api = vim.api
 
-vim.cmd.language "en_US.utf8"
+pcall(vim.cmd.language, "en_US.utf8")
 
 vim.g.mapleader = " "
 vim.g.maplocalleader = "'"
