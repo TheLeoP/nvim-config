@@ -1,5 +1,5 @@
 vim.pack.add {
-  "https://github.com/lewis6991/async.nvim",
+  -- NOTE: check if no other plugin depends on async.nvim when removing plugin
   {
     src = "https://github.com/theprimeagen/refactoring.nvim",
     version = "develop",
