@@ -39,11 +39,11 @@ end, { expr = true, desc = "Add jump to jumplist if k has a count. Use gk otherw
 -- toggle options
 
 keymap.set("n", "<leader>ts", function()
-  vim.wo.spell = not vim.wo.spell
-  vim.notify(("Spell is %s for current window"):format(vim.wo.spell and "on" or "off"))
+  vim.wo[0][0].spell = not vim.wo.spell
+  vim.notify(("Spell is %s for current window and buffer"):format(vim.wo.spell and "on" or "off"))
 end, { desc = "Toggle spell" })
 keymap.set("n", "<leader>tr", function()
-  vim.wo.relativenumber = not vim.wo.relativenumber
+  vim.wo[0][0].relativenumber = not vim.wo.relativenumber
 end, { desc = "Toggle relative numbers" })
 keymap.set("n", "<leader>td", function()
   vim.o.background = vim.o.background == "dark" and "light" or "dark"
@@ -57,13 +57,13 @@ keymap.set("n", "<leader>tc", function()
   end
 
   local current_conceal = vim.wo.conceallevel
-  vim.wo.conceallevel = vim.wo.conceallevel ~= 0 and 0 or last_conceal or 3
+  vim.wo[0][0].conceallevel = vim.wo.conceallevel ~= 0 and 0 or last_conceal or 3
   vim.notify(("Conceal level is %s"):format(vim.wo.conceallevel))
   last_conceal = current_conceal
 end, { desc = "Toggle conceal" })
 keymap.set("n", "<leader>tw", function()
-  vim.wo.wrap = not vim.wo.wrap
-  vim.notify(("Wrap is %s for current window"):format(vim.wo.wrap and "on" or "off"))
+  vim.wo[0][0].wrap = not vim.wo.wrap
+  vim.notify(("Wrap is %s for current window and buffer"):format(vim.wo.wrap and "on" or "off"))
 end, { desc = "Toggle wrap" })
 
 keymap.set("n", "<leader>tu", "<cmd>UndotreeToggle<cr>")
