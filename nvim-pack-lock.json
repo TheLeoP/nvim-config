@@ -30,7 +30,7 @@
       "src": "https://github.com/stevearc/conform.nvim"
     },
     "diffview.nvim": {
-      "rev": "2ba7efee9442140cce37046278ee53844997dc6e",
+      "rev": "50437d7232474f6370500674fa93b509acbe9a59",
       "src": "https://github.com/dlyongemallo/diffview.nvim"
     },
     "feline.nvim": {
@@ -42,7 +42,7 @@
       "src": "https://github.com/junegunn/fzf"
     },
     "fzf-lua": {
-      "rev": "10c19a5f08bfeed34b930a1efddda3a9a983e6e2",
+      "rev": "9b382a9afdb5ce91b66802d405991eb765e88d16",
       "src": "https://github.com/ibhagwan/fzf-lua"
     },
     "gitsigns.nvim": {
