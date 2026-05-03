@@ -1,5 +1,4 @@
 local api = vim.api
-local auv = require "personal.auv"
 local iter = vim.iter
 local debounce = require("personal.dedup").debounce
 
@@ -56,17 +55,6 @@ function M.str_multibyte_sub(str, i, j)
   local first_byte_index = vim.str_byteindex(str, "utf-32", i) + 1
   local last_byte_index = vim.str_byteindex(str, "utf-32", j)
   return str:sub(first_byte_index, last_byte_index)
-end
-
----@async
----@param path string
----@return boolean|nil exists, string|nil err
-function M.fs_exists(path)
-  local err = auv.fs_stat(path)
-  if not err then return true end
-
-  if not err:match "^ENOENT:" then return nil, err end
-  return false
 end
 
 M.clear_system_notifications = debounce(function()

@@ -1,10 +1,7 @@
 local api = vim.api
 local ts = vim.treesitter
-local ns = api.nvim_create_namespace "personal_on_key"
 
 local M = {}
-
----@module 'mini'
 
 function M.setup()
   vim.b.minisurround_config = {
