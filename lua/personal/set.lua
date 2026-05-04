@@ -65,6 +65,7 @@ vim.g.loaded_perl_provider = 0
 vim.g.loaded_node_provider = 0
 
 -- Folding.
+wo.foldcolumn = "1"
 o.foldlevelstart = 99
 o.foldmethod = "expr"
 wo.foldtext = ""
@@ -78,6 +79,7 @@ opt.fillchars = {
   foldclose = arrows.right,
   foldopen = arrows.down,
   foldsep = " ",
+  foldinner = " ",
   msgsep = "─",
 }
 
