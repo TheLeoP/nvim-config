@@ -7,9 +7,9 @@ vim.pack.add {
 require("typescript-tools").setup {
   root_dir = function(buf, cb)
     local root = vim.fs.root(buf, { ".git" })
-    if root then cb(root) end
+    if root then return cb(root) end
     root = vim.fs.root(buf, { "package.json" })
-    if root then cb(root) end
+    if root then return cb(root) end
   end,
   settings = {
     tsserver_max_memory = "10240",
