@@ -157,6 +157,7 @@ require("mini.operators").setup {
 }
 local mini_misc = require "mini.misc"
 mini_misc.setup()
+-- TODO: this seems to be solved now (? test it on Windows
 -- ConPTY (Windows) does not support querying for bg/fg colors (OSC 11, 12)
 -- https://github.com/microsoft/terminal/issues/3718
 if vim.fn.has "win32" == 0 then mini_misc.setup_termbg_sync() end
