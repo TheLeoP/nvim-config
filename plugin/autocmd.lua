@@ -78,22 +78,33 @@ vim.api.nvim_create_autocmd("BufNewFile", {
 })
 
 -- show cursor line only in active window
-local cursorline_active_window_augroup = vim.api.nvim_create_augroup("cursorline-active-window", { clear = true })
-vim.api.nvim_create_autocmd({ "InsertLeave", "WinEnter" }, {
-  group = cursorline_active_window_augroup,
+local cursorline_augroup = vim.api.nvim_create_augroup("cursorline-active-window", { clear = true })
+vim.api.nvim_create_autocmd("WinEnter", {
+  group = cursorline_augroup,
   callback = function()
-    if vim.w.auto_cursorline then
-      vim.wo.cursorline = true
-      vim.w.auto_cursorline = nil
-    end
+    local win = vim.api.nvim_get_current_win()
+    -- Schedule to preserve the correct order of events when synchronously
+    -- changing between windows a bunch of times (like in `<c-w>t`)
+    vim.schedule(function()
+      if not vim.api.nvim_win_is_valid(win) then return end
+      if not vim.w[win].cached_cursorline then return end
+
+      vim.wo[win].cursorline = vim.w[win].cached_cursorline
+      vim.w[win].cached_cursorline = nil
+    end)
   end,
 })
-vim.api.nvim_create_autocmd({ "InsertEnter", "WinLeave" }, {
-  group = cursorline_active_window_augroup,
+vim.api.nvim_create_autocmd("WinLeave", {
+  group = cursorline_augroup,
   callback = function()
-    if vim.wo.cursorline then
-      vim.w.auto_cursorline = true
-      vim.wo.cursorline = false
-    end
+    local win = vim.api.nvim_get_current_win()
+    -- Copying the current window options seems to be done after `WinLeave`
+    -- when opening a new tab. Delay setting `cursorline` to `false` until
+    -- after the options are copied
+    vim.schedule(function()
+      if not vim.api.nvim_win_is_valid(win) then return end
+      vim.w[win].cached_cursorline = vim.wo[win].cursorline
+      vim.wo[win].cursorline = false
+    end)
   end,
 })
