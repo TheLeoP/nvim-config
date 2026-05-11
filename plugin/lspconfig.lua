@@ -24,4 +24,5 @@ vim.lsp.enable {
   "clangd",
   "ts_query_ls",
   "laravel_ls",
+  "tsgo",
 }
