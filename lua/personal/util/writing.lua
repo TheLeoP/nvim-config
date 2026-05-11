@@ -4,7 +4,7 @@ function M.setup()
   vim.opt_local.spell = true
   vim.opt_local.wrap = true
   vim.opt_local.smoothscroll = true
-  vim.opt_local.conceallevel = 3
+  vim.opt_local.conceallevel = 2
 
   vim.b.undo_ftplugin = "setlocal nospell nowrap conceallevel=0"
 

@@ -57,7 +57,7 @@ keymap.set("n", "<leader>tc", function()
   end
 
   local current_conceal = vim.wo.conceallevel
-  vim.wo[0][0].conceallevel = vim.wo.conceallevel ~= 0 and 0 or last_conceal or 3
+  vim.wo[0][0].conceallevel = vim.wo.conceallevel ~= 0 and 0 or last_conceal or 2
   vim.notify(("Conceal level is %s"):format(vim.wo.conceallevel))
   last_conceal = current_conceal
 end, { desc = "Toggle conceal" })
