@@ -70,6 +70,10 @@ local function on_attach(client, buf)
       codelens.enable(not codelens.is_enabled())
     end, { buffer = buf, desc = "Toggle Codelens" })
   end
+
+  if client:supports_method "textDocument/linkedEditingRange" then
+    vim.lsp.linked_editing_range.enable(true, { client_id = client.id })
+  end
 end
 
 api.nvim_create_autocmd("LspAttach", {
