@@ -129,30 +129,32 @@ ls.add_snippets("cs", {
     { trig = "for ", snippetType = "autosnippet", condition = conds.line_begin },
     fmta(
       [[
-<type>
+for (<init>;<condition>;<step>)
 {
     <inside>
 }
 ]],
       {
-        inside = i(2),
-        type = c(1, {
-          sn(
-            nil,
-            fmta([[for (<init>;<condition>;<step>)]], {
-              init = i(1, "int i = 0"),
-              condition = i(2, "i < 5"),
-              step = i(3, "i++"),
-            })
-          ),
-          sn(
-            nil,
-            fmta([[foreach (var <element> in <elements>)]], {
-              element = i(1, "element"),
-              elements = i(2, "elements"),
-            })
-          ),
-        }),
+        init = i(1, "int i = 0"),
+        condition = i(2, "i < 5"),
+        step = i(3, "i++"),
+        inside = i(4),
+      }
+    )
+  ),
+  s(
+    { trig = "foreach ", snippetType = "autosnippet", condition = conds.line_begin },
+    fmta(
+      [[
+foreach (var <element> in <elements>)
+{
+    <inside>
+}
+]],
+      {
+        element = i(1, "element"),
+        elements = i(2, "elements"),
+        inside = i(3),
       }
     )
   ),
