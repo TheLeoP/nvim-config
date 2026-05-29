@@ -30,7 +30,7 @@
       "src": "https://github.com/stevearc/conform.nvim"
     },
     "diffview.nvim": {
-      "rev": "be8c63625f2a5170b44ae639b31be7760a8932ee",
+      "rev": "bccf829022a0e6c4def8ad2de03a9900a4aa8e07",
       "src": "https://github.com/dlyongemallo/diffview.nvim"
     },
     "feline.nvim": {
@@ -58,7 +58,7 @@
       "src": "https://github.com/ellisonleao/gruvbox.nvim"
     },
     "kulala.nvim": {
-      "rev": "7d60be1f091cc40a64d5a14b926d060b205fc24b",
+      "rev": "bccba0c4b21557ee916a82268c8993e9a84276b9",
       "src": "https://github.com/mistweaverco/kulala.nvim"
     },
     "lazydev.nvim": {
