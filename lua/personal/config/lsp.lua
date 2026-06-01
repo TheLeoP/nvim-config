@@ -10,8 +10,6 @@ local lsp_group = api.nvim_create_augroup("LSP", { clear = true })
 ---@param client vim.lsp.Client
 ---@param buf integer
 local function on_attach(client, buf)
-  if client:supports_method "textDocument/documentSymbol" then require("nvim-navic").attach(client, buf) end
-
   if client:supports_method "textDocument/hover" then
     keymap.set("n", "K", function()
       vim.lsp.buf.hover {

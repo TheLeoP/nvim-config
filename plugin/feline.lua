@@ -1,9 +1,6 @@
 vim.o.termguicolors = true
 
 vim.pack.add {
-  -- NOTE: check if no other plugin depends on nvim-web-devicons when removing
-  -- plugin
-  "https://github.com/SmiteshP/nvim-navic",
   "https://github.com/famiu/feline.nvim",
 }
 
@@ -76,21 +73,6 @@ local function icon_provider()
   return "", icon
 end
 
-local function navic_provider(_, opts)
-  local navic = require "nvim-navic"
-  local str_multibyte_sub = require("personal.util.general").str_multibyte_sub
-
-  local width = api.nvim_win_get_width(0)
-  local location = navic.get_location(opts)
-  local location_width = api.nvim_strwidth(location)
-  local extra_width = #vim.fn.expand("%:t", false) + 4 -- 4 because ???
-  if width < location_width + extra_width then
-    local start = location_width + extra_width - width + 3 -- 3 because of " … "
-    return (" … %s"):format(str_multibyte_sub(location, start))
-  end
-  return (" %s"):format(location)
-end
-
 local function git_branch_provider()
   local str_multibyte_sub = require("personal.util.general").str_multibyte_sub
 
@@ -161,7 +143,6 @@ local function err()
   return ("%s %d "):format(diagnostic_icons.ERROR, count)
 end
 
-local navic = require "nvim-navic"
 local vi_mode = require "feline.providers.vi_mode"
 local feline = require "feline"
 
@@ -187,7 +168,6 @@ local custom_providers = {
 
     return (" %s"):format(cwd)
   end,
-  navic = navic_provider,
   git_branch_ = git_branch_provider,
   mode = mode,
   hint = hint,
@@ -310,10 +290,6 @@ local winbar_components = {
           style = "bold",
         },
       },
-      {
-        provider = "navic",
-        enabled = navic.is_available,
-      },
     },
   },
   inactive = {
@@ -325,10 +301,6 @@ local winbar_components = {
           bg = "NONE",
           style = "bold",
         },
-      },
-      {
-        provider = "navic",
-        enabled = navic.is_available,
       },
     },
   },
