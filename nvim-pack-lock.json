@@ -29,20 +29,20 @@
       "rev": "619363c30309d29ffa631e67c8183f2a72caa373",
       "src": "https://github.com/stevearc/conform.nvim"
     },
-    "diffview.nvim": {
-      "rev": "bccf829022a0e6c4def8ad2de03a9900a4aa8e07",
-      "src": "https://github.com/dlyongemallo/diffview.nvim"
+    "diffview-plus.nvim": {
+      "rev": "3d948ae75e2dac5b7590cfdf91dd9de1b8098f2c",
+      "src": "https://github.com/dlyongemallo/diffview-plus.nvim"
     },
     "feline.nvim": {
       "rev": "3587f57480b88e8009df7b36dc84e9c7ff8f2c49",
       "src": "https://github.com/famiu/feline.nvim"
     },
     "fzf": {
-      "rev": "a50619388d76832a18b4fc0db9d61f8dd5e3b518",
+      "rev": "838ac7554bdbae2f457f2c4969e1b38f1c28c946",
       "src": "https://github.com/junegunn/fzf"
     },
     "fzf-lua": {
-      "rev": "fea9eedc6894c44d44cbb772a5cd11c93b82d7a1",
+      "rev": "988416cc782dfe28bff3f0da9b8c943b236cd86a",
       "src": "https://github.com/ibhagwan/fzf-lua"
     },
     "gitsigns.nvim": {
@@ -58,7 +58,7 @@
       "src": "https://github.com/ellisonleao/gruvbox.nvim"
     },
     "kulala.nvim": {
-      "rev": "bccba0c4b21557ee916a82268c8993e9a84276b9",
+      "rev": "e43f4d85c9cd57b0638cd557a1cf141fb5ef670b",
       "src": "https://github.com/mistweaverco/kulala.nvim"
     },
     "lazydev.nvim": {
@@ -78,11 +78,11 @@
       "src": "https://github.com/LuaCATS/luassert"
     },
     "mason.nvim": {
-      "rev": "bb639d4bf385a4d89f478b83af4d770be05ab7eb",
+      "rev": "16ba83bfc8a25f52bb545134f5bee082b195c460",
       "src": "https://github.com/mason-org/mason.nvim"
     },
     "mini.nvim": {
-      "rev": "44657837c7338e52727facc85c1d95bec1f6bd7c",
+      "rev": "11afe78a10570fe1d0c7ed0b6fc2b5b19098cb45",
       "src": "https://github.com/nvim-mini/mini.nvim"
     },
     "neogen": {
@@ -122,7 +122,7 @@
       "src": "https://github.com/mfussenegger/nvim-lint"
     },
     "nvim-lspconfig": {
-      "rev": "9573948c38bfabeec353ae7dd7d3ffec4c506a6b",
+      "rev": "07dff35e7c95288861200b788ef32d6103f107f0",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
     "nvim-nio": {
@@ -196,11 +196,11 @@
       "version": "'develop'"
     },
     "roslyn.nvim": {
-      "rev": "426984d6c1e8ee88a394a562eb925e687340f91e",
+      "rev": "dedfc3f539c51a5841feb572e8b73ec58ff2ca9d",
       "src": "https://github.com/seblyng/roslyn.nvim"
     },
     "schemastore.nvim": {
-      "rev": "efa62017f59a6346486cc567d70acce965a00b12",
+      "rev": "19936230448bfb3dfd4314070e8bc499ceb55928",
       "src": "https://github.com/b0o/schemastore.nvim"
     },
     "snacks.nvim": {
@@ -278,7 +278,7 @@
       "src": "https://github.com/tpope/vim-sleuth"
     },
     "wezterm-types": {
-      "rev": "d3505f689e53d8fda536d265d870a1fee937e69f",
+      "rev": "13ab56e813cb5af9a36ae6b4c987ba2558cb3fcb",
       "src": "https://github.com/justinsgithub/wezterm-types"
     }
   }
