@@ -59,7 +59,6 @@ require("gruvbox").setup {
     ["@lsp.typemod.variable.readonly"] = { link = "@constant" },
 
     -- personal preferences
-    ["@lsp.type.string"] = { link = "None" },
     ["@lsp.type.variable"] = { link = "None" },
   },
   italic = {
