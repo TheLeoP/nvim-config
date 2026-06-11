@@ -1,6 +1,6 @@
 vim.pack.add { "https://github.com/mistweaverco/kulala.nvim" }
 local kulala = require "kulala"
-kulala.setup {}
+kulala.setup { kulala_keymaps_prefix = "'" }
 vim.keymap.set("n", "[k", function()
   kulala.jump_prev()
 end)
