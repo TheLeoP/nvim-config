@@ -4,8 +4,6 @@ vim.pack.add {
   "https://github.com/nvim-mini/mini.nvim",
 }
 
-local api = vim.api
-local iter = vim.iter
 local keymap = vim.keymap
 
 require("ts_context_commentstring").setup {
@@ -305,3 +303,4 @@ mk.map_multistep("c", "<up>", {
 })
 
 require("mini.test").setup()
+require("mini.input").setup()
