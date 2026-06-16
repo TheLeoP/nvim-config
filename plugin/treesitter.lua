@@ -11,7 +11,6 @@ local ensure_langs = {
   "lua",
   "vim",
   "xml",
-  "http",
   "json",
   "graphql",
   "query",
