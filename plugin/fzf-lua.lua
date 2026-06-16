@@ -121,7 +121,7 @@ end, { desc = "Rg in plugins dir" })
 
 local function projects()
   local recent_task = require("project_nvim").get_recent()
-  recent_task:wait(function(err, recent)
+  recent_task:on_complete(function(err, recent)
     if err then return vim.notify(err, vim.log.levels.ERROR) end
     local preview = vim.fn.executable "eza" == 1 and "eza -la --color=always --icons -g --group-directories-first {1}"
       or "ls -la {1}"
