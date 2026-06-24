@@ -30,7 +30,7 @@
       "src": "https://github.com/stevearc/conform.nvim"
     },
     "diffview-plus.nvim": {
-      "rev": "de8bf7bc1b7382890de7b0623023e322c7a8ce7e",
+      "rev": "d5c09986681a671613aef0226ef409c01561d64c",
       "src": "https://github.com/dlyongemallo/diffview-plus.nvim"
     },
     "feline.nvim": {
@@ -38,7 +38,7 @@
       "src": "https://github.com/famiu/feline.nvim"
     },
     "fzf": {
-      "rev": "3c9965a61a842ef54e976c7195b985ee43a3e776",
+      "rev": "f2e451596c5d23de0069cdc51ea3fec73b7fe835",
       "src": "https://github.com/junegunn/fzf"
     },
     "fzf-lua": {
@@ -50,7 +50,7 @@
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
     "grug-far.nvim": {
-      "rev": "c995bbacf8229dc096ec1c3d60f8531059c86c1b",
+      "rev": "c69859c1d5427ab5fc7ed12380ab521b4e336691",
       "src": "https://github.com/MagicDuck/grug-far.nvim"
     },
     "gruvbox.nvim": {
@@ -58,7 +58,7 @@
       "src": "https://github.com/ellisonleao/gruvbox.nvim"
     },
     "kulala.nvim": {
-      "rev": "bed6150762d4a5ab5c0a336ebb01626f7ad0ab26",
+      "rev": "77df991c79a52230ac14b1613756179be9ec2fc8",
       "src": "https://github.com/mistweaverco/kulala.nvim"
     },
     "lazydev.nvim": {
@@ -82,7 +82,7 @@
       "src": "https://github.com/mason-org/mason.nvim"
     },
     "mini.nvim": {
-      "rev": "1345d191bb3da9c7b0e977f4387c5761f9bff68d",
+      "rev": "c594be5b095204e99473825ec2dee872e7409a4d",
       "src": "https://github.com/nvim-mini/mini.nvim"
     },
     "neogen": {
@@ -200,7 +200,7 @@
       "src": "https://github.com/seblyng/roslyn.nvim"
     },
     "schemastore.nvim": {
-      "rev": "c73e2b170a4927d1dc1b48e878bba6cf0ed9b07c",
+      "rev": "e3a2fc3862fa750603b7067789cb4b90578bcd07",
       "src": "https://github.com/b0o/schemastore.nvim"
     },
     "snacks.nvim": {
@@ -212,7 +212,7 @@
       "src": "https://github.com/lambdalisue/suda.vim"
     },
     "treewalker.nvim": {
-      "rev": "e1779657d41df2fdf8fd825712051f90e7c9c836",
+      "rev": "cfe3c69396233ddbbd6b581b00868985f78ffd9e",
       "src": "https://github.com/aaronik/treewalker.nvim"
     },
     "typescript-tools.nvim": {
@@ -278,7 +278,7 @@
       "src": "https://github.com/tpope/vim-sleuth"
     },
     "wezterm-types": {
-      "rev": "58c95e0d78e24b236b2eecaa2c29ae973478f79b",
+      "rev": "ae319731742cb45e5aee0a28c356b0d6e8971f07",
       "src": "https://github.com/justinsgithub/wezterm-types"
     }
   }
