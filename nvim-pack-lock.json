@@ -38,11 +38,11 @@
       "src": "https://github.com/famiu/feline.nvim"
     },
     "fzf": {
-      "rev": "f2e451596c5d23de0069cdc51ea3fec73b7fe835",
+      "rev": "9e2856559d50637df482b8598fd7b35b2d746485",
       "src": "https://github.com/junegunn/fzf"
     },
     "fzf-lua": {
-      "rev": "b9919229c84bd64d8539367e67e32811cf39a836",
+      "rev": "dbe7895a07079b2320abfb3c555b90d3d40a8c9e",
       "src": "https://github.com/ibhagwan/fzf-lua"
     },
     "gitsigns.nvim": {
@@ -58,7 +58,7 @@
       "src": "https://github.com/ellisonleao/gruvbox.nvim"
     },
     "kulala.nvim": {
-      "rev": "8848e90bf05b8416e02b2561039b70acc271071c",
+      "rev": "b78b1aab31844bdba8a94041ff22a61d1563ba35",
       "src": "https://github.com/mistweaverco/kulala.nvim"
     },
     "lazydev.nvim": {
@@ -82,7 +82,7 @@
       "src": "https://github.com/mason-org/mason.nvim"
     },
     "mini.nvim": {
-      "rev": "c248713d3530710f67ec804cfbdfcd5b02b19dee",
+      "rev": "1599a473aa6f5290a5d740b1144846e6f0c3963d",
       "src": "https://github.com/nvim-mini/mini.nvim"
     },
     "neogen": {
@@ -200,7 +200,7 @@
       "src": "https://github.com/seblyng/roslyn.nvim"
     },
     "schemastore.nvim": {
-      "rev": "019c5ef98a80632a6ab2470eb993fd57d7d9333e",
+      "rev": "490afbd7fd3b316330550405ac74758a971104a4",
       "src": "https://github.com/b0o/schemastore.nvim"
     },
     "snacks.nvim": {
