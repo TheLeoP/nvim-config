@@ -30,7 +30,7 @@
       "src": "https://github.com/stevearc/conform.nvim"
     },
     "diffview-plus.nvim": {
-      "rev": "eabcae3e45abf9938518501435378cd0c62a45cb",
+      "rev": "29be5389e8a0e8f8cbee2468761901da3df767ee",
       "src": "https://github.com/dlyongemallo/diffview-plus.nvim"
     },
     "feline.nvim": {
@@ -42,7 +42,7 @@
       "src": "https://github.com/junegunn/fzf"
     },
     "fzf-lua": {
-      "rev": "39da6060d53659acf3ec118200bc48721b29b8fd",
+      "rev": "237b7e7f2bd07becc83144933b6058cc15bef2dc",
       "src": "https://github.com/ibhagwan/fzf-lua"
     },
     "gitsigns.nvim": {
@@ -58,7 +58,7 @@
       "src": "https://github.com/ellisonleao/gruvbox.nvim"
     },
     "kulala.nvim": {
-      "rev": "7fba542e4300c0d915f64da8a759f68ca1bd6b77",
+      "rev": "5a2883ce52bc5feb6eb1f0ddd19de06bb4033144",
       "src": "https://github.com/mistweaverco/kulala.nvim"
     },
     "lazydev.nvim": {
@@ -82,7 +82,7 @@
       "src": "https://github.com/mason-org/mason.nvim"
     },
     "mini.nvim": {
-      "rev": "dc8a9918c3b1bc18a5fcd04d39b6d658074c0886",
+      "rev": "c5cdbadeb423ff724e27a42ab2d1c504d1d6fc5a",
       "src": "https://github.com/nvim-mini/mini.nvim"
     },
     "neogen": {
@@ -179,7 +179,7 @@
       "src": "https://github.com/stevearc/profile.nvim"
     },
     "project.nvim": {
-      "rev": "33d8b7e2127313a4ae88a5492881a811cdb03270",
+      "rev": "5faef96662e649780c827277a666ed3a9b5dba98",
       "src": "https://github.com/TheLeoP/project.nvim"
     },
     "quicker.nvim": {
@@ -187,7 +187,7 @@
       "src": "https://github.com/stevearc/quicker.nvim"
     },
     "refactoring.nvim": {
-      "rev": "169a67bec387746d219e27f39993e7bf1a27d1b0",
+      "rev": "64e10d782ae5b9653558482910213b8946651456",
       "src": "https://github.com/theprimeagen/refactoring.nvim",
       "version": "'develop'"
     },
@@ -254,8 +254,7 @@
     },
     "vim-matchup": {
       "rev": "e4ae57129eed0cb9d2be04d6ad6d299a0f557f24",
-      "src": "https://github.com/andymass/vim-matchup",
-      "version": "'perf'"
+      "src": "https://github.com/andymass/vim-matchup"
     },
     "vim-projectionist": {
       "rev": "5ff7bf79a6ef741036d2038a226bcb5f8b1cd296",
