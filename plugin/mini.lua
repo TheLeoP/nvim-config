@@ -5,6 +5,7 @@ vim.pack.add {
 }
 
 local keymap = vim.keymap
+local api = vim.api
 
 require("ts_context_commentstring").setup {
   enable_autocmd = false,
@@ -304,3 +305,87 @@ mk.map_multistep("c", "<up>", {
 
 require("mini.test").setup()
 require("mini.input").setup()
+
+require("mini.files").setup {
+  mappings = {
+    close = "<space>q",
+    go_in = "<right>",
+    go_in_plus = "<cr>",
+    go_out = "<left>",
+    go_out_plus = "<c-left>",
+    synchronize = "<space>w",
+  },
+}
+local group = api.nvim_create_augroup("personal-mini.files", { clear = true })
+api.nvim_create_autocmd("User", {
+  group = group,
+  pattern = "MiniFilesBufferCreate",
+  desc = "Create explorer buffer local keymaps",
+  callback = function(args)
+    local buf = args.data.buf_id ---@type integer
+
+    keymap.set("n", "<leader>cd", function()
+      local path = (MiniFiles.get_fs_entry() or {}).path ---@type string
+      if path == nil then return vim.notify "Cursor is not on valid entry" end
+      vim.fn.chdir(vim.fs.dirname(vim.fs.normalize(path)))
+    end, { buffer = buf, desc = "Set cwd" })
+
+    keymap.set("n", "gx", function()
+      local path = MiniFiles.get_fs_entry().path
+      vim.ui.open(vim.fs.normalize(path))
+    end, { buffer = buf, desc = "OS open" })
+
+    keymap.set("n", "gy", function()
+      local path = (MiniFiles.get_fs_entry() or {}).path ---@type string
+      if path == nil then return vim.notify "Cursor is not on valid entry" end
+      vim.fn.setreg(vim.v.register, vim.fs.normalize(path))
+    end, { buffer = buf, desc = "Yank path" })
+
+    keymap.set("n", "g.", function()
+      local path = (MiniFiles.get_fs_entry() or {}).path ---@type string
+      if path == nil then return vim.notify "Cursor is not on valid entry" end
+
+      api.nvim_input((": %s<c-b>"):format(vim.fs.normalize(path)))
+    end, { buffer = buf, desc = "Open cmdline with path" })
+
+    keymap.set("n", "<c-l>", function()
+      -- NOTE: dummy filter to force refresh
+      MiniFiles.refresh { content = {
+        filter = function()
+          return true
+        end,
+      } }
+      vim.cmd.nohlsearch()
+      vim.cmd.diffupdate()
+      require("notify").dismiss { silent = true, pending = true }
+      require("personal.util.general").clear_system_notifications()
+      vim.cmd.normal { vim.keycode "<c-l>", bang = true }
+    end, { buffer = buf, desc = "Refresh and dismiss notifications" })
+  end,
+})
+keymap.set("n", "-", function()
+  MiniFiles.open(api.nvim_buf_get_name(0))
+end, { desc = "Open parent directory" })
+
+api.nvim_create_autocmd("User", {
+  group = group,
+  pattern = "MiniFilesExplorerOpen",
+  desc = "Create default explorer marks",
+  callback = function()
+    MiniFiles.set_bookmark("c", vim.fn.stdpath "config", { desc = "Config" })
+    MiniFiles.set_bookmark("w", vim.fn.getcwd, { desc = "Working directory" })
+    MiniFiles.set_bookmark("h", "~", { desc = "Home directory" })
+  end,
+})
+
+api.nvim_create_autocmd("User", {
+  group = group,
+  pattern = "MiniFilesActionDelete",
+  callback = function(args)
+    local path = vim.fs.normalize(args.data.from)
+    local buf = vim.fn.bufnr(path)
+    if buf == -1 then return end
+
+    api.nvim_buf_delete(buf, { force = true })
+  end,
+})
