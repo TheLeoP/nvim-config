@@ -254,7 +254,7 @@
     },
     "vim-matchup": {
       "rev": "e4ae57129eed0cb9d2be04d6ad6d299a0f557f24",
-      "src": "https://github.com/TheLeoP/vim-matchup",
+      "src": "https://github.com/andymass/vim-matchup",
       "version": "'perf'"
     },
     "vim-projectionist": {

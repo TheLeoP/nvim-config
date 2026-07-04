@@ -8,9 +8,4 @@ vim.g.matchup_mouse_enabled = 0
 
 vim.g.matchup_matchparen_nomode = "i"
 
-vim.pack.add {
-  {
-    src = "https://github.com/TheLeoP/vim-matchup",
-    version = "perf",
-  },
-}
+vim.pack.add { "https://github.com/andymass/vim-matchup" }
