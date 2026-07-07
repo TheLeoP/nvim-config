@@ -359,6 +359,7 @@ api.nvim_create_autocmd("User", {
     MiniFiles.set_bookmark("c", vim.fn.stdpath "config", { desc = "Config" })
     MiniFiles.set_bookmark("w", vim.fn.getcwd, { desc = "Working directory" })
     MiniFiles.set_bookmark("h", "~", { desc = "Home directory" })
+    if vim.fn.has "win32" == 0 then MiniFiles.set_bookmark("d", "~/Descargas", { desc = "Downloads" }) end
   end,
 })
 
