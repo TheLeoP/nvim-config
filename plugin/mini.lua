@@ -345,6 +345,10 @@ api.nvim_create_autocmd("User", {
       require("personal.util.general").clear_system_notifications()
       vim.cmd.normal { vim.keycode "<c-l>", bang = true }
     end, { buffer = buf, desc = "Refresh and dismiss notifications" })
+
+    keymap.set("n", "-", function()
+      MiniFiles.go_out()
+    end, { buffer = buf })
   end,
 })
 keymap.set("n", "-", function()
