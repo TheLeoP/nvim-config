@@ -8,10 +8,6 @@
       "rev": "46adf61a022d5c923f981d527443f406e7d0f63e",
       "src": "https://github.com/lewis6991/async.nvim"
     },
-    "blink-cmp-git": {
-      "rev": "d3f2a9067ab028e779d08e61bf0b054939011316",
-      "src": "https://github.com/Kaiser-Yang/blink-cmp-git"
-    },
     "blink.cmp": {
       "rev": "78336bc89ee5365633bcf754d93df01678b5c08f",
       "src": "https://github.com/saghen/blink.cmp",

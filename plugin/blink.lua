@@ -1,5 +1,4 @@
 vim.pack.add {
-  "https://github.com/Kaiser-Yang/blink-cmp-git",
   {
     src = "https://github.com/saghen/blink.cmp",
     version = vim.version.range "1.*",
@@ -51,7 +50,6 @@ require("blink.cmp").setup {
     per_filetype = {
       ["dap-repl"] = { "lsp", "path", "buffer", "omni" }, -- use nvim-dap omni completion on dap-repl
       query = { "lsp", "buffer", "omni" }, -- use omni completion on query files
-      gitcommit = { "lsp", "path", "buffer", "git" }, -- only enable git source here
     },
 
     providers = {
@@ -61,14 +59,6 @@ require("blink.cmp").setup {
         name = "LazyDev",
         module = "lazydev.integrations.blink",
         score_offset = 100,
-      },
-
-      git = {
-        module = "blink-cmp-git",
-        name = "Git",
-        enabled = function()
-          return vim.tbl_contains({ "octo", "gitcommit", "markdown" }, vim.bo.filetype)
-        end,
       },
 
       kinesis = {
