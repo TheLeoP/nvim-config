@@ -48,7 +48,6 @@ require("blink.cmp").setup {
     default = { "lsp", "path", "buffer", "lazydev", "dadbod", "kinesis" },
 
     per_filetype = {
-      ["dap-repl"] = { "lsp", "path", "buffer", "omni" }, -- use nvim-dap omni completion on dap-repl
       query = { "lsp", "buffer", "omni" }, -- use omni completion on query files
     },
 

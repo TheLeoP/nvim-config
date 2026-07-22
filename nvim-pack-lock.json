@@ -53,6 +53,10 @@
       "rev": "154eb5ff5b96d0641307113fa385eaf0d36d9796",
       "src": "https://github.com/ellisonleao/gruvbox.nvim"
     },
+    "guh.nvim": {
+      "rev": "943779f7cdb0acee203985ad531fb53ff95d9c8e",
+      "src": "https://github.com/justinmk/guh.nvim"
+    },
     "kulala.nvim": {
       "rev": "7f83b6100321c848ca87ac9df414ebe6141e3f5f",
       "src": "https://github.com/mistweaverco/kulala.nvim"
@@ -100,6 +104,10 @@
     "nvim-dap-ui": {
       "rev": "cc9dd33aade7f20bae414d0cba163bc60d4d4b43",
       "src": "https://github.com/rcarriga/nvim-dap-ui"
+    },
+    "nvim-dap-view": {
+      "rev": "b8c8aa91f42055d7f69012587cde4f1d99f2a701",
+      "src": "https://github.com/igorlfs/nvim-dap-view"
     },
     "nvim-dap-virtual-text": {
       "rev": "fbdb48c2ed45f4a8293d0d483f7730d24467ccb6",

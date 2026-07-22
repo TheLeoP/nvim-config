@@ -6,9 +6,9 @@ vim.pack.add {
   "https://github.com/nvim-neotest/nvim-nio",
   "https://github.com/rcarriga/nvim-dap-ui",
 
-  "https://github.com/theHamsta/nvim-dap-virtual-text",
-
   "https://github.com/mfussenegger/nvim-dap",
+
+  "https://github.com/igorlfs/nvim-dap-view",
 }
 
 local arrows = require("personal.icons").arrows
@@ -24,49 +24,58 @@ local mason_root = vim.fn.stdpath "data" .. "/mason/packages"
 local tail = not is_windows and "/debugpy/venv/bin/python" or "/debugpy/venv/Scripts/python.exe"
 require("dap-python").setup(mason_root .. tail)
 
-local dapui = require "dapui"
----@diagnostic disable-next-line: missing-fields
-dapui.setup {
-  ---@diagnostic disable-next-line: missing-fields
-  floating = {
-    border = "none",
-  },
-  icons = {
-    collapsed = arrows.right,
-    current_frame = arrows.right,
-    expanded = arrows.down,
-  },
-  layouts = {
-    {
-      elements = {
-        {
-          id = "scopes",
-          size = 0.50,
-        },
-        {
-          id = "watches",
-          size = 0.20,
-        },
-        {
-          id = "stacks",
-          size = 0.30,
-        },
-      },
-      position = "right",
-      size = 50,
+local dapview = require "dap-view"
+dapview.setup {
+  winbar = {
+    sections = { "watches", "scopes", "exceptions", "breakpoints", "threads", "repl", "console" },
+    base_sections = {
+      breakpoints = { label = "", keymap = "B" },
+      scopes = { label = "", keymap = "S" },
+      exceptions = { label = "", keymap = "E" },
+      watches = { label = "", keymap = "W" },
+      threads = { label = "", keymap = "T" },
+      repl = { label = "", keymap = "R" },
+      sessions = { label = "", keymap = "K" },
+      console = { label = "", keymap = "C" },
     },
   },
+  windows = {
+    size = 50,
+    position = "right",
+  },
+  keymaps = {
+    scopes = {
+      jump_to_parent = "{{",
+    },
+    watches = {
+      jump_to_parent = "{{",
+    },
+    hover = {
+      jump_to_parent = "{{",
+    },
+    help = {
+      quit = "<leader>q",
+    },
+    console = {
+      next_session = "{s",
+      prev_session = "}s",
+    },
+    base = {
+      next_view = "}v",
+      prev_view = "{v",
+      jump_to_first = "{V",
+      jump_to_last = "}V",
+      help = "g?",
+    },
+  },
+  virtual_text = {
+    enabled = true,
+  },
+  switchbuf = "uselast",
 }
 
-keymap.set("n", "<leader>ta", dapui.toggle, { desc = "Toggle D[A]P Ui" })
-
-require("nvim-dap-virtual-text").setup { virt_text_pos = "eol" }
-api.nvim_create_user_command("DapVirtualTextClear", function()
-  require("nvim-dap-virtual-text.virtual_text").clear_virtual_text()
-end, {
-  desc = "Clear all the virtual text displayed by nvim-dap-virtual-text",
-  force = true,
-})
+keymap.set("n", "<leader>ta", dapview.toggle, { desc = "Toggle D[A]P view" })
+keymap.set("n", "<leader>tv", dapview.virtual_text_toggle, { desc = "Toggle DAP [v]irtual text" })
 
 local dotnet_last_project ---@type string?
 local function dotnet_build_project()
@@ -147,7 +156,7 @@ keymap.set(
 )
 keymap.set("n", "<leader>de", function()
   dap.terminate()
-  dapui.close()
+  dapview.close()
 end, { desc = "Debug end" })
 keymap.set("n", "<leader>db", function()
   dap.toggle_breakpoint()
@@ -161,9 +170,6 @@ keymap.set("n", "<leader>dB", function()
     end
   )
 end, { desc = "Debug toggle condition breakpoint" })
-keymap.set("n", "<leader>dq", function()
-  dap.list_breakpoints(true)
-end, { desc = "Debug breakpoints to qf" })
 keymap.set("n", "<leader>dv", function()
   dap.step_over()
 end, { desc = "Debug step over" })
@@ -180,14 +186,14 @@ keymap.set("n", "<leader>dtc", function()
   dap.run_to_cursor()
 end, { desc = "Debug to cursor" })
 
-dap.listeners.after.event_initialized["dapui_config"] = function()
+dap.listeners.after.event_initialized["personal_initialization"] = function()
   vim.notify("Initialized", vim.log.levels.INFO, { title = "DAP" })
 end
-dap.listeners.before.event_terminated["dapui_config"] = function()
-  dapui.close {}
+dap.listeners.before.event_terminated["dapview_config"] = function()
+  dapview.close()
 end
-dap.listeners.before.event_exited["dapui_config"] = function()
-  dapui.close {}
+dap.listeners.before.event_exited["dapview_config"] = function()
+  dapview.close()
 end
 
 dap.adapters.nlua = function(callback, config)
