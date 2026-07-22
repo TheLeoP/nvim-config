@@ -3,10 +3,5 @@ require("snacks").setup {
   bigfile = {
     enabled = true,
   },
-  profiler = {
-    filter_mod = {
-      ["^vim%."] = true,
-    },
-  },
   input = {},
 }
