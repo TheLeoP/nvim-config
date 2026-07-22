@@ -61,10 +61,6 @@
       "rev": "ff2cbcba459b637ec3fd165a2be59b7bbaeedf0d",
       "src": "https://github.com/folke/lazydev.nvim"
     },
-    "leap.nvim": {
-      "rev": "d7f8ee64155b7790188f17a993390f32577cfb81",
-      "src": "https://codeberg.org/andyg/leap.nvim.git"
-    },
     "lpeg": {
       "rev": "bc20eafaeac1143ada778413bb8339e4a580ab74",
       "src": "https://github.com/LuaCATS/lpeg"
