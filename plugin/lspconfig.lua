@@ -25,4 +25,6 @@ vim.lsp.enable {
   "ts_query_ls",
   "laravel_ls",
   "tsgo",
+  "yamlls",
+  "helm_ls",
 }

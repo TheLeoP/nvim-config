@@ -50,6 +50,8 @@ mr.refresh(function()
     "clangd",
     "ts_query_ls",
     "tsgo",
+    "yaml-language-server",
+    "helm-ls",
   } do
     local p = mr.get_package(tool)
     if not p:is_installed() then p:install() end
