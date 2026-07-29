@@ -52,6 +52,8 @@ local ensure_langs = {
   "astro",
   "desktop",
   "blade",
+  "helm",
+  "gotmpl",
 
   "doxygen",
   "re2c",
