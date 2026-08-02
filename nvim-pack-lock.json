@@ -249,7 +249,7 @@
       "version": "'leo'"
     },
     "vim-matchup": {
-      "rev": "e4ae57129eed0cb9d2be04d6ad6d299a0f557f24",
+      "rev": "5e3c4a3274a9766aee520caebb52572c007fc4f8",
       "src": "https://github.com/andymass/vim-matchup"
     },
     "vim-projectionist": {
