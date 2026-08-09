@@ -18,7 +18,6 @@ mr.refresh(function()
     "csharpier",
     "sql-formatter",
     "pretty-php",
-    "npm-groovy-lint",
 
     "debugpy",
     "netcoredbg",
@@ -45,7 +44,6 @@ mr.refresh(function()
     "lua-language-server",
     "gopls",
     "json-lsp",
-    "groovy-language-server",
     "tailwindcss-language-server",
     "clangd",
     "ts_query_ls",

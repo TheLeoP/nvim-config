@@ -9,9 +9,6 @@ require("conform").setup {
       command = "csharpier",
       args = { "format" },
     },
-    ["npm-groovy-lint"] = {
-      args = { "--format", "$FILENAME" },
-    },
   },
   formatters_by_ft = {
     ["markdown.mdx"] = { "prettierd" },
@@ -36,7 +33,6 @@ require("conform").setup {
     vue = { "prettierd" },
     yaml = { "prettierd" },
     php = { "pretty-php" },
-    groovy = { "npm-groovy-lint" },
   },
   format_on_save = function(bufnr)
     if not format_options.autoformat then return end

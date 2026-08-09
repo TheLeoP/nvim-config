@@ -19,7 +19,6 @@ vim.lsp.enable {
   "lua_ls",
   "gopls",
   "jsonls",
-  "groovyls",
   "tailwindcss",
   "clangd",
   "ts_query_ls",
