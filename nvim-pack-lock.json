@@ -34,7 +34,7 @@
       "src": "https://github.com/famiu/feline.nvim"
     },
     "fzf": {
-      "rev": "3337be9d450cd349e99273a2d3985ceaf5f3753f",
+      "rev": "715d26fa3949c9a0f1e41fcbda5440f3ac338e51",
       "src": "https://github.com/junegunn/fzf"
     },
     "fzf-lua": {
@@ -78,7 +78,7 @@
       "src": "https://github.com/mason-org/mason.nvim"
     },
     "mini.nvim": {
-      "rev": "3e47ec3709716177bf28e2d17e35c7ab39db126e",
+      "rev": "629bf6792187e11b4829411c1648f86f28df3963",
       "src": "https://github.com/nvim-mini/mini.nvim"
     },
     "neogen": {
@@ -134,7 +134,7 @@
       "src": "https://github.com/rcarriga/nvim-notify"
     },
     "nvim-treesitter": {
-      "rev": "3d3321b560a63ff92a8692401f303a5123336b86",
+      "rev": "c9f9ed6c1892f629ea399f4ee7905f2686fa13f2",
       "src": "https://github.com/nvim-treesitter/nvim-treesitter"
     },
     "nvim-treesitter-context": {
@@ -171,7 +171,7 @@
       "src": "https://github.com/nvim-lua/plenary.nvim"
     },
     "powershell.nvim": {
-      "rev": "3ac437e45ff54bb4c0ce64ff044cd0c47e396a25",
+      "rev": "0c775f1c245f9e6b3e9adb20533bbc9bea00c599",
       "src": "https://github.com/TheLeoP/powershell.nvim"
     },
     "profile.nvim": {
@@ -187,7 +187,7 @@
       "src": "https://github.com/stevearc/quicker.nvim"
     },
     "refactoring.nvim": {
-      "rev": "64e10d782ae5b9653558482910213b8946651456",
+      "rev": "3615097798d1db58ec7cf8ffa126f815a4161e59",
       "src": "https://github.com/theprimeagen/refactoring.nvim",
       "version": "'develop'"
     },
@@ -196,7 +196,7 @@
       "src": "https://github.com/seblyng/roslyn.nvim"
     },
     "schemastore.nvim": {
-      "rev": "a652fcc01bf03946ab94b815be8c80ee157cbe1a",
+      "rev": "427b0ff24377a6cdd18aa822a984a5adf156c3fa",
       "src": "https://github.com/b0o/schemastore.nvim"
     },
     "snacks.nvim": {
