@@ -268,6 +268,10 @@
       "rev": "be69bff86754b1aa5adcbb527d7fcd1635a84080",
       "src": "https://github.com/tpope/vim-sleuth"
     },
+    "vim-tridactyl": {
+      "rev": "fdd069bde3a34c786abed4601b6d59a065590ad9",
+      "src": "https://github.com/tridactyl/vim-tridactyl"
+    },
     "wezterm-types": {
       "rev": "851470ad5d2dfb56bda936e6aeef2f3a45e7f199",
       "src": "https://github.com/justinsgithub/wezterm-types"
