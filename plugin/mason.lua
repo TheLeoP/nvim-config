@@ -52,6 +52,15 @@ mr.refresh(function()
     "helm-ls",
   } do
     local p = mr.get_package(tool)
-    if not p:is_installed() then p:install() end
+    if not p:is_installed() then
+      p:install(nil, function(ok, err)
+        if ok or not err then return end
+        vim.notify(
+          ("Error installing %s.\n%s"):format(tool, tostring(err)),
+          vim.log.levels.ERROR,
+          { title = "Mason (install)" }
+        )
+      end)
+    end
   end
 end)
