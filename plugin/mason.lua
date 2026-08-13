@@ -47,7 +47,6 @@ mr.refresh(function()
     "tailwindcss-language-server",
     "clangd",
     "ts_query_ls",
-    "tsgo",
     "yaml-language-server",
     "helm-ls",
   } do
