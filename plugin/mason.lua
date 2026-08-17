@@ -39,7 +39,7 @@ mr.refresh(function()
     "phpactor",
     "prisma-language-server",
     "marksman",
-    "docker-language-server",
+    "dockerfile-language-server",
     "docker-compose-language-service",
     "lua-language-server",
     "gopls",
