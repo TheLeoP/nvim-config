@@ -78,7 +78,7 @@
       "src": "https://github.com/mason-org/mason.nvim"
     },
     "mini.nvim": {
-      "rev": "a311ed247d527db9592bb434356badc705363746",
+      "rev": "9d01f392b33fb2ba36fbc87fc0bf4453e63ffb0a",
       "src": "https://github.com/nvim-mini/mini.nvim"
     },
     "neogen": {
@@ -122,7 +122,7 @@
       "src": "https://github.com/mfussenegger/nvim-lint"
     },
     "nvim-lspconfig": {
-      "rev": "16286347bdba1333c7d124d9de9fe6630731b2b2",
+      "rev": "ee1e369181a9e64904cdd7b739e98c70778cfc71",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
     "nvim-nio": {
@@ -134,7 +134,7 @@
       "src": "https://github.com/rcarriga/nvim-notify"
     },
     "nvim-treesitter": {
-      "rev": "19071296d3d643b48615ee574a20e8a03ac40872",
+      "rev": "427e9222363d07c32d6db6169e4049c28d58d141",
       "src": "https://github.com/nvim-treesitter/nvim-treesitter"
     },
     "nvim-treesitter-context": {
@@ -171,7 +171,7 @@
       "src": "https://github.com/nvim-lua/plenary.nvim"
     },
     "powershell.nvim": {
-      "rev": "0c775f1c245f9e6b3e9adb20533bbc9bea00c599",
+      "rev": "faafb829db0979b4a5962fe0d10a58830413bcd2",
       "src": "https://github.com/TheLeoP/powershell.nvim"
     },
     "profile.nvim": {
@@ -179,7 +179,7 @@
       "src": "https://github.com/stevearc/profile.nvim"
     },
     "project.nvim": {
-      "rev": "5faef96662e649780c827277a666ed3a9b5dba98",
+      "rev": "06f14f8a5ace1b817e04807891c4d030edfab73b",
       "src": "https://github.com/TheLeoP/project.nvim"
     },
     "quicker.nvim": {
@@ -187,7 +187,7 @@
       "src": "https://github.com/stevearc/quicker.nvim"
     },
     "refactoring.nvim": {
-      "rev": "3615097798d1db58ec7cf8ffa126f815a4161e59",
+      "rev": "175961e1aebf9cdc3bca6140d553c6a6d6f7521f",
       "src": "https://github.com/theprimeagen/refactoring.nvim",
       "version": "'develop'"
     },
@@ -196,7 +196,7 @@
       "src": "https://github.com/seblyng/roslyn.nvim"
     },
     "schemastore.nvim": {
-      "rev": "2940d5e12f8797620cd47dca984d46119e1fa4b8",
+      "rev": "6a1a2daf151dd742d5ff2f64eb2cc049d7e5ab4a",
       "src": "https://github.com/b0o/schemastore.nvim"
     },
     "snacks.nvim": {
@@ -208,7 +208,7 @@
       "src": "https://github.com/lambdalisue/suda.vim"
     },
     "treewalker.nvim": {
-      "rev": "c6c37b912e84d0522fa585ce83da93b0fd53563b",
+      "rev": "976eb9921c2f26a9a4314b5a0f4842d447a49592",
       "src": "https://github.com/aaronik/treewalker.nvim"
     },
     "undotree": {
