@@ -5,7 +5,7 @@
       "src": "https://github.com/L3MON4D3/LuaSnip"
     },
     "async.nvim": {
-      "rev": "10a16178cdace61d3416a5652121ba70a2e4103c",
+      "rev": "ca8f5696c45bd4786b8840923d86b6932ce92ded",
       "src": "https://github.com/lewis6991/async.nvim"
     },
     "blink.cmp": {
@@ -90,7 +90,7 @@
       "src": "https://github.com/Shatur/neovim-session-manager"
     },
     "nvim-dap": {
-      "rev": "9e848e09a697ee95302a3ef2dd43fd6eb709e570",
+      "rev": "c9a0738e45f1bd41d792a126941348dce661cf9b",
       "src": "https://github.com/mfussenegger/nvim-dap"
     },
     "nvim-dap-go": {
@@ -122,7 +122,7 @@
       "src": "https://github.com/mfussenegger/nvim-lint"
     },
     "nvim-lspconfig": {
-      "rev": "ee1e369181a9e64904cdd7b739e98c70778cfc71",
+      "rev": "84252f9832fb5b9024fe9f7258e7c2aff915e6fb",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
     "nvim-nio": {
@@ -142,7 +142,7 @@
       "src": "https://github.com/nvim-treesitter/nvim-treesitter-context"
     },
     "nvim-treesitter-textobjects": {
-      "rev": "898ee307df58f854d11cd7edd06472574d48014e",
+      "rev": "5c7b0263797dfd1bd6202f2b219f3b53a80b2187",
       "src": "https://github.com/nvim-treesitter/nvim-treesitter-textobjects",
       "version": "'main'"
     },
@@ -196,7 +196,7 @@
       "src": "https://github.com/seblyng/roslyn.nvim"
     },
     "schemastore.nvim": {
-      "rev": "6a1a2daf151dd742d5ff2f64eb2cc049d7e5ab4a",
+      "rev": "4a0e1b74096937d366031bc1e2b244546af39f8e",
       "src": "https://github.com/b0o/schemastore.nvim"
     },
     "snacks.nvim": {
