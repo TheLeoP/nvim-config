@@ -158,7 +158,7 @@ surround.setup {
     update_n_lines = "<leader>sn",
   },
 
-  n_lines = 100,
+  n_lines = 500,
 
   custom_surroundings = {
     o = {
