@@ -18,12 +18,6 @@ local ai = require "mini.ai"
 local gen_ai_spec = require("mini.extra").gen_ai_spec
 
 local gen_ts_spec = ai.gen_spec.treesitter
-local ts_find_tag = gen_ts_spec { a = "@tag.outer", i = "@tag.inner" }
-local ts_find_argument = gen_ts_spec {
-  a = { "@parameter.outer", "@attribute.outer" },
-  i = { "@parameter.inner", "@attribute.inner" },
-}
-local pattern_find_argument = ai.gen_spec.argument()
 ai.setup {
   n_lines = 500,
   custom_textobjects = {
@@ -34,18 +28,11 @@ ai.setup {
     f = gen_ts_spec { a = "@function.outer", i = "@function.inner" },
     c = gen_ts_spec { a = "@class.outer", i = "@class.inner" },
     F = gen_ts_spec { a = "@call.outer", i = "@call.inner" },
-    t = function(...)
-      local ok, ts_tags = pcall(ts_find_tag, ...)
-      if not ok or vim.tbl_isempty(ts_tags) then
-        return { "<([%p%w]-)%f[^<%w][^<>]->.-</%1>", "^<.->().*()</[^/]->$" }
-      end
-      return ts_tags
-    end,
-    a = function(...)
-      local ok, ts_argument = pcall(ts_find_argument, ...)
-      if not ok or vim.tbl_isempty(ts_argument) then return pattern_find_argument end
-      return ts_argument
-    end,
+    t = gen_ts_spec { a = "@tag.outer", i = "@tag.inner" },
+    a = gen_ts_spec {
+      a = { "@parameter.outer", "@attribute.outer" },
+      i = { "@parameter.inner", "@attribute.inner" },
+    },
 
     d = gen_ai_spec.diagnostic(),
     e = gen_ai_spec.indent(),
