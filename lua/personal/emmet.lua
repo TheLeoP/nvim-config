@@ -2,10 +2,9 @@ local lpeg = vim.lpeg
 local P, S, V, R, C, Cg, Cmt, Cb, Ct, Cc =
   lpeg.P, lpeg.S, lpeg.V, lpeg.R, lpeg.C, lpeg.Cg, lpeg.Cmt, lpeg.Cb, lpeg.Ct, lpeg.Cc
 local locale = lpeg.locale {} ---@type table<string, vim.lpeg.Pattern>
-local alpha = locale.alpha
 local digit = locale.digit
-local alnum = locale.alnum
 local quote = P '"' + P "'"
+local space = locale.space
 
 local ls = require "luasnip"
 local fmt = require("luasnip.extras.fmt").fmt
@@ -16,31 +15,34 @@ local sn = ls.snippet_node
 -- TODO: support shortcuts
 local emmet_grammar = P {
   "line",
-  identifier = alpha * alnum ^ 0,
-  -- TODO: this can not only be alnum, add other chars
+  non_special_char = -(S ">+^.#[]{}()*\"'=$" + space) * P(1),
+  identifier = V "non_special_char" ^ 1,
   value = Ct(
     Ct(
-      Cg((alnum ^ 1), "text")
+      Cg(V "identifier", "text")
         + (
           Cg(P "$" ^ 1, "count_text")
           * (P "@" * (P "-" * Cg(Cc(true), "descending")) ^ -1 * Cg(digit ^ 0 / tonumber, "base")) ^ -1
         )
     ) ^ 1
   ),
-  -- TODO: allow empty attributes
-  -- TODO: support attribute being a value to expand `$$$`
   open_quote = Cg(quote, "open_quote"),
   close_quote = Cmt(C(quote) * Cb "open_quote", function(_, _, open_quote, close_quote)
     return open_quote == close_quote
   end),
-  non_quote = C(Cmt(C(P(1)) * Cb "open_quote", function(_, _, char, open_quote)
+  -- TODO: support `non_quote` being a `value` to expand `$$$` (instead of
+  -- hardcoding its content as a "text" value)
+  non_quote = Ct(Ct(Cg(Cmt(C(P(1)) * Cb "open_quote", function(_, _, char, open_quote)
     return char ~= open_quote
-  end) ^ 0),
+  end) ^ 0, "text"))),
+  -- TODO: allow empty attributes
+  -- TODO: support this `identifier` being a `value` to expand `$$$` (also
+  -- requires changes in `build_tree` to expand it)
   attribute = C(V "identifier") * P "=" * (V "open_quote" * V "non_quote" * V "close_quote" + V "value"),
   class_property = P "." * Cc "class" * V "value",
   id_property = P "#" * Cc "id" * V "value",
   custom_property = (P "[" * Cc "custom" * Ct(((V "attribute" * P " " + V "attribute") % rawset) ^ 1) * P "]"),
-  -- TODO: support text being a value to expand `$$$`
+  -- TODO: support text being a `value` to expand `$$$`
   text_property = P "{" * Cc "text" * C((-P "}" * P(1)) ^ 0) * P "}",
   property = (
     (V "class_property" + V "id_property" + V "custom_property" + V "text_property")
@@ -99,7 +101,7 @@ local emmet_grammar = P {
 ---@field amount integer|nil
 ---@field id emmet.Value|nil
 ---@field classes emmet.Value[]|nil
----@field attributes table<string, string>|nil
+---@field attributes table<string, emmet.Value>|nil
 ---@field text string|nil
 
 ---@class emmet.Tag: emmet.TagInfo
@@ -143,15 +145,36 @@ local function tag_tostring(tag)
       and (' class="%s"'):format(table.concat(
         vim
           .iter(tag.classes)
-          :map(function(value)
-            return table.concat(value.value)
-          end)
+          :map(
+            ---@param value emmet.Value
+            function(value)
+              return vim
+                .iter(value)
+                :map(
+                  ---@param content emmet.ValueContent
+                  function(content)
+                    return content.text
+                  end
+                )
+                :join ""
+            end
+          )
           :totable(),
         " "
       ))
     or ""
 
-  local id = tag.id and (' id="%s"'):format(table.concat(tag.id.value)) or ""
+  local id = tag.id
+      and (' id="%s"'):format(vim
+        .iter(tag.id)
+        :map(
+          ---@param content emmet.ValueContent
+          function(content)
+            return content.text
+          end
+        )
+        :join "")
+    or ""
 
   local text = tag.text or ""
   text = text .. "\n"
@@ -244,13 +267,42 @@ local function build_tree(tags, operators, root, first_operator, tree_amount)
       ---@cast tag +emmet.Tag
       ---@cast tag -emmet.Parsed
 
-      -- NOTE: grouping amount value expansion
+      -- NOTE: grouping amount value expansion. `tree_amount` is grouping
+      -- amount. When tag doesn't have its own ammount, the one from the group
+      -- is used
       if tree_amount > 1 and not tag.amount then
-        if tag.id then tag.id.value = { parse_value(tag.id, j, tree_amount) } end
+        if tag.id then tag.id = { { text = parse_value(tag.id, j, tree_amount) } } end
         if tag.classes then
-          vim.iter(tag.classes):each(function(c)
-            c.value = { parse_value(c, j, tree_amount) }
-          end)
+          tag.classes = vim
+            .iter(tag.classes)
+            :map(
+              ---@param c emmet.Value
+              function(c)
+                return { { text = parse_value(c, j, tree_amount) } }
+              end
+            )
+            :totable()
+        end
+        if tag.attributes then
+          tag.attributes = vim
+            .iter(tag.attributes)
+            :map(
+              ---@param key string
+              ---@param value emmet.Value
+              function(key, value)
+                return key, { { text = parse_value(value, j, tree_amount) } }
+              end
+            )
+            :fold(
+              {},
+              ---@param acc table<string, emmet.Value>
+              ---@param key string
+              ---@param value emmet.Value
+              function(acc, key, value)
+                acc[key] = value
+                return acc
+              end
+            )
         end
       end
 
@@ -258,11 +310,38 @@ local function build_tree(tags, operators, root, first_operator, tree_amount)
       local amount = tag.amount or 1
       for index = 1, amount do
         local expanded_tag = vim.deepcopy(tag)
-        if expanded_tag.id then expanded_tag.id.value = { parse_value(expanded_tag.id, index, tree_amount) } end
+        if expanded_tag.id then expanded_tag.id = { { text = parse_value(expanded_tag.id, index, tree_amount) } } end
         if expanded_tag.classes then
-          vim.iter(expanded_tag.classes):each(function(c)
-            c.value = { parse_value(c, index, tree_amount) }
-          end)
+          expanded_tag.classes = vim
+            .iter(expanded_tag.classes)
+            :map(
+              ---@param c emmet.Value
+              function(c)
+                return { { text = parse_value(c, index, tree_amount) } }
+              end
+            )
+            :totable()
+        end
+        if expanded_tag.attributes then
+          expanded_tag.attributes = vim
+            .iter(expanded_tag.attributes)
+            :map(
+              ---@param key string
+              ---@param value emmet.Value
+              function(key, value)
+                return key, { { text = parse_value(value, j, tree_amount) } }
+              end
+            )
+            :fold(
+              {},
+              ---@param acc table<string, emmet.Value>
+              ---@param key string
+              ---@param value emmet.Value
+              function(acc, key, value)
+                acc[key] = value
+                return acc
+              end
+            )
         end
 
         if operator == ">" then
@@ -337,32 +416,35 @@ function M.to_snippet(tag, jump_index)
   local text = tag.text or ""
 
   local id = ""
-  if tag.id then id = (' id="%s"'):format(tag.id.value[1]) end
+  if tag.id then id = (' id="%s"'):format(tag.id[1].text) end
   local class = ""
   if tag.classes then
     local classes = vim
       .iter(tag.classes)
-      :map(function(c)
-        return c.value[1]
-      end)
+      :map(
+        ---@param c emmet.Value
+        function(c)
+          return c[1].text
+        end
+      )
       :totable()
     class = (' class="%s"'):format(table.concat(classes, " "))
   end
   local custom_attributes = ""
   if tag.attributes then
-    custom_attributes = table.concat(
+    custom_attributes = (" %s"):format(
       -- TODO: keep track of the type of quote? This will break otherwise
       -- TODO: or maybe handle differently `"` inside of attributes defined with `'`
-      vim.list_extend(
-        { "" },
-        vim
-          .iter(tag.attributes)
-          :map(function(key, value)
-            return ('%s="%s"'):format(key, value)
-          end)
-          :totable()
-      ),
-      " "
+      vim
+        .iter(tag.attributes)
+        :map(
+          ---@param key string
+          ---@param value emmet.Value
+          function(key, value)
+            return ('%s="%s"'):format(key, value[1].text)
+          end
+        )
+        :join " "
     )
   end
 
@@ -378,13 +460,9 @@ function M.to_snippet(tag, jump_index)
         inside = i(jump_index),
         ---@diagnostic disable-next-line: no-unknown
         indentation = t(indentation),
-        ---@diagnostic disable-next-line: no-unknown
         id = id,
-        ---@diagnostic disable-next-line: no-unknown
         class = class,
-        ---@diagnostic disable-next-line: no-unknown
         text = text,
-        ---@diagnostic disable-next-line: no-unknown
         custom_attributes = custom_attributes,
       }
     )
@@ -405,13 +483,9 @@ function M.to_snippet(tag, jump_index)
       inside = sn(jump_index, child_snips),
       ---@diagnostic disable-next-line: no-unknown
       indentation = t(indentation),
-      ---@diagnostic disable-next-line: no-unknown
       id = id,
-      ---@diagnostic disable-next-line: no-unknown
       class = class,
-      ---@diagnostic disable-next-line: no-unknown
       text = text,
-      ---@diagnostic disable-next-line: no-unknown
       custom_attributes = custom_attributes,
     }
   )
