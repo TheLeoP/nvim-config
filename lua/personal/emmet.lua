@@ -62,20 +62,21 @@ local emmet_grammar = P {
       return acc
     end
   ),
-  tag = Cg(-V "identifier" ^ 2 * V "identifier" ^ 1, "name") * (V "property" ^ 0)
-    + Cg(V "identifier" ^ -1, "name") * (V "property" ^ 1)
-    + Cg(V "text_property" / 2, "text"),
+  -- TODO: in theory, I shouldn't accept tags with more than 1 `amount` as
+  -- valid. This allows `amount` to be anywhere among the property list, but
+  -- accepts strings with multiple `amount`s and only uses the last one.
+  tag = Cg(-V "identifier" ^ 2 * V "identifier" ^ 1, "name") * ((V "property" + V "amount") ^ 0)
+    + Cg(V "identifier" ^ -1, "name") * (-V "property" ^ 2 * V "property" ^ 1) * ((V "property" + V "amount") ^ 0)
+    + Cg(V "text_property" / 2, "text") * (V "amount" ^ -1),
   operator = (S ">+" + P "^" ^ 1) % function(acc, operator)
     acc.operators = acc.operators or {}
     table.insert(acc.operators, operator)
     return acc
   end,
-  grouping = P "(" * V "partial_line" * P ")",
-  -- TODO: this only accepts `amount` after `property`s, but it looks like it can also be specified before
-  tag_or_grouping = Ct((V "grouping" + V "tag") * (P "*" * (digit ^ 1 % function(acc, amount)
-    acc.amount = tonumber(amount)
-    return acc
-  end)) ^ -1) % function(acc, tag)
+  amount = P "*" * Cg(digit ^ 1 / tonumber, "amount"),
+  grouping = P "(" * V "partial_line" * P ")" * (V "amount") ^ -1,
+  -- TODO: this only accepts `amount` after `property`s, but it can also be specified before
+  tag_or_grouping = Ct((V "grouping" + V "tag")) % function(acc, tag)
     acc.tags = acc.tags or {}
     table.insert(acc.tags, tag)
     return acc
@@ -250,6 +251,12 @@ local function build_tree(tags, operators, root, first_operator, tree_amount)
         local group_root = build_tree(tag.tags, tag.operators, current_tag, operator, tag.amount)
 
         if operator == ">" then
+          -- TODO: fix when `>` if after a count (e.g
+          -- `div>(header>ul>li*2>a)+footer>p`). The `a` should be children of
+          -- `li`, but they are siblings instead. I may need to expand the
+          -- nodes earlier, or maybe the error comes from the fact that I think
+          -- I'm treating `*` as creating sibling nodes, and that may cause an
+          -- incorrect parent for the `>`
           current_tag = group_root.children[1]
         elseif operator == "+" then
           current_tag = group_root
