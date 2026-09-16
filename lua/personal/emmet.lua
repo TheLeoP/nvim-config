@@ -29,13 +29,14 @@ local emmet_grammar = P {
   ),
   -- TODO: allow empty attributes
   -- TODO: support attribute being a value to expand `$$$`
-  attribute = C(V "identifier") * P "=" * (Cg(quote, "open_quote") * C(
-    Cmt(C(P(1)) * Cb "open_quote", function(_, _, char, open_quote)
-      return char ~= open_quote
-    end) ^ 0
-  ) * Cmt(C(quote) * Cb "open_quote", function(_, _, open_quote, close_quote)
+  open_quote = Cg(quote, "open_quote"),
+  close_quote = Cmt(C(quote) * Cb "open_quote", function(_, _, open_quote, close_quote)
     return open_quote == close_quote
-  end) + V "value"),
+  end),
+  non_quote = C(Cmt(C(P(1)) * Cb "open_quote", function(_, _, char, open_quote)
+    return char ~= open_quote
+  end) ^ 0),
+  attribute = C(V "identifier") * P "=" * (V "open_quote" * V "non_quote" * V "close_quote" + V "value"),
   class_property = P "." * Cc "class" * V "value",
   id_property = P "#" * Cc "id" * V "value",
   custom_property = (P "[" * Cc "custom" * Ct(((V "attribute" * P " " + V "attribute") % rawset) ^ 1) * P "]"),
