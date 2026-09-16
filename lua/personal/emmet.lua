@@ -13,24 +13,19 @@ local t = ls.text_node
 local i = ls.insert_node
 local sn = ls.snippet_node
 
-local insert_value = function(acc, value)
-  acc.value = acc.value or {}
-  table.insert(acc.value, value)
-  return acc
-end
-
 -- TODO: support shortcuts
 local emmet_grammar = P {
   "line",
   identifier = alpha * alnum ^ 0,
-  -- TODO: this can be not only be alnum, add other chars
+  -- TODO: this can not only be alnum, add other chars
   value = Ct(
-    ((alnum ^ 1) % insert_value)
-      * ((P "$" ^ 1) % insert_value * (P "@" * (P "-" * Cg(Cc(true), "descending")) ^ -1 * Cg(
-        digit ^ 0 / tonumber,
-        "base"
-      )) ^ -1) ^ 0
-      * (alnum ^ 1 % insert_value) ^ -1
+    Ct(
+      Cg((alnum ^ 1), "text")
+        + (
+          Cg(P "$" ^ 1, "count_text")
+          * (P "@" * (P "-" * Cg(Cc(true), "descending")) ^ -1 * Cg(digit ^ 0 / tonumber, "base")) ^ -1
+        )
+    ) ^ 1
   ),
   -- TODO: allow empty attributes
   -- TODO: support attribute being a value to expand `$$$`
@@ -41,13 +36,13 @@ local emmet_grammar = P {
   ) * Cmt(C(quote) * Cb "open_quote", function(_, _, open_quote, close_quote)
     return open_quote == close_quote
   end) + V "value"),
-  class_propertie = P "." * Cc "class" * V "value",
-  id_propertie = P "#" * Cc "id" * V "value",
-  custom_propertie = (P "[" * Cc "custom" * Ct(((V "attribute" * P " " + V "attribute") % rawset) ^ 1) * P "]"),
+  class_property = P "." * Cc "class" * V "value",
+  id_property = P "#" * Cc "id" * V "value",
+  custom_property = (P "[" * Cc "custom" * Ct(((V "attribute" * P " " + V "attribute") % rawset) ^ 1) * P "]"),
   -- TODO: support text being a value to expand `$$$`
-  text_propertie = P "{" * Cc "text" * C((-P "}" * P(1)) ^ 0) * P "}",
-  propertie = (
-    (V "class_propertie" + V "id_propertie" + V "custom_propertie" + V "text_propertie")
+  text_property = P "{" * Cc "text" * C((-P "}" * P(1)) ^ 0) * P "}",
+  property = (
+    (V "class_property" + V "id_property" + V "custom_property" + V "text_property")
     % function(acc, type, capture)
       if type == "class" then
         acc.classes = acc.classes or {}
@@ -64,16 +59,16 @@ local emmet_grammar = P {
       return acc
     end
   ),
-  tag = Cg(-V "identifier" ^ 2 * V "identifier" ^ 1, "name") * (V "propertie" ^ 0)
-    + Cg(V "identifier" ^ -1, "name") * (V "propertie" ^ 1)
-    + Cg(V "text_propertie" / 2, "text"),
+  tag = Cg(-V "identifier" ^ 2 * V "identifier" ^ 1, "name") * (V "property" ^ 0)
+    + Cg(V "identifier" ^ -1, "name") * (V "property" ^ 1)
+    + Cg(V "text_property" / 2, "text"),
   operator = (S ">+" + P "^" ^ 1) % function(acc, operator)
     acc.operators = acc.operators or {}
     table.insert(acc.operators, operator)
     return acc
   end,
   grouping = P "(" * V "partial_line" * P ")",
-  -- TODO: this only accepts `amount` after `properties`, but it looks like it can also be specified before
+  -- TODO: this only accepts `amount` after `property`s, but it looks like it can also be specified before
   tag_or_grouping = Ct((V "grouping" + V "tag") * (P "*" * (digit ^ 1 % function(acc, amount)
     acc.amount = tonumber(amount)
     return acc
@@ -87,10 +82,16 @@ local emmet_grammar = P {
   line = Ct(V "partial_line") * P(-1),
 }
 
----@class emmet.Value
----@field value string[]
+---@class emmet.ValueContentText
+---@field text string
+
+---@class emmet.ValueContentCount
+---@field count_text string
 ---@field descending boolean|nil
 ---@field base integer|nil
+
+---@alias emmet.ValueContent emmet.ValueContentText|emmet.ValueContentCount
+---@alias emmet.Value emmet.ValueContent[]
 
 ---@class emmet.TagInfo
 ---@field name string|nil
@@ -183,16 +184,22 @@ local mt = {
 ---@param amount integer
 ---@return string
 local function parse_value(value, index, amount)
-  if not value.value[2] then return value.value[1] end
+  local out = vim
+    .iter(value)
+    :map(
+      ---@param content emmet.ValueContent
+      function(content)
+        if content.text then return content.text end
 
-  local base = value.base or 1
-  local descending = not not value.descending
+        local base = content.base or 1
+        local descending = content.descending ~= nil
+        local content_index = descending and amount + base - index or base + index - 1
+        return ("%0" .. content.count_text:len() .. "d"):format(content_index)
+      end
+    )
+    :join ""
 
-  index = descending and amount + base - index or base + index - 1
-
-  value.value[2] = ("%0" .. value.value[2]:len() .. "d"):format(index)
-
-  return table.concat(value.value, "")
+  return out
 end
 
 ---@param tags (emmet.TagInfo|emmet.Parsed)[]
@@ -293,7 +300,8 @@ end
 local M = {}
 
 function M.parse(text)
-  local parsed = emmet_grammar:match(text) ---@type emmet.Parsed|nil
+  local parsed = emmet_grammar:match(text)
+  ---@type emmet.Parsed|nil
 
   if not parsed then return end
 
