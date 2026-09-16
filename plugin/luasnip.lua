@@ -14,14 +14,6 @@ ls.setup {
   enable_autosnippets = true,
 }
 
-local g = api.nvim_create_augroup("personal-luasnip", { clear = true })
-api.nvim_create_autocmd("User", {
-  group = g,
-  pattern = "LuasnipPreExpand",
-  callback = function()
-    vim.go.undolevels = vim.go.undolevels
-  end,
-})
 keymap.set("i", "<C-j>", function()
   --  this function populates the snippet cache. blink.cmp uses it on
   --  InsertCharPre, which causes the cache to sometimes be outdated. So,
