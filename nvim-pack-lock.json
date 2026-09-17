@@ -5,7 +5,7 @@
       "src": "https://github.com/L3MON4D3/LuaSnip"
     },
     "async.nvim": {
-      "rev": "ca8f5696c45bd4786b8840923d86b6932ce92ded",
+      "rev": "15f28ec323a75f34f317336831c00c2d1b0a7192",
       "src": "https://github.com/lewis6991/async.nvim"
     },
     "blink.cmp": {
@@ -38,11 +38,11 @@
       "src": "https://github.com/junegunn/fzf"
     },
     "fzf-lua": {
-      "rev": "05e44d38de0a79c11fba5f7bf8138791b1dbdd1e",
+      "rev": "02bc882f208f3481aa959dbbee8ce5edad2fd8b2",
       "src": "https://github.com/ibhagwan/fzf-lua"
     },
     "gitsigns.nvim": {
-      "rev": "fd36f038e52ad8409fbf9926ae4a0a514cca04d8",
+      "rev": "8d79f2410c76e62b92e51c28c82e28c1c5a3daeb",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
     "grug-far.nvim": {
@@ -196,7 +196,7 @@
       "src": "https://github.com/seblyng/roslyn.nvim"
     },
     "schemastore.nvim": {
-      "rev": "72d144a9e014646963b8a5c67a4fde19b9772528",
+      "rev": "ab094b7f788231fe9b68deac78c3d512302c58a6",
       "src": "https://github.com/b0o/schemastore.nvim"
     },
     "snacks.nvim": {
