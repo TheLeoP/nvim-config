@@ -75,7 +75,6 @@ local emmet_grammar = P {
   end,
   amount = P "*" * Cg(digit ^ 1 / tonumber, "amount"),
   grouping = P "(" * V "partial_line" * P ")" * (V "amount") ^ -1,
-  -- TODO: this only accepts `amount` after `property`s, but it can also be specified before
   tag_or_grouping = Ct((V "grouping" + V "tag")) % function(acc, tag)
     acc.tags = acc.tags or {}
     table.insert(acc.tags, tag)
