@@ -365,3 +365,14 @@ api.nvim_create_autocmd("User", {
     api.nvim_buf_delete(buf, { force = true })
   end,
 })
+
+local statuscolumn = require "mini.statuscolumn"
+statuscolumn.setup {
+  content = statuscolumn.gen_content.main {
+    { fold = "%C", lnum = "%l", sign = "%s" },
+    { format = "=lfs", sep = "🭲" },
+    { ltype = "virt", lnum = "•" },
+    { ltype = "wrap", lnum = "↳" },
+    { win = "inactive", sep = " " },
+  },
+}
