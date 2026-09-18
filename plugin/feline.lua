@@ -285,8 +285,8 @@ local winbar_components = {
       {
         provider = "file_info",
         hl = {
-          fg = "orange",
-          bg = "NONE",
+          fg = "white",
+          bg = "bg",
           style = "bold",
         },
       },
@@ -298,8 +298,7 @@ local winbar_components = {
         provider = "file_info",
         hl = {
           fg = "white",
-          bg = "NONE",
-          style = "bold",
+          bg = "bg",
         },
       },
     },
