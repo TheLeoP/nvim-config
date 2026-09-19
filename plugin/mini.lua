@@ -259,6 +259,20 @@ local cmdline = require "mini.cmdline"
 cmdline.setup {
   autocomplete = {
     map_arrows = false,
+    predicate = function(data, opts)
+      local cmd = vim.fn.getcmdline()
+      local pos = vim.fn.getcmdpos()
+
+      return pos == #cmd + 1 and cmdline.default_autocomplete_predicate(data, opts)
+    end,
+  },
+  autopeek = {
+    predicate = function(data, opts)
+      local cmd = vim.fn.getcmdline()
+      if vim.o.filetype == "bigfile" then return false end
+      if cmd:match "^%%" or cmd:match "^'<,'>" then return false end
+      return cmdline.default_autopeek_predicate(data, opts)
+    end,
   },
 }
 vim.cmd [[set wildchar=<down>]]
@@ -373,6 +387,6 @@ statuscolumn.setup {
     { format = "=lfs", sep = "🭲" },
     { ltype = "virt", lnum = "•" },
     { ltype = "wrap", lnum = "↳" },
-    { win = "inactive", sep = " " },
+    { win = "inactive", sep = "🭲" },
   },
 }
