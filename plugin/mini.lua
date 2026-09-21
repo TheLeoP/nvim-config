@@ -387,6 +387,5 @@ statuscolumn.setup {
     { format = "=lfs", sep = "🭲" },
     { ltype = "virt", lnum = "•" },
     { ltype = "wrap", lnum = "↳" },
-    { win = "inactive", sep = "🭲" },
   },
 }
