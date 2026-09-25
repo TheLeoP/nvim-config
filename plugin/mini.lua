@@ -144,6 +144,7 @@ require("mini.operators").setup {
 local mini_misc = require "mini.misc"
 mini_misc.setup()
 mini_misc.setup_termbg_sync()
+mini_misc.setup_auto_root()
 
 local surround = require "mini.surround"
 local ts_input = surround.gen_spec.input.treesitter
