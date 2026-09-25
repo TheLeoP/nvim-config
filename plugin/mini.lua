@@ -385,7 +385,7 @@ local statuscolumn = require "mini.statuscolumn"
 statuscolumn.setup {
   content = statuscolumn.gen_content.main {
     { fold = "%C", lnum = "%l", sign = "%s" },
-    { format = "=lfs", sep = "🭲" },
+    { format = "fs=l", sep = "🭲" },
     { ltype = "virt", lnum = "•" },
     { ltype = "wrap", lnum = "↳" },
   },
