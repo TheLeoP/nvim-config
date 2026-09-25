@@ -120,7 +120,7 @@ keymap.set("n", "<leader>fL", function()
 end, { desc = "Rg in plugins dir" })
 
 local function projects()
-  local recent_task = require("project_nvim").get_recent()
+  local recent_task = require("project").get_recent()
   recent_task:on_complete(function(err, recent)
     if err then return vim.notify(err, vim.log.levels.ERROR) end
     local preview = vim.fn.executable "eza" == 1 and "eza -la --color=always --icons -g --group-directories-first {1}"
@@ -151,7 +151,7 @@ local function projects()
         end,
         ["ctrl-d"] = {
           fn = function(selected)
-            require("project_nvim.utils.history").delete(selected[1])
+            require("project").delete(selected[1])
           end,
           reload = true,
         },
