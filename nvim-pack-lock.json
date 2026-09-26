@@ -58,7 +58,7 @@
       "src": "https://github.com/justinmk/guh.nvim"
     },
     "kulala.nvim": {
-      "rev": "dcad056448773ae5b54cadbfdbd188a599cfebd3",
+      "rev": "d30ea2abbc76afc687f96f2a693bf542b8185e31",
       "src": "https://github.com/mistweaverco/kulala.nvim"
     },
     "lazydev.nvim": {
@@ -122,7 +122,7 @@
       "src": "https://github.com/mfussenegger/nvim-lint"
     },
     "nvim-lspconfig": {
-      "rev": "046b1a797af1effe8e0474b9af9657a3761ec58a",
+      "rev": "a9bb4d5f4276aa5cddc015faa3ecc5a7b5a26b14",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
     "nvim-nio": {
@@ -134,7 +134,7 @@
       "src": "https://github.com/rcarriga/nvim-notify"
     },
     "nvim-treesitter": {
-      "rev": "f603a2f4da48728f80257fb5fbb90145fd1dc173",
+      "rev": "25a9b06a09ea4e10712bec37e7b7d9f423262b91",
       "src": "https://github.com/nvim-treesitter/nvim-treesitter"
     },
     "nvim-treesitter-context": {
@@ -179,7 +179,7 @@
       "src": "https://github.com/stevearc/profile.nvim"
     },
     "project.nvim": {
-      "rev": "06f14f8a5ace1b817e04807891c4d030edfab73b",
+      "rev": "86a5b6b79207da6861a8af9bd90cc10dc9abd7de",
       "src": "https://github.com/TheLeoP/project.nvim"
     },
     "quicker.nvim": {
@@ -196,7 +196,7 @@
       "src": "https://github.com/seblyng/roslyn.nvim"
     },
     "schemastore.nvim": {
-      "rev": "76faabd8d091e4316ec8e1e90aa9371210b574b3",
+      "rev": "01fde7d0be29913dd57ad108139a28ec3efdcd0e",
       "src": "https://github.com/b0o/schemastore.nvim"
     },
     "snacks.nvim": {
