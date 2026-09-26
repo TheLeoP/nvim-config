@@ -65,6 +65,9 @@ local ensure_langs = {
   "angular",
   "scss",
   "phpdoc",
+
+  -- NOTE: remove when uninstalling kulala.nvim
+  "kulala_http",
 }
 local already_installed = require("nvim-treesitter").get_installed "parsers"
 local to_install = iter(ensure_langs)
