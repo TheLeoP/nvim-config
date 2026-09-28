@@ -14,6 +14,7 @@ require("lazydev").setup {
     { path = "luassert/library", words = { "it%(", "describe%(" } },
     { path = "lpeg/library", words = { 'require "lpeg"' } },
     { path = "wezterm-types", mods = { "wezterm" } },
+    { path = "nvim-nio", mods = { 'require "nio"', 'require("nio")' } },
   },
   integrations = {
     lspconfig = false,

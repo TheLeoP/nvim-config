@@ -69,6 +69,10 @@
       "rev": "84391d4740dce8b836154dd772cc63a884b69316",
       "src": "https://github.com/LuaCATS/lpeg"
     },
+    "lua-mimetypes": {
+      "rev": "7c899be0c402067d11e50d802f0135ba64eccb51",
+      "src": "https://github.com/lunarmodules/lua-mimetypes"
+    },
     "luassert": {
       "rev": "d3528bb679302cbfdedefabb37064515ab95f7b9",
       "src": "https://github.com/LuaCATS/luassert"
@@ -191,6 +195,10 @@
       "src": "https://github.com/theprimeagen/refactoring.nvim",
       "version": "'develop'"
     },
+    "rest.nvim": {
+      "rev": "714d5512aaec5565d55652480c16c26f8d95645d",
+      "src": "https://github.com/TheLeoP/rest.nvim"
+    },
     "roslyn.nvim": {
       "rev": "bf1bd4e70bc7068d1b4aebf4ce03cc19a86615be",
       "src": "https://github.com/seblyng/roslyn.nvim"
@@ -275,6 +283,10 @@
     "wezterm-types": {
       "rev": "3dcb284ccd891509727725e64d577bfa151f1bda",
       "src": "https://github.com/justinsgithub/wezterm-types"
+    },
+    "xml2lua": {
+      "rev": "b0d2b0b156b4e66078da2dc4b31d978daa69b3ef",
+      "src": "https://github.com/manoelcampos/xml2lua"
     }
   }
 }
