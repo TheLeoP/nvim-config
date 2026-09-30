@@ -3,8 +3,6 @@ local keymap = vim.keymap
 
 local diagnostic_icons = require("personal.icons").diagnostic
 
-local M = {}
-
 local lsp_group = api.nvim_create_augroup("LSP", { clear = true })
 
 ---@param client vim.lsp.Client
@@ -139,5 +137,3 @@ vim.diagnostic.handlers.virtual_text = {
   end,
   hide = hide_handler,
 }
-
-return M
