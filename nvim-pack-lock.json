@@ -65,10 +65,6 @@
       "rev": "84391d4740dce8b836154dd772cc63a884b69316",
       "src": "https://github.com/LuaCATS/lpeg"
     },
-    "lua-mimetypes": {
-      "rev": "7c899be0c402067d11e50d802f0135ba64eccb51",
-      "src": "https://github.com/lunarmodules/lua-mimetypes"
-    },
     "luassert": {
       "rev": "d3528bb679302cbfdedefabb37064515ab95f7b9",
       "src": "https://github.com/LuaCATS/luassert"
@@ -279,10 +275,6 @@
     "wezterm-types": {
       "rev": "3dcb284ccd891509727725e64d577bfa151f1bda",
       "src": "https://github.com/justinsgithub/wezterm-types"
-    },
-    "xml2lua": {
-      "rev": "b0d2b0b156b4e66078da2dc4b31d978daa69b3ef",
-      "src": "https://github.com/manoelcampos/xml2lua"
     }
   }
 }
