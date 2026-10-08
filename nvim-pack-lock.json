@@ -26,7 +26,7 @@
       "src": "https://github.com/stevearc/conform.nvim"
     },
     "diffview-plus.nvim": {
-      "rev": "875d16dd8c8aa86f1a5c3b5cef49e1133980ae94",
+      "rev": "d6f571861c867fbad7d64de7c6b370033fa33195",
       "src": "https://github.com/dlyongemallo/diffview-plus.nvim"
     },
     "feline.nvim": {
@@ -34,7 +34,7 @@
       "src": "https://github.com/famiu/feline.nvim"
     },
     "fzf": {
-      "rev": "b1be3a8be1b833ce5b92fbbac11637643d60a046",
+      "rev": "33a3456921a17c53f42f8610783b6d379d652d3e",
       "src": "https://github.com/junegunn/fzf"
     },
     "fzf-lua": {
@@ -114,11 +114,11 @@
       "src": "https://github.com/mfussenegger/nvim-jdtls"
     },
     "nvim-lint": {
-      "rev": "3d55c8f67c6ae5c15e1042571e107c7a3d5c5f4e",
+      "rev": "f6230a5c06ba59e6059c14637f1dbe29a7978b9b",
       "src": "https://github.com/mfussenegger/nvim-lint"
     },
     "nvim-lspconfig": {
-      "rev": "33497f4930d40f28a465d38a763a00fc6902c658",
+      "rev": "db68de3575fff9dd9bb78b34c8371759ed35fe34",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
     "nvim-nio": {
@@ -183,12 +183,12 @@
       "src": "https://github.com/stevearc/quicker.nvim"
     },
     "refactoring.nvim": {
-      "rev": "684b3484796ea44595bebbfddee4fa4dbfc90939",
+      "rev": "112d7c4384ec7b0003b49b9f87bebd3d2f723187",
       "src": "https://github.com/theprimeagen/refactoring.nvim",
       "version": "'develop'"
     },
     "rest.nvim": {
-      "rev": "a03b99850ee438555df635516c3f7376ab7723ef",
+      "rev": "5f24f573be1637fc7090ab7cb0bb5bb8f1e51c5a",
       "src": "https://github.com/TheLeoP/rest.nvim"
     },
     "roslyn.nvim": {
@@ -196,7 +196,7 @@
       "src": "https://github.com/seblyng/roslyn.nvim"
     },
     "schemastore.nvim": {
-      "rev": "ba1c08d07452528a430d319c53fba46e5884ef11",
+      "rev": "31626d9d0a95418bf12a8b3f0e8f9f42e73e1f35",
       "src": "https://github.com/b0o/schemastore.nvim"
     },
     "snacks.nvim": {
