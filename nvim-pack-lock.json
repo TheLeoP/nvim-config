@@ -183,7 +183,7 @@
       "src": "https://github.com/stevearc/quicker.nvim"
     },
     "refactoring.nvim": {
-      "rev": "112d7c4384ec7b0003b49b9f87bebd3d2f723187",
+      "rev": "4382f28d2b4d3a35df59b4bceff237b420005b7b",
       "src": "https://github.com/theprimeagen/refactoring.nvim",
       "version": "'develop'"
     },
