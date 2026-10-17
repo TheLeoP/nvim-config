@@ -4,10 +4,14 @@ local api = vim.api
 
 local M = {}
 
-M.char = ""
-
----@return 'g@'|nil
+---@return 'g@'
 function M.coerce()
+  vim.o.operatorfunc = "v:lua.require'personal.abolish'.coerce_operatorfunc"
+  return "g@"
+end
+
+---@param type "line"|"char"|"block"
+function M.coerce_operatorfunc(type)
   local needs_help_msg = true
   vim.defer_fn(function()
     if not needs_help_msg then return end
@@ -38,73 +42,27 @@ function M.coerce()
   vim.cmd [[echo '' | redraw]]
 
   if not ok or char == "\27" then return end
-  M.char = char
 
-  vim.o.operatorfunc = "v:lua.require'personal.abolish'.coerce_operatorfunc"
-  return "g@"
-end
-
----@param type "line"|"char"|"block"
-function M.coerce_operatorfunc(type)
-  local cursor_location = api.nvim_win_get_cursor(0)
-  local count = vim.v.count1 ---@type integer
-  while count > 0 do
-    count = count - 1
-
-    local start_row, start_col = unpack(api.nvim_buf_get_mark(0, "[")) ---@type integer, integer
-    local end_row, end_col = unpack(api.nvim_buf_get_mark(0, "]")) ---@type integer, integer
-
-    local coercion = M.coercions[M.char]
-    if not coercion then
-      vim.notify(("There is no coercion for char %s"):format(M.char), vim.log.levels.Warning)
-      return
-    end
-
-    if type == "line" then
-      local lines = api.nvim_buf_get_lines(0, start_row - 1, end_row, true)
-      for i, line in ipairs(lines) do
-        local coerced_line = coercion(line)
-        if line ~= coerced_line then
-          api.nvim_buf_set_lines(0, start_row - 1 + i - 1, start_row - 1 + i, true, { coerced_line })
-        end
-      end
-    elseif type == "block" then
-      local lines = api.nvim_buf_get_lines(0, start_row - 1, end_row, true)
-      for i, line in ipairs(lines) do
-        local text = line:sub(start_col + 1, end_col + 1)
-        local coerced_text = coercion(text)
-        if text ~= coerced_text then
-          api.nvim_buf_set_text(
-            0,
-            start_row - 1 + i - 1,
-            start_col,
-            start_row - 1 + i - 1,
-            end_col + 1,
-            { coerced_text }
-          )
-        end
-      end
-    else
-      local lines = api.nvim_buf_get_text(0, start_row - 1, start_col, end_row - 1, end_col + 1, {})
-      local text = table.concat(lines, "\n")
-      local coerced_text = coercion(text)
-      if text ~= coerced_text then
-        api.nvim_buf_set_text(
-          0,
-          start_row - 1,
-          start_col,
-          end_row - 1,
-          end_col + 1,
-          vim.split(coerced_text, "\n", { trimempty = true })
-        )
-      end
-    end
+  local coercion = M.coercions[char]
+  if not coercion then
+    vim.notify(("There is no coercion for char %s"):format(char), vim.log.levels.WARN)
+    return
   end
-  api.nvim_win_set_cursor(0, cursor_location)
-end
 
----@type table<string, string>
-local abolish_last_dict
+  local text_positions = vim.fn.getregionpos(
+    vim.fn.getpos "'[",
+    vim.fn.getpos "']",
+    { type = type == "char" and "v" or type == "line" and "V" or vim.keycode "<c-v>" }
+  )
+  for _, position in ipairs(text_positions) do
+    local start, end_ = position[1], position[2]
+    local buf, srow, scol = start[1], start[2] - 1, start[3] - 1
+    local _, erow, ecol = end_[1], end_[2] - 1, end_[3]
+    local text = api.nvim_buf_get_text(buf, srow, scol, erow, ecol, {})[1]
+    local coerced_text = coercion(text)
+    if text ~= coerced_text then api.nvim_buf_set_text(buf, srow, scol, erow, ecol, { coerced_text }) end
+  end
+end
 
 ---@class abolish.CommandOpts
 ---@field name string Command name
@@ -293,6 +251,9 @@ local function pattern(dict, boundaries)
   table.sort(keys, sort)
   return [[\v\C]] .. a .. "%(" .. vim.iter(keys):map(subesc):join "|" .. ")" .. b
 end
+
+---@type table<string, string>
+local abolish_last_dict
 
 function M.abolished()
   local submatch = vim.fn.submatch(0)
