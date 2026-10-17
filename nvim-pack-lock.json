@@ -34,11 +34,11 @@
       "src": "https://github.com/famiu/feline.nvim"
     },
     "fzf": {
-      "rev": "c0a193e031f01fb50bf6f7be4381990a3753f7cf",
+      "rev": "c8c2d0828a94a00879ceb6f95112a42e3ea322cf",
       "src": "https://github.com/junegunn/fzf"
     },
     "fzf-lua": {
-      "rev": "71b6d3667c4846ab2f0bab06e68d196d2eea016c",
+      "rev": "9405672f62767695d5f20db171336f7f4911ce86",
       "src": "https://github.com/ibhagwan/fzf-lua"
     },
     "gitsigns.nvim": {
@@ -46,7 +46,7 @@
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
     "grug-far.nvim": {
-      "rev": "11595bf747edc270bce2069d1020502ad4ae56cf",
+      "rev": "bbde8ef5ae46ceee2c3bd8b21fc048c5f8ffbfc0",
       "src": "https://github.com/MagicDuck/grug-far.nvim"
     },
     "gruvbox.nvim": {
@@ -74,7 +74,7 @@
       "src": "https://github.com/mason-org/mason.nvim"
     },
     "mini.nvim": {
-      "rev": "8831fa150fa26492cfe135801fa498132f1491d2",
+      "rev": "295af26358628c8ba8f007ff6a7e0aec2f642a31",
       "src": "https://github.com/nvim-mini/mini.nvim"
     },
     "neogen": {
@@ -102,7 +102,7 @@
       "src": "https://github.com/rcarriga/nvim-dap-ui"
     },
     "nvim-dap-view": {
-      "rev": "e766b3d8acef97e7e8b29f7f421aa4977b9978e1",
+      "rev": "b4486a6e83c45db4712849c09a76ef95b41a2133",
       "src": "https://github.com/igorlfs/nvim-dap-view"
     },
     "nvim-dap-virtual-text": {
@@ -118,7 +118,7 @@
       "src": "https://github.com/mfussenegger/nvim-lint"
     },
     "nvim-lspconfig": {
-      "rev": "ac062d0d01c019c0dbdb798968f3e5d8b35c3853",
+      "rev": "45a3a444b710511c39abca3b60bb6e23a21e3de5",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
     "nvim-nio": {
@@ -196,7 +196,7 @@
       "src": "https://github.com/seblyng/roslyn.nvim"
     },
     "schemastore.nvim": {
-      "rev": "1c6d5e0b721c877c4c8061d2361f8fc20adaf896",
+      "rev": "7fca30f2890a6acf9d21d194876c6ac960d92070",
       "src": "https://github.com/b0o/schemastore.nvim"
     },
     "snacks.nvim": {
@@ -273,7 +273,7 @@
       "src": "https://github.com/tridactyl/vim-tridactyl"
     },
     "wezterm-types": {
-      "rev": "18c276bcb503a6a152c714b0d3a15baed787052d",
+      "rev": "39511289aa040a7746a9e2d551b35ef330f15c77",
       "src": "https://github.com/justinsgithub/wezterm-types"
     }
   }
