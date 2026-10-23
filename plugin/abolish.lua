@@ -20,6 +20,5 @@ vim.api.nvim_create_user_command("F", require("personal.abolish").find_dispatche
 vim.keymap.set("n", "cr", function()
   return require("personal.abolish").coerce() .. "iw"
 end, { expr = true, desc = "Coerce iw" })
-vim.keymap.set("x", "cr", require("personal.abolish").coerce, { expr = true, desc = "Coerce operator" })
 
 vim.keymap.set("n", "cR", require("personal.abolish").coerce, { expr = true, desc = "Coerce operator" })
