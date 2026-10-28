@@ -9,6 +9,10 @@ require("conform").setup {
       command = "csharpier",
       args = { "format" },
     },
+    sql_formatter_sqlite = {
+      command = "sql-formatter",
+      args = { "--language", "sqlite" },
+    },
   },
   formatters_by_ft = {
     ["markdown.mdx"] = { "prettierd" },
@@ -27,7 +31,7 @@ require("conform").setup {
     psql = { "sql_formatter" },
     python = { "black" },
     scss = { "prettierd" },
-    sql = { "sql_formatter" },
+    sql = { "sql_formatter_sqlite" },
     typescript = { "prettierd" },
     typescriptreact = { "prettierd" },
     vue = { "prettierd" },
