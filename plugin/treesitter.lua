@@ -55,6 +55,7 @@ local ensure_langs = {
   "helm",
   "gotmpl",
   "http",
+  "kotlin",
 
   "doxygen",
   "re2c",
