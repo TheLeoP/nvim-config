@@ -114,7 +114,7 @@
       "src": "https://github.com/mfussenegger/nvim-lint"
     },
     "nvim-lspconfig": {
-      "rev": "993d048db0d83d8e8ba3f9cb376456321acdcce3",
+      "rev": "443d92c6bea761ab54cdde46fb197a2b4d614bdd",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
     "nvim-nio": {
@@ -192,7 +192,7 @@
       "src": "https://github.com/seblyng/roslyn.nvim"
     },
     "schemastore.nvim": {
-      "rev": "d3e2250efab001fba40d2226361c0060ccf18fd6",
+      "rev": "92e7b3b2dbd1505fcbcb20f1fdd987b35e9cd34b",
       "src": "https://github.com/b0o/schemastore.nvim"
     },
     "snacks.nvim": {
@@ -269,7 +269,7 @@
       "src": "https://github.com/tridactyl/vim-tridactyl"
     },
     "wezterm-types": {
-      "rev": "c4ca18ef6c8bff12dc7469db6ec69eafff18de35",
+      "rev": "1e6a0b7ac2206b197c741240743e981af37ce292",
       "src": "https://github.com/justinsgithub/wezterm-types"
     }
   }
