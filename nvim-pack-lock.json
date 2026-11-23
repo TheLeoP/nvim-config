@@ -34,7 +34,7 @@
       "src": "https://github.com/famiu/feline.nvim"
     },
     "fzf": {
-      "rev": "4499615fe9c06c0651aa5650e5d0d0a5face99a8",
+      "rev": "9a0705815cc690552ac5e2c0a6b51fd4ed3e831a",
       "src": "https://github.com/junegunn/fzf"
     },
     "fzf-lua": {
@@ -70,7 +70,7 @@
       "src": "https://github.com/mason-org/mason.nvim"
     },
     "mini.nvim": {
-      "rev": "22619434ccca787cdb34406c97f0e395d4debadc",
+      "rev": "24cf4ad5840f0d092e3d8296b17eaf7026bf27f3",
       "src": "https://github.com/nvim-mini/mini.nvim"
     },
     "neogen": {
@@ -114,7 +114,7 @@
       "src": "https://github.com/mfussenegger/nvim-lint"
     },
     "nvim-lspconfig": {
-      "rev": "4648fd8ba5c678d7e2db75ae44ffac269bb589d8",
+      "rev": "7d22e678970d95d8d18494ec389c52b07111c53a",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
     "nvim-nio": {
@@ -126,7 +126,7 @@
       "src": "https://github.com/rcarriga/nvim-notify"
     },
     "nvim-treesitter": {
-      "rev": "37e52c733ada9d8d544d53a763140ef1ba404353",
+      "rev": "52773f0d13a0c11d0c3ef33c14ab6ecc1c17148b",
       "src": "https://github.com/nvim-treesitter/nvim-treesitter"
     },
     "nvim-treesitter-context": {
@@ -192,7 +192,7 @@
       "src": "https://github.com/seblyng/roslyn.nvim"
     },
     "schemastore.nvim": {
-      "rev": "a0479e8a6d5d3471899d2be630fd207f4804dc7d",
+      "rev": "ffbe34a31de0cf696f688e7d9e226dc5b86b4323",
       "src": "https://github.com/b0o/schemastore.nvim"
     },
     "snacks.nvim": {
@@ -269,7 +269,7 @@
       "src": "https://github.com/tridactyl/vim-tridactyl"
     },
     "wezterm-types": {
-      "rev": "1e6a0b7ac2206b197c741240743e981af37ce292",
+      "rev": "230ad1fa651e0459c9a16fc59c328855604cc4e0",
       "src": "https://github.com/justinsgithub/wezterm-types"
     }
   }
