@@ -56,6 +56,7 @@ local ensure_langs = {
   "gotmpl",
   "http",
   "kotlin",
+  "rust",
 
   "doxygen",
   "re2c",
