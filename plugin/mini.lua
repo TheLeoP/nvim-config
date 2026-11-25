@@ -302,9 +302,9 @@ require("mini.files").setup {
     synchronize = "<space>w",
   },
 }
-local group = api.nvim_create_augroup("personal-mini.files", { clear = true })
+local files_group = api.nvim_create_augroup("personal-mini.files", { clear = true })
 api.nvim_create_autocmd("User", {
-  group = group,
+  group = files_group,
   pattern = "MiniFilesBufferCreate",
   desc = "Create explorer buffer local keymaps",
   callback = function(args)
@@ -358,7 +358,7 @@ keymap.set("n", "-", function()
 end, { desc = "Open parent directory" })
 
 api.nvim_create_autocmd("User", {
-  group = group,
+  group = files_group,
   pattern = "MiniFilesExplorerOpen",
   desc = "Create default explorer marks",
   callback = function()
@@ -370,7 +370,7 @@ api.nvim_create_autocmd("User", {
 })
 
 api.nvim_create_autocmd("User", {
-  group = group,
+  group = files_group,
   pattern = "MiniFilesActionDelete",
   callback = function(args)
     local path = vim.fs.normalize(args.data.from)
@@ -390,3 +390,13 @@ statuscolumn.setup {
     { ltype = "wrap", lnum = "↳" },
   },
 }
+local statuscolumn_group = api.nvim_create_augroup("personal-mini.statuscolumn", { clear = true })
+api.nvim_create_autocmd("WinEnter", {
+  group = statuscolumn_group,
+  callback = function(args)
+    local win = api.nvim_get_current_win()
+    if vim.wo[win].numberwidth == 5 then return end
+    if api.nvim_buf_line_count(args.buf) < 1000 then return end
+    vim.wo[win].numberwidth = 5
+  end,
+})
