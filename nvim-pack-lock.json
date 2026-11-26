@@ -26,7 +26,7 @@
       "src": "https://github.com/stevearc/conform.nvim"
     },
     "diffview-plus.nvim": {
-      "rev": "fae72d6c981075dce2e0f946f002382ce0cb44e1",
+      "rev": "5e8ea53418336be4b9a10600318cae8749063fdb",
       "src": "https://github.com/dlyongemallo/diffview-plus.nvim"
     },
     "feline.nvim": {
@@ -34,15 +34,15 @@
       "src": "https://github.com/famiu/feline.nvim"
     },
     "fzf": {
-      "rev": "9a0705815cc690552ac5e2c0a6b51fd4ed3e831a",
+      "rev": "ed173e71e44b2a5fa6264ecf232a153dee6994d0",
       "src": "https://github.com/junegunn/fzf"
     },
     "fzf-lua": {
-      "rev": "a8312697c30b4d3b110fa3dc56e3699107aed9a0",
+      "rev": "a3b5e6bebcc604d0286fffa1c4eb05b066a2a198",
       "src": "https://github.com/ibhagwan/fzf-lua"
     },
     "gitsigns.nvim": {
-      "rev": "c0862d382a35b7b45757d8d151a6a634c09bf3ce",
+      "rev": "166c03131e6a3528f692dd89f37668d991f17baa",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
     "grug-far.nvim": {
@@ -114,7 +114,7 @@
       "src": "https://github.com/mfussenegger/nvim-lint"
     },
     "nvim-lspconfig": {
-      "rev": "7d22e678970d95d8d18494ec389c52b07111c53a",
+      "rev": "76f4cafc49677a34dc8ad8142b773d78ab4a041e",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
     "nvim-nio": {
@@ -192,7 +192,7 @@
       "src": "https://github.com/seblyng/roslyn.nvim"
     },
     "schemastore.nvim": {
-      "rev": "ffbe34a31de0cf696f688e7d9e226dc5b86b4323",
+      "rev": "c01d3d7026af6347b03b05dc5972c072a7ed37af",
       "src": "https://github.com/b0o/schemastore.nvim"
     },
     "snacks.nvim": {
